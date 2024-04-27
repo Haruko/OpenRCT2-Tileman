@@ -1,0 +1,25 @@
+{
+  "name": "openrct2-tileman",
+  "version": "0.0.1",
+  "description": "Tileman plugin for OpenRCT2",
+  "main": "index.ts",
+  "scripts": {
+    "build-develop": "rollup -c rollup.config.develop.js",
+    "build-release": "rollup -c rollup.config.release.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "C:\\dev\\github\\OpenRCT2-Tileman"
+  },
+  "author": "isoitiro",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "rollup": "^4.16.4",
+    "tslib": "^2.6.2",
+    "typescript": "^5.4.5"
+  },
+  "type": "module"
+}

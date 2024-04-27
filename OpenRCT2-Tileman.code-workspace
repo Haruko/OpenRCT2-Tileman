@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"name": "OpenRCT2-Tileman",
+			"path": "."
+		}
+	],
+	"settings": {
+		"emeraldwalk.runonsave": {
+			"commands": [
+				{
+					"match": ".*",
+					"isAsync": false,
+					"cmd": "npm run build-develop"
+				},
+				{
+					"match": ".*",
+					"isAsync": false,
+					"cmd": "echo 'ran build-develop'"
+				}
+			]
+		}
+	}
+}
