@@ -40,36 +40,93 @@ const PluginConfig = {
 /*
   UI construction
 */
+
+// Sprite list: openrct2/sprites.h
+
+const statsBox = FlexUI.box({
+  content: FlexUI.vertical({
+    spacing: 5,
+    content: [
+      FlexUI.horizontal({
+        spacing: 20,
+        content: [
+          FlexUI.label({
+            text: "{BLACK}Total Exp:"
+          }),
+          FlexUI.label({
+            text: `{BABYBLUE}${context.formatString('{COMMA16}', PlayerData.totalExp)}`,
+          })
+        ]
+      }),
+      FlexUI.horizontal({
+        spacing: 20,
+        content: [
+          FlexUI.label({
+            text: "{BLACK}Tiles Unlocked/Used/Available: "
+          }),
+          FlexUI.label({
+            text: `{BABYBLUE}${context.formatString('{COMMA16}', computeTilesAvailable())}` +
+              `{BLACK}/{RED}${context.formatString('{COMMA16}', PlayerData.tilesUsed)}` +
+              `{BLACK}/{GREEN}${context.formatString('{COMMA16}', computeTilesAvailable() - PlayerData.tilesUsed)}`,
+          })
+        ]
+      })
+    ]
+  })
+});
+
+const buttonBox = FlexUI.horizontal({
+  spacing: 0,
+  content: [
+    FlexUI.button({
+      image: 5176,
+      width: '25px',
+      height: '25px',
+      onClick: () => {
+        console.log('clicked buy tiles')
+      }
+    }),
+    FlexUI.label({
+      text: '{BLACK}Buy tiles',
+      width: '75px',
+      height: '25px',
+      padding: {
+        top: '7px',
+        bottom: '7px'
+      }
+    }),
+    FlexUI.button({
+      image: 5177,
+      width: '25px',
+      height: '25px',
+      onClick: () => {
+        console.log('clicked sell tiles')
+      }
+    }),
+    FlexUI.label({
+      text: '{BLACK}Sell tiles',
+      width: '75px',
+      height: '25px',
+      padding: {
+        top: '7px',
+        bottom: '7px'
+      }
+    })
+  ]
+});
+
 const mainWindow = FlexUI.window({
   title: PluginConfig.winTitle,
-	width: 300,
+	width: 400,
 	height: 200,
   content: [
-		FlexUI.box({
-			content: FlexUI.vertical({
-        spacing: 5,
-        content: [
-          FlexUI.horizontal({
-            spacing: 20,
-            content: [FlexUI.label({
-              text: "{BLACK}Total Exp: "
-            }),
-            FlexUI.label({
-              text: `{BABYBLUE}${context.formatString('{COMMA16}', PlayerData.totalExp)}`,
-            })]
-          }),
-          FlexUI.horizontal({
-            spacing: 20,
-            content: [FlexUI.label({
-              text: "{BLACK}Tiles Unlocked/Used: "
-            }),
-            FlexUI.label({
-              text: `{BABYBLUE}${computeTilesAvailable()}{BLACK}/{RED}${PlayerData.tilesUsed}`,
-            })]
-          })]
-      })
-		})
-  ]
+    FlexUI.vertical({
+      spacing: 5,
+      content: [
+        statsBox,
+        buttonBox
+      ]
+  })] // window - main container
 });
 
 function openWindow() : void {
@@ -96,7 +153,7 @@ function closeWindow() :void {
 */
 
 // Computes number of tiles earned based on total experience
-function computeTilesAvailable() : Number {
+function computeTilesAvailable() : number {
   return Math.floor(PlayerData.totalExp / PluginConfig.expPerTile) + PluginConfig.minTiles;
 }
 
@@ -114,7 +171,6 @@ function collectData() : void {
   //   console.log(map.rides[0].totalCustomers);
   // console.log(map.rides[0].totalProfit)
   // console.log(map.rides[0].runningCost * 16)
-
 }
 
 
@@ -163,6 +219,7 @@ function setLandOwnership(owned: boolean, corner1?: CoordsXY, corner2?: CoordsXY
       console.log(`Success setting land ownership: ${owned ? 'owned' : 'unowned'}`);
     }
   });
+
   cheats.sandboxMode = false;
 }
 
@@ -389,6 +446,100 @@ context.subscribe('interval.day', function() {
   palesilver
 
 
+  Icons/Images
+  arrow_down
+  arrow_up
+  chat
+  cheats
+  copy
+  empty
+  eyedropper
+  fast_forward
+  game_speed_indicator
+  game_speed_indicator_double
+  glassy_recolourable
+  hide_full
+  hide_partial
+  hide_scenery
+  hide_supports
+  hide_vegetation
+  hide_vehicles
+  large_scenery
+  legacy_paths
+  link_chain
+  logo
+  logo_text
+  map_east
+  map_east_pressed
+  map_gen_land
+  map_gen_noise
+  map_gen_trees
+  map_north
+  map_north_pressed
+  map_south
+  map_south_pressed
+  map_west
+  map_west_pressed
+  mountain_tool_even
+  mountain_tool_odd
+  multiplayer
+  multiplayer_desync
+  multiplayer_sync
+  multiplayer_toolbar
+  multiplayer_toolbar_pressed
+  mute
+  mute_pressed
+  news_messages
+  normal_selection_6x6
+  paste
+  path_railings
+  path_surfaces
+  paths
+  placeholder
+  rct1_close_off
+  rct1_close_off_pressed
+  rct1_close_on
+  rct1_close_on_pressed
+  rct1_open_off
+  rct1_open_off_pressed
+  rct1_open_on
+  rct1_open_on_pressed
+  rct1_simulate_off
+  rct1_simulate_off_pressed
+  rct1_simulate_on
+  rct1_simulate_on_pressed
+  rct1_test_off
+  rct1_test_off_pressed
+  rct1_test_on
+  rct1_test_on_pressed
+  reload
+  ride_stations
+  scenery_scatter_high
+  scenery_scatter_low
+  scenery_scatter_medium
+  search
+  selection_edge_ne
+  selection_edge_nw
+  selection_edge_se
+  selection_edge_sw
+  server_password
+  sideways_tab
+  sideways_tab_active
+  simulate
+  small_scenery
+  sort
+  terrain_edges
+  title_play
+  title_restart
+  title_skip
+  title_stop
+  unmute
+  unmute_pressed
+  view
+  zoom_in
+  zoom_in_background
+  zoom_out
+  zoom_out_background
 
 
 
