@@ -28,6 +28,8 @@ const PlayerData = {
 const PluginConfig = {
   // Never changed
   winTitle: 'Tileman',
+  buyToolID: 'TilemanBuyTool',
+  sellToolID: 'TilemanSellTool',
 
   // User definable
   // TODO: Allow users to customize in the UI
@@ -35,39 +37,62 @@ const PluginConfig = {
   minTiles: 2 // 1 path + 1 stall
 }
 
+// Functional
+var toolStartCoords : CoordsXY;
+
 
 
 /*
   UI construction
 */
 
-// Sprite list: openrct2/sprites.h
+/*
+  Sprite list: openrct2/sprites.h
+
+  Text colors
+    black
+    grey
+    white
+    red
+    green
+    yellow
+    topaz
+    celadon
+    babyblue
+    palelavender
+    palegold
+    lightpink
+    pearlaqua
+    palesilver
+*/
 
 const statsBox = FlexUI.box({
   content: FlexUI.vertical({
     spacing: 5,
     content: [
       FlexUI.horizontal({
-        spacing: 20,
+        spacing: 0,
         content: [
           FlexUI.label({
-            text: "{BLACK}Total Exp:"
+            text: "{BLACK}Total Exp:",
+            width: '175px'
           }),
           FlexUI.label({
-            text: `{BABYBLUE}${context.formatString('{COMMA16}', PlayerData.totalExp)}`,
+            text: `{BABYBLUE}${context.formatString('{COMMA16}', PlayerData.totalExp)}`
           })
         ]
       }),
       FlexUI.horizontal({
-        spacing: 20,
+        spacing: 0,
         content: [
           FlexUI.label({
-            text: "{BLACK}Tiles Unlocked/Used/Available: "
+            text: "{BLACK}Tiles Unlocked/Used/Available: ",
+            width: '175px'
           }),
           FlexUI.label({
             text: `{BABYBLUE}${context.formatString('{COMMA16}', computeTilesAvailable())}` +
               `{BLACK}/{RED}${context.formatString('{COMMA16}', PlayerData.tilesUsed)}` +
-              `{BLACK}/{GREEN}${context.formatString('{COMMA16}', computeTilesAvailable() - PlayerData.tilesUsed)}`,
+              `{BLACK}/{GREEN}${context.formatString('{COMMA16}', computeTilesAvailable() - PlayerData.tilesUsed)}`
           })
         ]
       })
@@ -83,7 +108,17 @@ const buttonBox = FlexUI.horizontal({
       width: '25px',
       height: '25px',
       onClick: () => {
-        console.log('clicked buy tiles')
+        ui.activateTool({
+          id: PluginConfig.buyToolID,
+          cursor: 'cross_hair',
+          filter: ['terrain', 'water'],
+
+          onStart: () => onToolStart(PluginConfig.buyToolID),
+          onDown: (e: ToolEventArgs) => onToolDown(e, PluginConfig.buyToolID),
+          onMove: (e: ToolEventArgs) => onToolMove(e, PluginConfig.buyToolID),
+          onUp: (e: ToolEventArgs) => onToolUp(e, PluginConfig.buyToolID),
+          onFinish: () => onToolFinish(PluginConfig.buyToolID)
+        });
       }
     }),
     FlexUI.label({
@@ -100,7 +135,17 @@ const buttonBox = FlexUI.horizontal({
       width: '25px',
       height: '25px',
       onClick: () => {
-        console.log('clicked sell tiles')
+        ui.activateTool({
+          id: PluginConfig.sellToolID,
+          cursor: 'cross_hair',
+          filter: ['terrain', 'water'],
+
+          onStart: () => onToolStart(PluginConfig.sellToolID),
+          onDown: (e: ToolEventArgs) => onToolDown(e, PluginConfig.sellToolID),
+          onMove: (e: ToolEventArgs) => onToolMove(e, PluginConfig.sellToolID),
+          onUp: (e: ToolEventArgs) => onToolUp(e, PluginConfig.sellToolID),
+          onFinish: () => onToolFinish(PluginConfig.sellToolID)
+        });
       }
     }),
     FlexUI.label({
@@ -117,7 +162,7 @@ const buttonBox = FlexUI.horizontal({
 
 const mainWindow = FlexUI.window({
   title: PluginConfig.winTitle,
-	width: 400,
+	width: 275,
 	height: 200,
   content: [
     FlexUI.vertical({
@@ -181,8 +226,8 @@ function collectData() : void {
 
 /*
   Sets tiles to unowned
-  corner1 defaults to <0, 0>
-  corner2 defaults to <xmax - 1, ymax - 1>
+  corner1 defaults and clamps to <1, 1>
+  corner2 defaults and clamps to <xmax - 1, ymax - 1>
   
   ownership: openrct2/world/Surface.h
     OWNERSHIP_UNOWNED = 0,
@@ -203,12 +248,37 @@ function collectData() : void {
     GAME_COMMAND_FLAG_NETWORKED = (1u << 31) // Game command is coming from network
 */
 function setLandOwnership(owned: boolean, corner1?: CoordsXY, corner2?: CoordsXY) : void {
+  const minX = 32;
+  const minY = 32;
+  const maxX = (map.size.x - 2) * 32;
+  const maxY = (map.size.y - 2) * 32;
+
+  // Default and clamp
+  if (corner1) {
+    corner1.x = Math.max(minX, corner1.x);
+    corner1.y = Math.max(minY, corner1.y);
+  } else {
+    corner1 = { x: minX, y: minY };
+  }
+
+  // Default and clamp
+  if (corner2) {
+    corner2.x = Math.min(maxX, corner2.x);
+    corner2.y = Math.min(maxY, corner2.y);
+  } else {
+    corner2 = { x: maxX, y: maxY };
+  }
+
+  // Turn on sandbox mode to make buying/selling land free and doable to any tile
   cheats.sandboxMode = true;
+
   context.executeAction("landsetrights", {
-    x1: (corner1?.x ?? 0) * 32,
-    y1: (corner1?.y ?? 0) * 32,
-    x2: (corner2?.x ?? (map.size.x - 1)) * 32,
-    y2: (corner2?.y ?? (map.size.y - 1)) * 32,
+    // <0,0> is <32,32>
+    x1: corner1.x,
+    y1: corner1.y,
+    // Map size of 128 has 4032 (126*32) as its max coordinate
+    x2: corner2.x,
+    y2: corner2.y,
     setting: 4,
     ownership: owned ? (1 << 5) : 0,
     flags: (1 << 0) | (1 << 3)
@@ -227,6 +297,8 @@ function setLandOwnership(owned: boolean, corner1?: CoordsXY, corner2?: CoordsXY
 function buyTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
   // TODO: check if player can afford them
   // TODO: decrement # bought tiles
+
+  setLandOwnership(true, corner1, corner2);
   return false;
 }
 
@@ -234,127 +306,68 @@ function buyTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
 function sellTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
   // TODO: iterate over selection and only sell owned tiles (with nothing built on them?)
   // TODO: increment number of sold tiles
+
+  setLandOwnership(false, corner1, corner2);
   return false;
 }
 
-/**
- * Begins a new tool session. The cursor will change to the style specified by the
- * given tool descriptor and cursor events will be provided.
- * @param tool The properties and event handlers for the tool.
- */
-// ui.activateTool(tool: ToolDesc): void;
-
-/**
- * Registers a new item in the toolbox menu on the title screen.
- * Only available to intransient plugins.
- * @param text The menu item text.
- * @param callback The function to call when the menu item is clicked.
- */
-// ui.registerToolboxMenuItem(text: string, callback: () => void): void;
 
 
-// interface Tool {
-//   id: string;
-//   cursor: CursorType;
+/*
+  Tools
+*/
 
-//   cancel: () => void;
-// }
+/*
+  interface ToolEventArgs {
+    readonly isDown: boolean;
+    readonly screenCoords: ScreenCoordsXY;
+    readonly mapCoords?: CoordsXYZ;
+    readonly tileElementIndex?: number;
+    readonly entityId?: number;
+  }
+*/
 
-// interface ToolEventArgs {
-//   readonly isDown: boolean;
-//   readonly screenCoords: ScreenCoordsXY;
-//   readonly mapCoords?: CoordsXYZ;
-//   readonly tileElementIndex?: number;
-//   readonly entityId?: number;
-// }
+function onToolStart(toolID: string) : void {
+  // TODO: Implement?
+  console.log(`${toolID} start`);
+}
 
-// // Describes the properties and event handlers for a custom tool.
-// interface ToolDesc {
-//   id: string;
-//   cursor?: CursorType;
-
-
+function onToolDown(e: ToolEventArgs, toolID: string) : void {
+  // TODO: Error on starting outside of map bounds
   
-//   // What types of object in the game can be selected with the tool.
-//   // E.g. only specify terrain if you only want a tile selection.
-//   filter?: ToolFilter[];
+  toolStartCoords = {x: e?.mapCoords?.x ?? 32, y: e?.mapCoords?.y ?? (map.size.x - 2) * 32};
+}
 
-//   onStart?: () => void;
-//   onDown?: (e: ToolEventArgs) => void;
-//   onMove?: (e: ToolEventArgs) => void;
-//   onUp?: (e: ToolEventArgs) => void;
-//   onFinish?: () => void;
-// }
+function onToolMove(e: ToolEventArgs, toolID: string) : void {
+  // TODO: Implement
+  // console.log(`${toolID} move`);
+  // console.log(e);
+}
 
-// type CursorType =
-//   "arrow" |
-//   "bench_down" |
-//   "bin_down" |
-//   "blank" |
-//   "cross_hair" |
-//   "diagonal_arrows" |
-//   "dig_down" |
-//   "entrance_down" |
-//   "fence_down" |
-//   "flower_down" |
-//   "fountain_down" |
-//   "hand_closed" |
-//   "hand_open" |
-//   "hand_point" |
-//   "house_down" |
-//   "lamppost_down" |
-//   "paint_down" |
-//   "path_down" |
-//   "picker" |
-//   "statue_down" |
-//   "tree_down" |
-//   "up_arrow" |
-//   "up_down_arrow" |
-//   "volcano_down" |
-//   "walk_down" |
-//   "water_down" |
-//   "zzz";
+function onToolUp(e: ToolEventArgs, toolID: string) : void {
+  // TODO: Error on ending outside of map bounds
 
-// type ToolFilter =
-//   "terrain" |
-//   "entity" |
-//   "ride" |
-//   "water" |
-//   "scenery" |
-//   "footpath" |
-//   "footpath_item" |
-//   "park_entrance" |
-//   "wall" |
-//   "large_scenery" |
-//   "label" |
-//   "banner";
+  const corner2 : CoordsXY = {x: e?.mapCoords?.x ?? 32, y: e?.mapCoords?.y ?? (map.size.y - 2) * 32};
 
-// interface ShortcutDesc {
-//   /**
-//    * The unique identifier for the shortcut.
-//    * If the identifier already exists, the shortcut will not be registered.
-//    * Use full stops to group shortcuts together, e.g. `yourplugin.somewindow.apply`.
-//    */
-//   id: string;
+  switch(toolID) {
+    case PluginConfig.buyToolID:
+      buyTiles(toolStartCoords, corner2);
+      break;
+    case PluginConfig.sellToolID:
+      sellTiles(toolStartCoords, corner2);
+      break;
+  }
+}
 
-//   /**
-//    * The display text for the shortcut.
-//    */
-//   text: string;
+function onToolFinish(toolID: string) : void {
+  // TODO: Implement?
+  console.log(`${toolID} finish`);
+}
 
-//   /**
-//    * Default bindings for the shortcut.
-//    * E.g. `["CTRL+SHIFT+L", "MOUSE 3"]`
-//    */
-//   bindings?: string[];
 
-//   /**
-//    * Function to call when the shortcut is invoked.
-//    */
-//   callback: () => void;
-// }
 
-// ui.registerShortcut(desc: ShortcutDesc): void;
+
+
 
 
 
@@ -399,14 +412,16 @@ context.subscribe('interval.day', function() {
 });
 
 /*
-  
-  
-
-  activateTool
   getParkStorage
 
 
 
+
+  interface Tool {
+    id: string;
+    cursor: CursorType;
+    cancel: () => void;
+  }
 
 
 
@@ -415,135 +430,48 @@ context.subscribe('interval.day', function() {
   subscribe(hook: "action.execute", callback: (e: GameActionEventArgs) => void): IDisposable;
   subscribe(hook: "interval.tick", callback: () => void): IDisposable;
   subscribe(hook: "interval.day", callback: () => void): IDisposable;
-  subscribe(hook: "network.chat", callback: (e: NetworkChatEventArgs) => void): IDisposable;
   subscribe(hook: "network.authenticate", callback: (e: NetworkAuthenticateEventArgs) => void): IDisposable;
   subscribe(hook: "network.join", callback: (e: NetworkEventArgs) => void): IDisposable;
   subscribe(hook: "network.leave", callback: (e: NetworkEventArgs) => void): IDisposable;
-  subscribe(hook: "ride.ratings.calculate", callback: (e: RideRatingsCalculateArgs) => void): IDisposable;
   subscribe(hook: "action.location", callback: (e: ActionLocationArgs) => void): IDisposable;
-  subscribe(hook: "guest.generation", callback: (e: GuestGenerationArgs) => void): IDisposable;
-  subscribe(hook: "vehicle.crash", callback: (e: VehicleCrashArgs) => void): IDisposable;
   subscribe(hook: "map.save", callback: () => void): IDisposable;
   subscribe(hook: "map.change", callback: () => void): IDisposable;
 
 
 
 
-  enum textcolors
-  black
-  grey
-  white
-  red
-  green
-  yellow
-  topaz
-  celadon
-  babyblue
-  palelavender
-  palegold
-  lightpink
-  pearlaqua
-  palesilver
 
+interface ShortcutDesc {
+  **
+   * The unique identifier for the shortcut.
+   * If the identifier already exists, the shortcut will not be registered.
+   * Use full stops to group shortcuts together, e.g. `yourplugin.somewindow.apply`.
+   *
+  id: string;
 
-  Icons/Images
-  arrow_down
-  arrow_up
-  chat
-  cheats
-  copy
-  empty
-  eyedropper
-  fast_forward
-  game_speed_indicator
-  game_speed_indicator_double
-  glassy_recolourable
-  hide_full
-  hide_partial
-  hide_scenery
-  hide_supports
-  hide_vegetation
-  hide_vehicles
-  large_scenery
-  legacy_paths
-  link_chain
-  logo
-  logo_text
-  map_east
-  map_east_pressed
-  map_gen_land
-  map_gen_noise
-  map_gen_trees
-  map_north
-  map_north_pressed
-  map_south
-  map_south_pressed
-  map_west
-  map_west_pressed
-  mountain_tool_even
-  mountain_tool_odd
-  multiplayer
-  multiplayer_desync
-  multiplayer_sync
-  multiplayer_toolbar
-  multiplayer_toolbar_pressed
-  mute
-  mute_pressed
-  news_messages
-  normal_selection_6x6
-  paste
-  path_railings
-  path_surfaces
-  paths
-  placeholder
-  rct1_close_off
-  rct1_close_off_pressed
-  rct1_close_on
-  rct1_close_on_pressed
-  rct1_open_off
-  rct1_open_off_pressed
-  rct1_open_on
-  rct1_open_on_pressed
-  rct1_simulate_off
-  rct1_simulate_off_pressed
-  rct1_simulate_on
-  rct1_simulate_on_pressed
-  rct1_test_off
-  rct1_test_off_pressed
-  rct1_test_on
-  rct1_test_on_pressed
-  reload
-  ride_stations
-  scenery_scatter_high
-  scenery_scatter_low
-  scenery_scatter_medium
-  search
-  selection_edge_ne
-  selection_edge_nw
-  selection_edge_se
-  selection_edge_sw
-  server_password
-  sideways_tab
-  sideways_tab_active
-  simulate
-  small_scenery
-  sort
-  terrain_edges
-  title_play
-  title_restart
-  title_skip
-  title_stop
-  unmute
-  unmute_pressed
-  view
-  zoom_in
-  zoom_in_background
-  zoom_out
-  zoom_out_background
+  **
+   * The display text for the shortcut.
+   *
+  text: string;
+
+  **
+   * Default bindings for the shortcut.
+   * E.g. `["CTRL+SHIFT+L", "MOUSE 3"]`
+   *
+  bindings?: string[];
+
+  **
+   * Function to call when the shortcut is invoked.
+   *
+  callback: () => void;
+}
+
+ui.registerShortcut(desc: ShortcutDesc): void;
 
 
 
-  TODO: Make an enum of which types are rides vs stalls vs facilities for different scoring
+
+
 
   Search github for these: Ride, ShopOrStall, KioskOrFacility
 
@@ -659,11 +587,13 @@ context.subscribe('interval.day', function() {
 */
 
 
-
-
-
-
-
+/**
+ * Registers a new item in the toolbox menu on the title screen.
+ * Only available to intransient plugins.
+ * @param text The menu item text.
+ * @param callback The function to call when the menu item is clicked.
+ */
+// ui.registerToolboxMenuItem(text: string, callback: () => void): void;
 
 /*
   Give EXP based on:
