@@ -25,11 +25,14 @@ const PlayerData = {
 };
 
 // Configs
-// TODO: Allow users to customize in the UI
 const PluginConfig = {
+  // Never changed
   winTitle: 'Tileman',
+
+  // User definable
+  // TODO: Allow users to customize in the UI
   expPerTile: 1000,
-  minTiles: 2
+  minTiles: 2 // 1 path + 1 stall
 }
 
 
@@ -163,7 +166,138 @@ function setLandOwnership(owned: boolean, corner1?: CoordsXY, corner2?: CoordsXY
   cheats.sandboxMode = false;
 }
 
+// Returns true if player can afford it
+function buyTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
+  // TODO: check if player can afford them
+  // TODO: decrement # bought tiles
+  return false;
+}
 
+// Returns true if any tiles were sold
+function sellTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
+  // TODO: iterate over selection and only sell owned tiles (with nothing built on them?)
+  // TODO: increment number of sold tiles
+  return false;
+}
+
+/**
+ * Begins a new tool session. The cursor will change to the style specified by the
+ * given tool descriptor and cursor events will be provided.
+ * @param tool The properties and event handlers for the tool.
+ */
+// ui.activateTool(tool: ToolDesc): void;
+
+/**
+ * Registers a new item in the toolbox menu on the title screen.
+ * Only available to intransient plugins.
+ * @param text The menu item text.
+ * @param callback The function to call when the menu item is clicked.
+ */
+// ui.registerToolboxMenuItem(text: string, callback: () => void): void;
+
+
+// interface Tool {
+//   id: string;
+//   cursor: CursorType;
+
+//   cancel: () => void;
+// }
+
+// interface ToolEventArgs {
+//   readonly isDown: boolean;
+//   readonly screenCoords: ScreenCoordsXY;
+//   readonly mapCoords?: CoordsXYZ;
+//   readonly tileElementIndex?: number;
+//   readonly entityId?: number;
+// }
+
+// // Describes the properties and event handlers for a custom tool.
+// interface ToolDesc {
+//   id: string;
+//   cursor?: CursorType;
+
+
+  
+//   // What types of object in the game can be selected with the tool.
+//   // E.g. only specify terrain if you only want a tile selection.
+//   filter?: ToolFilter[];
+
+//   onStart?: () => void;
+//   onDown?: (e: ToolEventArgs) => void;
+//   onMove?: (e: ToolEventArgs) => void;
+//   onUp?: (e: ToolEventArgs) => void;
+//   onFinish?: () => void;
+// }
+
+// type CursorType =
+//   "arrow" |
+//   "bench_down" |
+//   "bin_down" |
+//   "blank" |
+//   "cross_hair" |
+//   "diagonal_arrows" |
+//   "dig_down" |
+//   "entrance_down" |
+//   "fence_down" |
+//   "flower_down" |
+//   "fountain_down" |
+//   "hand_closed" |
+//   "hand_open" |
+//   "hand_point" |
+//   "house_down" |
+//   "lamppost_down" |
+//   "paint_down" |
+//   "path_down" |
+//   "picker" |
+//   "statue_down" |
+//   "tree_down" |
+//   "up_arrow" |
+//   "up_down_arrow" |
+//   "volcano_down" |
+//   "walk_down" |
+//   "water_down" |
+//   "zzz";
+
+// type ToolFilter =
+//   "terrain" |
+//   "entity" |
+//   "ride" |
+//   "water" |
+//   "scenery" |
+//   "footpath" |
+//   "footpath_item" |
+//   "park_entrance" |
+//   "wall" |
+//   "large_scenery" |
+//   "label" |
+//   "banner";
+
+// interface ShortcutDesc {
+//   /**
+//    * The unique identifier for the shortcut.
+//    * If the identifier already exists, the shortcut will not be registered.
+//    * Use full stops to group shortcuts together, e.g. `yourplugin.somewindow.apply`.
+//    */
+//   id: string;
+
+//   /**
+//    * The display text for the shortcut.
+//    */
+//   text: string;
+
+//   /**
+//    * Default bindings for the shortcut.
+//    * E.g. `["CTRL+SHIFT+L", "MOUSE 3"]`
+//    */
+//   bindings?: string[];
+
+//   /**
+//    * Function to call when the shortcut is invoked.
+//    */
+//   callback: () => void;
+// }
+
+// ui.registerShortcut(desc: ShortcutDesc): void;
 
 
 
