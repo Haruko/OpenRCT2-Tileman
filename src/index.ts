@@ -38,7 +38,7 @@ const PluginConfig = {
 }
 
 // Functional
-var toolStartCoords : CoordsXY;
+var toolStartCoords : CoordsXY = { x: 0, y: 0 };
 
 
 
@@ -171,7 +171,9 @@ const mainWindow = FlexUI.window({
         statsBox,
         buttonBox
       ]
-  })] // window - main container
+  })],
+  onClose: cancelTool,
+  onUpdate: () => 0
 });
 
 function openWindow() : void {
@@ -333,9 +335,20 @@ function onToolStart(toolID: string) : void {
 }
 
 function onToolDown(e: ToolEventArgs, toolID: string) : void {
-  // TODO: Error on starting outside of map bounds
-  
-  toolStartCoords = {x: e?.mapCoords?.x ?? 32, y: e?.mapCoords?.y ?? (map.size.x - 2) * 32};
+  const mapCoords : CoordsXY = { x: e?.mapCoords?.x ?? 0, y: e?.mapCoords?.y ?? 0 };
+
+  if (mapCoords.x > 0) {
+    toolStartCoords = mapCoords;
+  } else {
+    switch(toolID) {
+      case PluginConfig.buyToolID:
+        ui.showError('Can\'t buy land...', 'Outside of map!');
+        break;
+      case PluginConfig.sellToolID:
+        ui.showError('Can\'t sell land...', 'Outside of map!');
+        break;
+    }
+  }
 }
 
 function onToolMove(e: ToolEventArgs, toolID: string) : void {
@@ -345,23 +358,40 @@ function onToolMove(e: ToolEventArgs, toolID: string) : void {
 }
 
 function onToolUp(e: ToolEventArgs, toolID: string) : void {
-  // TODO: Error on ending outside of map bounds
+  if (toolStartCoords.x > 0) {
+    const mapCoords : CoordsXY = { x: e?.mapCoords?.x ?? 0, y: e?.mapCoords?.y ?? 0 };
 
-  const corner2 : CoordsXY = {x: e?.mapCoords?.x ?? 32, y: e?.mapCoords?.y ?? (map.size.y - 2) * 32};
-
-  switch(toolID) {
-    case PluginConfig.buyToolID:
-      buyTiles(toolStartCoords, corner2);
-      break;
-    case PluginConfig.sellToolID:
-      sellTiles(toolStartCoords, corner2);
-      break;
+    if (mapCoords.x > 0) {
+      switch(toolID) {
+        case PluginConfig.buyToolID:
+          buyTiles(toolStartCoords, mapCoords);
+          break;
+        case PluginConfig.sellToolID:
+          sellTiles(toolStartCoords, mapCoords);
+          break;
+      }
+    } else {
+      switch(toolID) {
+        case PluginConfig.buyToolID:
+          ui.showError('Can\'t buy land...', 'Outside of map!');
+          break;
+        case PluginConfig.sellToolID:
+          ui.showError('Can\'t sell land...', 'Outside of map!');
+          break;
+      }
+    }
   }
+  
+  toolStartCoords = { x: 0, y: 0 };
 }
 
 function onToolFinish(toolID: string) : void {
   // TODO: Implement?
   console.log(`${toolID} finish`);
+}
+
+function cancelTool() : void {
+  ui.tool?.cancel();
 }
 
 
