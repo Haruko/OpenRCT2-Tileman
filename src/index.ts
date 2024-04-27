@@ -13,10 +13,19 @@ const PlayerData = {
   tilesUsed: 0,
 
   // Maps ride IDs (numbers) and historical data (Ride.totalCustomers, eventually Ride.totalProfit or something )
-  rideMap: {}
+  // TODO: Make this keep track of ride stats every interval to account for deleted rides
+  rideMap: {
+    /*
+      123: {
+        rideType: "ride" | "stall" | "facility"
+        totalCustomers: 69
+      }
+    */
+  }
 };
 
 // Configs
+// TODO: Allow users to customize in the UI
 const PluginConfig = {
   winTitle: 'Tileman',
   expPerTile: 1000,
@@ -93,8 +102,11 @@ function computeTilesAvailable() : Number {
 */
 
 function collectData() : void {
+  // TODO: Add more metrics
+  // TODO: Make it save in persistent storage
   console.log(park.totalAdmissions);
-  console.log(map.rides[0].totalCustomers);
+  if (map.numRides > 0)
+    console.log(map.rides[0].totalCustomers);
   // console.log(map.rides[0].totalProfit)
   // console.log(map.rides[0].runningCost * 16)
 }
@@ -110,11 +122,12 @@ function collectData() : void {
 function main() {
   console.log('Initializing Tileman Plugin...');
 
-  // cheats for testing
+  // TODO: cheats for testing
   context.subscribe('interval.day', function() {
     park.cash += 1000000;
   });
 
+  // Make sure it's a client
   if (typeof ui !== 'undefined') {
     // Register option in menu under Map icon in toolbar
     ui.registerMenuItem('Tileman', function() { openWindow(); });
@@ -188,7 +201,9 @@ registerPlugin({
 
 
 
+  TODO: Make an enum of which types are rides vs stalls vs facilities for different scoring
 
+  Search github for these: Ride, ShopOrStall, KioskOrFacility
 
   Ride.rideType
   Ride.type = ' = "ride" | "stall" | "facility"
