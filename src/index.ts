@@ -69,13 +69,13 @@ const mainWindow = FlexUI.window({
   ]
 });
 
-function openWindow() {
+function openWindow() : void {
   closeWindow();
   mainWindow.open();
 }
 
 // Assumes only one instance of window open
-function closeWindow() {
+function closeWindow() :void {
   let numWindows = ui.windows;
   for(let i = 0; i < numWindows; ++i) {
     let winTest = ui.getWindow(i);
@@ -97,6 +97,8 @@ function computeTilesAvailable() : Number {
   return Math.floor(PlayerData.totalExp / PluginConfig.expPerTile) + PluginConfig.minTiles;
 }
 
+
+
 /*
   Data tracking
 */
@@ -104,12 +106,63 @@ function computeTilesAvailable() : Number {
 function collectData() : void {
   // TODO: Add more metrics
   // TODO: Make it save in persistent storage
-  console.log(park.totalAdmissions);
-  if (map.numRides > 0)
-    console.log(map.rides[0].totalCustomers);
+  // console.log(park.totalAdmissions);
+  // if (map.numRides > 0)
+  //   console.log(map.rides[0].totalCustomers);
   // console.log(map.rides[0].totalProfit)
   // console.log(map.rides[0].runningCost * 16)
+
 }
+
+
+
+/*
+  Land Management
+*/
+
+/*
+  Sets tiles to unowned
+  corner1 defaults to <0, 0>
+  corner2 defaults to <xmax - 1, ymax - 1>
+  
+  ownership: openrct2/world/Surface.h
+    OWNERSHIP_UNOWNED = 0,
+    OWNERSHIP_CONSTRUCTION_RIGHTS_OWNED = (1 << 4),
+    OWNERSHIP_OWNED = (1 << 5),
+    OWNERSHIP_CONSTRUCTION_RIGHTS_AVAILABLE = (1 << 6),
+    OWNERSHIP_AVAILABLE = (1 << 7)
+  
+  flags: openrct2/Game.h
+    GAME_COMMAND_FLAG_APPLY = (1 << 0),  // If this flag is set, the command is applied, otherwise only the cost is retrieved
+    GAME_COMMAND_FLAG_REPLAY = (1 << 1), // Command was issued from replay manager.
+    GAME_COMMAND_FLAG_2 = (1 << 2),      // Unused
+    GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED = (1 << 3), // Allow while paused
+    GAME_COMMAND_FLAG_4 = (1 << 4),                   // Unused
+    GAME_COMMAND_FLAG_NO_SPEND = (1 << 5),            // Game command is not networked
+    GAME_COMMAND_FLAG_GHOST = (1 << 6),               // Game command is not networked
+    GAME_COMMAND_FLAG_TRACK_DESIGN = (1 << 7),
+    GAME_COMMAND_FLAG_NETWORKED = (1u << 31) // Game command is coming from network
+*/
+function setLandOwnership(owned: boolean, corner1?: CoordsXY, corner2?: CoordsXY) : void {
+  cheats.sandboxMode = true;
+  context.executeAction("landsetrights", {
+    x1: (corner1?.x ?? 0) * 32,
+    y1: (corner1?.y ?? 0) * 32,
+    x2: (corner2?.x ?? (map.size.x - 1)) * 32,
+    y2: (corner2?.y ?? (map.size.y - 1)) * 32,
+    setting: 4,
+    ownership: owned ? (1 << 5) : 0,
+    flags: (1 << 0) | (1 << 3)
+  }, (result: GameActionResult) => {
+    if (result.error !== 0) {
+      console.log(`Error setting land ownership: ${result.errorMessage}`);
+    } else {
+      console.log(`Success setting land ownership: ${owned ? 'owned' : 'unowned'}`);
+    }
+  });
+  cheats.sandboxMode = false;
+}
+
 
 
 
@@ -122,11 +175,6 @@ function collectData() : void {
 function main() {
   console.log('Initializing Tileman Plugin...');
 
-  // TODO: cheats for testing
-  context.subscribe('interval.day', function() {
-    park.cash += 1000000;
-  });
-
   // Make sure it's a client
   if (typeof ui !== 'undefined') {
     // Register option in menu under Map icon in toolbar
@@ -134,10 +182,12 @@ function main() {
 
     openWindow();
 
-    // Once per second
-    context.setInterval(collectData, 1000);
+    // Setup map and data for game mode
+    park.landPrice = 0;
+    setLandOwnership(false);
 
-
+    // Days are about 13.2 seconds at 1x speed
+    context.subscribe('interval.day', collectData);
   }
 }
 
@@ -152,8 +202,15 @@ registerPlugin({
   main: main
 });
 
+// TODO: cheats for testing
+context.subscribe('interval.day', function() {
+  park.cash += 1000000;
+});
+
 /*
-  LandSetRightsArgs
+  
+  
+
   activateTool
   getParkStorage
 
