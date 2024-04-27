@@ -40,6 +40,13 @@ const PluginConfig = {
 // Functional
 var toolStartCoords : CoordsXY = { x: 0, y: 0 };
 
+// Prevent buying outer range of the map so we don't mess up guests spawning
+enum MapBounds {
+  minX = 2 * 32,
+  minY = 2 * 32,
+  maxX = (map.size.x - 3) * 32,
+  maxY = (map.size.y - 3) * 32,
+};
 
 
 /*
@@ -204,6 +211,22 @@ function computeTilesAvailable() : number {
   return Math.floor(PlayerData.totalExp / PluginConfig.expPerTile) + PluginConfig.minTiles;
 }
 
+/*
+  returns coords clamped to the map bounds
+*/
+
+function clampCoords(coords : CoordsXY) : CoordsXY {
+  let clampedCoords : CoordsXY = { x: 0, y: 0 }
+
+  clampedCoords.x = Math.max(MapBounds.minX, coords.x);
+  clampedCoords.x = Math.min(MapBounds.maxX, clampedCoords.x);
+
+  clampedCoords.y = Math.max(MapBounds.minY, coords.y);
+  clampedCoords.y = Math.min(MapBounds.maxY, clampedCoords.y);
+
+  return clampedCoords;
+}
+
 
 
 /*
@@ -227,9 +250,9 @@ function collectData() : void {
 */
 
 /*
-  Sets tiles to unowned
+  Sets tile ownership
   corner1 defaults and clamps to <1, 1>
-  corner2 defaults and clamps to <xmax - 1, ymax - 1>
+  corner2 defaults and clamps to <xmax, ymax>
   
   ownership: openrct2/world/Surface.h
     OWNERSHIP_UNOWNED = 0,
@@ -249,27 +272,17 @@ function collectData() : void {
     GAME_COMMAND_FLAG_TRACK_DESIGN = (1 << 7),
     GAME_COMMAND_FLAG_NETWORKED = (1u << 31) // Game command is coming from network
 */
-function setLandOwnership(owned: boolean, corner1?: CoordsXY, corner2?: CoordsXY) : void {
-  const minX = 32;
-  const minY = 32;
-  const maxX = (map.size.x - 2) * 32;
-  const maxY = (map.size.y - 2) * 32;
-
-  // Default and clamp
-  if (corner1) {
-    corner1.x = Math.max(minX, corner1.x);
-    corner1.y = Math.max(minY, corner1.y);
-  } else {
-    corner1 = { x: minX, y: minY };
-  }
-
-  // Default and clamp
-  if (corner2) {
-    corner2.x = Math.min(maxX, corner2.x);
-    corner2.y = Math.min(maxY, corner2.y);
-  } else {
-    corner2 = { x: maxX, y: maxY };
-  }
+function setLandOwnership(owned: boolean, corner1: CoordsXY, corner2: CoordsXY) : boolean {
+  // Check if a selection is entirely out of bounds (straight line on map edge)
+  if ((corner1.x < MapBounds.minX && corner2.x < MapBounds.minX)
+    || (corner1.x > MapBounds.maxX && corner2.x > MapBounds.maxX)
+    || (corner1.y < MapBounds.minY && corner2.y < MapBounds.minY)
+    || (corner1.y > MapBounds.maxY && corner2.y > MapBounds.maxY)) {
+      return false;
+    }
+  
+  corner1 = clampCoords(corner1);
+  corner2 = clampCoords(corner2);
 
   // Turn on sandbox mode to make buying/selling land free and doable to any tile
   cheats.sandboxMode = true;
@@ -293,6 +306,8 @@ function setLandOwnership(owned: boolean, corner1?: CoordsXY, corner2?: CoordsXY
   });
 
   cheats.sandboxMode = false;
+
+  return true;
 }
 
 // Returns true if player can afford it
@@ -300,8 +315,14 @@ function buyTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
   // TODO: check if player can afford them
   // TODO: decrement # bought tiles
 
-  setLandOwnership(true, corner1, corner2);
-  return false;
+  let buySuccess : boolean = setLandOwnership(true, corner1, corner2);
+
+  if (!buySuccess) {
+    ui.showError('Can\'t buy land...', 'Outside of map!');
+    return false;
+  }
+
+  return true;
 }
 
 // Returns true if any tiles were sold
@@ -309,8 +330,14 @@ function sellTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
   // TODO: iterate over selection and only sell owned tiles (with nothing built on them?)
   // TODO: increment number of sold tiles
 
-  setLandOwnership(false, corner1, corner2);
-  return false;
+  let sellSuccess : boolean = setLandOwnership(false, corner1, corner2);
+
+  if (!sellSuccess) {
+    ui.showError('Can\'t sell land...', 'Outside of map!');
+    return false;
+  }
+
+  return true;
 }
 
 
@@ -418,7 +445,7 @@ function main() {
 
     // Setup map and data for game mode
     park.landPrice = 0;
-    setLandOwnership(false);
+    setLandOwnership(false, { x: MapBounds.minX, y: MapBounds.minY }, { x: MapBounds.maxX, y: MapBounds.maxY });
 
     // Days are about 13.2 seconds at 1x speed
     context.subscribe('interval.day', collectData);
