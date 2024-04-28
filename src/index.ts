@@ -30,15 +30,17 @@ const PluginConfig = {
   winTitle: 'Tileman',
   buyToolID: 'TilemanBuyTool',
   sellToolID: 'TilemanSellTool',
+  buildRightsToolID: 'TilemanBuildRightsTool',
 
   // User definable
   // TODO: Allow users to customize in the UI
   expPerTile: 1000,
-  minTiles: 2 // 1 path + 1 stall
+  minTiles: 2 // 1 path + 1 stall minimum
 }
 
 // Functional
 var toolStartCoords : CoordsXY = { x: 0, y: 0 };
+var lastHoveredCoords : CoordsXY;
 
 // Prevent buying outer range of the map so we don't mess up guests spawning
 enum MapBounds {
@@ -116,62 +118,99 @@ const statsBox = FlexUI.box({
   })
 });
 
-const buttonBox = FlexUI.horizontal({
+const buttonBox = FlexUI.vertical({
   spacing: 0,
   content: [
-    FlexUI.button({
-      image: 5176,
-      width: '25px',
-      height: '25px',
-      onClick: () => {
-        ui.activateTool({
-          id: PluginConfig.buyToolID,
-          cursor: 'cross_hair',
-          filter: ['terrain', 'water'],
+    FlexUI.horizontal({
+      spacing: 0,
+      content: [
+        FlexUI.button({
+          image: 5176,
+          width: '25px',
+          height: '25px',
+          onClick: () => {
+            ui.activateTool({
+              id: PluginConfig.buyToolID,
+              cursor: 'cross_hair',
+              filter: ['terrain', 'water'],
 
-          onStart: () => onToolStart(PluginConfig.buyToolID),
-          onDown: (e: ToolEventArgs) => onToolDown(e, PluginConfig.buyToolID),
-          onMove: (e: ToolEventArgs) => onToolMove(e, PluginConfig.buyToolID),
-          onUp: (e: ToolEventArgs) => onToolUp(e, PluginConfig.buyToolID),
-          onFinish: () => onToolFinish(PluginConfig.buyToolID)
-        });
-      }
-    }),
-    FlexUI.label({
-      text: '{BLACK}Buy tiles',
-      width: '75px',
-      height: '25px',
-      padding: {
-        top: '7px',
-        bottom: '7px'
-      }
-    }),
-    FlexUI.button({
-      image: 5177,
-      width: '25px',
-      height: '25px',
-      onClick: () => {
-        ui.activateTool({
-          id: PluginConfig.sellToolID,
-          cursor: 'cross_hair',
-          filter: ['terrain', 'water'],
+              onStart: () => onToolStart(PluginConfig.buyToolID),
+              onDown: (e: ToolEventArgs) => onToolDown(e, PluginConfig.buyToolID),
+              onMove: (e: ToolEventArgs) => onToolMove(e, PluginConfig.buyToolID),
+              onUp: (e: ToolEventArgs) => onToolUp(e, PluginConfig.buyToolID),
+              onFinish: () => onToolFinish(PluginConfig.buyToolID)
+            });
+          }
+        }),
+        FlexUI.label({
+          text: '{BLACK}Buy tiles',
+          width: '75px',
+          height: '25px',
+          padding: {
+            top: '7px',
+            bottom: '7px'
+          }
+        }),
+        FlexUI.button({
+          image: 5190,
+          width: '25px',
+          height: '25px',
+          onClick: () => {
+            ui.activateTool({
+              id: PluginConfig.sellToolID,
+              cursor: 'cross_hair',
+              filter: ['terrain', 'water'],
 
-          onStart: () => onToolStart(PluginConfig.sellToolID),
-          onDown: (e: ToolEventArgs) => onToolDown(e, PluginConfig.sellToolID),
-          onMove: (e: ToolEventArgs) => onToolMove(e, PluginConfig.sellToolID),
-          onUp: (e: ToolEventArgs) => onToolUp(e, PluginConfig.sellToolID),
-          onFinish: () => onToolFinish(PluginConfig.sellToolID)
-        });
-      }
+              onStart: () => onToolStart(PluginConfig.sellToolID),
+              onDown: (e: ToolEventArgs) => onToolDown(e, PluginConfig.sellToolID),
+              onMove: (e: ToolEventArgs) => onToolMove(e, PluginConfig.sellToolID),
+              onUp: (e: ToolEventArgs) => onToolUp(e, PluginConfig.sellToolID),
+              onFinish: () => onToolFinish(PluginConfig.sellToolID)
+            });
+          }
+        }),
+        FlexUI.label({
+          text: '{BLACK}Sell tiles',
+          width: '75px',
+          height: '25px',
+          padding: {
+            top: '7px',
+            bottom: '7px'
+          }
+        })
+      ]
     }),
-    FlexUI.label({
-      text: '{BLACK}Sell tiles',
-      width: '75px',
-      height: '25px',
-      padding: {
-        top: '7px',
-        bottom: '7px'
-      }
+    FlexUI.horizontal({
+      spacing: 0,
+      content: [
+        FlexUI.button({
+          image: 5177,
+          width: '25px',
+          height: '25px',
+          onClick: () => {
+            ui.activateTool({
+              id: PluginConfig.buildRightsToolID,
+              cursor: 'cross_hair',
+              filter: ['terrain', 'water'],
+
+              onStart: () => onToolStart(PluginConfig.buildRightsToolID),
+              onDown: (e: ToolEventArgs) => onToolDown(e, PluginConfig.buildRightsToolID),
+              onMove: (e: ToolEventArgs) => onToolMove(e, PluginConfig.buildRightsToolID),
+              onUp: (e: ToolEventArgs) => onToolUp(e, PluginConfig.buildRightsToolID),
+              onFinish: () => onToolFinish(PluginConfig.buildRightsToolID)
+            });
+          }
+        }),
+        FlexUI.label({
+          text: '{BLACK}Buy construction rights',
+          // width: '75px',
+          height: '25px',
+          padding: {
+            top: '7px',
+            bottom: '7px'
+          }
+        })
+      ]
     })
   ]
 });
@@ -220,10 +259,7 @@ function computeTilesAvailable() : number {
   return Math.floor(PlayerData.totalExp / PluginConfig.expPerTile) + PluginConfig.minTiles;
 }
 
-/*
-  returns coords clamped to the map bounds
-*/
-
+//returns coords clamped to the map bounds
 function clampCoords(coords : CoordsXY) : CoordsXY {
   let clampedCoords : CoordsXY = { x: 0, y: 0 }
 
@@ -326,13 +362,13 @@ function setLandOwnership(ownership: LandOwnership, corner1: CoordsXY, corner2: 
 }
 
 // Returns true if player can afford it
-function buyTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
+function buyTiles(corner1: CoordsXY, corner2: CoordsXY, rights? : boolean) : boolean {
   // TODO: check if player can afford them
   // TODO: decrement # bought tiles
 
   // TODO: Count number of buyable tiles in area (check if <0, 0>)
 
-  let buySuccess : boolean = setLandOwnership(LandOwnership.OWNED, corner1, corner2);
+  let buySuccess : boolean = setLandOwnership(rights ? LandOwnership.CONSTRUCTION_RIGHTS_OWNED : LandOwnership.OWNED, corner1, corner2);
 
   if (!buySuccess) {
     ui.showError('Can\'t buy land...', 'Outside of map bounds!');
@@ -363,79 +399,105 @@ function sellTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
   Tools
 */
 
-/*
-  interface ToolEventArgs {
-    readonly isDown: boolean;
-    readonly screenCoords: ScreenCoordsXY;
-    readonly mapCoords?: CoordsXYZ;
-    readonly tileElementIndex?: number;
-    readonly entityId?: number;
-  }
-*/
-
 function onToolStart(toolID: string) : void {
-  // TODO: Implement?
-  console.log(`${toolID} start`);
+
 }
 
 function onToolDown(e: ToolEventArgs, toolID: string) : void {
-  const mapCoords : CoordsXY = { x: e?.mapCoords?.x ?? 0, y: e?.mapCoords?.y ?? 0 };
-
-  if (mapCoords.x > 0) {
-    toolStartCoords = mapCoords;
+  if (e.mapCoords && e.mapCoords.x > 0) {
+    toolStartCoords = e.mapCoords;
+    lastHoveredCoords = e.mapCoords;
   } else {
-    switch(toolID) {
-      case PluginConfig.buyToolID:
-        ui.showError('Can\'t buy land...', 'Outside of map!');
-        break;
-      case PluginConfig.sellToolID:
-        ui.showError('Can\'t sell land...', 'Outside of map!');
-        break;
-    }
+    toolStartCoords = lastHoveredCoords
   }
+
+  drawToolSelection(toolStartCoords, lastHoveredCoords);
 }
 
 function onToolMove(e: ToolEventArgs, toolID: string) : void {
-  // TODO: Implement
-  // console.log(`${toolID} move`);
-  // console.log(e);
+  if (e.mapCoords && e.mapCoords.x > 0) {
+    lastHoveredCoords = e.mapCoords;
+  }
+
+  if (e.isDown) {
+    drawToolSelection(toolStartCoords, lastHoveredCoords);
+  } else {
+    drawToolSelection(lastHoveredCoords, lastHoveredCoords);
+  }
 }
 
 function onToolUp(e: ToolEventArgs, toolID: string) : void {
   if (toolStartCoords.x > 0) {
-    const mapCoords : CoordsXY = { x: e?.mapCoords?.x ?? 0, y: e?.mapCoords?.y ?? 0 };
-
-    if (mapCoords.x > 0) {
-      switch(toolID) {
-        case PluginConfig.buyToolID:
-          buyTiles(toolStartCoords, mapCoords);
-          break;
-        case PluginConfig.sellToolID:
-          sellTiles(toolStartCoords, mapCoords);
-          break;
-      }
-    } else {
-      switch(toolID) {
-        case PluginConfig.buyToolID:
-          ui.showError('Can\'t buy land...', 'Outside of map!');
-          break;
-        case PluginConfig.sellToolID:
-          ui.showError('Can\'t sell land...', 'Outside of map!');
-          break;
-      }
+    switch(toolID) {
+      case PluginConfig.buyToolID:
+        buyTiles(toolStartCoords, lastHoveredCoords);
+        break;
+      case PluginConfig.sellToolID:
+        sellTiles(toolStartCoords, lastHoveredCoords);
+        break;
+      case PluginConfig.buildRightsToolID:
+        buyTiles(toolStartCoords, lastHoveredCoords, true);
+        break;
     }
+
+
+
+    // const mapCoords : CoordsXY = { x: e?.mapCoords?.x ?? 0, y: e?.mapCoords?.y ?? 0 };
+
+    // if (mapCoords.x > 0) {
+    //   switch(toolID) {
+    //     case PluginConfig.buyToolID:
+    //       buyTiles(toolStartCoords, mapCoords);
+    //       break;
+    //     case PluginConfig.sellToolID:
+    //       sellTiles(toolStartCoords, mapCoords);
+    //       break;
+    //     case PluginConfig.buildRightsToolID:
+    //       buyTiles(toolStartCoords, mapCoords, true);
+    //       break;
+    //   }
+    // } else {
+    //   switch(toolID) {
+    //     case PluginConfig.buyToolID:
+    //       ui.showError('Can\'t buy land...', 'Outside of map bounds!');
+    //       break;
+    //     case PluginConfig.sellToolID:
+    //       ui.showError('Can\'t sell land...', 'Outside of map bounds!');
+    //       break;
+    //     case PluginConfig.buildRightsToolID:
+    //       ui.showError('Can\'t buy build rights...', 'Outside of map bounds!');
+    //       break;
+    //   }
+    // }
   }
   
   toolStartCoords = { x: 0, y: 0 };
+  ui.tileSelection.range = null;
 }
 
 function onToolFinish(toolID: string) : void {
-  // TODO: Implement?
-  console.log(`${toolID} finish`);
+  ui.tileSelection.range = null;
 }
 
 function cancelTool() : void {
   ui.tool?.cancel();
+}
+
+function drawToolSelection(corner1 : CoordsXY, corner2 : CoordsXY) : void {
+  const leftTop = {
+    x: Math.min(corner1.x, corner2.x ?? 0),
+    y: Math.min(corner1.y, corner2.y ?? 0)
+  };
+
+  const rightBottom = {
+    x: Math.max(corner1.x, corner2.x ?? 0),
+    y: Math.max(corner1.y, corner2.y ?? 0)
+  };
+
+  ui.tileSelection.range = {
+    leftTop: leftTop,
+    rightBottom: rightBottom
+  };
 }
 
 
@@ -452,7 +514,7 @@ function main() {
 
     // Setup map and data for game mode
     park.landPrice = 0;
-    setLandOwnership(LandOwnership.OWNED, { x: MapBounds.minX, y: MapBounds.minY }, { x: MapBounds.maxX, y: MapBounds.maxY });
+    setLandOwnership(LandOwnership.UNOWNED, { x: MapBounds.minX, y: MapBounds.minY }, { x: MapBounds.maxX, y: MapBounds.maxY });
 
     // Days are about 13.2 seconds at 1x speed
     context.subscribe('interval.day', collectData);
@@ -477,17 +539,21 @@ context.subscribe('interval.day', function() {
 
 /*
   getParkStorage
+  park.parkSize = count how many tiles are owned
   
 
 
   subscribe(hook: "action.query", callback: (e: GameActionEventArgs) => void): IDisposable;
   subscribe(hook: "action.execute", callback: (e: GameActionEventArgs) => void): IDisposable;
+  subscribe(hook: "action.location", callback: (e: ActionLocationArgs) => void): IDisposable;
+
   subscribe(hook: "interval.tick", callback: () => void): IDisposable;
   subscribe(hook: "interval.day", callback: () => void): IDisposable;
+
   subscribe(hook: "network.authenticate", callback: (e: NetworkAuthenticateEventArgs) => void): IDisposable;
   subscribe(hook: "network.join", callback: (e: NetworkEventArgs) => void): IDisposable;
   subscribe(hook: "network.leave", callback: (e: NetworkEventArgs) => void): IDisposable;
-  subscribe(hook: "action.location", callback: (e: ActionLocationArgs) => void): IDisposable;
+
   subscribe(hook: "map.save", callback: () => void): IDisposable;
   subscribe(hook: "map.change", callback: () => void): IDisposable;
   
