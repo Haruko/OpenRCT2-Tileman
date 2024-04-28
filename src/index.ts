@@ -48,6 +48,15 @@ enum MapBounds {
   maxY = (map.size.y - 3) * 32,
 };
 
+// From openrct2/world/Surface.h
+enum LandOwnership {
+  UNOWNED = 0,
+  CONSTRUCTION_RIGHTS_OWNED = (1 << 4),
+  OWNED = (1 << 5),
+  CONSTRUCTION_RIGHTS_AVAILABLE = (1 << 6),
+  AVAILABLE = (1 << 7)
+}
+
 
 /*
   UI construction
@@ -254,13 +263,6 @@ function collectData() : void {
   corner1 defaults and clamps to <1, 1>
   corner2 defaults and clamps to <xmax, ymax>
   
-  ownership: openrct2/world/Surface.h
-    OWNERSHIP_UNOWNED = 0,
-    OWNERSHIP_CONSTRUCTION_RIGHTS_OWNED = (1 << 4),
-    OWNERSHIP_OWNED = (1 << 5),
-    OWNERSHIP_CONSTRUCTION_RIGHTS_AVAILABLE = (1 << 6),
-    OWNERSHIP_AVAILABLE = (1 << 7)
-  
   flags: openrct2/Game.h
     GAME_COMMAND_FLAG_APPLY = (1 << 0),  // If this flag is set, the command is applied, otherwise only the cost is retrieved
     GAME_COMMAND_FLAG_REPLAY = (1 << 1), // Command was issued from replay manager.
@@ -272,7 +274,7 @@ function collectData() : void {
     GAME_COMMAND_FLAG_TRACK_DESIGN = (1 << 7),
     GAME_COMMAND_FLAG_NETWORKED = (1u << 31) // Game command is coming from network
 */
-function setLandOwnership(owned: boolean, corner1: CoordsXY, corner2: CoordsXY) : boolean {
+function setLandOwnership(ownership: LandOwnership, corner1: CoordsXY, corner2: CoordsXY) : boolean {
   // Check if a selection is entirely out of bounds (straight line on map edge)
   if ((corner1.x < MapBounds.minX && corner2.x < MapBounds.minX)
     || (corner1.x > MapBounds.maxX && corner2.x > MapBounds.maxX)
@@ -295,13 +297,26 @@ function setLandOwnership(owned: boolean, corner1: CoordsXY, corner2: CoordsXY) 
     x2: corner2.x,
     y2: corner2.y,
     setting: 4,
-    ownership: owned ? (1 << 5) : 0,
+    ownership: ownership,
     flags: (1 << 0) | (1 << 3)
   }, (result: GameActionResult) => {
     if (result.error !== 0) {
       console.log(`Error setting land ownership: ${result.errorMessage}`);
     } else {
-      console.log(`Success setting land ownership: ${owned ? 'owned' : 'unowned'}`);
+      let result = '';
+
+      switch(ownership) {
+        case LandOwnership.OWNED:
+          result = 'owned'
+          break;
+        case LandOwnership.UNOWNED:
+          result = 'unowned'
+          break;
+        case LandOwnership.CONSTRUCTION_RIGHTS_OWNED:
+          result = 'construction rights owned'
+          break;
+      }
+      console.log(`Success setting land ownership: ${result}`);
     }
   });
 
@@ -315,10 +330,12 @@ function buyTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
   // TODO: check if player can afford them
   // TODO: decrement # bought tiles
 
-  let buySuccess : boolean = setLandOwnership(true, corner1, corner2);
+  // TODO: Count number of buyable tiles in area (check if <0, 0>)
+
+  let buySuccess : boolean = setLandOwnership(LandOwnership.OWNED, corner1, corner2);
 
   if (!buySuccess) {
-    ui.showError('Can\'t buy land...', 'Outside of map!');
+    ui.showError('Can\'t buy land...', 'Outside of map bounds!');
     return false;
   }
 
@@ -330,10 +347,10 @@ function sellTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
   // TODO: iterate over selection and only sell owned tiles (with nothing built on them?)
   // TODO: increment number of sold tiles
 
-  let sellSuccess : boolean = setLandOwnership(false, corner1, corner2);
+  let sellSuccess : boolean = setLandOwnership(LandOwnership.UNOWNED, corner1, corner2);
 
   if (!sellSuccess) {
-    ui.showError('Can\'t sell land...', 'Outside of map!');
+    ui.showError('Can\'t sell land...', 'Outside of map bounds!');
     return false;
   }
 
@@ -423,16 +440,6 @@ function cancelTool() : void {
 
 
 
-
-
-
-
-
-
-
-
-
-
 function main() {
   console.log('Initializing Tileman Plugin...');
 
@@ -445,7 +452,7 @@ function main() {
 
     // Setup map and data for game mode
     park.landPrice = 0;
-    setLandOwnership(false, { x: MapBounds.minX, y: MapBounds.minY }, { x: MapBounds.maxX, y: MapBounds.maxY });
+    setLandOwnership(LandOwnership.OWNED, { x: MapBounds.minX, y: MapBounds.minY }, { x: MapBounds.maxX, y: MapBounds.maxY });
 
     // Days are about 13.2 seconds at 1x speed
     context.subscribe('interval.day', collectData);
@@ -470,17 +477,7 @@ context.subscribe('interval.day', function() {
 
 /*
   getParkStorage
-
-
-
-
-  interface Tool {
-    id: string;
-    cursor: CursorType;
-    cancel: () => void;
-  }
-
-
+  
 
 
   subscribe(hook: "action.query", callback: (e: GameActionEventArgs) => void): IDisposable;
@@ -493,41 +490,38 @@ context.subscribe('interval.day', function() {
   subscribe(hook: "action.location", callback: (e: ActionLocationArgs) => void): IDisposable;
   subscribe(hook: "map.save", callback: () => void): IDisposable;
   subscribe(hook: "map.change", callback: () => void): IDisposable;
+  
+
+
+  interface ShortcutDesc {
+    **
+    * The unique identifier for the shortcut.
+    * If the identifier already exists, the shortcut will not be registered.
+    * Use full stops to group shortcuts together, e.g. `yourplugin.somewindow.apply`.
+    *
+    id: string;
+
+    **
+    * The display text for the shortcut.
+    *
+    text: string;
+
+    **
+    * Default bindings for the shortcut.
+    * E.g. `["CTRL+SHIFT+L", "MOUSE 3"]`
+    *
+    bindings?: string[];
+
+    **
+    * Function to call when the shortcut is invoked.
+    *
+    callback: () => void;
+  }
 
 
 
-
-
-interface ShortcutDesc {
-  **
-   * The unique identifier for the shortcut.
-   * If the identifier already exists, the shortcut will not be registered.
-   * Use full stops to group shortcuts together, e.g. `yourplugin.somewindow.apply`.
-   *
-  id: string;
-
-  **
-   * The display text for the shortcut.
-   *
-  text: string;
-
-  **
-   * Default bindings for the shortcut.
-   * E.g. `["CTRL+SHIFT+L", "MOUSE 3"]`
-   *
-  bindings?: string[];
-
-  **
-   * Function to call when the shortcut is invoked.
-   *
-  callback: () => void;
-}
-
-ui.registerShortcut(desc: ShortcutDesc): void;
-
-
-
-
+  ui.registerShortcut(desc: ShortcutDesc): void;
+  
 
 
   Search github for these: Ride, ShopOrStall, KioskOrFacility
@@ -639,8 +633,6 @@ ui.registerShortcut(desc: ShortcutDesc): void;
   RIDE_TYPE_CLASSIC_STAND_UP_ROLLER_COASTER,
 
   RIDE_TYPE_COUNT
-
-
 */
 
 
