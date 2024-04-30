@@ -81,7 +81,7 @@ enum LandOwnership {
  * Makes a CoordsXY from x and y values
  * @param x 
  * @param y 
- * @returns 
+ * @returns CoordsXY
  */
 function CoordsXY(x : number, y : number) : CoordsXY {
   return { x, y } as CoordsXY;
@@ -89,7 +89,7 @@ function CoordsXY(x : number, y : number) : CoordsXY {
 
 /**
  * Checks if an object is instance of CoordsXY interface
- * @param obj Object to check
+ * @param obj object to check
  * @returns true if obj is an instance of CoordsXY interface
  */
 function isCoordsXY(obj : any) : obj is CoordsXY {
@@ -98,18 +98,27 @@ function isCoordsXY(obj : any) : obj is CoordsXY {
 }
 
 /**
+ * Overloaded
  * Makes a MapRange from two <x, y> coordinates, using the bounds of the rectangle they create to determine proper corners to define
- * @param a 
- * @param b 
+ * @param a number: x coordinate for first corner | CoordsXY: first corner
+ * @param b number: y coordinate for first corner | CoordsXY: second corner
+ * @param x x coordinate for second corner
+ * @param y y coordinate for second corner
+ * @returns MapRange with leftTop and rightBottom built based on which overload
  */
 function MapRange(a : CoordsXY, b : CoordsXY) : MapRange;
 function MapRange(a : number, b : number, x : number, y : number) : MapRange;
 function MapRange(a : CoordsXY | number, b : CoordsXY | number, x? : number, y? : number) : MapRange | undefined {
-  if (typeof a === 'number' && typeof b === 'number') {
+  if (typeof a !== typeof b) {
+    return;
+  } else if (typeof a === 'number' && typeof b === 'number') {
     let c1 = CoordsXY(a, b);
     let c2 = CoordsXY(x as number, y as number);
     return MapRange(c1, c2);
-  } else if (a instanceof CoordsXY && b instanceof CoordsXY) {
+  } else {
+    a = a as CoordsXY;
+    b = b as CoordsXY;
+
     return {
       leftTop: CoordsXY(Math.min(a.x, b.x), Math.min(a.y, b.y)),
       rightBottom: CoordsXY(Math.max(a.x, b.x), Math.max(a.y, b.y))
@@ -119,7 +128,7 @@ function MapRange(a : CoordsXY | number, b : CoordsXY | number, x? : number, y? 
 
 /**
  * Checks if an object is instance of MapRange interface
- * @param obj Object to check
+ * @param obj object to check
  * @returns true if obj is an instance of MapRange interface
  */
 function isMapRange(obj : any) : obj is MapRange {
@@ -350,17 +359,14 @@ function computeTilesAvailable() : number {
 
 /**
  * Returns coordinates clamped to the map bounds
- * @param coords Coordinates to clamp
- * @returns Clamped coordinates
+ * @param coords coordinates to clamp
+ * @returns clamped coordinates
  */
 function clampCoords(coords : CoordsXY) : CoordsXY {
-  let clampedCoords : CoordsXY = CoordsXY(0, 0);
-
-  clampedCoords.x = Math.max(MapBounds.minX, coords.x);
-  clampedCoords.x = Math.min(MapBounds.maxX, clampedCoords.x);
-
-  clampedCoords.y = Math.max(MapBounds.minY, coords.y);
-  clampedCoords.y = Math.min(MapBounds.maxY, clampedCoords.y);
+  let clampedCoords : CoordsXY = CoordsXY(
+    Math.min(MapBounds.maxX, Math.max(MapBounds.minX, coords.x)),
+    Math.min(MapBounds.maxY, Math.max(MapBounds.minY, coords.y))
+  );
 
   return clampedCoords;
 }
@@ -405,33 +411,32 @@ function collectData() : void {
  *   GAME_COMMAND_FLAG_TRACK_DESIGN = (1 << 7),
  *   GAME_COMMAND_FLAG_NETWORKED = (1u << 31) // Game command is coming from network
  * 
- * @param ownership 
- * @param corner1 defaults and clamps to <MapBounds.minX, MapBounds.minY>
- * @param corner2 defaults and clamps to <MapBounds.maxX, MapBounds.maxY>
+ * @param ownership LandOwnership enum value
+ * @param range defaults and clamps to <MapBounds.minX, MapBounds.minY> -  <MapBounds.maxX, MapBounds.maxY>
  * @returns true on success
  */
-function setLandOwnership(ownership : LandOwnership, corner1 : CoordsXY, corner2 : CoordsXY) : boolean {
+function setLandOwnership(ownership : LandOwnership, range : MapRange) : boolean {
   // Check if a selection is entirely out of bounds (straight line on map edge)
-  if ((corner1.x < MapBounds.minX && corner2.x < MapBounds.minX)
-    || (corner1.x > MapBounds.maxX && corner2.x > MapBounds.maxX)
-    || (corner1.y < MapBounds.minY && corner2.y < MapBounds.minY)
-    || (corner1.y > MapBounds.maxY && corner2.y > MapBounds.maxY)) {
+  if ((range.leftTop.x < MapBounds.minX && range.rightBottom.x < MapBounds.minX)
+    || (range.leftTop.x > MapBounds.maxX && range.rightBottom.x > MapBounds.maxX)
+    || (range.leftTop.y < MapBounds.minY && range.rightBottom.y < MapBounds.minY)
+    || (range.leftTop.y > MapBounds.maxY && range.rightBottom.y > MapBounds.maxY)) {
       return false;
     }
   
-  corner1 = clampCoords(corner1);
-  corner2 = clampCoords(corner2);
+  range.leftTop = clampCoords(range.leftTop);
+  range.rightBottom = clampCoords(range.rightBottom);
 
   // Turn on sandbox mode to make buying/selling land free and doable to any tile
   cheats.sandboxMode = true;
 
   context.executeAction("landsetrights", {
     // <0,0> is <32,32>
-    x1: corner1.x,
-    y1: corner1.y,
+    x1: range.leftTop.x,
+    y1: range.leftTop.y,
     // Map size of 128 has 4032 (126*32) as its max coordinate
-    x2: corner2.x,
-    y2: corner2.y,
+    x2: range.rightBottom.x,
+    y2: range.rightBottom.y,
     setting: 4,
     ownership: ownership,
     flags: (1 << 0) | (1 << 3)
@@ -463,18 +468,17 @@ function setLandOwnership(ownership : LandOwnership, corner1 : CoordsXY, corner2
 
 /**
  * Attempts to buy tiles in a region
- * @param corner1 starting corner
- * @param corner2 ending corner
+ * @param range range of tiles to buy
  * @param rights true if we should get construction rights, otherwise assumes outright ownership
  * @returns true on success
  */
-function buyTiles(corner1 : CoordsXY, corner2 : CoordsXY, rights? : boolean) : boolean {
+function buyTiles(range : MapRange, rights? : boolean) : boolean {
   // TODO: check if player can afford them
   // TODO: decrement # bought tiles
 
   // TODO: Count number of buyable tiles in area (check if <0, 0>)
 
-  let buySuccess : boolean = setLandOwnership(rights ? LandOwnership.CONSTRUCTION_RIGHTS_OWNED : LandOwnership.OWNED, corner1, corner2);
+  let buySuccess : boolean = setLandOwnership(rights ? LandOwnership.CONSTRUCTION_RIGHTS_OWNED : LandOwnership.OWNED, range);
 
   if (!buySuccess) {
     ui.showError('Can\'t buy land...', 'Outside of map bounds!');
@@ -486,15 +490,14 @@ function buyTiles(corner1 : CoordsXY, corner2 : CoordsXY, rights? : boolean) : b
 
 /**
  * Attempts to sell tiles in a region
- * @param corner1 starting corner
- * @param corner2 ending corner
+ * @param range range of tiles to sell
  * @returns true on success
  */
-function sellTiles(corner1 : CoordsXY, corner2 : CoordsXY) : boolean {
+function sellTiles(range : MapRange) : boolean {
   // TODO: iterate over selection and only sell owned tiles (with nothing built on them?)
   // TODO: increment number of sold tiles
 
-  let sellSuccess : boolean = setLandOwnership(LandOwnership.UNOWNED, corner1, corner2);
+  let sellSuccess : boolean = setLandOwnership(LandOwnership.UNOWNED, range);
 
   if (!sellSuccess) {
     ui.showError('Can\'t sell land...', 'Outside of map bounds!');
@@ -522,7 +525,7 @@ function onToolStart(toolID : string) : void {
 
 /**
  * Called when the user holds left mouse button while using a tool
- * @param e Event args
+ * @param e event args
  * @param toolID ID for the tool being used
  */
 function onToolDown(e : ToolEventArgs, toolID : string) : void {
@@ -533,12 +536,12 @@ function onToolDown(e : ToolEventArgs, toolID : string) : void {
     toolStartCoords = lastHoveredCoords
   }
 
-  drawToolSelection(toolStartCoords, lastHoveredCoords);
+  drawToolSelection(MapRange(toolStartCoords, lastHoveredCoords));
 }
 
 /**
  * Called when the user moves the mouse while using a tool
- * @param e Event args
+ * @param e event args
  * @param toolID ID for the tool being used
  */
 function onToolMove(e : ToolEventArgs, toolID : string) : void {
@@ -547,60 +550,30 @@ function onToolMove(e : ToolEventArgs, toolID : string) : void {
   }
 
   if (e.isDown) {
-    drawToolSelection(toolStartCoords, lastHoveredCoords);
+    drawToolSelection(MapRange(toolStartCoords, lastHoveredCoords));
   } else {
-    drawToolSelection(lastHoveredCoords, lastHoveredCoords);
+    drawToolSelection(MapRange(lastHoveredCoords, lastHoveredCoords));
   }
 }
 
 /**
  * Called when the user stops holding left mouse button while using a tool
- * @param e Event args
+ * @param e event args
  * @param toolID ID for the tool being used
  */
 function onToolUp(e : ToolEventArgs, toolID : string) : void {
   if (toolStartCoords.x > 0) {
     switch(toolID) {
       case PluginConfig.buyToolID:
-        buyTiles(toolStartCoords, lastHoveredCoords);
+        buyTiles(MapRange(toolStartCoords, lastHoveredCoords));
         break;
       case PluginConfig.sellToolID:
-        sellTiles(toolStartCoords, lastHoveredCoords);
+        sellTiles(MapRange(toolStartCoords, lastHoveredCoords));
         break;
       case PluginConfig.buildRightsToolID:
-        buyTiles(toolStartCoords, lastHoveredCoords, true);
+        buyTiles(MapRange(toolStartCoords, lastHoveredCoords), true);
         break;
     }
-
-
-
-    // const mapCoords : CoordsXY = { x : e?.mapCoords?.x ?? 0, y: e?.mapCoords?.y ?? 0 };
-
-    // if (mapCoords.x > 0) {
-    //   switch(toolID) {
-    //     case PluginConfig.buyToolID:
-    //       buyTiles(toolStartCoords, mapCoords);
-    //       break;
-    //     case PluginConfig.sellToolID:
-    //       sellTiles(toolStartCoords, mapCoords);
-    //       break;
-    //     case PluginConfig.buildRightsToolID:
-    //       buyTiles(toolStartCoords, mapCoords, true);
-    //       break;
-    //   }
-    // } else {
-    //   switch(toolID) {
-    //     case PluginConfig.buyToolID:
-    //       ui.showError('Can\'t buy land...', 'Outside of map bounds!');
-    //       break;
-    //     case PluginConfig.sellToolID:
-    //       ui.showError('Can\'t sell land...', 'Outside of map bounds!');
-    //       break;
-    //     case PluginConfig.buildRightsToolID:
-    //       ui.showError('Can\'t buy build rights...', 'Outside of map bounds!');
-    //       break;
-    //   }
-    // }
   }
   
   toolStartCoords = CoordsXY(0, 0);
@@ -623,12 +596,11 @@ function cancelTool() : void {
 }
 
 /**
- * Generates and sets a tool selection area to draw
- * @param corner1 Starting corner
- * @param corner2 Ending corner
+ * Sets a tool selection area to draw on the map
+ * @param range range of coordinates to apply selection to
  */
-function drawToolSelection(corner1 : CoordsXY, corner2 : CoordsXY) : void {
-  ui.tileSelection.range = MapRange(corner1, corner2);
+function drawToolSelection(range : MapRange) : void {
+  ui.tileSelection.range = range;
 }
 
 /**
@@ -646,7 +618,7 @@ function main() {
 
     // Setup map and data for game mode
     park.landPrice = 0;
-    setLandOwnership(LandOwnership.UNOWNED, CoordsXY(MapBounds.minX, MapBounds.minY), CoordsXY(MapBounds.maxX, MapBounds.maxY));
+    setLandOwnership(LandOwnership.UNOWNED, MapRange(CoordsXY(MapBounds.minX, MapBounds.minY), CoordsXY(MapBounds.maxX, MapBounds.maxY)));
 
     // Days are about 13.2 seconds at 1x speed
     context.subscribe('interval.day', collectData);
@@ -852,8 +824,8 @@ context.subscribe('interval.day', function() {
 /**
  * Registers a new item in the toolbox menu on the title screen.
  * Only available to intransient plugins.
- * @param text The menu item text.
- * @param callback The function to call when the menu item is clicked.
+ * @param text the menu item text.
+ * @param callback the function to call when the menu item is clicked.
  */
 // ui.registerToolboxMenuItem(text: string, callback: () => void): void;
 
