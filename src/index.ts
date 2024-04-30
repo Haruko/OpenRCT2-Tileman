@@ -69,6 +69,12 @@ enum LandOwnership {
   AVAILABLE = (1 << 7)
 }
 
+// Extends CoordsXY to specify tileX and tileY which are x / 32 and y / 32
+interface TileCoordsXY extends CoordsXY {
+  tileX : number,
+  tileY : number
+}
+
 
 
 /**
@@ -100,8 +106,10 @@ function isCoordsXY(obj : any) : obj is CoordsXY {
 /**
  * Overloaded
  * Makes a MapRange from two <x, y> coordinates, using the bounds of the rectangle they create to determine proper corners to define
- * @param a number: x coordinate for first corner | CoordsXY: first corner
- * @param b number: y coordinate for first corner | CoordsXY: second corner
+ * @param a number: x coordinate for first corner
+ *          CoordsXY: first corner
+ * @param b number: y coordinate for first corner
+ *          CoordsXY: second corner
  * @param x x coordinate for second corner
  * @param y y coordinate for second corner
  * @returns MapRange with leftTop and rightBottom built based on which overload
@@ -134,6 +142,30 @@ function MapRange(a : CoordsXY | number, b : CoordsXY | number, x? : number, y? 
 function isMapRange(obj : any) : obj is MapRange {
   let objAsMapRange = obj as MapRange;
   return isCoordsXY(objAsMapRange.leftTop) && isCoordsXY(objAsMapRange.rightBottom);
+}
+
+/**
+ * Overloaded
+ * Makes a TileCoordsXY from a CoordsXY or an x and y coordinate.
+ * If given a CoordsXY, assume it is in map coordinates and divide by 32 to set tileX and tileY.
+ * If given two numbers, assume it is in tile coordinates and multiply by 32 to set x and y.
+ * @param a CoordsXY: map coordinates to convert
+ *          number: x coordinate of tile
+ * @param b number: y coordinate of tile
+ */
+function TileCoordsXY(a : CoordsXY) : TileCoordsXY;
+function TileCoordsXY(a : number, b : number) : TileCoordsXY;
+function TileCoordsXY(a : CoordsXY | number, b? : number) : TileCoordsXY | undefined {
+  if (isCoordsXY(a)) {
+    let tileCoordsXY : TileCoordsXY = CoordsXY(a.x, a.y) as TileCoordsXY;
+    tileCoordsXY.tileX = a.x / 32;
+    tileCoordsXY.tileY = a.y / 32;
+    return tileCoordsXY;
+  } else if (typeof a === 'number' && typeof b === 'number') {
+
+  } else {
+    return;
+  }
 }
 
 
