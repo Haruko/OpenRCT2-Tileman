@@ -255,7 +255,7 @@ function openWindow() : void {
 /**
  * Assumes only one instance of window open
  */
-function closeWindow() :void {
+function closeWindow() : void {
   let numWindows = ui.windows;
   for(let i = 0; i < numWindows; ++i) {
     let winTest = ui.getWindow(i);
@@ -302,6 +302,24 @@ function clampCoords(coords : CoordsXY) : CoordsXY {
 
 /**
  * **********
+ * Data tracking
+ * **********
+ */
+
+function collectData() : void {
+  // TODO: Add more metrics
+  // TODO: Make it save in persistent storage
+  // console.log(park.totalAdmissions);
+  // if (map.numRides > 0)
+  //   console.log(map.rides[0].totalCustomers);
+  // console.log(map.rides[0].totalProfit)
+  // console.log(map.rides[0].runningCost * 16)
+}
+
+
+
+/**
+ * **********
  * Land Management
  * **********
  */
@@ -325,7 +343,7 @@ function clampCoords(coords : CoordsXY) : CoordsXY {
  * @param corner2 defaults and clamps to <MapBounds.maxX, MapBounds.maxY>
  * @returns true on success
  */
-function setLandOwnership(ownership: LandOwnership, corner1: CoordsXY, corner2: CoordsXY) : boolean {
+function setLandOwnership(ownership : LandOwnership, corner1 : CoordsXY, corner2 : CoordsXY) : boolean {
   // Check if a selection is entirely out of bounds (straight line on map edge)
   if ((corner1.x < MapBounds.minX && corner2.x < MapBounds.minX)
     || (corner1.x > MapBounds.maxX && corner2.x > MapBounds.maxX)
@@ -350,7 +368,7 @@ function setLandOwnership(ownership: LandOwnership, corner1: CoordsXY, corner2: 
     setting: 4,
     ownership: ownership,
     flags: (1 << 0) | (1 << 3)
-  }, (result: GameActionResult) => {
+  }, (result : GameActionResult) => {
     if (result.error !== 0) {
       console.log(`Error setting land ownership: ${result.errorMessage}`);
     } else {
@@ -383,7 +401,7 @@ function setLandOwnership(ownership: LandOwnership, corner1: CoordsXY, corner2: 
  * @param rights true if we should get construction rights, otherwise assumes outright ownership
  * @returns true on success
  */
-function buyTiles(corner1: CoordsXY, corner2: CoordsXY, rights? : boolean) : boolean {
+function buyTiles(corner1 : CoordsXY, corner2 : CoordsXY, rights? : boolean) : boolean {
   // TODO: check if player can afford them
   // TODO: decrement # bought tiles
 
@@ -405,7 +423,7 @@ function buyTiles(corner1: CoordsXY, corner2: CoordsXY, rights? : boolean) : boo
  * @param corner2 ending corner
  * @returns true on success
  */
-function sellTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
+function sellTiles(corner1 : CoordsXY, corner2 : CoordsXY) : boolean {
   // TODO: iterate over selection and only sell owned tiles (with nothing built on them?)
   // TODO: increment number of sold tiles
 
@@ -431,7 +449,7 @@ function sellTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
  * Called when user starts using a tool
  * @param toolID ID for the tool being used
  */
-function onToolStart(toolID: string) : void {
+function onToolStart(toolID : string) : void {
   // TODO: Might need to implement
 }
 
@@ -440,7 +458,7 @@ function onToolStart(toolID: string) : void {
  * @param e Event args
  * @param toolID ID for the tool being used
  */
-function onToolDown(e: ToolEventArgs, toolID: string) : void {
+function onToolDown(e : ToolEventArgs, toolID : string) : void {
   if (e.mapCoords && e.mapCoords.x > 0) {
     toolStartCoords = e.mapCoords;
     lastHoveredCoords = e.mapCoords;
@@ -456,7 +474,7 @@ function onToolDown(e: ToolEventArgs, toolID: string) : void {
  * @param e Event args
  * @param toolID ID for the tool being used
  */
-function onToolMove(e: ToolEventArgs, toolID: string) : void {
+function onToolMove(e : ToolEventArgs, toolID : string) : void {
   if (e.mapCoords && e.mapCoords.x > 0) {
     lastHoveredCoords = e.mapCoords;
   }
@@ -473,7 +491,7 @@ function onToolMove(e: ToolEventArgs, toolID: string) : void {
  * @param e Event args
  * @param toolID ID for the tool being used
  */
-function onToolUp(e: ToolEventArgs, toolID: string) : void {
+function onToolUp(e : ToolEventArgs, toolID : string) : void {
   if (toolStartCoords.x > 0) {
     switch(toolID) {
       case PluginConfig.buyToolID:
@@ -526,7 +544,7 @@ function onToolUp(e: ToolEventArgs, toolID: string) : void {
  * Called when the user stops using a tool
  * @param toolID ID for the tool being used
  */
-function onToolFinish(toolID: string) : void {
+function onToolFinish(toolID : string) : void {
   ui.tileSelection.range = null;
 }
 
@@ -607,21 +625,6 @@ context.subscribe('interval.day', function() {
 
 
 
-/**
- * **********
- * Data tracking
- * **********
- */
-
-function collectData() : void {
-  // TODO: Add more metrics
-  // TODO: Make it save in persistent storage
-  // console.log(park.totalAdmissions);
-  // if (map.numRides > 0)
-  //   console.log(map.rides[0].totalCustomers);
-  // console.log(map.rides[0].totalProfit)
-  // console.log(map.rides[0].runningCost * 16)
-}
 
 
 
