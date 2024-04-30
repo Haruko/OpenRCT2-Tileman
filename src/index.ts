@@ -513,6 +513,7 @@ function main() {
     openWindow();
 
     // Setup map and data for game mode
+    park.landPrice = 0;
     setLandOwnership(LandOwnership.UNOWNED, { x: MapBounds.minX, y: MapBounds.minY }, { x: MapBounds.maxX, y: MapBounds.maxY });
 
     // Days are about 13.2 seconds at 1x speed
