@@ -73,7 +73,7 @@ enum LandOwnership {
 
 /**
  * **********
- * Function Constructors
+ * Function Constructors and Type Guards
  * **********
  */
 
@@ -88,15 +88,43 @@ function CoordsXY(x : number, y : number) : CoordsXY {
 }
 
 /**
+ * Checks if an object is instance of CoordsXY interface
+ * @param obj Object to check
+ * @returns true if obj is an instance of CoordsXY interface
+ */
+function isCoordsXY(obj : any) : obj is CoordsXY {
+  let objAsCoordsXY = obj as CoordsXY;
+  return typeof objAsCoordsXY.x !== 'undefined' && typeof objAsCoordsXY.y !== 'undefined' ;
+}
+
+/**
  * Makes a MapRange from two <x, y> coordinates, using the bounds of the rectangle they create to determine proper corners to define
  * @param a 
  * @param b 
  */
-function MapRange(a : CoordsXY, b : CoordsXY) : MapRange {
-  return {
-    leftTop: CoordsXY(Math.min(a.x, b.x), Math.min(a.y, b.y)),
-    rightBottom: CoordsXY(Math.max(a.x, b.x), Math.max(a.y, b.y))
-  } as MapRange;
+function MapRange(a : CoordsXY, b : CoordsXY) : MapRange;
+function MapRange(a : number, b : number, x : number, y : number) : MapRange;
+function MapRange(a : CoordsXY | number, b : CoordsXY | number, x? : number, y? : number) : MapRange | undefined {
+  if (typeof a === 'number' && typeof b === 'number') {
+    let c1 = CoordsXY(a, b);
+    let c2 = CoordsXY(x as number, y as number);
+    return MapRange(c1, c2);
+  } else if (a instanceof CoordsXY && b instanceof CoordsXY) {
+    return {
+      leftTop: CoordsXY(Math.min(a.x, b.x), Math.min(a.y, b.y)),
+      rightBottom: CoordsXY(Math.max(a.x, b.x), Math.max(a.y, b.y))
+    } as MapRange;
+  }
+}
+
+/**
+ * Checks if an object is instance of MapRange interface
+ * @param obj Object to check
+ * @returns true if obj is an instance of MapRange interface
+ */
+function isMapRange(obj : any) : obj is MapRange {
+  let objAsMapRange = obj as MapRange;
+  return isCoordsXY(objAsMapRange.leftTop) && isCoordsXY(objAsMapRange.rightBottom);
 }
 
 
