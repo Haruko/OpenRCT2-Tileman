@@ -176,6 +176,16 @@ function TileCoordsXY(a : any, b? : any) : TileCoordsXY {
   }
 }
 
+/**
+ * Checks if an object is instance of TileCoordsXY interface
+ * @param obj object to check
+ * @returns true if obj is an instance of TileCoordsXY interface
+ */
+function isTileCoordsXY(obj : any) : obj is TileCoordsXY {
+  let objAsTileCoordsXY = obj as TileCoordsXY;
+  return typeof obj.x !== undefined && typeof obj.tileX !== 'undefined';
+}
+
 
 
 /**
