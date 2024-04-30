@@ -9,7 +9,7 @@ import * as FlexUI from 'openrct2-flexui';
 
 // Data logging
 const PlayerData = {
-  totalExp: 69420,
+  totalExp: 0,
   tilesUsed: 0,
 
   // Maps ride IDs (numbers) and historical data (Ride.totalCustomers, eventually Ride.totalProfit or something )
@@ -40,7 +40,7 @@ const PluginConfig = {
 
 // Functional
 var toolStartCoords : CoordsXY = { x: 0, y: 0 };
-var lastHoveredCoords : CoordsXY;
+var lastHoveredCoords : CoordsXY = { x: 0, y: 0 };
 
 // Prevent buying outer range of the map so we don't mess up guests spawning
 enum MapBounds {
@@ -339,20 +339,20 @@ function setLandOwnership(ownership: LandOwnership, corner1: CoordsXY, corner2: 
     if (result.error !== 0) {
       console.log(`Error setting land ownership: ${result.errorMessage}`);
     } else {
-      let result = '';
+      let ownershipType = '';
 
       switch(ownership) {
         case LandOwnership.OWNED:
-          result = 'owned'
+          ownershipType = 'owned'
           break;
         case LandOwnership.UNOWNED:
-          result = 'unowned'
+          ownershipType = 'unowned'
           break;
         case LandOwnership.CONSTRUCTION_RIGHTS_OWNED:
-          result = 'construction rights owned'
+          ownershipType = 'construction rights owned'
           break;
       }
-      console.log(`Success setting land ownership: ${result}`);
+      console.log(`Success setting land ownership: ${ownershipType}`);
     }
   });
 
@@ -513,7 +513,6 @@ function main() {
     openWindow();
 
     // Setup map and data for game mode
-    park.landPrice = 0;
     setLandOwnership(LandOwnership.UNOWNED, { x: MapBounds.minX, y: MapBounds.minY }, { x: MapBounds.maxX, y: MapBounds.maxY });
 
     // Days are about 13.2 seconds at 1x speed
