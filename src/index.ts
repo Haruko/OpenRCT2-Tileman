@@ -3,9 +3,11 @@ import * as FlexUI from 'openrct2-flexui';
 
 
 
-/*
-  Variables
-*/
+/**
+ * **********
+ * Variables
+ * **********
+ */
 
 // Data logging
 const PlayerData = {
@@ -60,30 +62,35 @@ enum LandOwnership {
 }
 
 
-/*
-  UI construction
-*/
+/**
+ * **********
+ * UI construction
+ * **********
+ */
 
-/*
-  Sprite list: openrct2/sprites.h
+/**
+ * Sprite list: openrct2/sprites.h
+ * 
+ * Text colors
+ *   black
+ *   grey
+ *   white
+ *   red
+ *   green
+ *   yellow
+ *   topaz
+ *   celadon
+ *   babyblue
+ *   palelavender
+ *   palegold
+ *   lightpink
+ *   pearlaqua
+ *   palesilver
+ */
 
-  Text colors
-    black
-    grey
-    white
-    red
-    green
-    yellow
-    topaz
-    celadon
-    babyblue
-    palelavender
-    palegold
-    lightpink
-    pearlaqua
-    palesilver
-*/
-
+/**
+ * Box to display statistics in primary window
+ */
 const statsBox = FlexUI.box({
   content: FlexUI.vertical({
     spacing: 5,
@@ -118,6 +125,9 @@ const statsBox = FlexUI.box({
   })
 });
 
+/**
+ * Box to display buttons in primary window
+ */
 const buttonBox = FlexUI.vertical({
   spacing: 0,
   content: [
@@ -215,6 +225,9 @@ const buttonBox = FlexUI.vertical({
   ]
 });
 
+/**
+ * Primary window
+ */
 const mainWindow = FlexUI.window({
   title: PluginConfig.winTitle,
 	width: 275,
@@ -231,12 +244,17 @@ const mainWindow = FlexUI.window({
   onUpdate: () => 0
 });
 
+/**
+ * Opens the primary window
+ */
 function openWindow() : void {
   closeWindow();
   mainWindow.open();
 }
 
-// Assumes only one instance of window open
+/**
+ * Assumes only one instance of window open
+ */
 function closeWindow() :void {
   let numWindows = ui.windows;
   for(let i = 0; i < numWindows; ++i) {
@@ -250,16 +268,24 @@ function closeWindow() :void {
 
 
 
-/*
-  Helper Functions
-*/
+/**
+ * **********
+ * Helper Functions
+ * **********
+ */
 
-// Computes number of tiles earned based on total experience
+/**
+ * Computes number of tiles earned based on total experience
+ */
 function computeTilesAvailable() : number {
   return Math.floor(PlayerData.totalExp / PluginConfig.expPerTile) + PluginConfig.minTiles;
 }
 
-//returns coords clamped to the map bounds
+/**
+ * Returns coordinates clamped to the map bounds
+ * @param coords Coordinates to clamp
+ * @returns Clamped coordinates
+ */
 function clampCoords(coords : CoordsXY) : CoordsXY {
   let clampedCoords : CoordsXY = { x: 0, y: 0 }
 
@@ -274,42 +300,31 @@ function clampCoords(coords : CoordsXY) : CoordsXY {
 
 
 
-/*
-  Data tracking
-*/
+/**
+ * **********
+ * Land Management
+ * **********
+ */
 
-function collectData() : void {
-  // TODO: Add more metrics
-  // TODO: Make it save in persistent storage
-  // console.log(park.totalAdmissions);
-  // if (map.numRides > 0)
-  //   console.log(map.rides[0].totalCustomers);
-  // console.log(map.rides[0].totalProfit)
-  // console.log(map.rides[0].runningCost * 16)
-}
-
-
-
-/*
-  Land Management
-*/
-
-/*
-  Sets tile ownership
-  corner1 defaults and clamps to <1, 1>
-  corner2 defaults and clamps to <xmax, ymax>
-  
-  flags: openrct2/Game.h
-    GAME_COMMAND_FLAG_APPLY = (1 << 0),  // If this flag is set, the command is applied, otherwise only the cost is retrieved
-    GAME_COMMAND_FLAG_REPLAY = (1 << 1), // Command was issued from replay manager.
-    GAME_COMMAND_FLAG_2 = (1 << 2),      // Unused
-    GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED = (1 << 3), // Allow while paused
-    GAME_COMMAND_FLAG_4 = (1 << 4),                   // Unused
-    GAME_COMMAND_FLAG_NO_SPEND = (1 << 5),            // Game command is not networked
-    GAME_COMMAND_FLAG_GHOST = (1 << 6),               // Game command is not networked
-    GAME_COMMAND_FLAG_TRACK_DESIGN = (1 << 7),
-    GAME_COMMAND_FLAG_NETWORKED = (1u << 31) // Game command is coming from network
-*/
+/**
+ * Sets tile ownership in a region
+ * 
+ * flags: openrct2/Game.h
+ *   GAME_COMMAND_FLAG_APPLY = (1 << 0),  // If this flag is set, the command is applied, otherwise only the cost is retrieved
+ *   GAME_COMMAND_FLAG_REPLAY = (1 << 1), // Command was issued from replay manager.
+ *   GAME_COMMAND_FLAG_2 = (1 << 2),      // Unused
+ *   GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED = (1 << 3), // Allow while paused
+ *   GAME_COMMAND_FLAG_4 = (1 << 4),                   // Unused
+ *   GAME_COMMAND_FLAG_NO_SPEND = (1 << 5),            // Game command is not networked
+ *   GAME_COMMAND_FLAG_GHOST = (1 << 6),               // Game command is not networked
+ *   GAME_COMMAND_FLAG_TRACK_DESIGN = (1 << 7),
+ *   GAME_COMMAND_FLAG_NETWORKED = (1u << 31) // Game command is coming from network
+ * 
+ * @param ownership 
+ * @param corner1 defaults and clamps to <MapBounds.minX, MapBounds.minY>
+ * @param corner2 defaults and clamps to <MapBounds.maxX, MapBounds.maxY>
+ * @returns true on success
+ */
 function setLandOwnership(ownership: LandOwnership, corner1: CoordsXY, corner2: CoordsXY) : boolean {
   // Check if a selection is entirely out of bounds (straight line on map edge)
   if ((corner1.x < MapBounds.minX && corner2.x < MapBounds.minX)
@@ -361,7 +376,13 @@ function setLandOwnership(ownership: LandOwnership, corner1: CoordsXY, corner2: 
   return true;
 }
 
-// Returns true if player can afford it
+/**
+ * Attempts to buy tiles in a region
+ * @param corner1 starting corner
+ * @param corner2 ending corner
+ * @param rights true if we should get construction rights, otherwise assumes outright ownership
+ * @returns true on success
+ */
 function buyTiles(corner1: CoordsXY, corner2: CoordsXY, rights? : boolean) : boolean {
   // TODO: check if player can afford them
   // TODO: decrement # bought tiles
@@ -378,7 +399,12 @@ function buyTiles(corner1: CoordsXY, corner2: CoordsXY, rights? : boolean) : boo
   return true;
 }
 
-// Returns true if any tiles were sold
+/**
+ * Attempts to sell tiles in a region
+ * @param corner1 starting corner
+ * @param corner2 ending corner
+ * @returns true on success
+ */
 function sellTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
   // TODO: iterate over selection and only sell owned tiles (with nothing built on them?)
   // TODO: increment number of sold tiles
@@ -395,14 +421,25 @@ function sellTiles(corner1: CoordsXY, corner2: CoordsXY) : boolean {
 
 
 
-/*
-  Tools
-*/
+/**
+ * **********
+ * Tools
+ * **********
+ */
 
+/**
+ * Called when user starts using a tool
+ * @param toolID ID for the tool being used
+ */
 function onToolStart(toolID: string) : void {
-
+  // TODO: Might need to implement
 }
 
+/**
+ * Called when the user holds left mouse button while using a tool
+ * @param e Event args
+ * @param toolID ID for the tool being used
+ */
 function onToolDown(e: ToolEventArgs, toolID: string) : void {
   if (e.mapCoords && e.mapCoords.x > 0) {
     toolStartCoords = e.mapCoords;
@@ -414,6 +451,11 @@ function onToolDown(e: ToolEventArgs, toolID: string) : void {
   drawToolSelection(toolStartCoords, lastHoveredCoords);
 }
 
+/**
+ * Called when the user moves the mouse while using a tool
+ * @param e Event args
+ * @param toolID ID for the tool being used
+ */
 function onToolMove(e: ToolEventArgs, toolID: string) : void {
   if (e.mapCoords && e.mapCoords.x > 0) {
     lastHoveredCoords = e.mapCoords;
@@ -426,6 +468,11 @@ function onToolMove(e: ToolEventArgs, toolID: string) : void {
   }
 }
 
+/**
+ * Called when the user stops holding left mouse button while using a tool
+ * @param e Event args
+ * @param toolID ID for the tool being used
+ */
 function onToolUp(e: ToolEventArgs, toolID: string) : void {
   if (toolStartCoords.x > 0) {
     switch(toolID) {
@@ -475,14 +522,26 @@ function onToolUp(e: ToolEventArgs, toolID: string) : void {
   ui.tileSelection.range = null;
 }
 
+/**
+ * Called when the user stops using a tool
+ * @param toolID ID for the tool being used
+ */
 function onToolFinish(toolID: string) : void {
   ui.tileSelection.range = null;
 }
 
+/**
+ * Cancels a tool being used
+ */
 function cancelTool() : void {
   ui.tool?.cancel();
 }
 
+/**
+ * Generates and sets a tool selection area to draw
+ * @param corner1 Starting corner
+ * @param corner2 Ending corner
+ */
 function drawToolSelection(corner1 : CoordsXY, corner2 : CoordsXY) : void {
   const leftTop = {
     x: Math.min(corner1.x, corner2.x ?? 0),
@@ -500,8 +559,9 @@ function drawToolSelection(corner1 : CoordsXY, corner2 : CoordsXY) : void {
   };
 }
 
-
-
+/**
+ * Entry point
+ */
 function main() {
   console.log('Initializing Tileman Plugin...');
 
@@ -521,6 +581,9 @@ function main() {
   }
 }
 
+/**
+ * Registers plugin info
+ */
 registerPlugin({
   name: 'Tileman',
   version: '0.0.1',
@@ -536,6 +599,33 @@ registerPlugin({
 context.subscribe('interval.day', function() {
   park.cash += 1000000;
 });
+
+
+
+
+
+
+
+
+/**
+ * **********
+ * Data tracking
+ * **********
+ */
+
+function collectData() : void {
+  // TODO: Add more metrics
+  // TODO: Make it save in persistent storage
+  // console.log(park.totalAdmissions);
+  // if (map.numRides > 0)
+  //   console.log(map.rides[0].totalCustomers);
+  // console.log(map.rides[0].totalProfit)
+  // console.log(map.rides[0].runningCost * 16)
+}
+
+
+
+
 
 /*
   getParkStorage
