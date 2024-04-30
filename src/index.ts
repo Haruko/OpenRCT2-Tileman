@@ -69,7 +69,7 @@ enum LandOwnership {
   AVAILABLE = (1 << 7)
 }
 
-// Extends CoordsXY to specify tileX and tileY which are x / 32 and y / 32
+// Extends CoordsXY to specify tileX and tileY which are map coordinates / 32
 interface TileCoordsXY extends CoordsXY {
   tileX : number,
   tileY : number
@@ -104,33 +104,33 @@ function isCoordsXY(obj : any) : obj is CoordsXY {
 }
 
 /**
- * Overloaded
  * Makes a MapRange from two <x, y> coordinates, using the bounds of the rectangle they create to determine proper corners to define
- * @param a number: x coordinate for first corner
- *          CoordsXY: first corner
- * @param b number: y coordinate for first corner
- *          CoordsXY: second corner
- * @param x x coordinate for second corner
- * @param y y coordinate for second corner
- * @returns MapRange with leftTop and rightBottom built based on which overload
+ * @overload
+ * @param c1 first corner
+ * @param c2 second corner
+ * @returns MapRange with leftTop and rightBottom built from minimums of coordinates
  */
-function MapRange(a : CoordsXY, b : CoordsXY) : MapRange;
-function MapRange(a : number, b : number, x : number, y : number) : MapRange;
-function MapRange(a : CoordsXY | number, b : CoordsXY | number, x? : number, y? : number) : MapRange | undefined {
-  if (typeof a !== typeof b) {
-    return;
-  } else if (typeof a === 'number' && typeof b === 'number') {
-    let c1 = CoordsXY(a, b);
-    let c2 = CoordsXY(x as number, y as number);
-    return MapRange(c1, c2);
-  } else {
-    a = a as CoordsXY;
-    b = b as CoordsXY;
+function MapRange(c1 : CoordsXY, c2 : CoordsXY) : MapRange;
 
+/**
+ * Makes a MapRange from two <x, y> coordinates, using the bounds of the rectangle they create to determine proper corners to define
+ * @overload
+ * @param x1 first corner x coordinate
+ * @param y1 first corner y coordinate
+ * @param x2 second corner x coordinate
+ * @param y2 second corner y coordinate
+ * @returns MapRange with leftTop and rightBottom built from minimums of coordinates
+ */
+function MapRange(x1 : number, y1: number, x2 : number, y2 : number) : MapRange;
+
+function MapRange(a : any, b : any, x? : any, y? : any) : MapRange {
+  if (typeof a === 'number' && typeof b === 'number') {
     return {
-      leftTop: CoordsXY(Math.min(a.x, b.x), Math.min(a.y, b.y)),
-      rightBottom: CoordsXY(Math.max(a.x, b.x), Math.max(a.y, b.y))
+      leftTop: CoordsXY(Math.min(a, x), Math.min(b, y)),
+      rightBottom: CoordsXY(Math.max(a, x), Math.max(b, y))
     } as MapRange;
+  } else {
+    return MapRange(a.x, a.y, b.x, b.y);
   }
 }
 
@@ -145,26 +145,34 @@ function isMapRange(obj : any) : obj is MapRange {
 }
 
 /**
- * Overloaded
- * Makes a TileCoordsXY from a CoordsXY or an x and y coordinate.
- * If given a CoordsXY, assume it is in map coordinates and divide by 32 to set tileX and tileY.
- * If given two numbers, assume it is in tile coordinates and multiply by 32 to set x and y.
- * @param a CoordsXY: map coordinates to convert
- *          number: x coordinate of tile
- * @param b number: y coordinate of tile
+ * Converts map coordinates to tile coordinates, divides x and y by 32 to set tileX and tileY
+ * @param c map coordinates
  */
-function TileCoordsXY(a : CoordsXY) : TileCoordsXY;
-function TileCoordsXY(a : number, b : number) : TileCoordsXY;
-function TileCoordsXY(a : CoordsXY | number, b? : number) : TileCoordsXY | undefined {
-  if (isCoordsXY(a)) {
-    let tileCoordsXY : TileCoordsXY = CoordsXY(a.x, a.y) as TileCoordsXY;
-    tileCoordsXY.tileX = a.x / 32;
-    tileCoordsXY.tileY = a.y / 32;
-    return tileCoordsXY;
-  } else if (typeof a === 'number' && typeof b === 'number') {
+function TileCoordsXY(c : CoordsXY) : TileCoordsXY;
 
+/**
+ * Converts to map coordinates, multiplies tileX and tileY by 32 to set x and y
+ * @param x tile coordinates
+ * @param y tile coordinates
+ */
+function TileCoordsXY(x : number, y : number) : TileCoordsXY;
+function TileCoordsXY(a : any, b? : any) : TileCoordsXY {
+  if (typeof a === 'number') {
+    // number assumes it's using tile coordinates
+    return {
+      x: a * 32,
+      y: b * 32,
+      tileX: a,
+      tileY: b
+    } as TileCoordsXY;
   } else {
-    return;
+    // CoordsXY assumes it's using map coordinates
+    return {
+      x: a.x,
+      y: a.y,
+      tileX: a.x / 32,
+      tileY: a.y / 32
+    } as TileCoordsXY;
   }
 }
 
