@@ -41,8 +41,16 @@ const PluginConfig = {
 }
 
 // Functional
-var toolStartCoords : CoordsXY = { x: 0, y: 0 };
-var lastHoveredCoords : CoordsXY = { x: 0, y: 0 };
+var toolStartCoords : CoordsXY = CoordsXY(0, 0);
+var lastHoveredCoords : CoordsXY = CoordsXY(0, 0);
+
+
+
+/**
+ * **********
+ * Type / Interface / Enum definitions
+ * **********
+ */
 
 // Prevent buying outer range of the map so we don't mess up guests spawning
 enum MapBounds {
@@ -60,6 +68,37 @@ enum LandOwnership {
   CONSTRUCTION_RIGHTS_AVAILABLE = (1 << 6),
   AVAILABLE = (1 << 7)
 }
+
+
+
+/**
+ * **********
+ * Function Constructors
+ * **********
+ */
+
+/**
+ * Makes a CoordsXY from x and y values
+ * @param x 
+ * @param y 
+ * @returns 
+ */
+function CoordsXY(x : number, y : number) : CoordsXY {
+  return { x, y } as CoordsXY;
+}
+
+/**
+ * Makes a MapRange from two <x, y> coordinates, using the bounds of the rectangle they create to determine proper corners to define
+ * @param a 
+ * @param b 
+ */
+function MapRange(a : CoordsXY, b : CoordsXY) : MapRange {
+  return {
+    leftTop: CoordsXY(Math.min(a.x, b.x), Math.min(a.y, b.y)),
+    rightBottom: CoordsXY(Math.max(a.x, b.x), Math.max(a.y, b.y))
+  } as MapRange;
+}
+
 
 
 /**
@@ -287,7 +326,7 @@ function computeTilesAvailable() : number {
  * @returns Clamped coordinates
  */
 function clampCoords(coords : CoordsXY) : CoordsXY {
-  let clampedCoords : CoordsXY = { x: 0, y: 0 }
+  let clampedCoords : CoordsXY = CoordsXY(0, 0);
 
   clampedCoords.x = Math.max(MapBounds.minX, coords.x);
   clampedCoords.x = Math.min(MapBounds.maxX, clampedCoords.x);
@@ -507,7 +546,7 @@ function onToolUp(e : ToolEventArgs, toolID : string) : void {
 
 
 
-    // const mapCoords : CoordsXY = { x: e?.mapCoords?.x ?? 0, y: e?.mapCoords?.y ?? 0 };
+    // const mapCoords : CoordsXY = { x : e?.mapCoords?.x ?? 0, y: e?.mapCoords?.y ?? 0 };
 
     // if (mapCoords.x > 0) {
     //   switch(toolID) {
@@ -536,7 +575,7 @@ function onToolUp(e : ToolEventArgs, toolID : string) : void {
     // }
   }
   
-  toolStartCoords = { x: 0, y: 0 };
+  toolStartCoords = CoordsXY(0, 0);
   ui.tileSelection.range = null;
 }
 
@@ -561,20 +600,7 @@ function cancelTool() : void {
  * @param corner2 Ending corner
  */
 function drawToolSelection(corner1 : CoordsXY, corner2 : CoordsXY) : void {
-  const leftTop = {
-    x: Math.min(corner1.x, corner2.x ?? 0),
-    y: Math.min(corner1.y, corner2.y ?? 0)
-  };
-
-  const rightBottom = {
-    x: Math.max(corner1.x, corner2.x ?? 0),
-    y: Math.max(corner1.y, corner2.y ?? 0)
-  };
-
-  ui.tileSelection.range = {
-    leftTop: leftTop,
-    rightBottom: rightBottom
-  };
+  ui.tileSelection.range = MapRange(corner1, corner2);
 }
 
 /**
@@ -592,7 +618,7 @@ function main() {
 
     // Setup map and data for game mode
     park.landPrice = 0;
-    setLandOwnership(LandOwnership.UNOWNED, { x: MapBounds.minX, y: MapBounds.minY }, { x: MapBounds.maxX, y: MapBounds.maxY });
+    setLandOwnership(LandOwnership.UNOWNED, CoordsXY(MapBounds.minX, MapBounds.minY), CoordsXY(MapBounds.maxX, MapBounds.maxY));
 
     // Days are about 13.2 seconds at 1x speed
     context.subscribe('interval.day', collectData);
