@@ -9,7 +9,9 @@ import * as FlexUI from 'openrct2-flexui';
  * **********
  */
 
-// Data logging
+/**
+ * Player/Park data
+ */
 const PlayerData = {
   totalExp: 0,
   tilesUsed: 0,
@@ -26,7 +28,9 @@ const PlayerData = {
   }
 };
 
-// Configs
+/**
+ * Configs
+ */
 const PluginConfig = {
   // Never changed
   winTitle: 'Tileman',
@@ -40,17 +44,11 @@ const PluginConfig = {
   minTiles: 2 // 1 path + 1 stall minimum
 }
 
-// Functional
+/**
+ * Functional
+ */
 var toolStartCoords : CoordsXY = CoordsXY(0, 0);
 var lastHoveredCoords : CoordsXY = CoordsXY(0, 0);
-
-
-
-/**
- * **********
- * Type / Interface / Enum definitions
- * **********
- */
 
 // Prevent buying outer range of the map so we don't mess up guests spawning
 const MapEdges : MapRange = MapRange(
@@ -61,6 +59,14 @@ const MapEdges : MapRange = MapRange(
   CoordsXY((map.size.x - 2) * 32, (map.size.y - 2) * 32)
 );
 
+
+
+/**
+ * **********
+ * Type / Interface / Enum definitions
+ * **********
+ */
+
 // From openrct2/world/Surface.h
 enum LandOwnership {
   UNOWNED = 0,
@@ -68,7 +74,27 @@ enum LandOwnership {
   OWNED = (1 << 5),
   CONSTRUCTION_RIGHTS_AVAILABLE = (1 << 6),
   AVAILABLE = (1 << 7)
-}
+};
+
+// From openrct2/world/TileElement.h
+enum EntranceType {
+  ENTRANCE_TYPE_RIDE_ENTRANCE,
+  ENTRANCE_TYPE_RIDE_EXIT,
+  ENTRANCE_TYPE_PARK_ENTRANCE
+};
+
+// From openrct2/Game.h
+enum GameCommandFlag {
+  GAME_COMMAND_FLAG_APPLY = (1 << 0),               // If this flag is set, the command is applied, otherwise only the cost is retrieved
+  GAME_COMMAND_FLAG_REPLAY = (1 << 1),              // Command was issued from replay manager.
+  GAME_COMMAND_FLAG_2 = (1 << 2),                   // Unused
+  GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED = (1 << 3), // Allow while paused
+  GAME_COMMAND_FLAG_4 = (1 << 4),                   // Unused
+  GAME_COMMAND_FLAG_NO_SPEND = (1 << 5),            // Game command is not networked
+  GAME_COMMAND_FLAG_GHOST = (1 << 6),               // Game command is not networked
+  GAME_COMMAND_FLAG_TRACK_DESIGN = (1 << 7),
+  // GAME_COMMAND_FLAG_NETWORKED = (1u << 31)          // Game command is coming from network (Doesn't have equivalent in TS?)
+};
 
 
 
@@ -438,19 +464,6 @@ function collectData() : void {
  */
 
 /**
- * flags: openrct2/Game.h
- *   GAME_COMMAND_FLAG_APPLY = (1 << 0),  // If this flag is set, the command is applied, otherwise only the cost is retrieved
- *   GAME_COMMAND_FLAG_REPLAY = (1 << 1), // Command was issued from replay manager.
- *   GAME_COMMAND_FLAG_2 = (1 << 2),      // Unused
- *   GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED = (1 << 3), // Allow while paused
- *   GAME_COMMAND_FLAG_4 = (1 << 4),                   // Unused
- *   GAME_COMMAND_FLAG_NO_SPEND = (1 << 5),            // Game command is not networked
- *   GAME_COMMAND_FLAG_GHOST = (1 << 6),               // Game command is not networked
- *   GAME_COMMAND_FLAG_TRACK_DESIGN = (1 << 7),
- *   GAME_COMMAND_FLAG_NETWORKED = (1u << 31) // Game command is coming from network
- */
-
-/**
  * Sets tile ownership in a region
  * @param range defaults and clamps to <MapEdges.leftTop.x, MapEdges.leftTop.y> -  <MapEdges.rightBottom.x, MapEdges.rightBottom.y>
  * @param ownership LandOwnership enum value
@@ -476,7 +489,7 @@ function setLandOwnership(range : MapRange, ownership : LandOwnership) : boolean
     y2: clampedRange.rightBottom.y,
     setting: 4, // Set ownership
     ownership: ownership,
-    flags: (1 << 0) | (1 << 3)
+    flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
   }, (result : GameActionResult) => {
     const successType = result.error !== 0 ? 'Error' : 'Success';
     const resultData = result.error !== 0 ? result.errorMessage : LandOwnership[ownership];
@@ -511,6 +524,39 @@ function buyTiles(range : MapRange, rights? : boolean) : boolean {
 }
 
 /**
+ * Checks if a tile should be buyable
+ * @param tile Tile to check
+ * @param buyType Whether we're attempting LandOwnership.OWNED or LandOwnership.CONSTRUCTION_RIGHTS_OWNED
+ * @returns true if the tile is buyable
+ */
+function checkTileBuyable(tile : Tile, buyType : LandOwnership) : boolean {
+  let buyable = true;
+
+  // Iterate over elements to see land ownership and what is here
+  for(let i = 0; i < tile.numElements && buyable; ++i) {
+    let element = tile.getElement(i);
+
+    switch (element.type) {
+      case 'surface':
+        // Land is not unowned and ownership type matches buyType
+        if (element.ownership !== LandOwnership.UNOWNED && element.ownership === buyType) {
+          buyable = false;
+        }
+        break;
+
+      case 'entrance':
+        // It's the park entrance
+        if (element.object === EntranceType.ENTRANCE_TYPE_PARK_ENTRANCE) {
+          buyable = false;
+        }
+        break;
+    }
+  }
+
+  return buyable;
+}
+
+/**
  * Attempts to sell tiles in a region
  * @param range range of tiles to sell
  * @returns true on success
@@ -527,6 +573,44 @@ function sellTiles(range : MapRange) : boolean {
   }
 
   return true;
+}
+
+/**
+ * Checks if a tile should be sellable or not
+ * @param tile Tile to check
+ * @returns true if the tile is sellable
+ */
+function checkTileSellable(tile : Tile) : boolean {
+  let sellable = true;
+
+  // Iterate over elements to see land ownership and what is here
+  for(let i = 0; i < tile.numElements && sellable; ++i) {
+    let element = tile.getElement(i);
+
+    switch (element.type) {
+      case 'surface':
+        // Land is unowned
+        if (element.ownership === LandOwnership.UNOWNED) {
+          sellable = false;
+        }
+        break;
+
+      case 'entrance':
+        // It's a ride entrance/exit
+        if (element.object === EntranceType.ENTRANCE_TYPE_RIDE_ENTRANCE
+          || element.object === EntranceType.ENTRANCE_TYPE_RIDE_EXIT) {
+          sellable = false;
+        }
+        break;
+
+      case 'track':
+        // track is either a track piece or the entire ride depending on type
+        sellable = false;
+        break;
+    }
+  }
+
+  return sellable;
 }
 
 
