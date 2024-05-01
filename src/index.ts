@@ -388,6 +388,15 @@ function clampCoords(coords : CoordsXY) : CoordsXY {
 }
 
 /**
+ * Shorter way to clamp both coordinates in a range
+ * @param range Range to clamp
+ * @returns Range with clamped corners
+ */
+function clampRange(range : MapRange) : MapRange {
+  return MapRange(clampCoords(range.leftTop), clampCoords(range.rightBottom));
+}
+
+/**
  * Checks if part of the selection is inside the playable area
  * @param range Selection range
  * @returns true if some of the selection is inside the playable area
@@ -453,10 +462,7 @@ function setLandOwnership(range : MapRange, ownership : LandOwnership) : boolean
     return false;
   }
 
-  let clampedRange : MapRange = {
-    leftTop: clampCoords(range.leftTop),
-    rightBottom: clampCoords(range.rightBottom)
-  };
+  const clampedRange : MapRange = clampRange(range);
 
   // Turn on sandbox mode to make buying/selling land free and doable to any tile
   cheats.sandboxMode = true;
