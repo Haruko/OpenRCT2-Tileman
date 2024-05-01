@@ -404,8 +404,6 @@ function checkSelectionInsideBounds(range : MapRange) : boolean {
 
 
 
-
-
 /**
  * **********
  * Data tracking
@@ -431,8 +429,6 @@ function collectData() : void {
  */
 
 /**
- * Sets tile ownership in a region
- * 
  * flags: openrct2/Game.h
  *   GAME_COMMAND_FLAG_APPLY = (1 << 0),  // If this flag is set, the command is applied, otherwise only the cost is retrieved
  *   GAME_COMMAND_FLAG_REPLAY = (1 << 1), // Command was issued from replay manager.
@@ -443,12 +439,15 @@ function collectData() : void {
  *   GAME_COMMAND_FLAG_GHOST = (1 << 6),               // Game command is not networked
  *   GAME_COMMAND_FLAG_TRACK_DESIGN = (1 << 7),
  *   GAME_COMMAND_FLAG_NETWORKED = (1u << 31) // Game command is coming from network
- * 
- * @param ownership LandOwnership enum value
+ */
+
+/**
+ * Sets tile ownership in a region
  * @param range defaults and clamps to <MapEdges.leftTop.x, MapEdges.leftTop.y> -  <MapEdges.rightBottom.x, MapEdges.rightBottom.y>
+ * @param ownership LandOwnership enum value
  * @returns true on success
  */
-function setLandOwnership(ownership : LandOwnership, range : MapRange) : boolean {
+function setLandOwnership(range : MapRange, ownership : LandOwnership) : boolean {
   if (!checkSelectionInsideBounds(range)) {
     console.log('Selection outside of play area.');
     return false;
@@ -495,7 +494,7 @@ function buyTiles(range : MapRange, rights? : boolean) : boolean {
 
   // TODO: Count number of buyable tiles in area (check if <0, 0>)
 
-  let buySuccess : boolean = setLandOwnership(rights ? LandOwnership.CONSTRUCTION_RIGHTS_OWNED : LandOwnership.OWNED, range);
+  let buySuccess : boolean = setLandOwnership(range, rights ? LandOwnership.CONSTRUCTION_RIGHTS_OWNED : LandOwnership.OWNED);
 
   if (!buySuccess) {
     ui.showError('Can\'t buy land...', 'Outside of map bounds!');
@@ -514,7 +513,7 @@ function sellTiles(range : MapRange) : boolean {
   // TODO: iterate over selection and only sell owned tiles (with nothing built on them?)
   // TODO: increment number of sold tiles
 
-  let sellSuccess : boolean = setLandOwnership(LandOwnership.UNOWNED, range);
+  let sellSuccess : boolean = setLandOwnership(range, LandOwnership.UNOWNED);
 
   if (!sellSuccess) {
     ui.showError('Can\'t sell land...', 'Outside of map bounds!');
@@ -635,7 +634,7 @@ function main() : void {
 
     // Setup map and data for game mode
     park.landPrice = 0;
-    setLandOwnership(LandOwnership.UNOWNED, MapRange(MapEdges.leftTop, MapEdges.rightBottom));
+    setLandOwnership(MapEdges, LandOwnership.UNOWNED);
 
     // Days are about 13.2 seconds at 1x speed
     context.subscribe('interval.day', collectData);
