@@ -53,12 +53,10 @@ var lastHoveredCoords : CoordsXY = CoordsXY(0, 0);
  */
 
 // Prevent buying outer range of the map so we don't mess up guests spawning
-enum MapBounds {
-  minX = 2 * 32,
-  minY = 2 * 32,
-  maxX = (map.size.x - 3) * 32,
-  maxY = (map.size.y - 3) * 32,
-};
+const MapBounds : MapRange = MapRange(
+  CoordsXY(2 * 32, 2 * 32),
+  CoordsXY((map.size.x - 3) * 32, (map.size.y - 3) * 32)
+);
 
 // From openrct2/world/Surface.h
 enum LandOwnership {
@@ -84,13 +82,26 @@ interface TileCoordsXY extends CoordsXY {
  */
 
 /**
+ * Makes a CoordsXY <0, 0>
+ * @overload
+ */
+function CoordsXY() : CoordsXY;
+
+/**
  * Makes a CoordsXY from x and y values
+ * @overload
  * @param x 
  * @param y 
  * @returns CoordsXY
  */
-function CoordsXY(x : number, y : number) : CoordsXY {
-  return { x, y } as CoordsXY;
+function CoordsXY(x : number, y : number) : CoordsXY;
+
+function CoordsXY(x? : any, y? : any) : CoordsXY {
+  if (typeof x === 'number') {
+    return { x, y } as CoordsXY;
+  } else {
+    return { x: 0, y: 0 } as CoordsXY;
+  }
 }
 
 /**
@@ -414,8 +425,8 @@ function computeTilesAvailable() : number {
  */
 function clampCoords(coords : CoordsXY) : CoordsXY {
   let clampedCoords : CoordsXY = CoordsXY(
-    Math.min(MapBounds.maxX, Math.max(MapBounds.minX, coords.x)),
-    Math.min(MapBounds.maxY, Math.max(MapBounds.minY, coords.y))
+    Math.min(MapBounds.rightBottom.x, Math.max(MapBounds.leftTop.x, coords.x)),
+    Math.min(MapBounds.rightBottom.y, Math.max(MapBounds.leftTop.y, coords.y))
   );
 
   return clampedCoords;
@@ -462,15 +473,15 @@ function collectData() : void {
  *   GAME_COMMAND_FLAG_NETWORKED = (1u << 31) // Game command is coming from network
  * 
  * @param ownership LandOwnership enum value
- * @param range defaults and clamps to <MapBounds.minX, MapBounds.minY> -  <MapBounds.maxX, MapBounds.maxY>
+ * @param range defaults and clamps to <MapBounds.leftTop.x, MapBounds.leftTop.y> -  <MapBounds.rightBottom.x, MapBounds.rightBottom.y>
  * @returns true on success
  */
 function setLandOwnership(ownership : LandOwnership, range : MapRange) : boolean {
   // Check if a selection is entirely out of bounds (straight line on map edge)
-  if ((range.leftTop.x < MapBounds.minX && range.rightBottom.x < MapBounds.minX)
-    || (range.leftTop.x > MapBounds.maxX && range.rightBottom.x > MapBounds.maxX)
-    || (range.leftTop.y < MapBounds.minY && range.rightBottom.y < MapBounds.minY)
-    || (range.leftTop.y > MapBounds.maxY && range.rightBottom.y > MapBounds.maxY)) {
+  if ((range.leftTop.x < MapBounds.leftTop.x && range.rightBottom.x < MapBounds.leftTop.x)
+    || (range.leftTop.x > MapBounds.rightBottom.x && range.rightBottom.x > MapBounds.rightBottom.x)
+    || (range.leftTop.y < MapBounds.leftTop.y && range.rightBottom.y < MapBounds.leftTop.y)
+    || (range.leftTop.y > MapBounds.rightBottom.y && range.rightBottom.y > MapBounds.rightBottom.y)) {
       return false;
     }
   
@@ -656,7 +667,7 @@ function drawToolSelection(range : MapRange) : void {
 /**
  * Entry point
  */
-function main() {
+function main() : void {
   console.log('Initializing Tileman Plugin...');
 
   // Make sure it's a client
@@ -668,7 +679,7 @@ function main() {
 
     // Setup map and data for game mode
     park.landPrice = 0;
-    setLandOwnership(LandOwnership.UNOWNED, MapRange(CoordsXY(MapBounds.minX, MapBounds.minY), CoordsXY(MapBounds.maxX, MapBounds.maxY)));
+    setLandOwnership(LandOwnership.UNOWNED, MapRange(CoordsXY(MapBounds.leftTop.x, MapBounds.leftTop.y), CoordsXY(MapBounds.rightBottom.x, MapBounds.rightBottom.y)));
 
     // Days are about 13.2 seconds at 1x speed
     context.subscribe('interval.day', collectData);
