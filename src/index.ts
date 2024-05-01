@@ -465,7 +465,7 @@ function collectData() : void {
 
 /**
  * Sets tile ownership in a region
- * @param range defaults and clamps to <MapEdges.leftTop.x, MapEdges.leftTop.y> -  <MapEdges.rightBottom.x, MapEdges.rightBottom.y>
+ * @param range Defaults and clamps to <MapEdges.leftTop.x, MapEdges.leftTop.y> -  <MapEdges.rightBottom.x, MapEdges.rightBottom.y>
  * @param ownership LandOwnership enum value
  * @returns true on success
  */
@@ -503,17 +503,17 @@ function setLandOwnership(range : MapRange, ownership : LandOwnership) : boolean
 
 /**
  * Attempts to buy tiles in a region
- * @param range range of tiles to buy
- * @param rights true if we should get construction rights, otherwise assumes outright ownership
+ * @param range Range of tiles to buy
+ * @param buyType Which type of ownership we're trying to get
  * @returns true on success
  */
-function buyTiles(range : MapRange, rights? : boolean) : boolean {
+function buyTiles(range : MapRange, buyType : LandOwnership) : boolean {
   // TODO: check if player can afford them
   // TODO: decrement # bought tiles
 
   // TODO: Count number of buyable tiles in area (check if <0, 0>)
 
-  let buySuccess : boolean = setLandOwnership(range, rights ? LandOwnership.CONSTRUCTION_RIGHTS_OWNED : LandOwnership.OWNED);
+  let buySuccess : boolean = setLandOwnership(range, buyType);
 
   if (!buySuccess) {
     ui.showError('Can\'t buy land...', 'Outside of map bounds!');
@@ -671,13 +671,13 @@ function onToolUp(e : ToolEventArgs, toolID : string) : void {
   if (toolStartCoords.x > 0) {
     switch(toolID) {
       case PluginConfig.buyToolID:
-        buyTiles(MapRange(toolStartCoords, lastHoveredCoords));
+        buyTiles(MapRange(toolStartCoords, lastHoveredCoords), LandOwnership.OWNED);
         break;
       case PluginConfig.sellToolID:
         sellTiles(MapRange(toolStartCoords, lastHoveredCoords));
         break;
       case PluginConfig.buildRightsToolID:
-        buyTiles(MapRange(toolStartCoords, lastHoveredCoords), true);
+        buyTiles(MapRange(toolStartCoords, lastHoveredCoords), LandOwnership.CONSTRUCTION_RIGHTS_OWNED);
         break;
     }
   }
