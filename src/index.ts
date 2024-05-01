@@ -53,9 +53,12 @@ var lastHoveredCoords : CoordsXY = CoordsXY(0, 0);
  */
 
 // Prevent buying outer range of the map so we don't mess up guests spawning
-const MapBounds : MapRange = MapRange(
-  CoordsXY(2 * 32, 2 * 32),
-  CoordsXY((map.size.x - 3) * 32, (map.size.y - 3) * 32)
+const MapEdges : MapRange = MapRange(
+  // left/top edge is <1, 1> / <32, 32>
+  CoordsXY(32, 32),
+  // bottom/right edge is <x-2, y-2> / <32(x-2), 32(y-2)>
+  // Map size is 2 tiles too big
+  CoordsXY((map.size.x - 2) * 32, (map.size.y - 2) * 32)
 );
 
 // From openrct2/world/Surface.h
@@ -377,12 +380,29 @@ function computeTilesAvailable() : number {
  */
 function clampCoords(coords : CoordsXY) : CoordsXY {
   let clampedCoords : CoordsXY = CoordsXY(
-    Math.min(MapBounds.rightBottom.x, Math.max(MapBounds.leftTop.x, coords.x)),
-    Math.min(MapBounds.rightBottom.y, Math.max(MapBounds.leftTop.y, coords.y))
+    Math.min(MapEdges.rightBottom.x - 32, Math.max(MapEdges.leftTop.x + 32, coords.x)),
+    Math.min(MapEdges.rightBottom.y - 32, Math.max(MapEdges.leftTop.y + 32, coords.y))
   );
 
   return clampedCoords;
 }
+
+/**
+ * Checks if part of the selection is inside the playable area
+ * @param range Selection range
+ * @returns true if some of the selection is inside the playable area
+ */
+function checkSelectionInsideBounds(range : MapRange) : boolean {
+  // Check
+  const xLow : boolean = (range.leftTop.x > MapEdges.leftTop.x || range.rightBottom.x > MapEdges.leftTop.x);
+  const xHigh : boolean = (range.leftTop.x < MapEdges.rightBottom.x || range.rightBottom.x < MapEdges.rightBottom.x);
+  const yLow : boolean = (range.leftTop.y > MapEdges.leftTop.y || range.rightBottom.y > MapEdges.leftTop.y);
+  const yHigh : boolean = (range.leftTop.y < MapEdges.rightBottom.y || range.rightBottom.y < MapEdges.rightBottom.y);
+
+  return (xLow && xHigh && yLow && yHigh);
+}
+
+
 
 
 
@@ -425,53 +445,37 @@ function collectData() : void {
  *   GAME_COMMAND_FLAG_NETWORKED = (1u << 31) // Game command is coming from network
  * 
  * @param ownership LandOwnership enum value
- * @param range defaults and clamps to <MapBounds.leftTop.x, MapBounds.leftTop.y> -  <MapBounds.rightBottom.x, MapBounds.rightBottom.y>
+ * @param range defaults and clamps to <MapEdges.leftTop.x, MapEdges.leftTop.y> -  <MapEdges.rightBottom.x, MapEdges.rightBottom.y>
  * @returns true on success
  */
 function setLandOwnership(ownership : LandOwnership, range : MapRange) : boolean {
-  // Check if a selection is entirely out of bounds (straight line on map edge)
-  if ((range.leftTop.x < MapBounds.leftTop.x && range.rightBottom.x < MapBounds.leftTop.x)
-    || (range.leftTop.x > MapBounds.rightBottom.x && range.rightBottom.x > MapBounds.rightBottom.x)
-    || (range.leftTop.y < MapBounds.leftTop.y && range.rightBottom.y < MapBounds.leftTop.y)
-    || (range.leftTop.y > MapBounds.rightBottom.y && range.rightBottom.y > MapBounds.rightBottom.y)) {
-      return false;
-    }
-  
-  range.leftTop = clampCoords(range.leftTop);
-  range.rightBottom = clampCoords(range.rightBottom);
+  if (!checkSelectionInsideBounds(range)) {
+    console.log('Selection outside of play area.');
+    return false;
+  }
+
+  let clampedRange : MapRange = {
+    leftTop: clampCoords(range.leftTop),
+    rightBottom: clampCoords(range.rightBottom)
+  };
 
   // Turn on sandbox mode to make buying/selling land free and doable to any tile
   cheats.sandboxMode = true;
 
   context.executeAction("landsetrights", {
-    // <0,0> is <32,32>
-    x1: range.leftTop.x,
-    y1: range.leftTop.y,
+    // <1, 1> is <32, 32>
+    x1: clampedRange.leftTop.x,
+    y1: clampedRange.leftTop.y,
     // Map size of 128 has 4032 (126*32) as its max coordinate
-    x2: range.rightBottom.x,
-    y2: range.rightBottom.y,
-    setting: 4,
+    x2: clampedRange.rightBottom.x,
+    y2: clampedRange.rightBottom.y,
+    setting: 4, // Set ownership
     ownership: ownership,
     flags: (1 << 0) | (1 << 3)
   }, (result : GameActionResult) => {
-    if (result.error !== 0) {
-      console.log(`Error setting land ownership: ${result.errorMessage}`);
-    } else {
-      let ownershipType = '';
-
-      switch(ownership) {
-        case LandOwnership.OWNED:
-          ownershipType = 'owned'
-          break;
-        case LandOwnership.UNOWNED:
-          ownershipType = 'unowned'
-          break;
-        case LandOwnership.CONSTRUCTION_RIGHTS_OWNED:
-          ownershipType = 'construction rights owned'
-          break;
-      }
-      console.log(`Success setting land ownership: ${ownershipType}`);
-    }
+    const successType = result.error !== 0 ? 'Error' : 'Success';
+    const resultData = result.error !== 0 ? result.errorMessage : LandOwnership[ownership];
+    console.log(`${successType} setting land ownership: ${resultData}`);
   });
 
   cheats.sandboxMode = false;
@@ -631,7 +635,7 @@ function main() : void {
 
     // Setup map and data for game mode
     park.landPrice = 0;
-    setLandOwnership(LandOwnership.UNOWNED, MapRange(CoordsXY(MapBounds.leftTop.x, MapBounds.leftTop.y), CoordsXY(MapBounds.rightBottom.x, MapBounds.rightBottom.y)));
+    setLandOwnership(LandOwnership.UNOWNED, MapRange(MapEdges.leftTop, MapEdges.rightBottom));
 
     // Days are about 13.2 seconds at 1x speed
     context.subscribe('interval.day', collectData);
