@@ -67,12 +67,6 @@ enum LandOwnership {
   AVAILABLE = (1 << 7)
 }
 
-// Extends CoordsXY to specify tileX and tileY which are map coordinates / 32
-interface TileCoordsXY extends CoordsXY {
-  tileX : number,
-  tileY : number
-}
-
 
 
 /**
@@ -153,48 +147,6 @@ function MapRange(a : any, b : any, x? : any, y? : any) : MapRange {
 function isMapRange(obj : any) : obj is MapRange {
   let objAsMapRange = obj as MapRange;
   return isCoordsXY(objAsMapRange.leftTop) && isCoordsXY(objAsMapRange.rightBottom);
-}
-
-/**
- * Converts map coordinates to tile coordinates, divides x and y by 32 to set tileX and tileY
- * @param c map coordinates
- */
-function TileCoordsXY(c : CoordsXY) : TileCoordsXY;
-
-/**
- * Converts to map coordinates, multiplies tileX and tileY by 32 to set x and y
- * @param x tile coordinates
- * @param y tile coordinates
- */
-function TileCoordsXY(x : number, y : number) : TileCoordsXY;
-function TileCoordsXY(a : any, b? : any) : TileCoordsXY {
-  if (typeof a === 'number') {
-    // number assumes it's using tile coordinates
-    return {
-      x: a * 32,
-      y: b * 32,
-      tileX: a,
-      tileY: b
-    } as TileCoordsXY;
-  } else {
-    // CoordsXY assumes it's using map coordinates
-    return {
-      x: a.x,
-      y: a.y,
-      tileX: a.x / 32,
-      tileY: a.y / 32
-    } as TileCoordsXY;
-  }
-}
-
-/**
- * Checks if an object is instance of TileCoordsXY interface
- * @param obj object to check
- * @returns true if obj is an instance of TileCoordsXY interface
- */
-function isTileCoordsXY(obj : any) : obj is TileCoordsXY {
-  let objAsTileCoordsXY = obj as TileCoordsXY;
-  return typeof obj.x !== undefined && typeof obj.tileX !== 'undefined';
 }
 
 
