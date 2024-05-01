@@ -133,8 +133,10 @@ function CoordsXY(x? : any, y? : any) : CoordsXY {
  * @returns true if obj is an instance of CoordsXY interface
  */
 function isCoordsXY(obj : any) : obj is CoordsXY {
-  let objAsCoordsXY = obj as CoordsXY;
-  return typeof objAsCoordsXY.x !== 'undefined' && typeof objAsCoordsXY.y !== 'undefined' ;
+  const objAsCoordsXY = obj as CoordsXY;
+  return typeof obj !== 'undefined'
+    && typeof objAsCoordsXY.x !== 'undefined'
+    && typeof objAsCoordsXY.y !== 'undefined' ;
 }
 
 /**
@@ -174,8 +176,10 @@ function MapRange(a : any, b : any, x? : any, y? : any) : MapRange {
  * @returns true if obj is an instance of MapRange interface
  */
 function isMapRange(obj : any) : obj is MapRange {
-  let objAsMapRange = obj as MapRange;
-  return isCoordsXY(objAsMapRange.leftTop) && isCoordsXY(objAsMapRange.rightBottom);
+  const objAsMapRange = obj as MapRange;
+  return typeof obj !== 'undefined'
+    && (typeof objAsMapRange.leftTop !== 'undefined' && isCoordsXY(objAsMapRange.leftTop))
+    && (typeof objAsMapRange.rightBottom !== 'undefined' && isCoordsXY(objAsMapRange.rightBottom));
 }
 
 
@@ -423,18 +427,29 @@ function clampRange(range : MapRange) : MapRange {
 }
 
 /**
+ * Checks if coordinates are inside the playable area
+ * @param coords Coordinates to check
+ * @returns true if the coordinates are inside the playable area
+ */
+function checkCoordsXYInsideBounds(coords : CoordsXY) : boolean {
+  const x : boolean = coords.x > MapEdges.leftTop.x && coords.x < MapEdges.rightBottom.x;
+  const y : boolean = coords.y > MapEdges.leftTop.y && coords.y < MapEdges.rightBottom.y;
+
+  return x && y;
+}
+
+/**
  * Checks if part of the selection is inside the playable area
  * @param range Selection range
  * @returns true if some of the selection is inside the playable area
  */
 function checkSelectionInsideBounds(range : MapRange) : boolean {
-  // Check
   const xLow : boolean = (range.leftTop.x > MapEdges.leftTop.x || range.rightBottom.x > MapEdges.leftTop.x);
   const xHigh : boolean = (range.leftTop.x < MapEdges.rightBottom.x || range.rightBottom.x < MapEdges.rightBottom.x);
   const yLow : boolean = (range.leftTop.y > MapEdges.leftTop.y || range.rightBottom.y > MapEdges.leftTop.y);
   const yHigh : boolean = (range.leftTop.y < MapEdges.rightBottom.y || range.rightBottom.y < MapEdges.rightBottom.y);
 
-  return (xLow && xHigh && yLow && yHigh);
+  return xLow && xHigh && yLow && yHigh;
 }
 
 
@@ -464,41 +479,101 @@ function collectData() : void {
  */
 
 /**
+ * Sets tile ownership for an array of coordinates
+ * @overload
+ * @param coords Array of CoordsXY of tiles to set ownership for
+ * @param ownership LandOwnership enum value
+ * @returns number of tiles successfully set, -1 if the tiles are entirely outside of map boundaries
+ */
+function setLandOwnership(coords : CoordsXY[], ownership : LandOwnership) : number;
+
+/**
  * Sets tile ownership in a region
+ * @overload
  * @param range Defaults and clamps to <MapEdges.leftTop.x, MapEdges.leftTop.y> -  <MapEdges.rightBottom.x, MapEdges.rightBottom.y>
  * @param ownership LandOwnership enum value
- * @returns true on success
+ * @returns number of tiles successfully set, -1 if the tiles are entirely outside of map boundaries
  */
-function setLandOwnership(range : MapRange, ownership : LandOwnership) : boolean {
-  if (!checkSelectionInsideBounds(range)) {
-    console.log('Selection outside of play area.');
-    return false;
+function setLandOwnership(range : MapRange, ownership : LandOwnership) : number;
+
+/**
+ * Sets tile ownership in a region
+ * @overload
+ * @param rangeOrCoords Either map range or list of coordinates as explained in other overloads
+ * @param ownership LandOwnership enum value
+ * @returns number of tiles successfully set, -1 if the tiles are entirely outside of map boundaries
+ */
+function setLandOwnership(rangeOrCoords : MapRange | CoordsXY[], ownership : LandOwnership) : number;
+
+
+function setLandOwnership(rangeOrCoords : any, ownership : any) : number {
+  if (isMapRange(rangeOrCoords)) {
+    const range : MapRange = rangeOrCoords as MapRange;
+
+    if (!checkSelectionInsideBounds(range)) {
+      return -1;
+    }
+  
+    const clampedRange : MapRange = clampRange(range);
+  
+    // Turn on sandbox mode to make buying/selling land free and doable to any tile
+    cheats.sandboxMode = true;
+  
+    // TODO: Turn into Promise to remove console.log here and get results
+    context.executeAction("landsetrights", {
+      // <1, 1> is <32, 32>
+      x1: clampedRange.leftTop.x,
+      y1: clampedRange.leftTop.y,
+      // Map size of 128 has 4032 (126*32) as its max coordinate
+      x2: clampedRange.rightBottom.x,
+      y2: clampedRange.rightBottom.y,
+      setting: 4, // Set ownership
+      ownership: ownership,
+      flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
+    }, (result : GameActionResult) => {
+      // const successType = result.error !== 0 ? 'Error' : 'Success';
+      // const resultData = result.error !== 0 ? result.errorMessage : LandOwnership[ownership];
+      // console.log(`${successType} setting land ownership: ${resultData}`);
+    });
+  
+    cheats.sandboxMode = false;
+  
+    return (Math.abs(clampedRange.rightBottom.x - clampedRange.leftTop.x) / 32 + 1)
+      * (Math.abs(clampedRange.rightBottom.y - clampedRange.leftTop.y) / 32 + 1);
+  } else {
+    const coords : Array<CoordsXY>= rangeOrCoords as Array<CoordsXY>;
+
+    // Turn on sandbox mode to make buying/selling land free and doable to any tile
+    cheats.sandboxMode = true;
+
+    let numSet = 0;
+    let numOutsideMapBounds = 0;
+    coords.forEach((value : CoordsXY) : void => {
+      if (!checkCoordsXYInsideBounds(value)) {
+        ++numOutsideMapBounds;
+        return;
+      }
+
+      // TODO: Turn into Promise to wait for all to finish
+      context.executeAction("landsetrights", {
+        x1: value.x,
+        y1: value.y,
+        x2: value.x,
+        y2: value.y,
+        setting: 4, // Set ownership
+        ownership: ownership,
+        flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
+      }, (result : GameActionResult) => {
+        if (result.error === 0) {
+          ++numSet;
+        }
+      });
+    });
+  
+    cheats.sandboxMode = false;
+
+    return (numOutsideMapBounds > 0 && numOutsideMapBounds === coords.length) ? -1 : numSet;
   }
-
-  const clampedRange : MapRange = clampRange(range);
-
-  // Turn on sandbox mode to make buying/selling land free and doable to any tile
-  cheats.sandboxMode = true;
-
-  context.executeAction("landsetrights", {
-    // <1, 1> is <32, 32>
-    x1: clampedRange.leftTop.x,
-    y1: clampedRange.leftTop.y,
-    // Map size of 128 has 4032 (126*32) as its max coordinate
-    x2: clampedRange.rightBottom.x,
-    y2: clampedRange.rightBottom.y,
-    setting: 4, // Set ownership
-    ownership: ownership,
-    flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
-  }, (result : GameActionResult) => {
-    const successType = result.error !== 0 ? 'Error' : 'Success';
-    const resultData = result.error !== 0 ? result.errorMessage : LandOwnership[ownership];
-    console.log(`${successType} setting land ownership: ${resultData}`);
-  });
-
-  cheats.sandboxMode = false;
-
-  return true;
 }
 
 /**
@@ -513,9 +588,9 @@ function buyTiles(range : MapRange, buyType : LandOwnership) : boolean {
 
   // TODO: Count number of buyable tiles in area (check if <0, 0>)
 
-  let buySuccess : boolean = setLandOwnership(range, buyType);
+  const numBought : number = setLandOwnership(range, buyType);
 
-  if (!buySuccess) {
+  if (numBought === 0) {
     ui.showError('Can\'t buy land...', 'Outside of map bounds!');
     return false;
   }
@@ -562,13 +637,29 @@ function checkTileBuyable(tile : Tile, buyType : LandOwnership) : boolean {
  * @returns true on success
  */
 function sellTiles(range : MapRange) : boolean {
-  // TODO: iterate over selection and only sell owned tiles (with nothing built on them?)
-  // TODO: increment number of sold tiles
+  // TODO: increment number of available tiles
 
-  let sellSuccess : boolean = setLandOwnership(range, LandOwnership.UNOWNED);
+  const coords : CoordsXY[] = [];
+  for (let x = range.leftTop.x; x <= range.rightBottom.x; x += 32) {
+    for (let y = range.leftTop.y; y <= range.rightBottom.y; y += 32) {
+      if (checkTileSellable(map.getTile(x / 32, y / 32))) {
+        coords.push(CoordsXY(x, y));
+      }
+    }
+  }
 
-  if (!sellSuccess) {
+  // If the number of tiles to add is the same as the number of tiles in the area, just do a range
+  const areaSize : number = (Math.abs(range.rightBottom.x - range.leftTop.x) / 32 + 1)
+    * (Math.abs(range.rightBottom.y - range.leftTop.y) / 32 + 1);
+
+  const area = coords.length === areaSize ? range : coords;
+  const numSold : number = setLandOwnership(area, LandOwnership.UNOWNED);
+
+  if (numSold === -1) {
     ui.showError('Can\'t sell land...', 'Outside of map bounds!');
+    return false;
+  } else if (numSold === 0) {
+    ui.showError('Can\'t sell land...', 'Land is unsellable!');
     return false;
   }
 
