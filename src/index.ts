@@ -220,7 +220,7 @@ function isMapRange(obj : any) : obj is MapRange {
 /**
  * Box to display statistics in primary window
  */
-const statsBox = FlexUI.box({
+const statsPanel = FlexUI.box({
   content: FlexUI.vertical({
     spacing: 5,
     content: [
@@ -257,8 +257,8 @@ const statsBox = FlexUI.box({
 /**
  * Box to display buttons in primary window
  */
-const buttonBox = FlexUI.vertical({
-  spacing: 0,
+const buttonPanel = FlexUI.vertical({
+  spacing: -10,
   content: [
     FlexUI.horizontal({
       spacing: 0,
@@ -365,32 +365,54 @@ const mainWindow = FlexUI.window({
     FlexUI.vertical({
       spacing: 5,
       content: [
-        statsBox,
-        buttonBox
+        statsPanel,
+        buttonPanel
       ]
   })],
-  onClose: cancelTool,
-  onUpdate: () => 0
+  onOpen: onWindowOpen,
+  onUpdate: onWindowUpdate,
+  onClose: onWindowClose
 });
+
+/**
+ * Handles tool window's onOpen event
+ */
+function onWindowOpen() : void {
+  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags | FlexUI.ViewportFlags.ConstructionRights;
+}
+
+/**
+ * Handles tool window's onUpdate event
+ */
+function onWindowUpdate() : void {
+  return;
+}
+
+/**
+ * Handles tool window's onClose event
+ */
+function onWindowClose() : void {
+  cancelTool();
+  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags ^ FlexUI.ViewportFlags.ConstructionRights;
+}
 
 /**
  * Opens the primary window
  */
 function openWindow() : void {
-  closeWindow();
+  closeWindowInstances();
   mainWindow.open();
 }
 
 /**
- * Assumes only one instance of window open
+ * Closes all matching windows
  */
-function closeWindow() : void {
-  let numWindows = ui.windows;
-  for(let i = 0; i < numWindows; ++i) {
-    let winTest = ui.getWindow(i);
-    if (winTest.title == PluginConfig.winTitle) {
-      winTest.close();
-      return
+function closeWindowInstances() : void {
+  const numWindows = ui.windows;
+  for(let i = numWindows - 1; i > 0; --i) {
+    const win = ui.getWindow(i);
+    if (win.title === PluginConfig.winTitle) {
+      win.close();
     }
   }
 }
