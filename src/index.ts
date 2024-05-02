@@ -54,8 +54,12 @@ const PluginConfig = {
 /**
  * Functional
  */
-var toolStartCoords : CoordsXY = CoordsXY(0, 0);
-var lastHoveredCoords : CoordsXY = CoordsXY(0, 0);
+let toolSize = 1;
+const minToolSize = 1;
+const maxToolSize = 5;
+
+// var toolStartCoords : CoordsXY = CoordsXY(0, 0);
+// var lastHoveredCoords : CoordsXY = CoordsXY(0, 0);
 
 // Prevent buying outer range of the map so we don't mess up guests spawning
 const MapEdges : MapRange = MapRange(
@@ -401,6 +405,7 @@ function onWindowClose() : void {
  */
 function openWindow() : void {
   closeWindowInstances();
+  toolSize = minToolSize;
   mainWindow.open();
 }
 
@@ -492,11 +497,11 @@ function checkSelectionInsideBounds(range : MapRange) : boolean {
 function collectData() : void {
   // TODO: Add more metrics
   // TODO: Make it save in persistent storage
-  // console.log(park.totalAdmissions);
+  // consolelog(park.totalAdmissions);
   // if (map.numRides > 0)
-  //   console.log(map.rides[0].totalCustomers);
-  // console.log(map.rides[0].totalProfit)
-  // console.log(map.rides[0].runningCost * 16)
+  //   consolelog(map.rides[0].totalCustomers);
+  // consolelog(map.rides[0].totalProfit)
+  // consolelog(map.rides[0].runningCost * 16)
 }
 
 
@@ -548,7 +553,7 @@ function setLandOwnership(rangeOrCoords : any, ownership : any) : number {
     // Turn on sandbox mode to make buying/selling land free and doable to any tile
     cheats.sandboxMode = true;
   
-    // TODO: Turn into Promise to remove console.log here and get results
+    // TODO: Turn into Promise to remove consolelog here and get results
     context.executeAction("landsetrights", {
       // <1, 1> is <32, 32>
       x1: clampedRange.leftTop.x,
@@ -562,7 +567,7 @@ function setLandOwnership(rangeOrCoords : any, ownership : any) : number {
     }, (result : GameActionResult) => {
       // const successType = result.error !== 0 ? 'Error' : 'Success';
       // const resultData = result.error !== 0 ? result.errorMessage : LandOwnership[ownership];
-      // console.log(`${successType} setting land ownership: ${resultData}`);
+      // consolelog(`${successType} setting land ownership: ${resultData}`);
     });
   
     cheats.sandboxMode = false;
@@ -750,7 +755,7 @@ function checkTileSellable(tile : Tile) : boolean {
  * @param toolID ID for the tool being used
  */
 function onToolStart(toolID : string) : void {
-  // TODO: Might need to implement
+  return;
 }
 
 /**
@@ -759,14 +764,7 @@ function onToolStart(toolID : string) : void {
  * @param toolID ID for the tool being used
  */
 function onToolDown(e : ToolEventArgs, toolID : string) : void {
-  if (e.mapCoords && e.mapCoords.x > 0) {
-    toolStartCoords = e.mapCoords;
-    lastHoveredCoords = e.mapCoords;
-  } else {
-    toolStartCoords = lastHoveredCoords
-  }
-
-  drawToolSelection(MapRange(toolStartCoords, lastHoveredCoords));
+  return;
 }
 
 /**
@@ -776,14 +774,13 @@ function onToolDown(e : ToolEventArgs, toolID : string) : void {
  */
 function onToolMove(e : ToolEventArgs, toolID : string) : void {
   if (e.mapCoords && e.mapCoords.x > 0) {
-    lastHoveredCoords = e.mapCoords;
+    const toolArea = getToolArea(e.mapCoords);
+    ui.tileSelection.range = toolArea;
+  } else {
+    ui.tileSelection.range = null;
   }
 
-  if (e.isDown) {
-    drawToolSelection(MapRange(toolStartCoords, lastHoveredCoords));
-  } else {
-    drawToolSelection(MapRange(lastHoveredCoords, lastHoveredCoords));
-  }
+  // TODO: if button held down, paint tile ownership
 }
 
 /**
@@ -792,21 +789,6 @@ function onToolMove(e : ToolEventArgs, toolID : string) : void {
  * @param toolID ID for the tool being used
  */
 function onToolUp(e : ToolEventArgs, toolID : string) : void {
-  if (toolStartCoords.x > 0) {
-    switch(toolID) {
-      case PluginConfig.buyToolID:
-        buyTiles(MapRange(toolStartCoords, lastHoveredCoords), LandOwnership.OWNED);
-        break;
-      case PluginConfig.sellToolID:
-        sellTiles(MapRange(toolStartCoords, lastHoveredCoords));
-        break;
-      case PluginConfig.buildRightsToolID:
-        buyTiles(MapRange(toolStartCoords, lastHoveredCoords), LandOwnership.CONSTRUCTION_RIGHTS_OWNED);
-        break;
-    }
-  }
-  
-  toolStartCoords = CoordsXY(0, 0);
   ui.tileSelection.range = null;
 }
 
@@ -826,11 +808,17 @@ function cancelTool() : void {
 }
 
 /**
- * Sets a tool selection area to draw on the map
- * @param range range of coordinates to apply selection to
+ * Calculates the area around the tool that is affected by the tool
+ * @param center Center point for the tool's usage
+ * @returns MapRange for the affected area
  */
-function drawToolSelection(range : MapRange) : void {
-  ui.tileSelection.range = range;
+function getToolArea(center : CoordsXY) : MapRange {
+  const left   = Math.floor((center.x / 32) - ((toolSize - 1) / 2)) * 32;
+  const top    = Math.floor((center.y / 32) - ((toolSize - 1) / 2)) * 32;
+  const right  = Math.floor((center.x / 32) + ((toolSize - 1) / 2)) * 32;
+  const bottom = Math.floor((center.y / 32) + ((toolSize - 1) / 2)) * 32;
+
+  return MapRange(CoordsXY(left, top), CoordsXY(right, bottom));
 }
 
 /**
