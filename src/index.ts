@@ -1,6 +1,13 @@
 //   /// <reference path="../lib/openrct2.d.ts" />
 import * as FlexUI from 'openrct2-flexui';
 
+/**
+ * TODO: I want to make the tool work like the land tool, with a + and - button to change size.
+ *    This will make handling large areas less laggy since it's slowed down by the user needing to paint the area.
+ *    Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
+ * TODO: Show selection area over where construction rights are owned
+ */
+
 
 
 /**
@@ -639,9 +646,13 @@ function checkTileBuyable(tile : Tile, buyType : LandOwnership) : boolean {
 function sellTiles(range : MapRange) : boolean {
   // TODO: increment number of available tiles
 
+  const clampedRange = clampRange(range);
+
+
+  // Check the sellability of all tiles in the range
   const coords : CoordsXY[] = [];
-  for (let x = range.leftTop.x; x <= range.rightBottom.x; x += 32) {
-    for (let y = range.leftTop.y; y <= range.rightBottom.y; y += 32) {
+  for (let x = clampedRange.leftTop.x; x <= clampedRange.rightBottom.x; x += 32) {
+    for (let y = clampedRange.leftTop.y; y <= clampedRange.rightBottom.y; y += 32) {
       if (checkTileSellable(map.getTile(x / 32, y / 32))) {
         coords.push(CoordsXY(x, y));
       }
@@ -649,10 +660,10 @@ function sellTiles(range : MapRange) : boolean {
   }
 
   // If the number of tiles to add is the same as the number of tiles in the area, just do a range
-  const areaSize : number = (Math.abs(range.rightBottom.x - range.leftTop.x) / 32 + 1)
-    * (Math.abs(range.rightBottom.y - range.leftTop.y) / 32 + 1);
+  const areaSize : number = (Math.abs(clampedRange.rightBottom.x - clampedRange.leftTop.x) / 32 + 1)
+    * (Math.abs(clampedRange.rightBottom.y - clampedRange.leftTop.y) / 32 + 1);
 
-  const area = coords.length === areaSize ? range : coords;
+  const area = coords.length === areaSize ? clampedRange : coords;
   const numSold : number = setLandOwnership(area, LandOwnership.UNOWNED);
 
   if (numSold === -1) {
