@@ -44,6 +44,8 @@ const PluginConfig = {
   buyToolID: 'TilemanBuyTool',
   sellToolID: 'TilemanSellTool',
   buildRightsToolID: 'TilemanBuildRightsTool',
+  minToolSize: 1,
+  maxToolSize: 5,
 
   // User definable
   // TODO: Allow users to customize in the UI
@@ -54,9 +56,7 @@ const PluginConfig = {
 /**
  * Functional
  */
-let toolSize = 1;
-const minToolSize = 1;
-const maxToolSize = 5;
+let toolSize = PluginConfig.minToolSize;
 
 // var toolStartCoords : CoordsXY = CoordsXY(0, 0);
 // var lastHoveredCoords : CoordsXY = CoordsXY(0, 0);
@@ -405,7 +405,7 @@ function onWindowClose() : void {
  */
 function openWindow() : void {
   closeWindowInstances();
-  toolSize = minToolSize;
+  toolSize = PluginConfig.minToolSize;
   mainWindow.open();
 }
 
