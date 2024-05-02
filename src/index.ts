@@ -25,6 +25,11 @@ const PlayerData = {
 
   // Maps ride IDs (numbers) and historical data (Ride.totalCustomers, eventually Ride.totalProfit or something )
   // TODO: Make this keep track of ride stats every interval to account for deleted rides
+  /**
+   * TODO:
+   * declare function compute<T, U>(store: Store<T>, callback: (value: T) => U): Store<U>;
+   * const buyButtonPressed : FlexUI.Store<boolean> = FlexUI.store<boolean>(false);
+   */
   rideMap: {
     /*
       123: {
@@ -41,9 +46,6 @@ const PlayerData = {
 const PluginConfig = {
   // Never changed
   winTitle: 'Tileman',
-  buyToolID: 'TilemanBuyTool',
-  sellToolID: 'TilemanSellTool',
-  buildRightsToolID: 'TilemanBuildRightsTool',
   minToolSize: 1,
   maxToolSize: 15,
 
@@ -78,6 +80,12 @@ const MapEdges : MapRange = MapRange(
  * **********
  */
 
+enum ToolID {
+  BUY_TOOL = 'TilemanBuyTool',
+  RIGHTS_TOOL = 'TilemanBuildRightsTool',
+  SELL_TOOL = 'TilemanSellTool',
+};
+
 // From openrct2/world/Surface.h
 enum LandOwnership {
   UNOWNED = 0,
@@ -111,11 +119,7 @@ enum GameCommandFlag {
 enum Sprites {
   SPR_BUY_LAND_RIGHTS = 5176,
   SPR_BUY_CONSTRUCTION_RIGHTS = 5177,
-  SPR_FINANCE = 5190,
-  SPR_LAND_TOOL_DECREASE = 5499,
-  SPR_LAND_TOOL_DECREASE_PRESSED = 5500,
-  SPR_LAND_TOOL_INCREASE = 5501,
-  SPR_LAND_TOOL_INCREASE_PRESSED = 5502
+  SPR_FINANCE = 5190
 };
 
 
@@ -271,118 +275,64 @@ const statsPanel = FlexUI.box({
 /**
  * Box to display buttons in primary window
  */
+const buyButtonPressed : FlexUI.Store<boolean> = FlexUI.store<boolean>(false);
+const rightsButtonPressed : FlexUI.Store<boolean> = FlexUI.store<boolean>(false);
+const sellButtonPressed : FlexUI.Store<boolean> = FlexUI.store<boolean>(false);
+
+const buyButton = FlexUI.button({
+  image: Sprites.SPR_BUY_LAND_RIGHTS,
+  tooltip: 'Buy land rights',
+  width: '24px',
+  height: '24px',
+  onClick: () => onToolButtonPress(ToolID.BUY_TOOL),
+  isPressed: buyButtonPressed
+});
+
+const rightsbutton = FlexUI.button({
+  image: Sprites.SPR_BUY_CONSTRUCTION_RIGHTS,
+  tooltip: 'Buy construction rights',
+  width: '24px',
+  height: '24px',
+  onClick: () => onToolButtonPress(ToolID.RIGHTS_TOOL),
+  isPressed: rightsButtonPressed
+});
+
+const sellButton = FlexUI.button({
+  image: Sprites.SPR_FINANCE,
+  tooltip: 'Sell land and construction rights',
+  width: '24px',
+  height: '24px',
+  onClick: () => onToolButtonPress(ToolID.SELL_TOOL),
+  isPressed: sellButtonPressed
+});
+
+const toolSizeSpinner = FlexUI.spinner({
+  width: '62px',
+  padding: ['5px', '5px'],
+  value: toolSize,
+  minimum: PluginConfig.minToolSize,
+  maximum: PluginConfig.maxToolSize + 1,
+  step: 1,
+  wrapMode: 'clamp',
+  onChange: (value: number, adjustment: number) : void => {
+    toolSize = value;
+  },
+  format: (value: number) : string => {
+    // Add spaces to center the text :) I am bigly smart
+    return `${value}x${value}`;
+  }
+});
+
 const buttonPanel = FlexUI.vertical({
-  spacing: -10,
+  spacing: 0,
   content: [
     FlexUI.horizontal({
       spacing: 0,
       content: [
-        FlexUI.button({
-          image: Sprites.SPR_BUY_LAND_RIGHTS,
-          width: '25px',
-          height: '25px',
-          onClick: () => {
-            ui.activateTool({
-              id: PluginConfig.buyToolID,
-              cursor: 'cross_hair',
-              filter: ['terrain', 'water'],
-
-              onStart: () => onToolStart(PluginConfig.buyToolID),
-              onDown: (e: ToolEventArgs) => onToolDown(e, PluginConfig.buyToolID),
-              onMove: (e: ToolEventArgs) => onToolMove(e, PluginConfig.buyToolID),
-              onUp: (e: ToolEventArgs) => onToolUp(e, PluginConfig.buyToolID),
-              onFinish: () => onToolFinish(PluginConfig.buyToolID)
-            });
-          }
-        }),
-        FlexUI.label({
-          text: '{BLACK}Buy tiles',
-          width: '75px',
-          height: '25px',
-          padding: {
-            top: '7px',
-            bottom: '7px'
-          }
-        }),
-        FlexUI.button({
-          image: Sprites.SPR_FINANCE,
-          width: '25px',
-          height: '25px',
-          onClick: () => {
-            ui.activateTool({
-              id: PluginConfig.sellToolID,
-              cursor: 'cross_hair',
-              filter: ['terrain', 'water'],
-
-              onStart: () => onToolStart(PluginConfig.sellToolID),
-              onDown: (e: ToolEventArgs) => onToolDown(e, PluginConfig.sellToolID),
-              onMove: (e: ToolEventArgs) => onToolMove(e, PluginConfig.sellToolID),
-              onUp: (e: ToolEventArgs) => onToolUp(e, PluginConfig.sellToolID),
-              onFinish: () => onToolFinish(PluginConfig.sellToolID)
-            });
-          }
-        }),
-        FlexUI.label({
-          text: '{BLACK}Sell tiles',
-          width: '75px',
-          height: '25px',
-          padding: {
-            top: '7px',
-            bottom: '7px'
-          }
-        })
-      ]
-    }),
-    FlexUI.horizontal({
-      spacing: 0,
-      content: [
-        FlexUI.button({
-          image: Sprites.SPR_BUY_CONSTRUCTION_RIGHTS,
-          width: '25px',
-          height: '25px',
-          onClick: () => {
-            ui.activateTool({
-              id: PluginConfig.buildRightsToolID,
-              cursor: 'cross_hair',
-              filter: ['terrain', 'water'],
-
-              onStart: () => onToolStart(PluginConfig.buildRightsToolID),
-              onDown: (e: ToolEventArgs) => onToolDown(e, PluginConfig.buildRightsToolID),
-              onMove: (e: ToolEventArgs) => onToolMove(e, PluginConfig.buildRightsToolID),
-              onUp: (e: ToolEventArgs) => onToolUp(e, PluginConfig.buildRightsToolID),
-              onFinish: () => onToolFinish(PluginConfig.buildRightsToolID)
-            });
-          }
-        }),
-        FlexUI.label({
-          text: '{BLACK}Buy construction rights',
-          // width: '75px',
-          height: '25px',
-          padding: {
-            top: '7px',
-            bottom: '7px'
-          }
-        })
-      ]
-    }),
-    FlexUI.horizontal({
-      spacing: 0,
-      content: [
-        FlexUI.spinner({
-          width: '62px',
-          value: toolSize,
-          minimum: PluginConfig.minToolSize,
-          maximum: PluginConfig.maxToolSize + 1,
-          step: 1,
-          wrapMode: 'clamp',
-          onChange: (value: number, adjustment: number) : void => {
-            toolSize = value;
-          },
-          format: (value: number) : string => {
-            // Add spaces to center the text :) I am bigly smart
-            return `${value}x${value}`;
-          }
-        })
+        buyButton,
+        rightsbutton,
+        sellButton,
+        toolSizeSpinner
       ]
     })
   ]
@@ -420,6 +370,55 @@ function onWindowOpen() : void {
  */
 function onWindowUpdate() : void {
   return;
+}
+
+/**
+ * Handles clicks on tool buttons
+ * @param toolID Tool ID for the button
+ */
+function onToolButtonPress(toolID : string) : void {
+  let buttonPressed : boolean = false;;
+
+  switch(toolID) {
+    case ToolID.BUY_TOOL:
+      buttonPressed = !buyButtonPressed.get();
+
+      buyButtonPressed.set(buttonPressed);
+      rightsButtonPressed.set(false);
+      sellButtonPressed.set(false);
+      break;
+    case ToolID.RIGHTS_TOOL:
+      buttonPressed = !rightsButtonPressed.get();
+
+      buyButtonPressed.set(false);
+      rightsButtonPressed.set(buttonPressed);
+      sellButtonPressed.set(false);
+      break;
+    case ToolID.SELL_TOOL:
+      buttonPressed = !sellButtonPressed.get();
+
+      buyButtonPressed.set(false);
+      rightsButtonPressed.set(false);
+      sellButtonPressed.set(buttonPressed);
+      break;
+  }
+
+  // If the button is pressed, start a tool
+  if(buttonPressed) {
+    ui.activateTool({
+      id: toolID,
+      cursor: 'dig_down',
+      filter: ['terrain', 'water'],
+  
+      onStart: () => onToolStart(toolID),
+      onDown: (e: ToolEventArgs) => onToolDown(e, toolID),
+      onMove: (e: ToolEventArgs) => onToolMove(e, toolID),
+      onUp: (e: ToolEventArgs) => onToolUp(e, toolID),
+      onFinish: () => onToolFinish(toolID)
+    });
+  } else {
+    cancelTool();
+  }
 }
 
 /**
@@ -809,14 +808,14 @@ function onToolMove(e : ToolEventArgs, toolID : string) : void {
 
     if (e.isDown) {
       switch(toolID) {
-        case PluginConfig.buyToolID:
+        case ToolID.BUY_TOOL:
           buyTiles(toolArea, LandOwnership.OWNED);
           break;
-        case PluginConfig.sellToolID:
-          sellTiles(toolArea);
-          break;
-        case PluginConfig.buildRightsToolID:
+        case ToolID.RIGHTS_TOOL:
           buyTiles(toolArea, LandOwnership.CONSTRUCTION_RIGHTS_OWNED);
+          break;
+        case ToolID.SELL_TOOL:
+          sellTiles(toolArea);
           break;
       }
     }
