@@ -45,7 +45,7 @@ const PluginConfig = {
   sellToolID: 'TilemanSellTool',
   buildRightsToolID: 'TilemanBuildRightsTool',
   minToolSize: 1,
-  maxToolSize: 5,
+  maxToolSize: 15,
 
   // User definable
   // TODO: Allow users to customize in the UI
@@ -107,6 +107,16 @@ enum GameCommandFlag {
   // GAME_COMMAND_FLAG_NETWORKED = (1u << 31)          // Game command is coming from network (Doesn't have equivalent in TS?)
 };
 
+// From openrct2/sprites.h
+enum Sprites {
+  SPR_BUY_LAND_RIGHTS = 5176,
+  SPR_BUY_CONSTRUCTION_RIGHTS = 5177,
+  SPR_FINANCE = 5190,
+  SPR_LAND_TOOL_DECREASE = 5499,
+  SPR_LAND_TOOL_DECREASE_PRESSED = 5500,
+  SPR_LAND_TOOL_INCREASE = 5501,
+  SPR_LAND_TOOL_INCREASE_PRESSED = 5502
+};
 
 
 /**
@@ -268,7 +278,7 @@ const buttonPanel = FlexUI.vertical({
       spacing: 0,
       content: [
         FlexUI.button({
-          image: 5176,
+          image: Sprites.SPR_BUY_LAND_RIGHTS,
           width: '25px',
           height: '25px',
           onClick: () => {
@@ -295,7 +305,7 @@ const buttonPanel = FlexUI.vertical({
           }
         }),
         FlexUI.button({
-          image: 5190,
+          image: Sprites.SPR_FINANCE,
           width: '25px',
           height: '25px',
           onClick: () => {
@@ -327,7 +337,7 @@ const buttonPanel = FlexUI.vertical({
       spacing: 0,
       content: [
         FlexUI.button({
-          image: 5177,
+          image: Sprites.SPR_BUY_CONSTRUCTION_RIGHTS,
           width: '25px',
           height: '25px',
           onClick: () => {
@@ -351,6 +361,26 @@ const buttonPanel = FlexUI.vertical({
           padding: {
             top: '7px',
             bottom: '7px'
+          }
+        })
+      ]
+    }),
+    FlexUI.horizontal({
+      spacing: 0,
+      content: [
+        FlexUI.spinner({
+          width: '62px',
+          value: toolSize,
+          minimum: PluginConfig.minToolSize,
+          maximum: PluginConfig.maxToolSize + 1,
+          step: 1,
+          wrapMode: 'clamp',
+          onChange: (value: number, adjustment: number) : void => {
+            toolSize = value;
+          },
+          format: (value: number) : string => {
+            // Add spaces to center the text :) I am bigly smart
+            return `${value}x${value}`;
           }
         })
       ]
