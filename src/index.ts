@@ -776,6 +776,20 @@ function onToolMove(e : ToolEventArgs, toolID : string) : void {
   if (e.mapCoords && e.mapCoords.x > 0) {
     const toolArea = getToolArea(e.mapCoords);
     ui.tileSelection.range = toolArea;
+
+    if (e.isDown) {
+      switch(toolID) {
+        case PluginConfig.buyToolID:
+          buyTiles(toolArea, LandOwnership.OWNED);
+          break;
+        case PluginConfig.sellToolID:
+          sellTiles(toolArea);
+          break;
+        case PluginConfig.buildRightsToolID:
+          buyTiles(toolArea, LandOwnership.CONSTRUCTION_RIGHTS_OWNED);
+          break;
+      }
+    }
   } else {
     ui.tileSelection.range = null;
   }
