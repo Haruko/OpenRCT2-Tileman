@@ -373,6 +373,14 @@ function onWindowUpdate() : void {
 }
 
 /**
+ * Handles tool window's onClose event
+ */
+function onWindowClose() : void {
+  cancelTool();
+  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags ^ FlexUI.ViewportFlags.ConstructionRights;
+}
+
+/**
  * Handles clicks on tool buttons
  * @param toolID Tool ID for the button
  */
@@ -419,14 +427,6 @@ function onToolButtonPress(toolID : string) : void {
   } else {
     cancelTool();
   }
-}
-
-/**
- * Handles tool window's onClose event
- */
-function onWindowClose() : void {
-  cancelTool();
-  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags ^ FlexUI.ViewportFlags.ConstructionRights;
 }
 
 /**
