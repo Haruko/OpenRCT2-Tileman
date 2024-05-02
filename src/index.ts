@@ -59,9 +59,7 @@ const PluginConfig = {
  * Functional
  */
 let toolSize = PluginConfig.minToolSize;
-
-// var toolStartCoords : CoordsXY = CoordsXY(0, 0);
-// var lastHoveredCoords : CoordsXY = CoordsXY(0, 0);
+let toolLastUsedCoords : CoordsXY = CoordsXY(0, 0);
 
 // Prevent buying outer range of the map so we don't mess up guests spawning
 const MapEdges : MapRange = MapRange(
@@ -418,11 +416,11 @@ function onToolButtonPress(toolID : string) : void {
       cursor: 'dig_down',
       filter: ['terrain', 'water'],
   
-      onStart: () => onToolStart(toolID),
-      onDown: (e: ToolEventArgs) => onToolDown(e, toolID),
-      onMove: (e: ToolEventArgs) => onToolMove(e, toolID),
-      onUp: (e: ToolEventArgs) => onToolUp(e, toolID),
-      onFinish: () => onToolFinish(toolID)
+      onStart: () => onToolStart(),
+      onDown: (e: ToolEventArgs) => onToolDown(e),
+      onMove: (e: ToolEventArgs) => onToolMove(e),
+      onUp: (e: ToolEventArgs) => onToolUp(e),
+      onFinish: () => onToolFinish()
     });
   } else {
     cancelTool();
@@ -448,6 +446,110 @@ function closeWindowInstances() : void {
     if (win.title === PluginConfig.winTitle) {
       win.close();
     }
+  }
+}
+
+
+
+/**
+ * **********
+ * Tools
+ * **********
+ */
+
+/**
+ * Called when user starts using a tool
+ */
+function onToolStart() : void {
+  return;
+}
+
+/**
+ * Called when the user holds left mouse button while using a tool
+ * @param e event args
+ */
+function onToolDown(e : ToolEventArgs) : void {
+  if (e.mapCoords && e.mapCoords.x > 0) {
+    const toolArea = getToolArea(e.mapCoords);
+    ui.tileSelection.range = toolArea;
+    applyToolToArea(toolArea);
+
+    toolLastUsedCoords = e.mapCoords;
+  } else {
+    toolLastUsedCoords = CoordsXY(0, 0);
+  }
+}
+
+/**
+ * Called when the user moves the mouse while using a tool
+ * @param e event args
+ */
+function onToolMove(e : ToolEventArgs) : void {
+  if (e.mapCoords && e.mapCoords.x > 0) {
+    const toolArea = getToolArea(e.mapCoords);
+    ui.tileSelection.range = toolArea;
+
+    if (e.isDown && (e.mapCoords.x !== toolLastUsedCoords.x || e.mapCoords.y !== toolLastUsedCoords.y)) {
+      applyToolToArea(toolArea);
+      toolLastUsedCoords = e.mapCoords;
+    }
+  } else {
+    ui.tileSelection.range = null;
+    toolLastUsedCoords = CoordsXY(0, 0);
+  }
+}
+
+/**
+ * Called when the user stops holding left mouse button while using a tool
+ * @param e event args
+ */
+function onToolUp(e : ToolEventArgs) : void {
+  ui.tileSelection.range = null;
+}
+
+/**
+ * Called when the user stops using a tool
+ */
+function onToolFinish() : void {
+  ui.tileSelection.range = null;
+}
+
+/**
+ * Cancels a tool being used
+ */
+function cancelTool() : void {
+  ui.tool?.cancel();
+}
+
+/**
+ * Calculates the area around the tool that is affected by the tool
+ * @param center Center point for the tool's usage
+ * @returns MapRange for the affected area
+ */
+function getToolArea(center : CoordsXY) : MapRange {
+  const left   = Math.floor((center.x / 32) - ((toolSize - 1) / 2)) * 32;
+  const top    = Math.floor((center.y / 32) - ((toolSize - 1) / 2)) * 32;
+  const right  = Math.floor((center.x / 32) + ((toolSize - 1) / 2)) * 32;
+  const bottom = Math.floor((center.y / 32) + ((toolSize - 1) / 2)) * 32;
+
+  return MapRange(CoordsXY(left, top), CoordsXY(right, bottom));
+}
+
+/**
+ * Applies the current tool to an area
+ * @param area Area to apply the tool to
+ */
+function applyToolToArea(area : MapRange) : void {
+  switch(ui.tool?.id) {
+    case ToolID.BUY_TOOL:
+      buyTiles(area, LandOwnership.OWNED);
+      break;
+    case ToolID.RIGHTS_TOOL:
+      buyTiles(area, LandOwnership.CONSTRUCTION_RIGHTS_OWNED);
+      break;
+    case ToolID.SELL_TOOL:
+      sellTiles(area);
+      break;
   }
 }
 
@@ -582,7 +684,6 @@ function setLandOwnership(rangeOrCoords : any, ownership : any) : number {
     // Turn on sandbox mode to make buying/selling land free and doable to any tile
     cheats.sandboxMode = true;
   
-    // TODO: Turn into Promise to remove consolelog here and get results
     context.executeAction("landsetrights", {
       // <1, 1> is <32, 32>
       x1: clampedRange.leftTop.x,
@@ -594,9 +695,7 @@ function setLandOwnership(rangeOrCoords : any, ownership : any) : number {
       ownership: ownership,
       flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
     }, (result : GameActionResult) => {
-      // const successType = result.error !== 0 ? 'Error' : 'Success';
-      // const resultData = result.error !== 0 ? result.errorMessage : LandOwnership[ownership];
-      // consolelog(`${successType} setting land ownership: ${resultData}`);
+      // Assume it works because Promises are a lie
     });
   
     cheats.sandboxMode = false;
@@ -617,7 +716,6 @@ function setLandOwnership(rangeOrCoords : any, ownership : any) : number {
         return;
       }
 
-      // TODO: Turn into Promise to wait for all to finish
       context.executeAction("landsetrights", {
         x1: value.x,
         y1: value.y,
@@ -627,10 +725,10 @@ function setLandOwnership(rangeOrCoords : any, ownership : any) : number {
         ownership: ownership,
         flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
       }, (result : GameActionResult) => {
-        if (result.error === 0) {
-          ++numSet;
-        }
+        // Assume it works because Promises are a lie
       });
+
+      ++numSet;
     });
   
     cheats.sandboxMode = false;
@@ -704,7 +802,6 @@ function sellTiles(range : MapRange) : boolean {
 
   const clampedRange = clampRange(range);
 
-
   // Check the sellability of all tiles in the range
   const coords : CoordsXY[] = [];
   for (let x = clampedRange.leftTop.x; x <= clampedRange.rightBottom.x; x += 32) {
@@ -715,22 +812,13 @@ function sellTiles(range : MapRange) : boolean {
     }
   }
 
-  // If the number of tiles to add is the same as the number of tiles in the area, just do a range
-  const areaSize : number = (Math.abs(clampedRange.rightBottom.x - clampedRange.leftTop.x) / 32 + 1)
-    * (Math.abs(clampedRange.rightBottom.y - clampedRange.leftTop.y) / 32 + 1);
-
-  const area = coords.length === areaSize ? clampedRange : coords;
-  const numSold : number = setLandOwnership(area, LandOwnership.UNOWNED);
-
-  if (numSold === -1) {
-    ui.showError('Can\'t sell land...', 'Outside of map bounds!');
-    return false;
-  } else if (numSold === 0) {
-    ui.showError('Can\'t sell land...', 'Land is unsellable!');
+  if (coords.length > 0) {
+    // Otherwise nothing in the selection can be sold
+    const numSold : number = setLandOwnership(coords, LandOwnership.UNOWNED);
+    return true;
+  } else {
     return false;
   }
-
-  return true;
 }
 
 /**
@@ -769,99 +857,6 @@ function checkTileSellable(tile : Tile) : boolean {
   }
 
   return sellable;
-}
-
-
-
-/**
- * **********
- * Tools
- * **********
- */
-
-/**
- * Called when user starts using a tool
- * @param toolID ID for the tool being used
- */
-function onToolStart(toolID : string) : void {
-  return;
-}
-
-/**
- * Called when the user holds left mouse button while using a tool
- * @param e event args
- * @param toolID ID for the tool being used
- */
-function onToolDown(e : ToolEventArgs, toolID : string) : void {
-  return;
-}
-
-/**
- * Called when the user moves the mouse while using a tool
- * @param e event args
- * @param toolID ID for the tool being used
- */
-function onToolMove(e : ToolEventArgs, toolID : string) : void {
-  if (e.mapCoords && e.mapCoords.x > 0) {
-    const toolArea = getToolArea(e.mapCoords);
-    ui.tileSelection.range = toolArea;
-
-    if (e.isDown) {
-      switch(toolID) {
-        case ToolID.BUY_TOOL:
-          buyTiles(toolArea, LandOwnership.OWNED);
-          break;
-        case ToolID.RIGHTS_TOOL:
-          buyTiles(toolArea, LandOwnership.CONSTRUCTION_RIGHTS_OWNED);
-          break;
-        case ToolID.SELL_TOOL:
-          sellTiles(toolArea);
-          break;
-      }
-    }
-  } else {
-    ui.tileSelection.range = null;
-  }
-
-  // TODO: if button held down, paint tile ownership
-}
-
-/**
- * Called when the user stops holding left mouse button while using a tool
- * @param e event args
- * @param toolID ID for the tool being used
- */
-function onToolUp(e : ToolEventArgs, toolID : string) : void {
-  ui.tileSelection.range = null;
-}
-
-/**
- * Called when the user stops using a tool
- * @param toolID ID for the tool being used
- */
-function onToolFinish(toolID : string) : void {
-  ui.tileSelection.range = null;
-}
-
-/**
- * Cancels a tool being used
- */
-function cancelTool() : void {
-  ui.tool?.cancel();
-}
-
-/**
- * Calculates the area around the tool that is affected by the tool
- * @param center Center point for the tool's usage
- * @returns MapRange for the affected area
- */
-function getToolArea(center : CoordsXY) : MapRange {
-  const left   = Math.floor((center.x / 32) - ((toolSize - 1) / 2)) * 32;
-  const top    = Math.floor((center.y / 32) - ((toolSize - 1) / 2)) * 32;
-  const right  = Math.floor((center.x / 32) + ((toolSize - 1) / 2)) * 32;
-  const bottom = Math.floor((center.y / 32) + ((toolSize - 1) / 2)) * 32;
-
-  return MapRange(CoordsXY(left, top), CoordsXY(right, bottom));
 }
 
 /**
