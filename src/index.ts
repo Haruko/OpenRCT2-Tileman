@@ -1,4 +1,4 @@
-/// <reference path="../lib/openrct2.d.ts" />
+/// <reference path='../lib/openrct2.d.ts' />
 import * as FlexUI from 'openrct2-flexui';
 
 /**
@@ -592,29 +592,44 @@ function clampRange(range : MapRange) : MapRange {
 }
 
 /**
+ * Checks if range is at least partially in playable area
+ * @param range Selection range
+ * @returns true if range is at least partially in playable area
+ */
+function checkInsideBounds(range : MapRange) : boolean;
+
+/**
  * Checks if coordinates are inside the playable area
  * @param coords Coordinates to check
  * @returns true if the coordinates are inside the playable area
  */
-function checkCoordsXYInsideBounds(coords : CoordsXY) : boolean {
-  const x : boolean = coords.x > MapEdges.leftTop.x && coords.x < MapEdges.rightBottom.x;
-  const y : boolean = coords.y > MapEdges.leftTop.y && coords.y < MapEdges.rightBottom.y;
-
-  return x && y;
-}
+function checkInsideBounds(coords : CoordsXY) : boolean;
 
 /**
- * Checks if part of the selection is inside the playable area
- * @param range Selection range
- * @returns true if some of the selection is inside the playable area
+ * Checks if coordinates are inside the playable area
+ * @param rangeOrCoords CoordsXY or MapRange
+ * @returns true if the coordinates are inside the playable area or range is at least partially in playable area
  */
-function checkSelectionInsideBounds(range : MapRange) : boolean {
-  const xLow : boolean = (range.leftTop.x > MapEdges.leftTop.x || range.rightBottom.x > MapEdges.leftTop.x);
-  const xHigh : boolean = (range.leftTop.x < MapEdges.rightBottom.x || range.rightBottom.x < MapEdges.rightBottom.x);
-  const yLow : boolean = (range.leftTop.y > MapEdges.leftTop.y || range.rightBottom.y > MapEdges.leftTop.y);
-  const yHigh : boolean = (range.leftTop.y < MapEdges.rightBottom.y || range.rightBottom.y < MapEdges.rightBottom.y);
+function checkInsideBounds(rangeOrCoords : CoordsXY | MapRange) : boolean;
 
-  return xLow && xHigh && yLow && yHigh;
+function checkInsideBounds(rangeOrCoords : any) : boolean {
+  if (isMapRange(rangeOrCoords)) {
+    const range = rangeOrCoords as MapRange;
+
+    const xLow : boolean = (range.leftTop.x > MapEdges.leftTop.x || range.rightBottom.x > MapEdges.leftTop.x);
+    const xHigh : boolean = (range.leftTop.x < MapEdges.rightBottom.x || range.rightBottom.x < MapEdges.rightBottom.x);
+    const yLow : boolean = (range.leftTop.y > MapEdges.leftTop.y || range.rightBottom.y > MapEdges.leftTop.y);
+    const yHigh : boolean = (range.leftTop.y < MapEdges.rightBottom.y || range.rightBottom.y < MapEdges.rightBottom.y);
+  
+    return xLow && xHigh && yLow && yHigh;
+  } else {
+    const coords = rangeOrCoords as CoordsXY;
+    
+    const x : boolean = coords.x > MapEdges.leftTop.x && coords.x < MapEdges.rightBottom.x;
+    const y : boolean = coords.y > MapEdges.leftTop.y && coords.y < MapEdges.rightBottom.y;
+  
+    return x && y;
+  }
 }
 
 
@@ -675,7 +690,7 @@ function setLandOwnership(rangeOrCoords : any, ownership : any) : number {
   if (isMapRange(rangeOrCoords)) {
     const range : MapRange = rangeOrCoords as MapRange;
 
-    if (!checkSelectionInsideBounds(range)) {
+    if (!checkInsideBounds(range)) {
       return -1;
     }
   
@@ -711,7 +726,7 @@ function setLandOwnership(rangeOrCoords : any, ownership : any) : number {
     let numSet = 0;
     let numOutsideMapBounds = 0;
     coords.forEach((value : CoordsXY) : void => {
-      if (!checkCoordsXYInsideBounds(value)) {
+      if (!checkInsideBounds(value)) {
         ++numOutsideMapBounds;
         return;
       }
@@ -799,6 +814,10 @@ function checkTileBuyable(tile : Tile, buyType : LandOwnership) : boolean {
  */
 function sellTiles(range : MapRange) : boolean {
   // TODO: increment number of available tiles
+
+  if (!checkInsideBounds(range)) {
+    return false;
+  }
 
   const clampedRange = clampRange(range);
 
