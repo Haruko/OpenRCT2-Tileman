@@ -1,4 +1,4 @@
-//   /// <reference path="../lib/openrct2.d.ts" />
+/// <reference path="../lib/openrct2.d.ts" />
 import * as FlexUI from 'openrct2-flexui';
 
 /**

@@ -2,5 +2,4 @@
 /build/
 package-lock.json
 
-scripting.md
-openrct2.d.ts
+/lib/*
