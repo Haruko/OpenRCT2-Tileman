@@ -632,6 +632,17 @@ function checkInsideBounds(rangeOrCoords : any) : boolean {
   }
 }
 
+/**
+ * Calculates the number of tiles in an area of a MapRange
+ * @param range Range to calculate from
+ * @returns Number of tiles in MapRange
+ */
+function calculateNumTiles(range : MapRange) : number {
+  const xLength = Math.abs(range.rightBottom.x - range.leftTop.x) / 32 + 1;
+  const yLength = Math.abs(range.rightBottom.y - range.leftTop.y) / 32 + 1;
+  return xLength * yLength;
+}
+
 
 
 /**
@@ -714,9 +725,8 @@ function setLandOwnership(rangeOrCoords : any, ownership : any) : number {
     });
   
     cheats.sandboxMode = false;
-  
-    return (Math.abs(clampedRange.rightBottom.x - clampedRange.leftTop.x) / 32 + 1)
-      * (Math.abs(clampedRange.rightBottom.y - clampedRange.leftTop.y) / 32 + 1);
+
+    return calculateNumTiles(clampedRange);
   } else {
     const coords : Array<CoordsXY>= rangeOrCoords as Array<CoordsXY>;
 
