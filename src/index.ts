@@ -1,5 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 import * as FlexUI from 'openrct2-flexui';
+import { PromisePolyfill } from './polyfills/promisePolyfill';
 
 /**
  * TODO: I want to make the tool work like the land tool, with a + and - button to change size.
