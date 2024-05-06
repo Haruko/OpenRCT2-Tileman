@@ -15,7 +15,7 @@ function PromisePolyfill<T>(executor : (resolve : (value : T) => void, reject : 
     currValue : T;
 
     function resolve(value : T) : void {
-      console.log(`Resolve : fulfilled=${fulfilled} rejected=${rejected} called=${called} currValue=${currValue} value=${value}`);
+      // console.log(`Resolve : fulfilled=${fulfilled} rejected=${rejected} called=${called} currValue=${currValue} value=${value}`);
       if (!fulfilled && !rejected) {
         fulfilled = true;
         currValue = value;
@@ -28,7 +28,7 @@ function PromisePolyfill<T>(executor : (resolve : (value : T) => void, reject : 
     }
 
     function reject(reason : any) : void {
-      console.log(`Reject  : fulfilled=${fulfilled} rejected=${rejected} called=${called} currValue=${currValue} reason=${reason}`);
+      // console.log(`Reject  : fulfilled=${fulfilled} rejected=${rejected} called=${called} currValue=${currValue} reason=${reason}`);
       if (!fulfilled && !rejected) {
         rejected = true;
         currValue = reason;
@@ -41,7 +41,7 @@ function PromisePolyfill<T>(executor : (resolve : (value : T) => void, reject : 
     }
 
     this.then = function (callback : Function) : PromisePolyfill<T> {
-      console.log(`Then    : fulfilled=${fulfilled} rejected=${rejected} called=${called} currValue=${currValue}`);
+      // console.log(`Then    : fulfilled=${fulfilled} rejected=${rejected} called=${called} currValue=${currValue}`);
       if (fulfilled && !rejected && !called) {
         called = true;
         try {
@@ -55,7 +55,7 @@ function PromisePolyfill<T>(executor : (resolve : (value : T) => void, reject : 
     }
 
     this.catch = function (callback : Function) : PromisePolyfill<T> {
-      console.log(`Catch   : fulfilled=${fulfilled} rejected=${rejected} called=${called} currValue=${currValue}`);
+      // console.log(`Catch   : fulfilled=${fulfilled} rejected=${rejected} called=${called} currValue=${currValue}`);
       if (rejected && !fulfilled && !called) {
         called = true;
         try {
