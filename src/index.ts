@@ -743,7 +743,7 @@ async function setLandOwnership(rangeOrCoords : any, ownership : any) : Promise<
         ownership: ownership,
         flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
       }, (result : GameActionResult) : void => {
-        if (typeof result.error !== 'undefined') {
+        if (typeof result.error !== 'undefined' && result.error !== GameActionResultErrorCodes.Ok) {
           reject(result.error);
         } else {
           // Assume lack of an error is a success
@@ -960,7 +960,7 @@ function checkTileSellable(tile : Tile) : boolean {
 /**
  * Entry point
  */
-function main() : void {
+async function main() : Promise<void> {
   console.log('Initializing Tileman Plugin...');
 
   // Make sure it's a client
@@ -972,7 +972,7 @@ function main() : void {
 
     // Setup map and data for game mode
     park.landPrice = 0;
-    setLandOwnership(MapEdges, LandOwnership.UNOWNED);
+    await setLandOwnership(MapEdges, LandOwnership.UNOWNED);
 
     // Days are about 13.2 seconds at 1x speed
     context.subscribe('interval.day', collectData);
