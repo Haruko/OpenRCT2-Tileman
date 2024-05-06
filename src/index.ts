@@ -699,7 +699,7 @@ function collectData() : void {
  * @param ownership LandOwnership enum value
  * @returns number of tiles successfully set, -1 if the tiles are entirely outside of map boundaries
  */
-function setLandOwnership(coords : CoordsXY[], ownership : LandOwnership) : Promise<LandRightsResult>;
+async function setLandOwnership(coords : CoordsXY[], ownership : LandOwnership) : Promise<LandRightsResult>;
 
 /**
  * Sets tile ownership in a region
@@ -708,7 +708,7 @@ function setLandOwnership(coords : CoordsXY[], ownership : LandOwnership) : Prom
  * @param ownership LandOwnership enum value
  * @returns number of tiles successfully set, -1 if the tiles are entirely outside of map boundaries
  */
-function setLandOwnership(range : MapRange, ownership : LandOwnership) : Promise<LandRightsResult>;
+async function setLandOwnership(range : MapRange, ownership : LandOwnership) : Promise<LandRightsResult>;
 
 /**
  * Sets tile ownership in a region
@@ -717,51 +717,57 @@ function setLandOwnership(range : MapRange, ownership : LandOwnership) : Promise
  * @param ownership LandOwnership enum value
  * @returns number of tiles successfully set, -1 if the tiles are entirely outside of map boundaries
  */
-function setLandOwnership(rangeOrCoords : MapRange | CoordsXY[], ownership : LandOwnership) : Promise<LandRightsResult>;
+async function setLandOwnership(rangeOrCoords : MapRange | CoordsXY[], ownership : LandOwnership) : Promise<LandRightsResult>;
 
 
-function setLandOwnership(rangeOrCoords : any, ownership : any) : Promise<LandRightsResult | undefined> {
+async function setLandOwnership(rangeOrCoords : any, ownership : any) : Promise<LandRightsResult | undefined> {
   if (isMapRange(rangeOrCoords)) {
+    const range : MapRange = rangeOrCoords as MapRange;
 
-    return Promise.resolve(undefined);
-    // // TODO: Promisify
-    // const range : MapRange = rangeOrCoords as MapRange;
+    if (!checkInsideBounds(range)) {
+      return Promise.resolve({ numSet: 0, numFailed: calculateNumTiles(range) });
+    }
 
-    // if (!checkInsideBounds(range)) {
-    //   return Promise.resolve(-1);
-    // }
-  
-    // const clampedRange : MapRange = clampRange(range);
-  
-    // // Turn on sandbox mode to make buying/selling land free and doable to any tile
-    // cheats.sandboxMode = true;
-  
-    // context.executeAction("landsetrights", {
-    //   // <1, 1> is <32, 32>
-    //   x1: clampedRange.leftTop.x,
-    //   y1: clampedRange.leftTop.y,
-    //   // Map size of 128 has 4032 (126*32) as its max coordinate
-    //   x2: clampedRange.rightBottom.x,
-    //   y2: clampedRange.rightBottom.y,
-    //   setting: 4, // Set ownership
-    //   ownership: ownership,
-    //   flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
-    // }, (result : GameActionResult) => {
-    //   // Assume it works because Promises are a lie
-    // });
-  
-    // cheats.sandboxMode = false;
-
-    // return Promise.resolve(calculateNumTiles(clampedRange));
-  } else {
-    const coords : Array<CoordsXY>= rangeOrCoords as Array<CoordsXY>;
+    const clampedRange : MapRange = clampRange(range);
 
     // Turn on sandbox mode to make buying/selling land free and doable to any tile
     cheats.sandboxMode = true;
 
-    let promises : Promise<number>[] = [];
+    const result = await new Promise<LandRightsResult>((resolve : Function, reject : Function) : void => {
+      context.executeAction("landsetrights", {
+        x1: clampedRange.leftTop.x,
+        y1: clampedRange.leftTop.y,
+        x2: clampedRange.rightBottom.x,
+        y2: clampedRange.rightBottom.y,
+        setting: 4, // Set ownership
+        ownership: ownership,
+        flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
+      }, (result : GameActionResult) : void => {
+        if (typeof result.error !== 'undefined') {
+          reject(result.error);
+        } else {
+          // Assume lack of an error is a success
+          resolve({ numSet: calculateNumTiles(range), numFailed: 0 });
+        }
+      });
+    }).catch((reason : GameActionResultErrorCodes) : LandRightsResult => {
+      // Assume that nothing was done if there was an error, otherwise we need to figure out how to undo
+      console.log('setLandOwnership error', GameActionResultErrorCodes[reason]);
+
+      return { numSet: 0, numFailed: calculateNumTiles(range) };
+    });
+
+    cheats.sandboxMode = false;
+    return result;
+  } else {
+    const coords : CoordsXY[] = rangeOrCoords as CoordsXY[];
+
+    // Turn on sandbox mode to make buying/selling land free and doable to any tile
+    cheats.sandboxMode = true;
+
+    const promises : Promise<GameActionResultErrorCodes>[] = [];
     coords.forEach((value : CoordsXY) : void => {
-      const setRightsPromise = new Promise<number>((resolve : Function, reject : Function) : void => {
+      const setRightsPromise = new Promise<GameActionResultErrorCodes>((resolve : Function, reject : Function) : void => {
         if (!checkInsideBounds(value)) {
           resolve(GameActionResultErrorCodes.InvalidParameters);
         }
@@ -786,26 +792,20 @@ function setLandOwnership(rangeOrCoords : any, ownership : any) : Promise<LandRi
       promises.push(setRightsPromise);
     });
 
-    return Promise.all(promises).then((results : number[]) : LandRightsResult => {
-      let numSet : number = 0;
-      let numFailed : number = 0;
-
-      results.forEach((result : number) : void => {
-        if (result === GameActionResultErrorCodes.Ok) {
-          ++numSet;
-        } else {
-          ++numFailed;
-        }
-      });
-      
-      return { numSet, numFailed };
-    }).catch((error : any) : undefined => {
-      console.log('setLandOwnership error', error.toString());
-    }).then((value? : LandRightsResult) : LandRightsResult | undefined => {
-      cheats.sandboxMode = false;
-
-      return value;
+    const results : GameActionResultErrorCodes[] = await Promise.all(promises);
+    
+    let numSet : number = 0;
+    let numFailed : number = 0;
+    results.forEach((result : GameActionResultErrorCodes) : void => {
+      if (result === GameActionResultErrorCodes.Ok) {
+        ++numSet;
+      } else {
+        ++numFailed;
+      }
     });
+
+    cheats.sandboxMode = false;
+    return { numSet, numFailed };
   }
 }
 
@@ -816,6 +816,7 @@ function setLandOwnership(rangeOrCoords : any, ownership : any) : Promise<LandRi
  * @returns true on success
  */
 async function buyTiles(range : MapRange, buyType : LandOwnership) : Promise<void> {
+  // TODO: Combine with sellTiles
   if (!checkInsideBounds(range)) {
     return;
   }
@@ -839,7 +840,7 @@ async function buyTiles(range : MapRange, buyType : LandOwnership) : Promise<voi
     const result : LandRightsResult = await setLandOwnership(coords, buyType);
 
     if (typeof result !== 'undefined') {
-      console.log('Bought tiles. numBought:', result.numSet, ' numFailed:', result.numFailed);
+      console.log('Bought tiles. numBought:', result.numSet, 'numFailed:', result.numFailed);
       // TODO: Decrement tiles
     } else {
       ui.showError(`Can't buy land...`, `I don't know either...`);
@@ -854,6 +855,7 @@ async function buyTiles(range : MapRange, buyType : LandOwnership) : Promise<voi
  * @returns true if the tile is buyable
  */
 function checkTileBuyable(tile : Tile, buyType : LandOwnership) : boolean {
+  // TODO: Combine with checkTileSellable
   let buyable = true;
 
   // Iterate over elements to see land ownership and what is here
@@ -886,8 +888,7 @@ function checkTileBuyable(tile : Tile, buyType : LandOwnership) : boolean {
  * @returns true on success
  */
 async function sellTiles(range : MapRange) : Promise<void> {
-  // TODO: increment number of available tiles
-
+  // TODO: Combine with buyTiles
   if (!checkInsideBounds(range)) {
     return;
   }
@@ -909,7 +910,8 @@ async function sellTiles(range : MapRange) : Promise<void> {
     const result : LandRightsResult = await setLandOwnership(coords, LandOwnership.UNOWNED);
 
     if (typeof result !== 'undefined') {
-      console.log('Sold tiles. numSold:', result.numSet, ' numFailed:', result.numFailed);
+      // TODO: Increment tiles
+      console.log('Sold tiles. numSold:', result.numSet, 'numFailed:', result.numFailed);
     } else {
       ui.showError(`Can't sell land...`, `I don't know either...`);
     }
@@ -922,6 +924,7 @@ async function sellTiles(range : MapRange) : Promise<void> {
  * @returns true if the tile is sellable
  */
 function checkTileSellable(tile : Tile) : boolean {
+  // TODO: Combine with checkTileBuyable
   let sellable = true;
 
   // Iterate over elements to see land ownership and what is here
