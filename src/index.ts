@@ -1,7 +1,7 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
 import { getPlayerData, computeTilesUnlocked, getPluginConfig } from './data';
-import { openWindow, updateLabels } from './tilemanUI';
+import { openWindow, updateLabels } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
 /**
