@@ -52,15 +52,15 @@ export function setToolSize(size : number) : void {
 let toolLastUsedCoords : CoordsXY = CoordsXY(0, 0);
 
 /**
- * Exposes tool size to other modules
- * @returns Current tool size
+ * Exposes tool last used coordinates to other modules
+ * @returns Current tool last used coordinates
  */
 export function getToolLastUsedCoords() : CoordsXY {
   return toolLastUsedCoords;
 }
 
 /**
- * Sets the tool size
+ * Sets the tool last used coordinates
  */
 export function setToolLastUsedCoords(coords : CoordsXY) : void {
   toolLastUsedCoords = coords;

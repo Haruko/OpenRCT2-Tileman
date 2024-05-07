@@ -289,6 +289,7 @@ export async function setLandOwnership(rangeOrCoords : any, ownership : any) : P
 export async function buyTiles(range : MapRange, buyType : LandOwnership) : Promise<void> {
   // TODO: Combine with sellTiles
   if (!checkInsideMap(range)) {
+    ui.showError(`Can't buy land...`, `Outside of playable area!`);
     return;
   }
 
@@ -326,7 +327,7 @@ export async function buyTiles(range : MapRange, buyType : LandOwnership) : Prom
       ui.showError(`Can't buy land...`, `Not enough tiles unlocked!`);
     }
   } else {
-    ui.showError(`Can't buy land...`, `No buyable land found!`)
+    ui.showError(`Can't buy land...`, `No buyable land found!`);
   }
 }
 
@@ -338,6 +339,7 @@ export async function buyTiles(range : MapRange, buyType : LandOwnership) : Prom
 export async function sellTiles(range : MapRange) : Promise<void> {
   // TODO: Combine with buyTiles
   if (!checkInsideMap(range)) {
+    ui.showError(`Can't sell land...`, `Outside of playable area!`);
     return;
   }
 
