@@ -19,16 +19,11 @@ import { PromisePolyfill } from './polyfills/promisePolyfill';
  * Player/Park data
  */
 const PlayerData = {
-  totalExp: 0,
-  tilesUsed: 0,
+  totalExp: FlexUI.store<number>(0),
+  tilesUsed: FlexUI.store<number>(0),
 
   // Maps ride IDs (numbers) and historical data (Ride.totalCustomers, eventually Ride.totalProfit or something )
   // TODO: Make this keep track of ride stats every interval to account for deleted rides
-  /**
-   * TODO:
-   * declare function compute<T, U>(store: Store<T>, callback: (value: T) => U): Store<U>;
-   * const buyButtonPressed : FlexUI.Store<boolean> = FlexUI.store<boolean>(false);
-   */
   rideMap: {
     /*
       123: {
@@ -38,6 +33,11 @@ const PlayerData = {
     */
   }
 };
+
+// Subscribe to changes in player data
+PlayerData.totalExp.subscribe(updateLabels);
+PlayerData.tilesUsed.subscribe(updateLabels);
+
 
 /**
  * Configs
@@ -50,7 +50,7 @@ const PluginConfig = {
 
   // User definable
   // TODO: Allow users to customize in the UI
-  expPerTile: 1000,
+  expPerTile: 1,
   minTiles: 2 // 1 path + 1 stall minimum
 }
 
@@ -256,6 +256,24 @@ function isMapRange(obj : any) : obj is MapRange {
  *   palesilver
  */
 
+const UIDataStores = {
+  // Total exp label
+  totalExpLabelText : FlexUI.store<string>('{BABYBLUE}0'),
+  totalExpLabelTextGenerator : () : string => {
+    return `{BABYBLUE}${context.formatString('{COMMA16}', PlayerData.totalExp.get())}`;
+  },
+
+  // Tiles unlocked/used/available
+  tileTotalsLabelText : FlexUI.store<string>('{BABYBLUE}0{BLACK}/{RED}0{BLACK}/{GREEN}0'),
+  tileTotalsLabelTextGenerator : () : string => {
+    const tilesUnlocked = computeTilesUnlocked();
+
+    return `{BABYBLUE}${context.formatString('{COMMA16}', tilesUnlocked)}` +
+      `{BLACK}/{RED}${context.formatString('{COMMA16}', PlayerData.tilesUsed.get())}` +
+      `{BLACK}/{GREEN}${context.formatString('{COMMA16}', tilesUnlocked - PlayerData.tilesUsed.get())}`;
+  }
+};
+
 /**
  * Box to display statistics in primary window
  */
@@ -271,7 +289,8 @@ const statsPanel = FlexUI.box({
             width: '175px'
           }),
           FlexUI.label({
-            text: `{BABYBLUE}${context.formatString('{COMMA16}', PlayerData.totalExp)}`
+            // UIDataStores.totalExpLabelTextGenerator()
+            text: UIDataStores.totalExpLabelText
           })
         ]
       }),
@@ -283,9 +302,8 @@ const statsPanel = FlexUI.box({
             width: '175px'
           }),
           FlexUI.label({
-            text: `{BABYBLUE}${context.formatString('{COMMA16}', computeTilesAvailable())}` +
-              `{BLACK}/{RED}${context.formatString('{COMMA16}', PlayerData.tilesUsed)}` +
-              `{BLACK}/{GREEN}${context.formatString('{COMMA16}', computeTilesAvailable() - PlayerData.tilesUsed)}`
+            // UIDataStores.tileTotalsLabelTextGenerator
+            text: UIDataStores.tileTotalsLabelText
           })
         ]
       })
@@ -472,6 +490,17 @@ function closeWindowInstances() : void {
   }
 }
 
+/**
+ * Update the labels in the window
+ */
+function updateLabels() : void {
+  // Update the total exp label
+  UIDataStores.totalExpLabelText.set(UIDataStores.totalExpLabelTextGenerator());
+
+  // Update the unlocked/used/available label
+  UIDataStores.tileTotalsLabelText.set(UIDataStores.tileTotalsLabelTextGenerator());
+}
+
 
 
 /**
@@ -585,10 +614,10 @@ function applyToolToArea(area : MapRange) : void {
  */
 
 /**
- * Computes number of tiles earned based on total experience
+ * Computes number of tiles unlocked based on total experience
  */
-function computeTilesAvailable() : number {
-  return Math.floor(PlayerData.totalExp / PluginConfig.expPerTile) + PluginConfig.minTiles;
+function computeTilesUnlocked() : number {
+  return Math.floor(PlayerData.totalExp.get() / PluginConfig.expPerTile) + PluginConfig.minTiles;
 }
 
 /**
@@ -660,7 +689,7 @@ function checkInsideBounds(rangeOrCoords : any) : boolean {
  * @param range Range to calculate from
  * @returns Number of tiles in MapRange
  */
-function calculateNumTiles(range : MapRange) : number {
+function computeNumTiles(range : MapRange) : number {
   const xLength = Math.abs(range.rightBottom.x - range.leftTop.x) / 32 + 1;
   const yLength = Math.abs(range.rightBottom.y - range.leftTop.y) / 32 + 1;
   return xLength * yLength;
@@ -720,12 +749,12 @@ async function setLandOwnership(range : MapRange, ownership : LandOwnership) : P
 async function setLandOwnership(rangeOrCoords : MapRange | CoordsXY[], ownership : LandOwnership) : Promise<LandRightsResult>;
 
 
-async function setLandOwnership(rangeOrCoords : any, ownership : any) : Promise<LandRightsResult | undefined> {
+async function setLandOwnership(rangeOrCoords : any, ownership : any) : Promise<LandRightsResult> {
   if (isMapRange(rangeOrCoords)) {
     const range : MapRange = rangeOrCoords as MapRange;
 
     if (!checkInsideBounds(range)) {
-      return Promise.resolve({ numSet: 0, numFailed: calculateNumTiles(range) });
+      return Promise.resolve({ numSet: 0, numFailed: computeNumTiles(range) });
     }
 
     const clampedRange : MapRange = clampRange(range);
@@ -747,14 +776,14 @@ async function setLandOwnership(rangeOrCoords : any, ownership : any) : Promise<
           reject(result.error);
         } else {
           // Assume lack of an error is a success
-          resolve({ numSet: calculateNumTiles(range), numFailed: 0 });
+          resolve({ numSet: computeNumTiles(range), numFailed: 0 });
         }
       });
     }).catch((reason : GameActionResultErrorCodes) : LandRightsResult => {
       // Assume that nothing was done if there was an error, otherwise we need to figure out how to undo
       console.log('setLandOwnership error', GameActionResultErrorCodes[reason]);
 
-      return { numSet: 0, numFailed: calculateNumTiles(range) };
+      return { numSet: 0, numFailed: computeNumTiles(range) };
     });
 
     cheats.sandboxMode = false;
@@ -823,28 +852,39 @@ async function buyTiles(range : MapRange, buyType : LandOwnership) : Promise<voi
 
   const clampedRange = clampRange(range);
 
-  // Check the sellability of all tiles in the range
+  // Check the buyability of all tiles in the range
   const coords : CoordsXY[] = [];
+  let numFree : number = 0; // Number of tiles that will not incur a cost when buying
   for (let x = clampedRange.leftTop.x; x <= clampedRange.rightBottom.x; x += 32) {
     for (let y = clampedRange.leftTop.y; y <= clampedRange.rightBottom.y; y += 32) {
-      if (checkTileBuyable(map.getTile(x / 32, y / 32), buyType)) {
+      const checkResult = checkTileBuyable(map.getTile(x / 32, y / 32), buyType);
+
+      // If boolean, assumed to be false
+      if (typeof checkResult !== 'boolean') {
         coords.push(CoordsXY(x, y));
+
+        // If ownership type is the opposite owned type (rights vs owned) then don't incur a cost
+        if (checkResult !== buyType && (checkResult === LandOwnership.OWNED || checkResult === LandOwnership.CONSTRUCTION_RIGHTS_OWNED)) {
+          ++numFree;
+        }
       }
     }
   }
 
-  // TODO: check if player can afford them
-
   if (coords.length > 0) {
-    // Otherwise nothing in the selection can be sold
-    const result : LandRightsResult = await setLandOwnership(coords, buyType);
-
-    if (typeof result !== 'undefined') {
+    // Check if player can afford them
+    console.log(coords.length, computeTilesUnlocked(), PlayerData.tilesUsed.get())
+    if (coords.length - numFree <= computeTilesUnlocked() - PlayerData.tilesUsed.get()) {
+      const result : LandRightsResult = await setLandOwnership(coords, buyType);
+      
+      // Deduct cost
+      PlayerData.tilesUsed.set(PlayerData.tilesUsed.get() + result.numSet - numFree);
       console.log('Bought tiles. numBought:', result.numSet, 'numFailed:', result.numFailed);
-      // TODO: Decrement tiles
     } else {
-      ui.showError(`Can't buy land...`, `I don't know either...`);
+      ui.showError(`Can't buy land...`, `Not enough tiles unlocked!`);
     }
+  } else {
+    ui.showError(`Can't buy land...`, `No buyable land found!`)
   }
 }
 
@@ -852,11 +892,12 @@ async function buyTiles(range : MapRange, buyType : LandOwnership) : Promise<voi
  * Checks if a tile should be buyable
  * @param tile Tile to check
  * @param buyType Whether we're attempting LandOwnership.OWNED or LandOwnership.CONSTRUCTION_RIGHTS_OWNED
- * @returns true if the tile is buyable
+ * @returns false if the tile is not buyable, otherwise the type of ownership the player has on the tile
  */
-function checkTileBuyable(tile : Tile, buyType : LandOwnership) : boolean {
+function checkTileBuyable(tile : Tile, buyType : LandOwnership) : false | LandOwnership {
   // TODO: Combine with checkTileSellable
   let buyable = true;
+  let ownership! : LandOwnership;
 
   // Iterate over elements to see land ownership and what is here
   for(let i = 0; i < tile.numElements && buyable; ++i) {
@@ -865,6 +906,8 @@ function checkTileBuyable(tile : Tile, buyType : LandOwnership) : boolean {
     switch (element.type) {
       case 'surface':
         // Land is not unowned and ownership type matches buyType
+        ownership = element.ownership;
+
         if (element.ownership !== LandOwnership.UNOWNED && element.ownership === buyType) {
           buyable = false;
         }
@@ -879,7 +922,11 @@ function checkTileBuyable(tile : Tile, buyType : LandOwnership) : boolean {
     }
   }
 
-  return buyable;
+  if (buyable) {
+    return ownership;
+  } else {
+    return false;
+  }
 }
 
 /**
@@ -899,33 +946,35 @@ async function sellTiles(range : MapRange) : Promise<void> {
   const coords : CoordsXY[] = [];
   for (let x = clampedRange.leftTop.x; x <= clampedRange.rightBottom.x; x += 32) {
     for (let y = clampedRange.leftTop.y; y <= clampedRange.rightBottom.y; y += 32) {
-      if (checkTileSellable(map.getTile(x / 32, y / 32))) {
+      const checkResult = checkTileSellable(map.getTile(x / 32, y / 32));
+      
+      // If boolean, assumed to be false
+      if (typeof checkResult !== 'boolean') {
         coords.push(CoordsXY(x, y));
       }
     }
   }
 
   if (coords.length > 0) {
-    // Otherwise nothing in the selection can be sold
     const result : LandRightsResult = await setLandOwnership(coords, LandOwnership.UNOWNED);
 
-    if (typeof result !== 'undefined') {
-      // TODO: Increment tiles
-      console.log('Sold tiles. numSold:', result.numSet, 'numFailed:', result.numFailed);
-    } else {
-      ui.showError(`Can't sell land...`, `I don't know either...`);
-    }
+    // Refund
+    PlayerData.tilesUsed.set(PlayerData.tilesUsed.get() - result.numSet);
+    console.log('Sold tiles. numSold:', result.numSet, 'numFailed:', result.numFailed);
+  } else {
+    ui.showError(`Can't sell land...`, `No sellable land found!`);
   }
 }
 
 /**
  * Checks if a tile should be sellable or not
  * @param tile Tile to check
- * @returns true if the tile is sellable
+ * @returns false if the tile is not sellable, otherwise the type of ownership the player has on the tile
  */
-function checkTileSellable(tile : Tile) : boolean {
+function checkTileSellable(tile : Tile) : false | LandOwnership {
   // TODO: Combine with checkTileBuyable
   let sellable = true;
+  let ownership! : LandOwnership;
 
   // Iterate over elements to see land ownership and what is here
   for(let i = 0; i < tile.numElements && sellable; ++i) {
@@ -934,6 +983,8 @@ function checkTileSellable(tile : Tile) : boolean {
     switch (element.type) {
       case 'surface':
         // Land is unowned
+        ownership = element.ownership;
+
         if (element.ownership === LandOwnership.UNOWNED) {
           sellable = false;
         }
@@ -954,7 +1005,11 @@ function checkTileSellable(tile : Tile) : boolean {
     }
   }
 
-  return sellable;
+  if (sellable) {
+    return ownership;
+  } else {
+    return false;
+  }
 }
 
 /**
@@ -976,6 +1031,8 @@ async function main() : Promise<void> {
 
     // Days are about 13.2 seconds at 1x speed
     context.subscribe('interval.day', collectData);
+
+    PlayerData.totalExp.set(2);
   }
 }
 
