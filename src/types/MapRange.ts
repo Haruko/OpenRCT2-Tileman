@@ -44,3 +44,14 @@ export function isMapRange(obj : any) : obj is MapRange {
     && (typeof objAsMapRange.leftTop !== 'undefined' && isCoordsXY(objAsMapRange.leftTop))
     && (typeof objAsMapRange.rightBottom !== 'undefined' && isCoordsXY(objAsMapRange.rightBottom));
 }
+
+/**
+ * Calculates the number of tiles in an area of a MapRange
+ * @param range Range to calculate from
+ * @returns Number of tiles in MapRange
+ */
+export function computeTilesInRange(range : MapRange) : number {
+  const xLength = Math.abs(range.rightBottom.x - range.leftTop.x) / 32 + 1;
+  const yLength = Math.abs(range.rightBottom.y - range.leftTop.y) / 32 + 1;
+  return xLength * yLength;
+}
