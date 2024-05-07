@@ -6,7 +6,7 @@
   "scripts": {
     "build-develop": "rollup -c rollup.config.develop.js",
     "build-release": "rollup -c rollup.config.release.js",
-    "run": "powershell \"Start-Process 'C:\\Program Files\\OpenRCT2\\openrct2.com'\""
+    "run": "powershell \"Start-Process -NoNewWindow 'C:\\Program Files\\OpenRCT2\\openrct2.com'\""
   },
   "repository": {
     "type": "git",
