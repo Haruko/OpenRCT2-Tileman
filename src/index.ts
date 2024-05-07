@@ -1,6 +1,8 @@
 /// <reference path='../lib/openrct2.d.ts' />
 import * as FlexUI from 'openrct2-flexui';
-import { PromisePolyfill } from './polyfills/promisePolyfill';
+
+import { CoordsXY, isCoordsXY } from './types/CoordsXY';
+import { MapRange, isMapRange } from './types/MapRange';
 
 /**
  * TODO: Update the tool UI to be like the land editing tool
@@ -114,6 +116,7 @@ enum GameCommandFlag {
   // GAME_COMMAND_FLAG_NETWORKED = (1u << 31)          // Game command is coming from network (Doesn't have equivalent in TS?)
 };
 
+// From openrct2/actions/GameActionResult.h
 enum GameActionResultErrorCodes {
   Ok,
   InvalidParameters,
@@ -142,91 +145,6 @@ enum Sprites {
   SPR_BUY_CONSTRUCTION_RIGHTS = 5177,
   SPR_FINANCE = 5190
 };
-
-
-/**
- * **********
- * Function Constructors and Type Guards
- * **********
- */
-
-/**
- * Makes a CoordsXY <0, 0>
- * @overload
- */
-function CoordsXY() : CoordsXY;
-
-/**
- * Makes a CoordsXY from x and y values
- * @overload
- * @param x 
- * @param y 
- * @returns CoordsXY
- */
-function CoordsXY(x : number, y : number) : CoordsXY;
-
-function CoordsXY(x? : any, y? : any) : CoordsXY {
-  if (typeof x === 'number') {
-    return { x, y } as CoordsXY;
-  } else {
-    return { x: 0, y: 0 } as CoordsXY;
-  }
-}
-
-/**
- * Checks if an object is instance of CoordsXY interface
- * @param obj object to check
- * @returns true if obj is an instance of CoordsXY interface
- */
-function isCoordsXY(obj : any) : obj is CoordsXY {
-  const objAsCoordsXY = obj as CoordsXY;
-  return typeof obj !== 'undefined'
-    && typeof objAsCoordsXY.x !== 'undefined'
-    && typeof objAsCoordsXY.y !== 'undefined' ;
-}
-
-/**
- * Makes a MapRange from two <x, y> coordinates, using the bounds of the rectangle they create to determine proper corners to define
- * @overload
- * @param c1 first corner
- * @param c2 second corner
- * @returns MapRange with leftTop and rightBottom built from minimums of coordinates
- */
-function MapRange(c1 : CoordsXY, c2 : CoordsXY) : MapRange;
-
-/**
- * Makes a MapRange from two <x, y> coordinates, using the bounds of the rectangle they create to determine proper corners to define
- * @overload
- * @param x1 first corner x coordinate
- * @param y1 first corner y coordinate
- * @param x2 second corner x coordinate
- * @param y2 second corner y coordinate
- * @returns MapRange with leftTop and rightBottom built from minimums of coordinates
- */
-function MapRange(x1 : number, y1: number, x2 : number, y2 : number) : MapRange;
-
-function MapRange(a : any, b : any, x? : any, y? : any) : MapRange {
-  if (typeof a === 'number' && typeof b === 'number') {
-    return {
-      leftTop: CoordsXY(Math.min(a, x), Math.min(b, y)),
-      rightBottom: CoordsXY(Math.max(a, x), Math.max(b, y))
-    } as MapRange;
-  } else {
-    return MapRange(a.x, a.y, b.x, b.y);
-  }
-}
-
-/**
- * Checks if an object is instance of MapRange interface
- * @param obj object to check
- * @returns true if obj is an instance of MapRange interface
- */
-function isMapRange(obj : any) : obj is MapRange {
-  const objAsMapRange = obj as MapRange;
-  return typeof obj !== 'undefined'
-    && (typeof objAsMapRange.leftTop !== 'undefined' && isCoordsXY(objAsMapRange.leftTop))
-    && (typeof objAsMapRange.rightBottom !== 'undefined' && isCoordsXY(objAsMapRange.rightBottom));
-}
 
 
 
