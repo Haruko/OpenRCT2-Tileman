@@ -300,7 +300,7 @@ export async function buyTiles(range : MapRange, buyType : LandOwnership) : Prom
   let numFree : number = 0; // Number of tiles that will not incur a cost when buying
   for (let x = clampedRange.leftTop.x; x <= clampedRange.rightBottom.x; x += 32) {
     for (let y = clampedRange.leftTop.y; y <= clampedRange.rightBottom.y; y += 32) {
-      const checkResult = checkTileBuyable(map.getTile(x / 32, y / 32), buyType);
+      const checkResult = checkTileSettable(map.getTile(x / 32, y / 32), buyType);
 
       // If boolean, assumed to be false
       if (typeof checkResult !== 'boolean') {
@@ -349,7 +349,7 @@ export async function sellTiles(range : MapRange) : Promise<void> {
   const coords : CoordsXY[] = [];
   for (let x = clampedRange.leftTop.x; x <= clampedRange.rightBottom.x; x += 32) {
     for (let y = clampedRange.leftTop.y; y <= clampedRange.rightBottom.y; y += 32) {
-      const checkResult = checkTileSellable(map.getTile(x / 32, y / 32));
+      const checkResult = checkTileSettable(map.getTile(x / 32, y / 32), LandOwnership.UNOWNED);
       
       // If boolean, assumed to be false
       if (typeof checkResult !== 'boolean') {
@@ -370,86 +370,67 @@ export async function sellTiles(range : MapRange) : Promise<void> {
 }
 
 /**
- * Checks if a tile should be buyable
+ * Checks if a tile should be settable for given setType
  * @param tile Tile to check
- * @param buyType Whether we're attempting LandOwnership.OWNED or LandOwnership.CONSTRUCTION_RIGHTS_OWNED
- * @returns false if the tile is not buyable, otherwise the type of ownership the player has on the tile
+ * @param setType Whether we're attempting LandOwnership.UNOWNED, LandOwnership.OWNED, or LandOwnership.CONSTRUCTION_RIGHTS_OWNED
+ * @returns false if the tile is not settable, otherwise the type of ownership the player has on the tile
  */
-export function checkTileBuyable(tile : Tile, buyType : LandOwnership) : false | LandOwnership {
-  // TODO: Combine with checkTileSellable
-  let buyable = true;
+export function checkTileSettable(tile : Tile, setType : LandOwnership) : false | LandOwnership {
+  let settable = true;
   let ownership! : LandOwnership;
 
   // Iterate over elements to see land ownership and what is here
-  for(let i = 0; i < tile.numElements && buyable; ++i) {
+  for(let i = 0; i < tile.numElements && settable; ++i) {
     let element = tile.getElement(i);
 
-    switch (element.type) {
-      case 'surface':
-        // Land is not unowned and ownership type matches buyType
-        ownership = element.ownership;
+    if (setType === LandOwnership.UNOWNED) {
+      // UNOWNED
+      switch (element.type) {
+        case 'surface':
+          // Land is unowned
+          ownership = element.ownership;
 
-        if (element.ownership !== LandOwnership.UNOWNED && element.ownership === buyType) {
-          buyable = false;
-        }
-        break;
+          if (element.ownership === LandOwnership.UNOWNED) {
+            settable = false;
+          }
+          break;
 
-      case 'entrance':
-        // It's the park entrance
-        if (element.object === EntranceType.ENTRANCE_TYPE_PARK_ENTRANCE) {
-          buyable = false;
-        }
-        break;
+        case 'entrance':
+          // It's a ride entrance/exit
+          if (element.object === EntranceType.ENTRANCE_TYPE_RIDE_ENTRANCE
+            || element.object === EntranceType.ENTRANCE_TYPE_RIDE_EXIT) {
+              settable = false;
+          }
+          break;
+
+        case 'track':
+          // track is either a track piece or the entire ride depending on type
+          settable = false;
+          break;
+      }
+    } else {
+      // OWNED or CONSTRUCTION_RIGHTS_OWNED
+      switch (element.type) {
+        case 'surface':
+          // Land is not unowned and ownership type matches buyType
+          ownership = element.ownership;
+
+          if (element.ownership !== LandOwnership.UNOWNED && element.ownership === setType) {
+            settable = false;
+          }
+          break;
+
+        case 'entrance':
+          // It's the park entrance
+          if (element.object === EntranceType.ENTRANCE_TYPE_PARK_ENTRANCE) {
+            settable = false;
+          }
+          break;
+      }
     }
   }
 
-  if (buyable) {
-    return ownership;
-  } else {
-    return false;
-  }
-}
-
-/**
- * Checks if a tile should be sellable or not
- * @param tile Tile to check
- * @returns false if the tile is not sellable, otherwise the type of ownership the player has on the tile
- */
-export function checkTileSellable(tile : Tile) : false | LandOwnership {
-  // TODO: Combine with checkTileBuyable
-  let sellable = true;
-  let ownership! : LandOwnership;
-
-  // Iterate over elements to see land ownership and what is here
-  for(let i = 0; i < tile.numElements && sellable; ++i) {
-    let element = tile.getElement(i);
-
-    switch (element.type) {
-      case 'surface':
-        // Land is unowned
-        ownership = element.ownership;
-
-        if (element.ownership === LandOwnership.UNOWNED) {
-          sellable = false;
-        }
-        break;
-
-      case 'entrance':
-        // It's a ride entrance/exit
-        if (element.object === EntranceType.ENTRANCE_TYPE_RIDE_ENTRANCE
-          || element.object === EntranceType.ENTRANCE_TYPE_RIDE_EXIT) {
-          sellable = false;
-        }
-        break;
-
-      case 'track':
-        // track is either a track piece or the entire ride depending on type
-        sellable = false;
-        break;
-    }
-  }
-
-  if (sellable) {
+  if (settable) {
     return ownership;
   } else {
     return false;
