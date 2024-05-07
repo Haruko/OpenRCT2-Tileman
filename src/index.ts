@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { getPlayerData, computeTilesUnlocked, getPluginConfig } from './data';
+import { getPlayerData } from './data';
 import { openWindow, updateLabels } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
@@ -51,8 +51,8 @@ async function main() : Promise<void> {
     getPlayerData().totalExp.subscribe(updateLabels);
     getPlayerData().tilesUsed.subscribe(updateLabels);
 
-    // TODO: For testing
-    getPlayerData().totalExp.set(2);
+    getPlayerData().totalExp.set(0);
+    getPlayerData().tilesUsed.set(0);
 
     // TODO: cheats for testing
     context.subscribe('interval.day', function() {

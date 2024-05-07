@@ -1,7 +1,7 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
 import { getPluginConfig } from './data';
-import { LandOwnership, buyTiles, sellTiles } from './land';
+import { LandOwnership, setTiles } from './land';
 
 import { CoordsXY } from './types/CoordsXY';
 import { MapRange } from './types/MapRange';
@@ -165,13 +165,13 @@ export function getToolArea(center : CoordsXY) : MapRange {
 export function applyToolToArea(area : MapRange) : void {
   switch(ui.tool?.id) {
     case ToolID.BUY_TOOL:
-      buyTiles(area, LandOwnership.OWNED);
+      setTiles(area, LandOwnership.OWNED);
       break;
     case ToolID.RIGHTS_TOOL:
-      buyTiles(area, LandOwnership.CONSTRUCTION_RIGHTS_OWNED);
+      setTiles(area, LandOwnership.CONSTRUCTION_RIGHTS_OWNED);
       break;
     case ToolID.SELL_TOOL:
-      sellTiles(area);
+      setTiles(area, LandOwnership.UNOWNED);
       break;
   }
 }

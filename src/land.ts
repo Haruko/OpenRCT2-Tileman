@@ -281,33 +281,37 @@ export async function setLandOwnership(rangeOrCoords : any, ownership : any) : P
 }
 
 /**
- * Attempts to buy tiles in a region
- * @param range Range of tiles to buy
- * @param buyType Which type of ownership we're trying to get
+ * Attempts to buy/sell tiles in a region
+ * @param range Range of tiles to buy/sell
+ * @param setType Which type of ownership we're trying to get
  * @returns true on success
  */
-export async function buyTiles(range : MapRange, buyType : LandOwnership) : Promise<void> {
-  // TODO: Combine with sellTiles
+export async function setTiles(range : MapRange, setType : LandOwnership) : Promise<void> {
+  const setText : string = setType === LandOwnership.UNOWNED ? 'sell' : 'buy';
+
+  // Make sure selection is inside of playable area
   if (!checkInsideMap(range)) {
-    ui.showError(`Can't buy land...`, `Outside of playable area!`);
+    ui.showError(`Can't ${setText} land...`, `Outside of playable area!`);
     return;
   }
 
   const clampedRange = clampRange(range);
 
-  // Check the buyability of all tiles in the range
+  // Check the settability of all tiles in the range
   const coords : CoordsXY[] = [];
-  let numFree : number = 0; // Number of tiles that will not incur a cost when buying
+  let numFree : number = 0; // Number of tiles that will not incur a cost if buying
+
   for (let x = clampedRange.leftTop.x; x <= clampedRange.rightBottom.x; x += 32) {
     for (let y = clampedRange.leftTop.y; y <= clampedRange.rightBottom.y; y += 32) {
-      const checkResult = checkTileSettable(map.getTile(x / 32, y / 32), buyType);
+      const checkResult = checkTileSettable(map.getTile(x / 32, y / 32), setType);
 
       // If boolean, assumed to be false
       if (typeof checkResult !== 'boolean') {
         coords.push(CoordsXY(x, y));
 
         // If ownership type is the opposite owned type (rights vs owned) then don't incur a cost
-        if (checkResult !== buyType && (checkResult === LandOwnership.OWNED || checkResult === LandOwnership.CONSTRUCTION_RIGHTS_OWNED)) {
+        // We don't check for selling because numFree is unused for selling
+        if (checkResult !== setType && (checkResult === LandOwnership.OWNED || checkResult === LandOwnership.CONSTRUCTION_RIGHTS_OWNED)) {
           ++numFree;
         }
       }
@@ -315,57 +319,26 @@ export async function buyTiles(range : MapRange, buyType : LandOwnership) : Prom
   }
 
   if (coords.length > 0) {
-    // Check if player can afford them
-    console.log(coords.length, computeTilesUnlocked(), getPlayerData().tilesUsed.get())
-    if (coords.length - numFree <= computeTilesUnlocked() - getPlayerData().tilesUsed.get()) {
-      const result : LandRightsResult = await setLandOwnership(coords, buyType);
-      
-      // Deduct cost
-      getPlayerData().tilesUsed.set(getPlayerData().tilesUsed.get() + result.numSet - numFree);
-      console.log('Bought tiles. numBought:', result.numSet, 'numFailed:', result.numFailed);
+    if (setType === LandOwnership.UNOWNED) {
+      // Selling
+      const result : LandRightsResult = await setLandOwnership(coords, LandOwnership.UNOWNED);
+
+      // Refund tiles
+      getPlayerData().tilesUsed.set(getPlayerData().tilesUsed.get() - result.numSet);
     } else {
-      ui.showError(`Can't buy land...`, `Not enough tiles unlocked!`);
-    }
-  } else {
-    ui.showError(`Can't buy land...`, `No buyable land found!`);
-  }
-}
-
-/**
- * Attempts to sell tiles in a region
- * @param range range of tiles to sell
- * @returns true on success
- */
-export async function sellTiles(range : MapRange) : Promise<void> {
-  // TODO: Combine with buyTiles
-  if (!checkInsideMap(range)) {
-    ui.showError(`Can't sell land...`, `Outside of playable area!`);
-    return;
-  }
-
-  const clampedRange = clampRange(range);
-
-  // Check the sellability of all tiles in the range
-  const coords : CoordsXY[] = [];
-  for (let x = clampedRange.leftTop.x; x <= clampedRange.rightBottom.x; x += 32) {
-    for (let y = clampedRange.leftTop.y; y <= clampedRange.rightBottom.y; y += 32) {
-      const checkResult = checkTileSettable(map.getTile(x / 32, y / 32), LandOwnership.UNOWNED);
-      
-      // If boolean, assumed to be false
-      if (typeof checkResult !== 'boolean') {
-        coords.push(CoordsXY(x, y));
+      // Buying
+      // Check if player can afford them
+      if (coords.length - numFree <= computeTilesUnlocked() - getPlayerData().tilesUsed.get()) {
+        const result : LandRightsResult = await setLandOwnership(coords, setType);
+        
+        // Pay tiles
+        getPlayerData().tilesUsed.set(getPlayerData().tilesUsed.get() + result.numSet - numFree);
+      } else {
+        ui.showError(`Can't buy land...`, `Not enough tiles available!`);
       }
     }
-  }
-
-  if (coords.length > 0) {
-    const result : LandRightsResult = await setLandOwnership(coords, LandOwnership.UNOWNED);
-
-    // Refund
-    getPlayerData().tilesUsed.set(getPlayerData().tilesUsed.get() - result.numSet);
-    console.log('Sold tiles. numSold:', result.numSet, 'numFailed:', result.numFailed);
   } else {
-    ui.showError(`Can't sell land...`, `No sellable land found!`);
+    ui.showError(`Can't ${setText} land...`, `No ${setText}able land found!`);
   }
 }
 
