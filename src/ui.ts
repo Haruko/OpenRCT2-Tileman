@@ -5,12 +5,22 @@ import * as FlexUI from 'openrct2-flexui';
 import { getPlayerData, computeTilesUnlocked, getPluginConfig } from './data';
 import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, onToolMove, onToolUp, onToolFinish } from './tool';
 
+
+
+/**
+ * **********
+ * Type / Interface / Enum definitions
+ * **********
+ */
+
 // From openrct2/sprites.h
 export enum Sprites {
   SPR_BUY_LAND_RIGHTS = 5176,
   SPR_BUY_CONSTRUCTION_RIGHTS = 5177,
   SPR_FINANCE = 5190
 };
+
+
 
 /**
  * **********
@@ -209,6 +219,8 @@ export function updateLabels() : void {
   // Update the unlocked/used/available label
   UIDataStores.tileTotalsLabelText.set(UIDataStores.tileTotalsLabelTextGenerator());
 }
+
+
 
 /**
  * **********

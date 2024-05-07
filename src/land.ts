@@ -15,7 +15,6 @@ import { MapRange, isMapRange, computeTilesInRange } from './types/MapRange';
 
 export type LandRightsResult = { numSet : number, numFailed : number };
 
-
 // From openrct2/world/Surface.h
 export enum LandOwnership {
   UNOWNED = 0,

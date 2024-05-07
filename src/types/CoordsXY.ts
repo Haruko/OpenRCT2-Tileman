@@ -1,5 +1,7 @@
 /// <reference path='../../lib/openrct2.d.ts' />
 
+
+
 /**
  * Makes a CoordsXY <0, 0>
  * @overload

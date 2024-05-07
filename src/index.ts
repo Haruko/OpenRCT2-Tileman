@@ -4,6 +4,8 @@ import { getPlayerData } from './data';
 import { openWindow, updateLabels } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
+
+
 /**
  * TODO: Update the tool UI to be like the land editing tool
  *    Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
@@ -28,8 +30,11 @@ function collectData() : void {
 
 
 /**
+ * **********
  * Entry point
+ * **********
  */
+
 async function main() : Promise<void> {
   console.log('Initializing Tileman Plugin...');
 

@@ -2,7 +2,7 @@
 
 import { store } from 'openrct2-flexui';
 
-// Stores PlayerData, PluginConfig, and MapEdges
+
 
 /**
  * **********

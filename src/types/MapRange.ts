@@ -2,6 +2,8 @@
 
 import { CoordsXY, isCoordsXY } from './CoordsXY';
 
+
+
 /**
  * Makes a MapRange from two <x, y> coordinates, using the bounds of the rectangle they create to determine proper corners to define
  * @overload
