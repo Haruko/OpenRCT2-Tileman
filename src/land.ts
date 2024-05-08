@@ -340,8 +340,6 @@ export async function setTiles(range : MapRange, setType : LandOwnership) : Prom
         ui.showError(`Can't buy land...`, `Not enough tiles available!`);
       }
     }
-  } else {
-    ui.showError(`Can't ${setText} land...`, `No ${setText}able land found!`);
   }
 }
 
