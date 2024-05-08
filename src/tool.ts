@@ -2,6 +2,7 @@
 
 import { getPluginConfig } from './data';
 import { LandOwnership, setTiles } from './land';
+import { setToolButtonPressed } from './ui';
 
 import { CoordsXY } from './types/CoordsXY';
 import { MapRange } from './types/MapRange';
@@ -81,8 +82,8 @@ export function setToolLastUsedCoords(coords : CoordsXY) : void {
 /**
  * Called when user starts using a tool
  */
-export function onToolStart() : void {
-  return;
+export function onToolStart(toolId : ToolID) : void {
+  setToolButtonPressed(toolId, true);
 }
 
 /**
@@ -131,7 +132,8 @@ export function onToolUp(e : ToolEventArgs) : void {
 /**
  * Called when the user stops using a tool
  */
-export function onToolFinish() : void {
+export function onToolFinish(toolId : ToolID) : void {
+  setToolButtonPressed(toolId, false);
   ui.tileSelection.range = null;
 }
 

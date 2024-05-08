@@ -107,7 +107,7 @@ const statsPanel = FlexUI.box({
 });
 
 /**
- * Box to display buttons in primary window
+ * Buttons for buttonPanel
  */
 const buyButtonPressed : FlexUI.Store<boolean> = FlexUI.store<boolean>(false);
 const rightsButtonPressed : FlexUI.Store<boolean> = FlexUI.store<boolean>(false);
@@ -118,7 +118,7 @@ const buyButton = FlexUI.button({
   tooltip: 'Buy land rights',
   width: '24px',
   height: '24px',
-  onClick: () => onToolButtonPress(ToolID.BUY_TOOL),
+  onClick: () => onToolButtonClick(ToolID.BUY_TOOL),
   isPressed: buyButtonPressed
 });
 
@@ -127,7 +127,7 @@ const rightsbutton = FlexUI.button({
   tooltip: 'Buy construction rights',
   width: '24px',
   height: '24px',
-  onClick: () => onToolButtonPress(ToolID.RIGHTS_TOOL),
+  onClick: () => onToolButtonClick(ToolID.RIGHTS_TOOL),
   isPressed: rightsButtonPressed
 });
 
@@ -136,7 +136,7 @@ const sellButton = FlexUI.button({
   tooltip: 'Sell land and construction rights',
   width: '24px',
   height: '24px',
-  onClick: () => onToolButtonPress(ToolID.SELL_TOOL),
+  onClick: () => onToolButtonClick(ToolID.SELL_TOOL),
   isPressed: sellButtonPressed
 });
 
@@ -157,6 +157,9 @@ const toolSizeSpinner = FlexUI.spinner({
   }
 });
 
+/**
+ * Box to display buttons in primary window
+ */
 const buttonPanel = FlexUI.vertical({
   spacing: 0,
   content: [
@@ -257,49 +260,111 @@ export function onWindowClose() : void {
 
 /**
  * Handles clicks on tool buttons
- * @param toolID Tool ID for the button
+ * @param toolId Tool ID for the button
  */
-export function onToolButtonPress(toolID : string) : void {
-  let buttonPressed : boolean = false;;
-
-  switch(toolID) {
-    case ToolID.BUY_TOOL:
-      buttonPressed = !buyButtonPressed.get();
-
-      buyButtonPressed.set(buttonPressed);
-      rightsButtonPressed.set(false);
-      sellButtonPressed.set(false);
-      break;
-    case ToolID.RIGHTS_TOOL:
-      buttonPressed = !rightsButtonPressed.get();
-
-      buyButtonPressed.set(false);
-      rightsButtonPressed.set(buttonPressed);
-      sellButtonPressed.set(false);
-      break;
-    case ToolID.SELL_TOOL:
-      buttonPressed = !sellButtonPressed.get();
-
-      buyButtonPressed.set(false);
-      rightsButtonPressed.set(false);
-      sellButtonPressed.set(buttonPressed);
-      break;
-  }
-
-  // If the button is pressed, start a tool
-  if(buttonPressed) {
+export function onToolButtonClick(toolId : ToolID) : void {
+  // If the button is current depressed, it will be pressed, so start the tool
+  // Button pressing and depressing will be handled in onToolStart and onToolFinish
+  if(!getToolButtonPressed(toolId)) {
     ui.activateTool({
-      id: toolID,
+      id: toolId,
       cursor: 'dig_down',
       filter: ['terrain', 'water'],
   
-      onStart: () => onToolStart(),
+      onStart: () => onToolStart(toolId),
       onDown: (e: ToolEventArgs) => onToolDown(e),
       onMove: (e: ToolEventArgs) => onToolMove(e),
       onUp: (e: ToolEventArgs) => onToolUp(e),
-      onFinish: () => onToolFinish()
+      onFinish: () => onToolFinish(toolId)
     });
   } else {
     cancelTool();
+  }
+}
+
+
+
+/**
+ * **********
+ * Others
+ * **********
+ */
+
+/**
+ * Pressed the specified button and depresses others
+ * @param toolId ToolID whose button to press
+ * @param pressed If defined, whether the button should be pressed or not. If undefined, use as a toggle
+ * @returns final state of the specified button
+ */
+export function setToolButtonPressed(toolId : ToolID, pressed? : boolean) : boolean {
+  console.log(toolId, pressed, ui.tool?.id);
+
+  switch(toolId) {
+    case ToolID.BUY_TOOL:
+      if (pressed === false) {
+        // If false, just depress the button
+        buyButtonPressed.set(false);
+      } else {
+        if (typeof pressed === 'undefined') {
+          // If undefined, toggle it
+          pressed = !buyButtonPressed.get();
+        }
+
+        buyButtonPressed.set(pressed);
+        rightsButtonPressed.set(false);
+        sellButtonPressed.set(false);
+      }
+
+      break;
+    case ToolID.RIGHTS_TOOL:
+      if (pressed === false) {
+        // If false, just depress the button
+        rightsButtonPressed.set(false);
+      } else {
+        if (typeof pressed === 'undefined') {
+          // If undefined, toggle it
+          pressed = !rightsButtonPressed.get();
+        }
+
+        buyButtonPressed.set(false);
+        rightsButtonPressed.set(pressed);
+        sellButtonPressed.set(false);
+      }
+      
+      break;
+    case ToolID.SELL_TOOL:
+      if (pressed === false) {
+        // If false, just depress the button
+        sellButtonPressed.set(false);
+      } else {
+        if (typeof pressed === 'undefined') {
+          // If undefined, toggle it
+          pressed = !sellButtonPressed.get();
+        }
+
+        buyButtonPressed.set(false);
+        rightsButtonPressed.set(false);
+        sellButtonPressed.set(pressed);
+      }
+
+      break;
+  }
+
+  return pressed;
+}
+
+/**
+ * Returns whether the specified tool's button is pressed or not
+ * @param toolId ToolID whose button to press
+ * @returns true if the tool's button is pressed
+ */
+export function getToolButtonPressed(toolId : ToolID) : boolean {
+  switch(toolId) {
+    case ToolID.BUY_TOOL:
+      return buyButtonPressed.get();
+    case ToolID.RIGHTS_TOOL:
+      return rightsButtonPressed.get();
+    case ToolID.SELL_TOOL:
+      return sellButtonPressed.get();
   }
 }
