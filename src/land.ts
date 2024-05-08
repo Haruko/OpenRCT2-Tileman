@@ -7,6 +7,10 @@ import { MapRange, isMapRange, computeTilesInRange } from './types/MapRange';
 
 
 
+const PlayerData = getPlayerData();
+
+
+
 /**
  * **********
  * Type / Interface / Enum definitions
@@ -323,15 +327,15 @@ export async function setTiles(range : MapRange, setType : LandOwnership) : Prom
       const result : LandRightsResult = await setLandOwnership(coords, LandOwnership.UNOWNED);
 
       // Refund tiles
-      getPlayerData().tilesUsed.set(getPlayerData().tilesUsed.get() - result.numSet);
+      PlayerData.tilesUsed.set(PlayerData.tilesUsed.get() - result.numSet);
     } else {
       // Buying
       // Check if player can afford them
-      if (coords.length - numFree <= computeTilesUnlocked() - getPlayerData().tilesUsed.get()) {
+      if (coords.length - numFree <= computeTilesUnlocked() - PlayerData.tilesUsed.get()) {
         const result : LandRightsResult = await setLandOwnership(coords, setType);
         
         // Pay tiles
-        getPlayerData().tilesUsed.set(getPlayerData().tilesUsed.get() + result.numSet - numFree);
+        PlayerData.tilesUsed.set(PlayerData.tilesUsed.get() + result.numSet - numFree);
       } else {
         ui.showError(`Can't buy land...`, `Not enough tiles available!`);
       }

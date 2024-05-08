@@ -7,6 +7,11 @@ import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, 
 
 
 
+const PlayerData = getPlayerData();
+const PluginConfig = getPluginConfig();
+
+
+
 /**
  * **********
  * Type / Interface / Enum definitions
@@ -50,7 +55,7 @@ const UIDataStores = {
   // Total exp label
   totalExpLabelText : FlexUI.store<string>('{BABYBLUE}0'),
   totalExpLabelTextGenerator : () : string => {
-    return `{BABYBLUE}${context.formatString('{COMMA16}', getPlayerData().totalExp.get())}`;
+    return `{BABYBLUE}${context.formatString('{COMMA16}', PlayerData.totalExp.get())}`;
   },
 
   // Tiles unlocked/used/available
@@ -59,8 +64,8 @@ const UIDataStores = {
     const tilesUnlocked = computeTilesUnlocked();
 
     return `{BABYBLUE}${context.formatString('{COMMA16}', tilesUnlocked)}` +
-      `{BLACK}/{RED}${context.formatString('{COMMA16}', getPlayerData().tilesUsed.get())}` +
-      `{BLACK}/{GREEN}${context.formatString('{COMMA16}', tilesUnlocked - getPlayerData().tilesUsed.get())}`;
+      `{BLACK}/{RED}${context.formatString('{COMMA16}', PlayerData.tilesUsed.get())}` +
+      `{BLACK}/{GREEN}${context.formatString('{COMMA16}', tilesUnlocked - PlayerData.tilesUsed.get())}`;
   }
 };
 
@@ -139,8 +144,8 @@ const toolSizeSpinner = FlexUI.spinner({
   width: '62px',
   padding: ['5px', '5px'],
   value: getToolSize(),
-  minimum: getPluginConfig().minToolSize,
-  maximum: getPluginConfig().maxToolSize + 1,
+  minimum: PluginConfig.minToolSize,
+  maximum: PluginConfig.maxToolSize + 1,
   step: 1,
   wrapMode: 'clamp',
   onChange: (value: number, adjustment: number) : void => {
@@ -171,8 +176,8 @@ const buttonPanel = FlexUI.vertical({
  * Primary window
  */
 const mainWindow = FlexUI.window({
-  title: getPluginConfig().winTitle,
-	width: 275,
+  title: PluginConfig.winTitle,
+	width: 300,
 	height: 200,
   content: [
     FlexUI.vertical({
@@ -192,7 +197,7 @@ const mainWindow = FlexUI.window({
  */
 export function openWindow() : void {
   closeWindowInstances();
-  setToolSize(getPluginConfig().minToolSize);
+  setToolSize(PluginConfig.minToolSize);
   mainWindow.open();
 }
 
@@ -203,7 +208,7 @@ export function closeWindowInstances() : void {
   const numWindows = ui.windows;
   for(let i = numWindows - 1; i > 0; --i) {
     const win = ui.getWindow(i);
-    if (win.title === getPluginConfig().winTitle) {
+    if (win.title === PluginConfig.winTitle) {
       win.close();
     }
   }

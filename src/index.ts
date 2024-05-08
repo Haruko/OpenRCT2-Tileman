@@ -4,12 +4,16 @@ import { getPlayerData } from './data';
 import { openWindow, updateLabels } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
-
-
 /**
  * TODO: Update the tool UI to be like the land editing tool
  *    Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
  */
+
+
+
+const PlayerData = getPlayerData();
+
+
 
 /**
  * **********
@@ -49,18 +53,23 @@ async function main() : Promise<void> {
     park.landPrice = 0;
     await setLandOwnership(getMapEdges(), LandOwnership.UNOWNED);
 
+    // Subscribe to changes in player data
+    PlayerData.totalExp.subscribe(updateLabels);
+    PlayerData.tilesUsed.subscribe(updateLabels);
+
+    PlayerData.totalExp.set(0);
+    PlayerData.tilesUsed.set(0);
+
     // Days are about 13.2 seconds at 1x speed
     context.subscribe('interval.day', collectData);
 
-    // Subscribe to changes in player data
-    getPlayerData().totalExp.subscribe(updateLabels);
-    getPlayerData().tilesUsed.subscribe(updateLabels);
-
-    getPlayerData().totalExp.set(0);
-    getPlayerData().tilesUsed.set(0);
+    // TODO: cheats for testing
+    context.subscribe('interval.tick', () : void => {
+      PlayerData.totalExp.set(PlayerData.totalExp.get() + 1);
+    });
 
     // TODO: cheats for testing
-    context.subscribe('interval.day', function() {
+    context.subscribe('interval.day', () : void => {
       park.cash += 1000000;
     });
   }

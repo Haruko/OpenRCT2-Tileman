@@ -8,6 +8,10 @@ import { MapRange } from './types/MapRange';
 
 
 
+const PluginConfig = getPluginConfig();
+
+
+
 /**
  * **********
  * Type / Interface / Enum definitions
@@ -29,7 +33,7 @@ export enum ToolID {
  */
 
 // Current tool size
-let toolSize : number = getPluginConfig().minToolSize;
+let toolSize : number = PluginConfig.minToolSize;
 
 /**
  * Exposes tool size to other modules
@@ -43,7 +47,7 @@ export function getToolSize() : number {
  * Sets the tool size
  */
 export function setToolSize(size : number) : void {
-  if (size >= getPluginConfig().minToolSize && size <= getPluginConfig().maxToolSize) {
+  if (size >= PluginConfig.minToolSize && size <= PluginConfig.maxToolSize) {
     toolSize = size;
   }
 }
