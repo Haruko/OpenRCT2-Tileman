@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { getPlayerData } from './data';
+import { getPlayerData, collectMetrics, computeTotalExp } from './data';
 import { openWindow, updateLabels } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
@@ -12,24 +12,6 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
 
 const PlayerData = getPlayerData();
-
-
-
-/**
- * **********
- * Data tracking
- * **********
- */
-
-function collectData() : void {
-  // TODO: Add more metrics
-  // TODO: Make it save in persistent storage
-  // consolelog(park.totalAdmissions);
-  // if (map.numRides > 0)
-  //   consolelog(map.rides[0].totalCustomers);
-  // consolelog(map.rides[0].totalProfit)
-  // consolelog(map.rides[0].runningCost * 16)
-}
 
 
 
@@ -61,7 +43,10 @@ async function main() : Promise<void> {
     PlayerData.tilesUsed.set(0);
 
     // Days are about 13.2 seconds at 1x speed
-    context.subscribe('interval.day', collectData);
+    context.subscribe('interval.day', () : void => {
+      collectMetrics();
+      computeTotalExp();
+    });
 
     // TODO: cheats for testing
     context.subscribe('interval.tick', () : void => {
@@ -102,7 +87,6 @@ registerPlugin({
 
 /*
   getParkStorage
-  park.parkSize = count how many tiles are owned
   
 
 
