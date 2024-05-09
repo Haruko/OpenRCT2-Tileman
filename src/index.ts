@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { getParkData, collectMetrics, computeTotalExp } from './data';
+import { getParkData, collectMetrics, computeTotalExp, getPluginConfig } from './data';
 import { openWindow, updateLabels } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
@@ -15,11 +15,25 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
  * TODO: Make window exp counters update on init
  * TODO: Display spinners for each exp type
  * TODO: Display totals for each exp type
+ * 
+ * TODO MAYBE: Difficulty multiplier for ParkFlags?
+ * TODO MAYBE: Bonus exp/tiles for completing objective?
  */
 
 
 
 const ParkData = getParkData();
+const PluginConfig = getPluginConfig();
+
+
+
+/**
+ * **********
+ * Variables
+ * **********
+ */
+
+let ticksSinceLastUpdate : number = 0;
 
 
 
@@ -51,20 +65,15 @@ async function main() : Promise<void> {
     ParkData.tilesUsed.set(0);
 
     // Days are about 13.2 seconds at 1x speed
-    context.subscribe('interval.day', () : void => {
-      collectMetrics();
-      const totalExp : number = computeTotalExp();
-      ParkData.totalExp.set(totalExp);
-    });
+    context.subscribe('interval.tick', () : void => {
+      ticksSinceLastUpdate = (ticksSinceLastUpdate + 1) % PluginConfig.ticksPerUpdate;
 
-    // TODO: cheats for testing
-    // context.subscribe('interval.tick', () : void => {
-    //   ParkData.totalExp.set(ParkData.totalExp.get() + 1);
-    // });
-
-    // TODO: cheats for testing
-    context.subscribe('interval.day', () : void => {
-      park.cash += 1000000;
+      if (ticksSinceLastUpdate === 0) {
+        collectMetrics();
+        const totalExp : number = computeTotalExp();
+        ParkData.totalExp.set(totalExp);
+        console.log(totalExp)
+      }
     });
   }
 }

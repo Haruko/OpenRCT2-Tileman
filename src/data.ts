@@ -4,9 +4,17 @@ import { store } from 'openrct2-flexui';
 
 
 
+/**
+ * **********
+ * Type / Interface / Enum definitions
+ * **********
+ */
+
 export enum RideLifecycleFlags {
   RIDE_LIFECYCLE_EVER_BEEN_OPENED = 1 << 12
-}
+};
+
+
 
 /**
  * **********
@@ -26,7 +34,6 @@ const ParkData = {
   parkAdmissions: 0,
 
   // Maps ride IDs (numbers) and historical data (Ride.totalCustomers, eventually Ride.totalProfit or something )
-  // TODO: Make this keep track of ride stats every interval to account for deleted rides
   rideMap: {} as {
     // key is ride.id
     [key : string] : {
@@ -49,7 +56,7 @@ const ParkData = {
       // ride.lifecycleFlags
       lifecycleFlags : number
     }
-  }
+  },
 };
 
 /**
@@ -72,10 +79,6 @@ export function computeTilesUnlocked() : number {
  * Collects metric data used for experience calculations
  */
 export function collectMetrics() : void {
-  // TODO: Make it save in persistent storage
-  // TODO: difficulty multiplier for ParkFlags?
-  // TODO: bonus exp/tiles for completing objective?
-  
   // Get total park admissions
   ParkData.parkAdmissions = park.totalAdmissions;
 
@@ -150,15 +153,15 @@ const PluginConfig = {
   maxToolSize: 15,
 
   // User definable
-  // TODO: Allow users to customize in the UI
-  expPerTile: 10,
+  ticksPerUpdate: 1000, // Ticks per update of data
+  expPerTile: 10, // Exp cost per tile
   minTiles: 2, // 1 path + 1 stall minimum
 
   expPerParkAdmission: 1,
 
   rideExpPerCustomer: 1,
   stallExpPerCustomer: 1,
-  facilityExpPerCustomer: 1
+  facilityExpPerCustomer: 1,
 }
 
 /**
