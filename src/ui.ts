@@ -2,12 +2,12 @@
 
 import * as FlexUI from 'openrct2-flexui';
 
-import { getPlayerData, computeTilesUnlocked, getPluginConfig } from './data';
+import { getParkData, computeTilesUnlocked, getPluginConfig } from './data';
 import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, onToolMove, onToolUp, onToolFinish } from './tool';
 
 
 
-const PlayerData = getPlayerData();
+const ParkData = getParkData();
 const PluginConfig = getPluginConfig();
 
 
@@ -55,7 +55,7 @@ const UIDataStores = {
   // Total exp label
   totalExpLabelText : FlexUI.store<string>('{BABYBLUE}0'),
   totalExpLabelTextGenerator : () : string => {
-    return `{BABYBLUE}${context.formatString('{COMMA16}', PlayerData.totalExp.get())}`;
+    return `{BABYBLUE}${context.formatString('{COMMA16}', ParkData.totalExp.get())}`;
   },
 
   // Tiles unlocked/used/available
@@ -64,8 +64,8 @@ const UIDataStores = {
     const tilesUnlocked = computeTilesUnlocked();
 
     return `{BABYBLUE}${context.formatString('{COMMA16}', tilesUnlocked)}` +
-      `{BLACK}/{RED}${context.formatString('{COMMA16}', PlayerData.tilesUsed.get())}` +
-      `{BLACK}/{GREEN}${context.formatString('{COMMA16}', tilesUnlocked - PlayerData.tilesUsed.get())}`;
+      `{BLACK}/{RED}${context.formatString('{COMMA16}', ParkData.tilesUsed.get())}` +
+      `{BLACK}/{GREEN}${context.formatString('{COMMA16}', tilesUnlocked - ParkData.tilesUsed.get())}`;
   }
 };
 

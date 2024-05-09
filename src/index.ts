@@ -1,17 +1,25 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { getPlayerData, collectMetrics, computeTotalExp } from './data';
+import { getParkData, collectMetrics, computeTotalExp } from './data';
 import { openWindow, updateLabels } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
 /**
  * TODO: Update the tool UI to be like the land editing tool
  *    Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
+ * 
+ * TODO: Fix 1x1 marker not updating on window open
+ * TODO: Fix park land clearing every time plugin starts up
+ * TODO: Persistent storage
+ * TODO: Add button to toolbar
+ * TODO: Make window exp counters update on init
+ * TODO: Display spinners for each exp type
+ * TODO: Display totals for each exp type
  */
 
 
 
-const PlayerData = getPlayerData();
+const ParkData = getParkData();
 
 
 
@@ -36,22 +44,23 @@ async function main() : Promise<void> {
     await setLandOwnership(getMapEdges(), LandOwnership.UNOWNED);
 
     // Subscribe to changes in player data
-    PlayerData.totalExp.subscribe(updateLabels);
-    PlayerData.tilesUsed.subscribe(updateLabels);
+    ParkData.totalExp.subscribe(updateLabels);
+    ParkData.tilesUsed.subscribe(updateLabels);
 
-    PlayerData.totalExp.set(0);
-    PlayerData.tilesUsed.set(0);
+    ParkData.totalExp.set(0);
+    ParkData.tilesUsed.set(0);
 
     // Days are about 13.2 seconds at 1x speed
     context.subscribe('interval.day', () : void => {
       collectMetrics();
-      computeTotalExp();
+      const totalExp : number = computeTotalExp();
+      ParkData.totalExp.set(totalExp);
     });
 
     // TODO: cheats for testing
-    context.subscribe('interval.tick', () : void => {
-      PlayerData.totalExp.set(PlayerData.totalExp.get() + 1);
-    });
+    // context.subscribe('interval.tick', () : void => {
+    //   ParkData.totalExp.set(ParkData.totalExp.get() + 1);
+    // });
 
     // TODO: cheats for testing
     context.subscribe('interval.day', () : void => {
@@ -139,9 +148,7 @@ registerPlugin({
 
   Search github for these: Ride, ShopOrStall, KioskOrFacility
 
-  Ride.rideType
-  Ride.type = ' = "ride" | "stall" | "facility"
-
+  Ride.rideType = vvv
   enum ridetype
   RIDE_TYPE_SPIRAL_ROLLER_COASTER = 0,
   RIDE_TYPE_STAND_UP_ROLLER_COASTER,
