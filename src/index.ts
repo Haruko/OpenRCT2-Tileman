@@ -72,7 +72,6 @@ async function main() : Promise<void> {
         collectMetrics();
         const totalExp : number = computeTotalExp();
         ParkData.totalExp.set(totalExp);
-        console.log(totalExp)
       }
     });
   }

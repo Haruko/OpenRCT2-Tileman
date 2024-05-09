@@ -6,6 +6,7 @@ import { setToolButtonPressed } from './ui';
 
 import { CoordsXY } from './types/CoordsXY';
 import { MapRange } from './types/MapRange';
+import * as FlexUI from 'openrct2-flexui';
 
 
 
@@ -34,13 +35,13 @@ export enum ToolID {
  */
 
 // Current tool size
-let toolSize : number = PluginConfig.minToolSize;
+let toolSize : FlexUI.Store<number> = FlexUI.store<number>(PluginConfig.minToolSize);
 
 /**
  * Exposes tool size to other modules
  * @returns Current tool size
  */
-export function getToolSize() : number {
+export function getToolSize() : FlexUI.Store<number> {
   return toolSize;
 }
 
@@ -49,7 +50,7 @@ export function getToolSize() : number {
  */
 export function setToolSize(size : number) : void {
   if (size >= PluginConfig.minToolSize && size <= PluginConfig.maxToolSize) {
-    toolSize = size;
+    toolSize.set(size);
   }
 }
 
@@ -158,10 +159,10 @@ export function cancelTool() : void {
  * @returns MapRange for the affected area
  */
 export function getToolArea(center : CoordsXY) : MapRange {
-  const left   = Math.floor((center.x / 32) - ((toolSize - 1) / 2)) * 32;
-  const top    = Math.floor((center.y / 32) - ((toolSize - 1) / 2)) * 32;
-  const right  = Math.floor((center.x / 32) + ((toolSize - 1) / 2)) * 32;
-  const bottom = Math.floor((center.y / 32) + ((toolSize - 1) / 2)) * 32;
+  const left   = Math.floor((center.x / 32) - ((toolSize.get() - 1) / 2)) * 32;
+  const top    = Math.floor((center.y / 32) - ((toolSize.get() - 1) / 2)) * 32;
+  const right  = Math.floor((center.x / 32) + ((toolSize.get() - 1) / 2)) * 32;
+  const bottom = Math.floor((center.y / 32) + ((toolSize.get() - 1) / 2)) * 32;
 
   return MapRange(CoordsXY(left, top), CoordsXY(right, bottom));
 }

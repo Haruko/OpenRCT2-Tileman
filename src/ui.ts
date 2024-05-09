@@ -241,6 +241,7 @@ export function updateLabels() : void {
  */
 export function onWindowOpen() : void {
   ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags | FlexUI.ViewportFlags.ConstructionRights;
+  
 }
 
 /**
@@ -297,8 +298,6 @@ export function onToolButtonClick(toolId : ToolID) : void {
  * @returns final state of the specified button
  */
 export function setToolButtonPressed(toolId : ToolID, pressed? : boolean) : boolean {
-  console.log(toolId, pressed, ui.tool?.id);
-
   switch(toolId) {
     case ToolID.BUY_TOOL:
       if (pressed === false) {
