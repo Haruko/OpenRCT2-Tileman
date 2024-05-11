@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { getParkData, collectMetrics, computeTotalExp, getPluginConfig, storeParkData, storeDemolishedRide } from './data';
+import { getParkData, collectMetrics, computeTotalExp, getPluginConfig, storeParkData, recordDemolishedRide, initPluginConfig, initParkData, getParkDataStores, ParkDataContainer, StoreContainer } from './data';
 import { openWindow, updateLabels } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
@@ -9,7 +9,6 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
  *    Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
  * 
  * TODO: Make stores for totalexp and such outside of object since they need to be tied to the UI
- * TODO: Add function constructor for ParkData to default values
  * TODO: Fix park land clearing every time plugin starts up
  * TODO: Persistent storage - context.sharedStorage for pluginconfig and context.getParkStorage for park data
  * TODO: Add button to toolbar
@@ -26,7 +25,7 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
 
 
-const ParkData = getParkData();
+const ParkDataStores : StoreContainer = getParkDataStores();
 const PluginConfig = getPluginConfig();
 
 
@@ -43,6 +42,45 @@ let ticksSinceLastUpdate : number = 0;
 
 /**
  * **********
+ * Functions
+ * **********
+ */
+
+/**
+ * Sets up event subscriptions
+ */
+function subscribeEvents() : void {
+  // Subscribe to changes in player data
+  ParkDataStores.totalExp.subscribe(updateLabels);
+  ParkDataStores.tilesUsed.subscribe(updateLabels);
+
+  // Days are about 13.2 seconds at 1x speed
+  context.subscribe('interval.tick', () : void => {
+    ticksSinceLastUpdate = (ticksSinceLastUpdate + 1) % PluginConfig.ticksPerUpdate;
+
+    if (ticksSinceLastUpdate === 0) {
+      collectMetrics();
+      const totalExp : number = computeTotalExp();
+      ParkDataStores.totalExp.set(totalExp);
+
+      storeParkData();
+    }
+  });
+
+  // Every time a ride is deleted, remove it from the current rides and add it to the list of deleted rides
+  // I'd rather this trigger on action.query, but that is unreliable since cost is always 0
+  context.subscribe('action.execute', (e: GameActionEventArgs) : void => {
+    // This action is raised if we cancel building something, but in that ase the cost is 0
+    if (e.action === 'ridedemolish' && e.result.cost !== 0) {
+      const rideId : number = (e.args as { ride : number }).ride;
+      recordDemolishedRide(rideId);
+    }
+  });
+}
+
+
+/**
+ * **********
  * Entry point
  * **********
  */
@@ -53,43 +91,22 @@ async function main() : Promise<void> {
   // Make sure it's a client
   if (typeof ui !== 'undefined') {
     // Register option in menu under Map icon in toolbar
-    ui.registerMenuItem('Tileman', function() { openWindow(); });
+    ui.registerMenuItem('Tileman', openWindow);
 
-    openWindow();
+    // Register events
+    subscribeEvents();
 
     // Setup map and data for game mode
     park.landPrice = 0;
-    await setLandOwnership(getMapEdges(), LandOwnership.UNOWNED);
 
-    // Subscribe to changes in player data
-    ParkData.totalExp.subscribe(updateLabels);
-    ParkData.tilesUsed.subscribe(updateLabels);
+    initPluginConfig();
 
-    ParkData.totalExp.set(0);
-    ParkData.tilesUsed.set(0);
+    const newPark : boolean = initParkData();
+    if (newPark) {
+      await setLandOwnership(getMapEdges(), LandOwnership.UNOWNED);
+    }
 
-    // Days are about 13.2 seconds at 1x speed
-    context.subscribe('interval.tick', () : void => {
-      ticksSinceLastUpdate = (ticksSinceLastUpdate + 1) % PluginConfig.ticksPerUpdate;
-
-      if (ticksSinceLastUpdate === 0) {
-        collectMetrics();
-        const totalExp : number = computeTotalExp();
-        ParkData.totalExp.set(totalExp);
-
-        storeParkData();
-      }
-    });
-
-    // Every time a ride is deleted, remove it from the current rides and add it to the list of deleted rides
-    // I'd rather this trigger on action.query, but that is unreliable since cost is always 0
-    context.subscribe('action.execute', (e: GameActionEventArgs) : void => {
-      // This action is raised if we cancel building something, but in that ase the cost is 0
-      if (e.action === 'ridedemolish' && e.result.cost !== 0) {
-        const rideId : number = (e.args as { ride : number }).ride;
-        storeDemolishedRide(rideId);
-      }
-    });
+    openWindow();
   }
 }
 

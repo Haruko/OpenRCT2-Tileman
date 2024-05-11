@@ -41,10 +41,10 @@ export interface RideMap {
 export interface ParkDataContainer {
   [key : string] : any,
   // Player's total experience points
-  totalExp : Store<number>,
+  totalExp : number,
 
   // Tiles used by player
-  tilesUsed : Store<number>,
+  tilesUsed : number,
 
   /**
    * Collected Park Data
@@ -59,6 +59,20 @@ export interface ParkDataContainer {
   demolishedRides : RideDataContainer[]
 };
 
+/**
+ * Stores Store<T>
+ */
+export interface StoreContainer {
+  [key : string] : Store<any>
+};
+
+/**
+ * Stores functions used as generators for data (Such as in ui.ts)
+ */
+export interface GeneratorContainer {
+  [key : string] : Function
+};
+
 
 
 /**
@@ -69,10 +83,10 @@ export interface ParkDataContainer {
 
 let ParkData = {
   // Player's total experience points
-  totalExp: store<number>(0),
+  totalExp: 0,
 
   // Tiles used by player
-  tilesUsed: store<number>(0),
+  tilesUsed: 0,
 
   /**
    * Collected Park Data
@@ -87,12 +101,65 @@ let ParkData = {
   demolishedRides: [] as RideDataContainer[]
 } as ParkDataContainer;
 
+const ParkDataStores : StoreContainer = {
+  totalExp: store<number>(0),
+  tilesUsed: store<number>(0),
+};
+
 /**
  * Exposes ParkData to other modules
  * @returns ParkData
  */
-export function getParkData() : any {
+export function getParkData() : ParkDataContainer {
   return ParkData;
+}
+
+/**
+ * Exposes ParkDataStores to other modules
+ * @returns ParkDataStores
+ */
+export function getParkDataStores() : StoreContainer {
+  return ParkDataStores;
+}
+
+/**
+ * Loads ParkData from the persistent park-specific storage if it exists
+ * @returns true if it's a new park
+ */
+export function initParkData() : boolean {
+  const savedParkData : ParkDataContainer = context.getParkStorage(PluginConfig.pluginName).getAll() as ParkDataContainer;
+
+  if (Object.keys(savedParkData).length === 0) {
+    return true;
+  } else {
+    // Load saved data
+    ParkData.parkAdmissions = savedParkData.parkAdmissions;
+    ParkData.rideMap = savedParkData.rideMap;
+    ParkData.demolishedRides = savedParkData.demolishedRides;
+
+    // Initialize stores
+    ParkDataStores.totalExp.set(savedParkData.totalExp);
+    ParkDataStores.tilesUsed.set(savedParkData.tilesUsed);
+
+    return false;
+  }
+}
+
+/**
+ * Stores ParkData into the persistent park-specific storage
+ */
+export function storeParkData() : void {
+  // Get park data structure to save new data
+  const savedParkData : ParkDataContainer = context.getParkStorage(PluginConfig.pluginName).getAll() as ParkDataContainer;
+
+    // Load saved data
+    savedParkData.parkAdmissions = ParkData.parkAdmissions;
+    savedParkData.rideMap = ParkData.rideMap;
+    savedParkData.demolishedRides = ParkData.demolishedRides;
+
+    // Initialize stores
+    savedParkData.totalExp = ParkDataStores.totalExp.get();
+    savedParkData.tilesUsed = ParkDataStores.tilesUsed.get();
 }
 
 /**
@@ -100,7 +167,7 @@ export function getParkData() : any {
  * @returns Number of tiles unlocked
  */
 export function computeTilesUnlocked() : number {
-  return Math.floor(getParkData().totalExp.get() / getPluginConfig().expPerTile) + getPluginConfig().minTiles;
+  return Math.floor(ParkDataStores.totalExp.get() / getPluginConfig().expPerTile) + getPluginConfig().minTiles;
 }
 
 /**
@@ -111,7 +178,7 @@ export function collectMetrics() : void {
   ParkData.parkAdmissions = park.totalAdmissions;
 
   // Collect data from each active ride/stall/facility
-  const savedParkData = context.getParkStorage(PluginConfig.pluginName).getAll();
+  const savedParkData = context.getParkStorage(PluginConfig.pluginName).getAll() as ParkDataContainer;
   map.rides.forEach((ride : Ride) : void => {
     if (ride.lifecycleFlags & RideLifecycleFlags.RIDE_LIFECYCLE_EVER_BEEN_OPENED) {
       // Only record rides that have opened
@@ -135,7 +202,7 @@ export function collectMetrics() : void {
  * Move ride from ParkData.rideMap to ParkData.demolishedRides
  * @param rideId Index of the ride that was demolished. Won't exist in stored park data, but will exist in our local copy
  */
-export function storeDemolishedRide(rideId : number) : void {
+export function recordDemolishedRide(rideId : number) : void {
   const rideData : RideDataContainer = ParkData.rideMap[rideId];
 
   if(typeof rideData !== 'undefined') {
@@ -179,18 +246,6 @@ export function computeTotalExp() : number {
   return totalExp;
 }
 
-/**
- * Stores ParkData into the persistent park-specific storage
- */
-export function storeParkData() : void {
-  // Get park data structure to save new data
-  const savedParkData : ParkDataContainer = context.getParkStorage(PluginConfig.pluginName).getAll() as ParkDataContainer;
-
-  Object.keys(ParkData).forEach((key : string) : void => {
-    savedParkData[key] = ParkData[key];
-  });
-}
-
 
 
 /**
@@ -222,6 +277,15 @@ const PluginConfig = {
  * Exposes PluginConfig to other modules
  * @returns PluginConfig
  */
-export function getPluginConfig() : any {
+export function getPluginConfig() : { [index : string] : any } {
   return PluginConfig;
+}
+
+/**
+ * Loads predefined plugin config
+ * @returns true if there was existing data
+ */
+export function initPluginConfig() : boolean {
+  // TODO: Read from shared storage
+  return false;
 }

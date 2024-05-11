@@ -2,12 +2,12 @@
 
 import { Store, ViewportFlags, box, button, horizontal, label, spinner, store, vertical, window } from 'openrct2-flexui';
 
-import { getParkData, computeTilesUnlocked, getPluginConfig } from './data';
+import { getParkData, computeTilesUnlocked, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores } from './data';
 import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, onToolMove, onToolUp, onToolFinish } from './tool';
 
 
 
-const ParkData = getParkData();
+const ParkDataStores : StoreContainer = getParkDataStores();
 const PluginConfig = getPluginConfig();
 
 
@@ -51,21 +51,27 @@ export enum Sprites {
  *   palesilver
  */
 
-const UIDataStores = {
+const UIDataStores : StoreContainer = {
   // Total exp label
   totalExpLabelText : store<string>('{BABYBLUE}0'),
-  totalExpLabelTextGenerator : () : string => {
-    return `{BABYBLUE}${context.formatString('{COMMA16}', ParkData.totalExp.get())}`;
-  },
 
   // Tiles unlocked/used/available
   tileTotalsLabelText : store<string>('{BABYBLUE}0{BLACK}/{RED}0{BLACK}/{GREEN}0'),
-  tileTotalsLabelTextGenerator : () : string => {
+};
+
+const UIDataGenerators : GeneratorContainer = {
+  // Total exp label
+  totalExpLabelText : () : string => {
+    return `{BABYBLUE}${context.formatString('{COMMA16}', ParkDataStores.totalExp.get())}`;
+  },
+
+  // Tiles unlocked/used/available
+  tileTotalsLabelText : () : string => {
     const tilesUnlocked = computeTilesUnlocked();
 
     return `{BABYBLUE}${context.formatString('{COMMA16}', tilesUnlocked)}` +
-      `{BLACK}/{RED}${context.formatString('{COMMA16}', ParkData.tilesUsed.get())}` +
-      `{BLACK}/{GREEN}${context.formatString('{COMMA16}', tilesUnlocked - ParkData.tilesUsed.get())}`;
+      `{BLACK}/{RED}${context.formatString('{COMMA16}', ParkDataStores.tilesUsed.get())}` +
+      `{BLACK}/{GREEN}${context.formatString('{COMMA16}', tilesUnlocked - ParkDataStores.tilesUsed.get())}`;
   }
 };
 
@@ -84,7 +90,7 @@ const statsPanel = box({
             width: '175px'
           }),
           label({
-            // UIDataStores.totalExpLabelTextGenerator()
+            // UIDataGenerators.totalExpLabelText()
             text: UIDataStores.totalExpLabelText
           })
         ]
@@ -97,7 +103,7 @@ const statsPanel = box({
             width: '175px'
           }),
           label({
-            // UIDataStores.tileTotalsLabelTextGenerator
+            // UIDataGenerators.tileTotalsLabelText()
             text: UIDataStores.tileTotalsLabelText
           })
         ]
@@ -201,6 +207,7 @@ const mainWindow = window({
 export function openWindow() : void {
   closeWindowInstances();
   setToolSize(PluginConfig.minToolSize);
+  updateLabels();
   mainWindow.open();
 }
 
@@ -222,10 +229,10 @@ export function closeWindowInstances() : void {
  */
 export function updateLabels() : void {
   // Update the total exp label
-  UIDataStores.totalExpLabelText.set(UIDataStores.totalExpLabelTextGenerator());
+  UIDataStores.totalExpLabelText.set(UIDataGenerators.totalExpLabelText());
 
   // Update the unlocked/used/available label
-  UIDataStores.tileTotalsLabelText.set(UIDataStores.tileTotalsLabelTextGenerator());
+  UIDataStores.tileTotalsLabelText.set(UIDataGenerators.tileTotalsLabelText());
 }
 
 

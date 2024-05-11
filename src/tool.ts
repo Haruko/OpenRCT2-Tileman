@@ -34,15 +34,17 @@ export enum ToolID {
  * **********
  */
 
-// Current tool size
-let toolSize : Store<number> = store<number>(PluginConfig.minToolSize);
+const ToolDataStores = {
+  // Current tool size
+  toolSize: store<number>(PluginConfig.minToolSize)
+}
 
 /**
  * Exposes tool size to other modules
  * @returns Current tool size
  */
 export function getToolSize() : Store<number> {
-  return toolSize;
+  return ToolDataStores.toolSize;
 }
 
 /**
@@ -50,7 +52,7 @@ export function getToolSize() : Store<number> {
  */
 export function setToolSize(size : number) : void {
   if (size >= PluginConfig.minToolSize && size <= PluginConfig.maxToolSize) {
-    toolSize.set(size);
+    ToolDataStores.toolSize.set(size);
   }
 }
 
@@ -159,10 +161,10 @@ export function cancelTool() : void {
  * @returns MapRange for the affected area
  */
 export function getToolArea(center : CoordsXY) : MapRange {
-  const left   = Math.floor((center.x / 32) - ((toolSize.get() - 1) / 2)) * 32;
-  const top    = Math.floor((center.y / 32) - ((toolSize.get() - 1) / 2)) * 32;
-  const right  = Math.floor((center.x / 32) + ((toolSize.get() - 1) / 2)) * 32;
-  const bottom = Math.floor((center.y / 32) + ((toolSize.get() - 1) / 2)) * 32;
+  const left   = Math.floor((center.x / 32) - ((ToolDataStores.toolSize.get() - 1) / 2)) * 32;
+  const top    = Math.floor((center.y / 32) - ((ToolDataStores.toolSize.get() - 1) / 2)) * 32;
+  const right  = Math.floor((center.x / 32) + ((ToolDataStores.toolSize.get() - 1) / 2)) * 32;
+  const bottom = Math.floor((center.y / 32) + ((ToolDataStores.toolSize.get() - 1) / 2)) * 32;
 
   return MapRange(CoordsXY(left, top), CoordsXY(right, bottom));
 }

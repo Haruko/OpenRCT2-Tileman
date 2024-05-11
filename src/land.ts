@@ -1,13 +1,13 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { getParkData, computeTilesUnlocked } from './data';
+import { getParkData, computeTilesUnlocked, StoreContainer, getParkDataStores } from './data';
 
 import { CoordsXY } from './types/CoordsXY';
 import { MapRange, isMapRange, computeTilesInRange } from './types/MapRange';
 
 
 
-const ParkData = getParkData();
+const ParkDataStores : StoreContainer = getParkDataStores();
 
 
 
@@ -327,15 +327,15 @@ export async function setTiles(range : MapRange, setType : LandOwnership) : Prom
       const result : LandRightsResult = await setLandOwnership(coords, LandOwnership.UNOWNED);
 
       // Refund tiles
-      ParkData.tilesUsed.set(ParkData.tilesUsed.get() - result.numSet);
+      ParkDataStores.tilesUsed.set(ParkDataStores.tilesUsed.get() - result.numSet);
     } else {
       // Buying
       // Check if player can afford them
-      if (coords.length - numFree <= computeTilesUnlocked() - ParkData.tilesUsed.get()) {
+      if (coords.length - numFree <= computeTilesUnlocked() - ParkDataStores.tilesUsed.get()) {
         const result : LandRightsResult = await setLandOwnership(coords, setType);
         
         // Pay tiles
-        ParkData.tilesUsed.set(ParkData.tilesUsed.get() + result.numSet - numFree);
+        ParkDataStores.tilesUsed.set(ParkDataStores.tilesUsed.get() + result.numSet - numFree);
       } else {
         ui.showError(`Can't buy land...`, `Not enough tiles available!`);
       }
