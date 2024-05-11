@@ -206,11 +206,16 @@ export function recordDemolishedRide(rideId : number) : void {
 }
 
 /**
- * Computes number of tiles unlocked based on total experience
- * @returns Number of tiles unlocked
+ * Computes number of tiles available based on total experience
+ * @returns Number of tiles available
  */
-export function computeTilesUnlocked() : number {
-  return Math.floor(ParkDataStores.totalExp.get() / getPluginConfig().expPerTile) + getPluginConfig().minTiles;
+export function computeTilesAvailable() : number {
+  const totalExp : number = ParkDataStores.totalExp.get();
+  const expPerTile : number = PluginConfig.expPerTile;
+  const minTiles : number = PluginConfig.minTiles;
+  const tilesUsed : number = ParkDataStores.tilesUsed.get();
+
+  return Math.floor(totalExp / expPerTile) + minTiles - tilesUsed;
 }
 
 /**

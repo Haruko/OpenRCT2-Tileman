@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { getParkData, computeTilesUnlocked, StoreContainer, getParkDataStores } from './data';
+import { getParkData, computeTilesAvailable, StoreContainer, getParkDataStores } from './data';
 
 import { CoordsXY } from './types/CoordsXY';
 import { MapRange, isMapRange, computeTilesInRange } from './types/MapRange';
@@ -337,7 +337,7 @@ export async function setTiles(range : MapRange, setType : LandOwnership) : Prom
     } else {
       // Buying
       // Check if player can afford them
-      if (coords.length - numFree <= computeTilesUnlocked() - ParkDataStores.tilesUsed.get()) {
+      if (coords.length - numFree <= computeTilesAvailable()) {
         const result : LandRightsResult = await setLandOwnership(coords, setType);
         
         // Pay tiles
