@@ -58,7 +58,7 @@ export enum Sprites {
 
 /**
  * **********
- * Main Window
+ * Toolbar Window
  * **********
  */
 
@@ -82,7 +82,7 @@ export enum Sprites {
 
 
 /**
- * Box to display statistics in primary window
+ * Box to display statistics in toolbar window
  */
 const statsPanel = box({
   content: vertical({
@@ -170,7 +170,7 @@ const toolSizeSpinner = spinner({
 });
 
 /**
- * Box to display buttons in primary window
+ * Box to display buttons in toolbar window
  */
 const buttonPanel = vertical({
   spacing: 0,
@@ -190,8 +190,8 @@ const buttonPanel = vertical({
 /**
  * Primary window
  */
-const mainWindow : WindowTemplate = window({
-  title: PluginConfig.winTitle,
+const toolbarWindow : WindowTemplate = window({
+  title: PluginConfig.toolbarWindowTitle,
 	width: 300,
 	height: 200,
   content: [
@@ -202,54 +202,33 @@ const mainWindow : WindowTemplate = window({
         buttonPanel
       ]
   })],
-  onOpen: onWindowOpen,
-  onUpdate: onWindowUpdate,
-  onClose: onWindowClose
+  onOpen: onToolbarWindowOpen,
+  onUpdate: onToolbarWindowUpdate,
+  onClose: onToolbarWindowClose
 });
 
 /**
- * Handles tool window's onOpen event
+ * Handles toolbar window's onOpen event
  */
-export function onWindowOpen() : void {
+export function onToolbarWindowOpen() : void {
   ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags | ViewportFlags.ConstructionRights;
 }
 
 /**
- * Handles tool window's onUpdate event
+ * Handles toolbar window's onUpdate event
  */
-export function onWindowUpdate() : void {
+export function onToolbarWindowUpdate() : void {
   return;
 }
 
 /**
- * Handles tool window's onClose event
+ * Handles toolbar window's onClose event
  */
-export function onWindowClose() : void {
+export function onToolbarWindowClose() : void {
   cancelTool();
-  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags ^ ViewportFlags.ConstructionRights;
-}
+  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags & ~ViewportFlags.ConstructionRights;
 
-/**
- * Opens the primary window
- */
-export function openWindow() : void {
-  closeWindowInstances();
-  setToolSize(PluginConfig.minToolSize);
-  updateLabels();
-  mainWindow.open();
-}
-
-/**
- * Closes all matching windows
- */
-export function closeWindowInstances() : void {
-  const numWindows = ui.windows;
-  for(let i = numWindows - 1; i > 0; --i) {
-    const win = ui.getWindow(i);
-    if (win.title === PluginConfig.winTitle) {
-      win.close();
-    }
-  }
+  context.setTimeout(() : void => openWindow(PluginConfig.toolbarWindowTitle), 1);
 }
 
 /**
@@ -369,4 +348,48 @@ export function updateLabels() : void {
 
   // Update the unlocked/used/available label
   UIDataStores.tileTotalsLabelText.set(UIDataGenerators.tileTotalsLabelText());
+}
+
+/**
+ * Opens matching window
+ */
+export function openWindow(title : string) : void {
+  updateLabels();
+
+  switch (title) {
+    case PluginConfig.toolbarWindowTitle:
+      // Prevent infinite open/close loop
+      let windowOpen : boolean = false;
+
+      const numWindows : number = ui.windows;
+      for(let i = numWindows - 1; i > 0; --i) {
+        const win = ui.getWindow(i);
+        if (win.title === PluginConfig.toolbarWindowTitle) {
+          windowOpen = true;
+        }
+      }
+
+      if (!windowOpen) {
+        toolbarWindow.open();
+      }
+
+      break;
+    case PluginConfig.configWindowTitle:
+      closeWindowInstances(PluginConfig.configWindowTitle);
+      // configWindow.open();
+      break;
+  }
+}
+
+/**
+ * Closes all matching windows
+ */
+export function closeWindowInstances(title : string) : void {
+  const numWindows : number = ui.windows;
+  for(let i = numWindows - 1; i > 0; --i) {
+    const win = ui.getWindow(i);
+    if (win.title === title) {
+      win.close();
+    }
+  }
 }

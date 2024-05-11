@@ -8,6 +8,7 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
  * TODO: Update the tool UI to be like the land editing tool
  *    Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
  * 
+ * TODO: Add button for construction rights visibility toggle
  * TODO: closeWindows(classification: string, id?: number): void;
  * TODO: Persistent storage - context.sharedStorage for pluginconfig
  * TODO: Add button to toolbar
@@ -87,14 +88,11 @@ async function main() : Promise<void> {
 
   // Make sure it's a client
   if (typeof ui !== 'undefined') {
-    // Register option in menu under Map icon in toolbar
-    ui.registerMenuItem('Tileman', openWindow);
-
-    // Register events
-    subscribeEvents();
-
     // Setup map and data for game mode
     park.landPrice = 0;
+
+    // Register events before initializing data so we know the events will fire
+    subscribeEvents();
 
     initPluginConfig();
 
@@ -102,6 +100,12 @@ async function main() : Promise<void> {
     if (newPark) {
       await setLandOwnership(getMapEdges(), LandOwnership.UNOWNED);
     }
+
+    // Register options in menu under Map icon in toolbar
+    ui.registerMenuItem('Tileman Toolbar', () => openWindow(PluginConfig.toolbarWindowTitle));
+    ui.registerMenuItem('Tileman Config', () => openWindow(PluginConfig.configWindowTitle));
+
+    openWindow(PluginConfig.toolbarWindowTitle);
   }
 }
 

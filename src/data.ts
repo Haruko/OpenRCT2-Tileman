@@ -38,8 +38,9 @@ const ParkDataStores : StoreContainer = {
 const PluginConfig = {
   // Never changed
   pluginName: 'Tileman',
-  winTitle: 'Tileman Config',
-  hudWinTitle: 'Tileman',
+  toolbarWindowTitle: 'Tileman',
+  configWindowTitle: 'Tileman Config',
+
   minToolSize: 1,
   maxToolSize: 15,
 
