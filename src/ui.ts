@@ -182,7 +182,7 @@ const sellButton = button({
 
 const toolSizeSpinner = spinner({
   width: 62,
-  padding: [5, 5],
+  padding: 5,
   value: getToolSize(),
   minimum: PluginConfig.minToolSize,
   maximum: PluginConfig.maxToolSize + 1,
@@ -192,7 +192,6 @@ const toolSizeSpinner = spinner({
     setToolSize(value);
   },
   format: (value: number) : string => {
-    // Add spaces to center the text :) I am bigly smart
     return `${value}x${value}`;
   }
 });
@@ -202,6 +201,7 @@ const toolSizeSpinner = spinner({
  */
 const buttonPanel = vertical({
   spacing: 0,
+  padding: [0, 3],
   content: [
     horizontal({
       spacing: 0,
@@ -220,11 +220,13 @@ const buttonPanel = vertical({
  */
 const toolbarWindow : WindowTemplate = window({
   title: PluginConfig.toolbarWindowTitle,
-	width: 300,
-	height: 200,
+	width: 150,
+	height: 97,
+  padding: 1,
   content: [
     vertical({
-      spacing: 5,
+      spacing: 2,
+      padding: 0,
       content: [
         buttonPanel,
         statsPanel
@@ -407,7 +409,7 @@ export function openWindow(title : string) : void {
       break;
     case PluginConfig.configWindowTitle:
       closeWindowInstances(PluginConfig.configWindowTitle);
-      // configWindow.open();
+      // TODO: configWindow.open();
       break;
   }
 }
