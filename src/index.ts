@@ -8,11 +8,8 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
  * TODO: Update the tool UI to be like the land editing tool
  *    Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
  * 
- * TODO: Make stores for totalexp and such outside of object since they need to be tied to the UI
- * TODO: Fix park land clearing every time plugin starts up
- * TODO: Persistent storage - context.sharedStorage for pluginconfig and context.getParkStorage for park data
+ * TODO: Persistent storage - context.sharedStorage for pluginconfig
  * TODO: Add button to toolbar
- * TODO: Make window exp counters update on init
  * TODO: Display spinners for each exp type
  * TODO: Display totals for each exp type
  * 
@@ -20,7 +17,7 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
  * TODO: Initialize data for constructed rides?
  * TODO MAYBE: Difficulty multiplier for ParkFlags?
  * TODO MAYBE: Bonus exp/tiles for completing objective?
- * TODO MAYBE: Show tile counts on main viewport
+ * TODO MAYBE: Show tile/exp counts on main viewport
  */
 
 

@@ -286,6 +286,6 @@ export function getPluginConfig() : { [index : string] : any } {
  * @returns true if there was existing data
  */
 export function initPluginConfig() : boolean {
-  // TODO: Read from shared storage
+  // TODO: Implement
   return false;
 }
