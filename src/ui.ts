@@ -255,10 +255,26 @@ export function onToolbarWindowUpdate() : void {
  * Handles toolbar window's onClose event
  */
 export function onToolbarWindowClose() : void {
+  let x : number = 0;
+  let y : number = 0;
+
+  const oldWindow : Window | undefined = findWindow(PluginConfig.toolbarWindowTitle);
+  if (typeof oldWindow !== 'undefined') {
+    x = oldWindow.x;
+    y = oldWindow.y;
+  }
+
   cancelTool();
   ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags & ~ViewportFlags.ConstructionRights;
 
-  context.setTimeout(() : void => openWindow(PluginConfig.toolbarWindowTitle), 1);
+  context.setTimeout(() : void => {
+    openWindow(PluginConfig.toolbarWindowTitle);
+    const foundWindow : Window | undefined = findWindow(PluginConfig.toolbarWindowTitle);
+    if (typeof foundWindow !== 'undefined') {
+      foundWindow.x = x;
+      foundWindow.y = y;
+    }
+  }, 1);
 }
 
 /**
@@ -384,7 +400,24 @@ export function updateLabels() : void {
 }
 
 /**
+ * Finds a window of a certain type
+ * @param title title of the window to find
+ * @returns the found Window or undefined
+ */
+export function findWindow(title : string) : Window | undefined {
+  for(let i = 0; i < ui.windows; ++i) {
+    const win : Window = ui.getWindow(i);
+    if (win.title === title) {
+      return win;
+    }
+  }
+
+  return;
+}
+
+/**
  * Opens matching window
+ * @param title title of the window to open
  */
 export function openWindow(title : string) : void {
   updateLabels();
@@ -392,17 +425,9 @@ export function openWindow(title : string) : void {
   switch (title) {
     case PluginConfig.toolbarWindowTitle:
       // Prevent infinite open/close loop
-      let windowOpen : boolean = false;
+      const openWindow : Window | undefined = findWindow(PluginConfig.toolbarWindowTitle);
 
-      const numWindows : number = ui.windows;
-      for(let i = numWindows - 1; i > 0; --i) {
-        const win = ui.getWindow(i);
-        if (win.title === PluginConfig.toolbarWindowTitle) {
-          windowOpen = true;
-        }
-      }
-
-      if (!windowOpen) {
+      if (typeof openWindow === 'undefined') {
         toolbarWindow.open();
       }
 
@@ -416,13 +441,13 @@ export function openWindow(title : string) : void {
 
 /**
  * Closes all matching windows
+ * @param title title of the windows to close
  */
 export function closeWindowInstances(title : string) : void {
-  const numWindows : number = ui.windows;
-  for(let i = numWindows - 1; i > 0; --i) {
-    const win = ui.getWindow(i);
-    if (win.title === title) {
-      win.close();
-    }
+  let foundWindow : Window | undefined = findWindow(title);
+
+  while(typeof foundWindow !== 'undefined') {
+    foundWindow.close();
+    foundWindow = findWindow(title);
   }
 }
