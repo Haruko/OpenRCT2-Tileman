@@ -92,7 +92,7 @@ PromisePolyfill.all = (promises : Promise[]) : PromisePolyfill<T[]> => {
   let results = [];
 
   return new PromisePolyfill((resolve, reject) => {
-    promises.forEach((promise : PromisePolyfill<T>, index : number) => {
+    promises.forEach((promise : PromisePolyfill<T>, index : number) : void => {
       promise.then((value : T) => {
         fulfilledPromises.push(true);
         results[index] = value;

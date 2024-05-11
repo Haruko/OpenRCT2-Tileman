@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { store } from 'openrct2-flexui';
+import { Store, store } from 'openrct2-flexui';
 
 
 
@@ -10,8 +10,53 @@ import { store } from 'openrct2-flexui';
  * **********
  */
 
+// From openrct2/ride/Ride.h
 export enum RideLifecycleFlags {
   RIDE_LIFECYCLE_EVER_BEEN_OPENED = 1 << 12
+};
+
+export interface RideDataContainer {
+  // ride.name
+  name : string,
+  // ride.classification ('ride' | 'stall' | 'facility')
+  classification : RideClassification,
+  // ride.type (RideType enum)
+  type : number,
+  // ride.age
+  age : number,
+  // ride.value
+  value : number,
+  // ride.totalCustomers
+  totalCustomers : number,
+  // ride.totalProfit
+  totalProfit : number,
+  // ride.lifecycleFlags
+  lifecycleFlags : number
+};
+
+export interface RideMap {
+  [key : number]: RideDataContainer
+};
+
+export interface ParkDataContainer {
+  [key : string] : any,
+  // Player's total experience points
+  totalExp : Store<number>,
+
+  // Tiles used by player
+  tilesUsed : Store<number>,
+
+  /**
+   * Collected Park Data
+   */
+  // Data used to calculate experience
+  parkAdmissions : number,
+
+  // Maps ride IDs (numbers) and historical data
+  rideMap : RideMap,
+
+  // List of rides that were demolished
+  demolishedRides : RideDataContainer[]
 };
 
 
@@ -22,42 +67,25 @@ export enum RideLifecycleFlags {
  * **********
  */
 
-const ParkData = {
+let ParkData = {
   // Player's total experience points
   totalExp: store<number>(0),
 
   // Tiles used by player
   tilesUsed: store<number>(0),
 
-  // Park data
+  /**
+   * Collected Park Data
+   */
   // Data used to calculate experience
   parkAdmissions: 0,
 
-  // Maps ride IDs (numbers) and historical data (Ride.totalCustomers, eventually Ride.totalProfit or something )
-  rideMap: {} as {
-    // key is ride.id
-    [key : string] : {
-      // ride.id (also key)
-      id : number,
-      // ride.name
-      name : string,
-      // ride.classification ('ride' | 'stall' | 'facility')
-      classification : RideClassification,
-      // ride.type (RideType enum)
-      type : number,
-      // ride.age
-      age : number,
-      // ride.value
-      value : number,
-      // ride.totalCustomers
-      totalCustomers : number,
-      // ride.totalProfit
-      totalProfit : number,
-      // ride.lifecycleFlags
-      lifecycleFlags : number
-    }
-  },
-};
+  // Maps ride IDs (numbers) and historical data
+  rideMap: {} as RideMap,
+
+  // List of rides that were demolished
+  demolishedRides: [] as RideDataContainer[]
+} as ParkDataContainer;
 
 /**
  * Exposes ParkData to other modules
@@ -83,13 +111,11 @@ export function collectMetrics() : void {
   ParkData.parkAdmissions = park.totalAdmissions;
 
   // Collect data from each active ride/stall/facility
-  for (let i = 0; i < map.numRides; ++i) {
-    const ride : Ride = map.rides[i];
-
+  const savedParkData = context.getParkStorage(PluginConfig.pluginName).getAll();
+  map.rides.forEach((ride : Ride) : void => {
     if (ride.lifecycleFlags & RideLifecycleFlags.RIDE_LIFECYCLE_EVER_BEEN_OPENED) {
-      // If never opened, don't record
-      ParkData.rideMap[ride.id.toString()] = {
-        id: ride.id,
+      // Only record rides that have opened
+      const rideData : RideDataContainer = {
         name: ride.name,
         classification: ride.classification,
         type: ride.type,
@@ -99,7 +125,22 @@ export function collectMetrics() : void {
         totalProfit: ride.totalProfit,
         lifecycleFlags: ride.lifecycleFlags
       };
+      
+      savedParkData.rideMap[ride.id] = rideData;
     }
+  });
+}
+
+/**
+ * Move ride from ParkData.rideMap to ParkData.demolishedRides
+ * @param rideId Index of the ride that was demolished. Won't exist in stored park data, but will exist in our local copy
+ */
+export function storeDemolishedRide(rideId : number) : void {
+  const rideData : RideDataContainer = ParkData.rideMap[rideId];
+
+  if(typeof rideData !== 'undefined') {
+    ParkData.demolishedRides.push(rideData);
+    delete ParkData.rideMap[rideId];
   }
 }
 
@@ -112,12 +153,12 @@ export function computeTotalExp() : number {
   // Add park admissions
   totalExp += ParkData.parkAdmissions * PluginConfig.expPerParkAdmission;
 
-  // Add ride data
-  const rideIds : string[] = Object.keys(ParkData.rideMap);
+  // Iterate over rides
+  const activeRideData : RideDataContainer[] = Object.keys(ParkData.rideMap)
+    .map((value : string) : RideDataContainer => ParkData.rideMap[+value]);
+  const allRideData = [...activeRideData, ...ParkData.demolishedRides];
 
-  totalExp += rideIds.reduce((previousValue : number, currentValue : string) : number => {
-    const ride = ParkData.rideMap[currentValue];
-
+  totalExp += allRideData.reduce((previousValue : number, ride : RideDataContainer) : number => {
     let rideExp : number = 0;
     
     switch (ride.classification) {
@@ -138,6 +179,18 @@ export function computeTotalExp() : number {
   return totalExp;
 }
 
+/**
+ * Stores ParkData into the persistent park-specific storage
+ */
+export function storeParkData() : void {
+  // Get park data structure to save new data
+  const savedParkData : ParkDataContainer = context.getParkStorage(PluginConfig.pluginName).getAll() as ParkDataContainer;
+
+  Object.keys(ParkData).forEach((key : string) : void => {
+    savedParkData[key] = ParkData[key];
+  });
+}
+
 
 
 /**
@@ -149,11 +202,12 @@ export function computeTotalExp() : number {
 const PluginConfig = {
   // Never changed
   winTitle: 'Tileman',
+  pluginName: 'Tileman',
   minToolSize: 1,
   maxToolSize: 15,
 
   // User definable
-  ticksPerUpdate: 1000, // Ticks per update of data
+  ticksPerUpdate: 40, // Ticks per update of data
   expPerTile: 10, // Exp cost per tile
   minTiles: 2, // 1 path + 1 stall minimum
 

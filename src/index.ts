@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { getParkData, collectMetrics, computeTotalExp, getPluginConfig } from './data';
+import { getParkData, collectMetrics, computeTotalExp, getPluginConfig, storeParkData, storeDemolishedRide } from './data';
 import { openWindow, updateLabels } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
@@ -8,16 +8,20 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
  * TODO: Update the tool UI to be like the land editing tool
  *    Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
  * 
- * TODO: Fix 1x1 marker not updating on window open
+ * TODO: Make stores for totalexp and such outside of object since they need to be tied to the UI
+ * TODO: Add function constructor for ParkData to default values
  * TODO: Fix park land clearing every time plugin starts up
- * TODO: Persistent storage
+ * TODO: Persistent storage - context.sharedStorage for pluginconfig and context.getParkStorage for park data
  * TODO: Add button to toolbar
  * TODO: Make window exp counters update on init
  * TODO: Display spinners for each exp type
  * TODO: Display totals for each exp type
  * 
+ * 
+ * TODO: Initialize data for constructed rides?
  * TODO MAYBE: Difficulty multiplier for ParkFlags?
  * TODO MAYBE: Bonus exp/tiles for completing objective?
+ * TODO MAYBE: Show tile counts on main viewport
  */
 
 
@@ -72,6 +76,18 @@ async function main() : Promise<void> {
         collectMetrics();
         const totalExp : number = computeTotalExp();
         ParkData.totalExp.set(totalExp);
+
+        storeParkData();
+      }
+    });
+
+    // Every time a ride is deleted, remove it from the current rides and add it to the list of deleted rides
+    // I'd rather this trigger on action.query, but that is unreliable since cost is always 0
+    context.subscribe('action.execute', (e: GameActionEventArgs) : void => {
+      // This action is raised if we cancel building something, but in that ase the cost is 0
+      if (e.action === 'ridedemolish' && e.result.cost !== 0) {
+        const rideId : number = (e.args as { ride : number }).ride;
+        storeDemolishedRide(rideId);
       }
     });
   }
@@ -81,7 +97,7 @@ async function main() : Promise<void> {
  * Registers plugin info
  */
 registerPlugin({
-  name: 'Tileman',
+  name: PluginConfig.pluginName,
   version: '0.0.1',
   authors: ['Isoitiro'],
   type: 'remote',
