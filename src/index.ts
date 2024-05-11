@@ -5,22 +5,18 @@ import { openWindow, updateLabels } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
 /**
- * TODO: Update the tool UI to be like the land editing tool
+ * TODO: Toolbar Window - Add button for construction rights visibility toggle
+ * TODO: Toolbar Window - Add button for config window
+ * TODO: Persistent Storage - context.sharedStorage for pluginconfig
+ * TODO: Config Window - Display spinners for each exp type
+ * TODO: Config Window - Display totals for each exp type
+ * TODO: Config Window - Add button to delete all rides
+ * 
+ * TODO MAYBE: Data - Initialize data for constructed rides?
+ * TODO MAYBE: Options - Difficulty multiplier for ParkFlags?
+ * TODO MAYBE: Options - Bonus exp/tiles for completing objective?
+ * TODO MAYBE: Toolbar Window - Update the tool UI to be like the land editing tool
  *    Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
- * 
- * TODO: Add button for construction rights visibility toggle
- * TODO: closeWindows(classification: string, id?: number): void;
- * TODO: Persistent storage - context.sharedStorage for pluginconfig
- * TODO: Add button to toolbar
- * TODO: Display spinners for each exp type
- * TODO: Display totals for each exp type
- * TODO: Add button to delete all rides
- * 
- * 
- * TODO: Initialize data for constructed rides?
- * TODO MAYBE: Difficulty multiplier for ParkFlags?
- * TODO MAYBE: Bonus exp/tiles for completing objective?
- * TODO MAYBE: Show tile/exp counts on main viewport
  */
 
 
