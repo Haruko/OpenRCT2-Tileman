@@ -6,7 +6,7 @@ import { setToolButtonPressed } from './ui';
 
 import { CoordsXY } from './types/CoordsXY';
 import { MapRange } from './types/MapRange';
-import * as FlexUI from 'openrct2-flexui';
+import { Store, store } from 'openrct2-flexui';
 
 
 
@@ -35,13 +35,13 @@ export enum ToolID {
  */
 
 // Current tool size
-let toolSize : FlexUI.Store<number> = FlexUI.store<number>(PluginConfig.minToolSize);
+let toolSize : Store<number> = store<number>(PluginConfig.minToolSize);
 
 /**
  * Exposes tool size to other modules
  * @returns Current tool size
  */
-export function getToolSize() : FlexUI.Store<number> {
+export function getToolSize() : Store<number> {
   return toolSize;
 }
 

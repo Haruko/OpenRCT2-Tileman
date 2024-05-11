@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import * as FlexUI from 'openrct2-flexui';
+import { Store, ViewportFlags, box, button, horizontal, label, spinner, store, vertical, window } from 'openrct2-flexui';
 
 import { getParkData, computeTilesUnlocked, getPluginConfig } from './data';
 import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, onToolMove, onToolUp, onToolFinish } from './tool';
@@ -53,13 +53,13 @@ export enum Sprites {
 
 const UIDataStores = {
   // Total exp label
-  totalExpLabelText : FlexUI.store<string>('{BABYBLUE}0'),
+  totalExpLabelText : store<string>('{BABYBLUE}0'),
   totalExpLabelTextGenerator : () : string => {
     return `{BABYBLUE}${context.formatString('{COMMA16}', ParkData.totalExp.get())}`;
   },
 
   // Tiles unlocked/used/available
-  tileTotalsLabelText : FlexUI.store<string>('{BABYBLUE}0{BLACK}/{RED}0{BLACK}/{GREEN}0'),
+  tileTotalsLabelText : store<string>('{BABYBLUE}0{BLACK}/{RED}0{BLACK}/{GREEN}0'),
   tileTotalsLabelTextGenerator : () : string => {
     const tilesUnlocked = computeTilesUnlocked();
 
@@ -72,31 +72,31 @@ const UIDataStores = {
 /**
  * Box to display statistics in primary window
  */
-const statsPanel = FlexUI.box({
-  content: FlexUI.vertical({
+const statsPanel = box({
+  content: vertical({
     spacing: 5,
     content: [
-      FlexUI.horizontal({
+      horizontal({
         spacing: 0,
         content: [
-          FlexUI.label({
+          label({
             text: "{BLACK}Total Exp:",
             width: '175px'
           }),
-          FlexUI.label({
+          label({
             // UIDataStores.totalExpLabelTextGenerator()
             text: UIDataStores.totalExpLabelText
           })
         ]
       }),
-      FlexUI.horizontal({
+      horizontal({
         spacing: 0,
         content: [
-          FlexUI.label({
+          label({
             text: "{BLACK}Tiles Unlocked/Used/Available: ",
             width: '175px'
           }),
-          FlexUI.label({
+          label({
             // UIDataStores.tileTotalsLabelTextGenerator
             text: UIDataStores.tileTotalsLabelText
           })
@@ -109,11 +109,11 @@ const statsPanel = FlexUI.box({
 /**
  * Buttons for buttonPanel
  */
-const buyButtonPressed : FlexUI.Store<boolean> = FlexUI.store<boolean>(false);
-const rightsButtonPressed : FlexUI.Store<boolean> = FlexUI.store<boolean>(false);
-const sellButtonPressed : FlexUI.Store<boolean> = FlexUI.store<boolean>(false);
+const buyButtonPressed : Store<boolean> = store<boolean>(false);
+const rightsButtonPressed : Store<boolean> = store<boolean>(false);
+const sellButtonPressed : Store<boolean> = store<boolean>(false);
 
-const buyButton = FlexUI.button({
+const buyButton = button({
   image: Sprites.SPR_BUY_LAND_RIGHTS,
   tooltip: 'Buy land rights',
   width: '24px',
@@ -122,7 +122,7 @@ const buyButton = FlexUI.button({
   isPressed: buyButtonPressed
 });
 
-const rightsbutton = FlexUI.button({
+const rightsbutton = button({
   image: Sprites.SPR_BUY_CONSTRUCTION_RIGHTS,
   tooltip: 'Buy construction rights',
   width: '24px',
@@ -131,7 +131,7 @@ const rightsbutton = FlexUI.button({
   isPressed: rightsButtonPressed
 });
 
-const sellButton = FlexUI.button({
+const sellButton = button({
   image: Sprites.SPR_FINANCE,
   tooltip: 'Sell land and construction rights',
   width: '24px',
@@ -140,7 +140,7 @@ const sellButton = FlexUI.button({
   isPressed: sellButtonPressed
 });
 
-const toolSizeSpinner = FlexUI.spinner({
+const toolSizeSpinner = spinner({
   width: '62px',
   padding: ['5px', '5px'],
   value: getToolSize(),
@@ -160,10 +160,10 @@ const toolSizeSpinner = FlexUI.spinner({
 /**
  * Box to display buttons in primary window
  */
-const buttonPanel = FlexUI.vertical({
+const buttonPanel = vertical({
   spacing: 0,
   content: [
-    FlexUI.horizontal({
+    horizontal({
       spacing: 0,
       content: [
         buyButton,
@@ -178,12 +178,12 @@ const buttonPanel = FlexUI.vertical({
 /**
  * Primary window
  */
-const mainWindow = FlexUI.window({
+const mainWindow = window({
   title: PluginConfig.winTitle,
 	width: 300,
 	height: 200,
   content: [
-    FlexUI.vertical({
+    vertical({
       spacing: 5,
       content: [
         statsPanel,
@@ -240,7 +240,7 @@ export function updateLabels() : void {
  * Handles tool window's onOpen event
  */
 export function onWindowOpen() : void {
-  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags | FlexUI.ViewportFlags.ConstructionRights;
+  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags | ViewportFlags.ConstructionRights;
   
 }
 
@@ -256,7 +256,7 @@ export function onWindowUpdate() : void {
  */
 export function onWindowClose() : void {
   cancelTool();
-  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags ^ FlexUI.ViewportFlags.ConstructionRights;
+  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags ^ ViewportFlags.ConstructionRights;
 }
 
 /**
