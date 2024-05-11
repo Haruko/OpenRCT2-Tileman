@@ -7,6 +7,12 @@ import { MapRange, isMapRange, computeTilesInRange } from './types/MapRange';
 
 
 
+/**
+ * **********
+ * Variables
+ * **********
+ */
+
 const ParkDataStores : StoreContainer = getParkDataStores();
 
 

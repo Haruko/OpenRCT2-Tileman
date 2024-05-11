@@ -6,6 +6,60 @@ import { Store, store } from 'openrct2-flexui';
 
 /**
  * **********
+ * Variables
+ * **********
+ */
+
+const ParkData = {
+  // Player's total experience points
+  totalExp: 0,
+
+  // Tiles used by player
+  tilesUsed: 0,
+
+  /**
+   * Collected Park Data
+   */
+  // Data used to calculate experience
+  parkAdmissions: 0,
+
+  // Maps ride IDs (numbers) and historical data
+  rideMap: {} as RideMap,
+
+  // List of rides that were demolished
+  demolishedRides: [] as RideDataContainer[]
+} as ParkDataContainer;
+
+const ParkDataStores : StoreContainer = {
+  totalExp: store<number>(0),
+  tilesUsed: store<number>(0),
+};
+
+const PluginConfig = {
+  // Never changed
+  pluginName: 'Tileman',
+  winTitle: 'Tileman Config',
+  hudWinTitle: 'Tileman',
+  minToolSize: 1,
+  maxToolSize: 15,
+
+  // User definable
+  ticksPerUpdate: 40, // Ticks per update of data
+  expPerTile: 10, // Exp cost per tile
+  minTiles: 2, // 1 path + 1 stall minimum
+
+  expPerParkAdmission: 1,
+
+  rideExpPerCustomer: 1,
+  stallExpPerCustomer: 1,
+  facilityExpPerCustomer: 1,
+}
+
+
+
+
+/**
+ * **********
  * Type / Interface / Enum definitions
  * **********
  */
@@ -81,31 +135,6 @@ export interface GeneratorContainer {
  * **********
  */
 
-let ParkData = {
-  // Player's total experience points
-  totalExp: 0,
-
-  // Tiles used by player
-  tilesUsed: 0,
-
-  /**
-   * Collected Park Data
-   */
-  // Data used to calculate experience
-  parkAdmissions: 0,
-
-  // Maps ride IDs (numbers) and historical data
-  rideMap: {} as RideMap,
-
-  // List of rides that were demolished
-  demolishedRides: [] as RideDataContainer[]
-} as ParkDataContainer;
-
-const ParkDataStores : StoreContainer = {
-  totalExp: store<number>(0),
-  tilesUsed: store<number>(0),
-};
-
 /**
  * Exposes ParkData to other modules
  * @returns ParkData
@@ -163,6 +192,19 @@ export function storeParkData() : void {
 }
 
 /**
+ * Move ride from ParkData.rideMap to ParkData.demolishedRides
+ * @param rideId Index of the ride that was demolished. Won't exist in stored park data, but will exist in our local copy
+ */
+export function recordDemolishedRide(rideId : number) : void {
+  const rideData : RideDataContainer = ParkData.rideMap[rideId];
+
+  if(typeof rideData !== 'undefined') {
+    ParkData.demolishedRides.push(rideData);
+    delete ParkData.rideMap[rideId];
+  }
+}
+
+/**
  * Computes number of tiles unlocked based on total experience
  * @returns Number of tiles unlocked
  */
@@ -196,19 +238,6 @@ export function collectMetrics() : void {
       savedParkData.rideMap[ride.id] = rideData;
     }
   });
-}
-
-/**
- * Move ride from ParkData.rideMap to ParkData.demolishedRides
- * @param rideId Index of the ride that was demolished. Won't exist in stored park data, but will exist in our local copy
- */
-export function recordDemolishedRide(rideId : number) : void {
-  const rideData : RideDataContainer = ParkData.rideMap[rideId];
-
-  if(typeof rideData !== 'undefined') {
-    ParkData.demolishedRides.push(rideData);
-    delete ParkData.rideMap[rideId];
-  }
 }
 
 /**
@@ -253,25 +282,6 @@ export function computeTotalExp() : number {
  * Plugin Data
  * **********
  */
-
-const PluginConfig = {
-  // Never changed
-  winTitle: 'Tileman',
-  pluginName: 'Tileman',
-  minToolSize: 1,
-  maxToolSize: 15,
-
-  // User definable
-  ticksPerUpdate: 40, // Ticks per update of data
-  expPerTile: 10, // Exp cost per tile
-  minTiles: 2, // 1 path + 1 stall minimum
-
-  expPerParkAdmission: 1,
-
-  rideExpPerCustomer: 1,
-  stallExpPerCustomer: 1,
-  facilityExpPerCustomer: 1,
-}
 
 /**
  * Exposes PluginConfig to other modules

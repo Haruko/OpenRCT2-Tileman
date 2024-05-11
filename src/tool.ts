@@ -10,7 +10,21 @@ import { Store, store } from 'openrct2-flexui';
 
 
 
+/**
+ * **********
+ * Variables
+ * **********
+ */
+
 const PluginConfig = getPluginConfig();
+
+const ToolDataStores = {
+  // Current tool size
+  toolSize: store<number>(PluginConfig.minToolSize)
+};
+
+// Coordinates where tool was last used
+let toolLastUsedCoords : CoordsXY = CoordsXY(0, 0);
 
 
 
@@ -30,14 +44,9 @@ export enum ToolID {
 
 /**
  * **********
- * Variables
+ * Tool Size and Location
  * **********
  */
-
-const ToolDataStores = {
-  // Current tool size
-  toolSize: store<number>(PluginConfig.minToolSize)
-}
 
 /**
  * Exposes tool size to other modules
@@ -56,9 +65,6 @@ export function setToolSize(size : number) : void {
   }
 }
 
-// Coordinates where tool was last used
-let toolLastUsedCoords : CoordsXY = CoordsXY(0, 0);
-
 /**
  * Exposes tool last used coordinates to other modules
  * @returns Current tool last used coordinates
@@ -74,11 +80,25 @@ export function setToolLastUsedCoords(coords : CoordsXY) : void {
   toolLastUsedCoords = coords;
 }
 
+/**
+ * Calculates the area around the tool that is affected by the tool
+ * @param center Center point for the tool's usage
+ * @returns MapRange for the affected area
+ */
+export function getToolArea(center : CoordsXY) : MapRange {
+  const left   = Math.floor((center.x / 32) - ((ToolDataStores.toolSize.get() - 1) / 2)) * 32;
+  const top    = Math.floor((center.y / 32) - ((ToolDataStores.toolSize.get() - 1) / 2)) * 32;
+  const right  = Math.floor((center.x / 32) + ((ToolDataStores.toolSize.get() - 1) / 2)) * 32;
+  const bottom = Math.floor((center.y / 32) + ((ToolDataStores.toolSize.get() - 1) / 2)) * 32;
+
+  return MapRange(CoordsXY(left, top), CoordsXY(right, bottom));
+}
+
 
 
 /**
  * **********
- * Event Handlers
+ * Events
  * **********
  */
 
@@ -144,7 +164,7 @@ export function onToolFinish(toolId : ToolID) : void {
 
 /**
  * **********
- * Functions
+ * Functionality
  * **********
  */
 
@@ -153,20 +173,6 @@ export function onToolFinish(toolId : ToolID) : void {
  */
 export function cancelTool() : void {
   ui.tool?.cancel();
-}
-
-/**
- * Calculates the area around the tool that is affected by the tool
- * @param center Center point for the tool's usage
- * @returns MapRange for the affected area
- */
-export function getToolArea(center : CoordsXY) : MapRange {
-  const left   = Math.floor((center.x / 32) - ((ToolDataStores.toolSize.get() - 1) / 2)) * 32;
-  const top    = Math.floor((center.y / 32) - ((ToolDataStores.toolSize.get() - 1) / 2)) * 32;
-  const right  = Math.floor((center.x / 32) + ((ToolDataStores.toolSize.get() - 1) / 2)) * 32;
-  const bottom = Math.floor((center.y / 32) + ((ToolDataStores.toolSize.get() - 1) / 2)) * 32;
-
-  return MapRange(CoordsXY(left, top), CoordsXY(right, bottom));
 }
 
 /**

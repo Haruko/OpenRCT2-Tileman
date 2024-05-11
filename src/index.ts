@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { getParkData, collectMetrics, computeTotalExp, getPluginConfig, storeParkData, recordDemolishedRide, initPluginConfig, initParkData, getParkDataStores, ParkDataContainer, StoreContainer } from './data';
+import { collectMetrics, computeTotalExp, getPluginConfig, storeParkData, recordDemolishedRide, initPluginConfig, initParkData, getParkDataStores, ParkDataContainer, StoreContainer } from './data';
 import { openWindow, updateLabels } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
@@ -8,10 +8,12 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
  * TODO: Update the tool UI to be like the land editing tool
  *    Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
  * 
+ * TODO: closeWindows(classification: string, id?: number): void;
  * TODO: Persistent storage - context.sharedStorage for pluginconfig
  * TODO: Add button to toolbar
  * TODO: Display spinners for each exp type
  * TODO: Display totals for each exp type
+ * TODO: Add button to delete all rides
  * 
  * 
  * TODO: Initialize data for constructed rides?
@@ -22,16 +24,14 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
 
 
-const ParkDataStores : StoreContainer = getParkDataStores();
-const PluginConfig = getPluginConfig();
-
-
-
 /**
  * **********
  * Variables
  * **********
  */
+
+const ParkDataStores : StoreContainer = getParkDataStores();
+const PluginConfig = getPluginConfig();
 
 let ticksSinceLastUpdate : number = 0;
 
@@ -39,7 +39,7 @@ let ticksSinceLastUpdate : number = 0;
 
 /**
  * **********
- * Functions
+ * Events
  * **********
  */
 
@@ -102,8 +102,6 @@ async function main() : Promise<void> {
     if (newPark) {
       await setLandOwnership(getMapEdges(), LandOwnership.UNOWNED);
     }
-
-    openWindow();
   }
 }
 

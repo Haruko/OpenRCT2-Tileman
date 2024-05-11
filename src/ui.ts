@@ -1,55 +1,20 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { Store, ViewportFlags, box, button, horizontal, label, spinner, store, vertical, window } from 'openrct2-flexui';
+import { Store, ViewportFlags, WindowTemplate, box, button, horizontal, label, spinner, store, vertical, window } from 'openrct2-flexui';
 
-import { getParkData, computeTilesUnlocked, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores } from './data';
+import { computeTilesUnlocked, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores } from './data';
 import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, onToolMove, onToolUp, onToolFinish } from './tool';
 
 
 
+/**
+ * **********
+ * Variables
+ * **********
+ */
+
 const ParkDataStores : StoreContainer = getParkDataStores();
 const PluginConfig = getPluginConfig();
-
-
-
-/**
- * **********
- * Type / Interface / Enum definitions
- * **********
- */
-
-// From openrct2/sprites.h
-export enum Sprites {
-  SPR_BUY_LAND_RIGHTS = 5176,
-  SPR_BUY_CONSTRUCTION_RIGHTS = 5177,
-  SPR_FINANCE = 5190
-};
-
-
-
-/**
- * **********
- * UI construction
- * **********
- */
-
-/**
- * Text colors
- *   black
- *   grey
- *   white
- *   red
- *   green
- *   yellow
- *   topaz
- *   celadon
- *   babyblue
- *   palelavender
- *   palegold
- *   lightpink
- *   pearlaqua
- *   palesilver
- */
 
 const UIDataStores : StoreContainer = {
   // Total exp label
@@ -75,6 +40,47 @@ const UIDataGenerators : GeneratorContainer = {
   }
 };
 
+
+/**
+ * **********
+ * Type / Interface / Enum definitions
+ * **********
+ */
+
+// From openrct2/sprites.h
+export enum Sprites {
+  SPR_BUY_LAND_RIGHTS = 5176,
+  SPR_BUY_CONSTRUCTION_RIGHTS = 5177,
+  SPR_FINANCE = 5190
+};
+
+
+
+/**
+ * **********
+ * Main Window
+ * **********
+ */
+
+/**
+ * Text colors
+ *   black
+ *   grey
+ *   white
+ *   red
+ *   green
+ *   yellow
+ *   topaz
+ *   celadon
+ *   babyblue
+ *   palelavender
+ *   palegold
+ *   lightpink
+ *   pearlaqua
+ *   palesilver
+ */
+
+
 /**
  * Box to display statistics in primary window
  */
@@ -86,8 +92,8 @@ const statsPanel = box({
         spacing: 0,
         content: [
           label({
-            text: "{BLACK}Total Exp:",
-            width: '175px'
+            text: '{BLACK}Total Experience:',
+            width: 175
           }),
           label({
             // UIDataGenerators.totalExpLabelText()
@@ -99,8 +105,8 @@ const statsPanel = box({
         spacing: 0,
         content: [
           label({
-            text: "{BLACK}Tiles Unlocked/Used/Available: ",
-            width: '175px'
+            text: '{BLACK}Tiles Unlocked/Used/Available: ',
+            width: 175
           }),
           label({
             // UIDataGenerators.tileTotalsLabelText()
@@ -122,8 +128,8 @@ const sellButtonPressed : Store<boolean> = store<boolean>(false);
 const buyButton = button({
   image: Sprites.SPR_BUY_LAND_RIGHTS,
   tooltip: 'Buy land rights',
-  width: '24px',
-  height: '24px',
+  width: 24,
+  height: 24,
   onClick: () => onToolButtonClick(ToolID.BUY_TOOL),
   isPressed: buyButtonPressed
 });
@@ -131,8 +137,8 @@ const buyButton = button({
 const rightsbutton = button({
   image: Sprites.SPR_BUY_CONSTRUCTION_RIGHTS,
   tooltip: 'Buy construction rights',
-  width: '24px',
-  height: '24px',
+  width: 24,
+  height: 24,
   onClick: () => onToolButtonClick(ToolID.RIGHTS_TOOL),
   isPressed: rightsButtonPressed
 });
@@ -140,15 +146,15 @@ const rightsbutton = button({
 const sellButton = button({
   image: Sprites.SPR_FINANCE,
   tooltip: 'Sell land and construction rights',
-  width: '24px',
-  height: '24px',
+  width: 24,
+  height: 24,
   onClick: () => onToolButtonClick(ToolID.SELL_TOOL),
   isPressed: sellButtonPressed
 });
 
 const toolSizeSpinner = spinner({
-  width: '62px',
-  padding: ['5px', '5px'],
+  width: 62,
+  padding: [5, 5],
   value: getToolSize(),
   minimum: PluginConfig.minToolSize,
   maximum: PluginConfig.maxToolSize + 1,
@@ -184,7 +190,7 @@ const buttonPanel = vertical({
 /**
  * Primary window
  */
-const mainWindow = window({
+const mainWindow : WindowTemplate = window({
   title: PluginConfig.winTitle,
 	width: 300,
 	height: 200,
@@ -200,6 +206,28 @@ const mainWindow = window({
   onUpdate: onWindowUpdate,
   onClose: onWindowClose
 });
+
+/**
+ * Handles tool window's onOpen event
+ */
+export function onWindowOpen() : void {
+  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags | ViewportFlags.ConstructionRights;
+}
+
+/**
+ * Handles tool window's onUpdate event
+ */
+export function onWindowUpdate() : void {
+  return;
+}
+
+/**
+ * Handles tool window's onClose event
+ */
+export function onWindowClose() : void {
+  cancelTool();
+  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags ^ ViewportFlags.ConstructionRights;
+}
 
 /**
  * Opens the primary window
@@ -225,48 +253,6 @@ export function closeWindowInstances() : void {
 }
 
 /**
- * Update the labels in the window
- */
-export function updateLabels() : void {
-  // Update the total exp label
-  UIDataStores.totalExpLabelText.set(UIDataGenerators.totalExpLabelText());
-
-  // Update the unlocked/used/available label
-  UIDataStores.tileTotalsLabelText.set(UIDataGenerators.tileTotalsLabelText());
-}
-
-
-
-/**
- * **********
- * Event Handlers
- * **********
- */
-
-/**
- * Handles tool window's onOpen event
- */
-export function onWindowOpen() : void {
-  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags | ViewportFlags.ConstructionRights;
-  
-}
-
-/**
- * Handles tool window's onUpdate event
- */
-export function onWindowUpdate() : void {
-  return;
-}
-
-/**
- * Handles tool window's onClose event
- */
-export function onWindowClose() : void {
-  cancelTool();
-  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags ^ ViewportFlags.ConstructionRights;
-}
-
-/**
  * Handles clicks on tool buttons
  * @param toolId Tool ID for the button
  */
@@ -289,14 +275,6 @@ export function onToolButtonClick(toolId : ToolID) : void {
     cancelTool();
   }
 }
-
-
-
-/**
- * **********
- * Others
- * **********
- */
 
 /**
  * Pressed the specified button and depresses others
@@ -373,4 +351,22 @@ export function getToolButtonPressed(toolId : ToolID) : boolean {
     case ToolID.SELL_TOOL:
       return sellButtonPressed.get();
   }
+}
+
+
+/**
+ * **********
+ * Shared
+ * **********
+ */
+
+/**
+ * Update the labels in the window
+ */
+export function updateLabels() : void {
+  // Update the total exp label
+  UIDataStores.totalExpLabelText.set(UIDataGenerators.totalExpLabelText());
+
+  // Update the unlocked/used/available label
+  UIDataStores.tileTotalsLabelText.set(UIDataGenerators.tileTotalsLabelText());
 }
