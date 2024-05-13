@@ -1,7 +1,7 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
 import { collectMetrics, computeTotalExp, getPluginConfig, storeParkData, recordDemolishedRide, initPluginConfig, initParkData, getParkDataStores, StoreContainer } from './data';
-import { openWindow, updateLabels } from './ui';
+import { openWindow, updateUIData } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
 /**
@@ -47,8 +47,8 @@ let ticksSinceLastUpdate : number = 0;
  */
 function subscribeEvents() : void {
   // Subscribe to changes in player data
-  ParkDataStores.totalExp.subscribe(updateLabels);
-  ParkDataStores.tilesUsed.subscribe(updateLabels);
+  ParkDataStores.totalExp.subscribe(updateUIData);
+  ParkDataStores.tilesUsed.subscribe(updateUIData);
 
   // Days are about 13.2 seconds at 1x speed
   context.subscribe('interval.tick', () : void => {

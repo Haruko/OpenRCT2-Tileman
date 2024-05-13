@@ -138,7 +138,11 @@ const expToNextTileProgressBar = progressbar({
   width: '1w',
   height: 10,
   background: Colour.Grey,
+
+  // UIDataGenerators.expToNextTileBarForeground()
   foreground: UIDataStores.expToNextTileBarForeground,
+
+  // UIDataGenerators.expToNextTilePercent()
   percentFilled: UIDataStores.expToNextTilePercent
 });
 
@@ -410,7 +414,7 @@ export function getToolButtonPressed(toolId : ToolID) : boolean {
 /**
  * Update the labels in the window
  */
-export function updateLabels() : void {
+export function updateUIData() : void {
   // Available tiles label text
   UIDataStores.availableTilesText.set(UIDataGenerators.availableTilesText());
 
@@ -448,7 +452,7 @@ export function findWindow(title : string) : Window | undefined {
  * @param title title of the window to open
  */
 export function openWindow(title : string) : void {
-  updateLabels();
+  updateUIData();
 
   switch (title) {
     case PluginConfig.toolbarWindowTitle:
