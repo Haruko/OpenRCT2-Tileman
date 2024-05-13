@@ -8,12 +8,20 @@ import { Bindable, Colour, ElementParams, FlexiblePosition, WidgetCreator, isSto
  * Progress Bar
  */
 
+/**
+ * Parameters to create a new ProgressBar
+ */
 interface ProgressBarParams extends ElementParams {
   background : Bindable<Colour>,
   foreground : Bindable<Colour>,
   percentFilled : Bindable<number>
 }
 
+/**
+ * Creates a new ProgressBar
+ * @param params Parameters defining ProgressBar customization
+ * @returns ProgressBar WidgetCreator
+ */
 export function progressbar(params : ProgressBarParams & FlexiblePosition) : WidgetCreator<FlexiblePosition> {
   return widget({
     type: 'custom',
