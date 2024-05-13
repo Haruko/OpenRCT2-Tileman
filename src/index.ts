@@ -15,8 +15,9 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
  * TODO MAYBE: Data - Initialize data for constructed rides?
  * TODO MAYBE: Options - Difficulty multiplier for ParkFlags?
  * TODO MAYBE: Options - Bonus exp/tiles for completing objective?
+ * TODO MAYBE: Toolbar Window - Convert exp to next tile label to progress bar
  * TODO MAYBE: Toolbar Window - Update the tool UI to be like the land editing tool
- *    Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
+ *   Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
  */
 
 

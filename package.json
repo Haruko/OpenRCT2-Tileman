@@ -25,6 +25,6 @@
   },
   "type": "module",
   "dependencies": {
-    "openrct2-flexui": "^0.1.0-prerelease.0"
+    "openrct2-flexui": "^0.1.0-prerelease.18"
   }
 }
