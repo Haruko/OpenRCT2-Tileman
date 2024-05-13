@@ -1,9 +1,10 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { Store, ViewportFlags, WindowTemplate, box, button, horizontal, label, spinner, store, vertical, window } from 'openrct2-flexui';
+import { Colour, FlexiblePosition, ViewportFlags, WidgetCreator, WindowTemplate, WritableStore, box, button, horizontal, label, spinner, store, vertical, widget, window } from 'openrct2-flexui';
 
 import { computeTilesAvailable, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores } from './data';
 import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, onToolMove, onToolUp, onToolFinish } from './tool';
+import { progressbar } from './flexui-extenson';
 
 
 
@@ -23,6 +24,12 @@ const UIDataStores : StoreContainer = {
   // Exp to next tile label text
   expToNextTileText: store<string>(`{BABYBLUE}${PluginConfig.expPerTile}`),
 
+  // Exp to next tile progress bar percent
+  expToNextTilePercent: store<number>(0),
+
+  // Exp to next tile progress bar foreground color
+  expToNextTileBarForeground: store<Colour>(Colour.Grey),
+
   // Unlocked tiles label text
   unlockedTilesText: store<string>('{WHITE}0'),
 };
@@ -41,6 +48,31 @@ const UIDataGenerators : GeneratorContainer = {
     const expToNextTile : number = PluginConfig.expPerTile - (ParkDataStores.totalExp.get() % PluginConfig.expPerTile);
 
     return `{WHITE}${context.formatString('{COMMA16}', expToNextTile)}`;
+  },
+
+  // Exp to next tile progress bar percent
+  expToNextTilePercent: () : number => {
+    const expSinceLastTile : number = ParkDataStores.totalExp.get() % PluginConfig.expPerTile;
+
+    return expSinceLastTile / PluginConfig.expPerTile;
+  },
+
+  // Exp to next tile progress bar foreground color
+  expToNextTileBarForeground: () : Colour => {
+    const expSinceLastTile : number = ParkDataStores.totalExp.get() % PluginConfig.expPerTile;
+    const percent : number = expSinceLastTile / PluginConfig.expPerTile;
+
+    if (percent > 0.80) {
+      return Colour.BrightPurple;
+    } else if (percent > 0.60) {
+      return Colour.LightBlue;
+    } else if (percent > 0.40) {
+      return Colour.BrightGreen;
+    } else if (percent > 0.20) {
+      return Colour.BrightYellow;
+    } else {
+      return Colour.BrightRed;
+    }
   },
 
   // Unlocked tiles label text
@@ -70,25 +102,6 @@ export enum Sprites {
  * Toolbar Window
  * **********
  */
-
-/**
- * Text colors
- *   black
- *   grey
- *   white
- *   red
- *   green
- *   yellow
- *   topaz
- *   celadon
- *   babyblue
- *   palelavender
- *   palegold
- *   lightpink
- *   pearlaqua
- *   palesilver
- */
-
 
 /**
  * Box to display statistics in toolbar window
@@ -121,6 +134,14 @@ const expToNextTileLabel = horizontal({
   ]
 });
 
+const expToNextTileProgressBar = progressbar({
+  width: '1w',
+  height: 10,
+  background: Colour.Grey,
+  foreground: UIDataStores.expToNextTileBarForeground,
+  percentFilled: UIDataStores.expToNextTilePercent
+});
+
 const unlockedTilesLabel = horizontal({
   spacing: 0,
   content: [
@@ -140,8 +161,9 @@ const statsPanel = box({
     spacing: 0,
     content: [
       availableTilesLabel,
+      unlockedTilesLabel,
       expToNextTileLabel,
-      unlockedTilesLabel
+      expToNextTileProgressBar
     ]
   })
 });
@@ -149,9 +171,9 @@ const statsPanel = box({
 /**
  * Buttons for buttonPanel
  */
-const buyButtonPressed : Store<boolean> = store<boolean>(false);
-const rightsButtonPressed : Store<boolean> = store<boolean>(false);
-const sellButtonPressed : Store<boolean> = store<boolean>(false);
+const buyButtonPressed : WritableStore<boolean> = store<boolean>(false);
+const rightsButtonPressed : WritableStore<boolean> = store<boolean>(false);
+const sellButtonPressed : WritableStore<boolean> = store<boolean>(false);
 
 const buyButton = button({
   image: Sprites.SPR_BUY_LAND_RIGHTS,
@@ -221,7 +243,7 @@ const buttonPanel = vertical({
 const toolbarWindow : WindowTemplate = window({
   title: PluginConfig.toolbarWindowTitle,
 	width: 150,
-	height: 97,
+	height: 'auto',
   padding: 1,
   content: [
     vertical({
@@ -392,10 +414,16 @@ export function updateLabels() : void {
   // Available tiles label text
   UIDataStores.availableTilesText.set(UIDataGenerators.availableTilesText());
 
-  // Available tiles label text
+  // Exp to next tile label text
   UIDataStores.expToNextTileText.set(UIDataGenerators.expToNextTileText());
 
-  // Available tiles label text
+  // Exp to next tile progress bar percent
+  UIDataStores.expToNextTilePercent.set(UIDataGenerators.expToNextTilePercent());
+
+  // Exp to next tile progress bar foreground color
+  UIDataStores.expToNextTileBarForeground.set(UIDataGenerators.expToNextTileBarForeground());
+
+  // Unlocked tiles label text
   UIDataStores.unlockedTilesText.set(UIDataGenerators.unlockedTilesText());
 }
 

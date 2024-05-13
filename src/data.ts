@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { Store, store } from 'openrct2-flexui';
+import { WritableStore, store } from 'openrct2-flexui';
 
 
 
@@ -46,7 +46,7 @@ const PluginConfig = {
 
   // User definable
   ticksPerUpdate: 40, // Ticks per update of data
-  expPerTile: 10, // Exp cost per tile
+  expPerTile: 50, // Exp cost per tile
   minTiles: 2, // 1 path + 1 stall minimum
 
   expPerParkAdmission: 1,
@@ -115,10 +115,10 @@ export interface ParkDataContainer {
 };
 
 /**
- * Stores Store<T>
+ * Stores WritableStore<T>
  */
 export interface StoreContainer {
-  [key : string] : Store<any>
+  [key : string] : WritableStore<any>
 };
 
 /**

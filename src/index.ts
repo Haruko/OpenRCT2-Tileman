@@ -1,12 +1,13 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { collectMetrics, computeTotalExp, getPluginConfig, storeParkData, recordDemolishedRide, initPluginConfig, initParkData, getParkDataStores, ParkDataContainer, StoreContainer } from './data';
+import { collectMetrics, computeTotalExp, getPluginConfig, storeParkData, recordDemolishedRide, initPluginConfig, initParkData, getParkDataStores, StoreContainer } from './data';
 import { openWindow, updateLabels } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
 /**
  * TODO: Toolbar Window - Add button for construction rights visibility toggle
  * TODO: Toolbar Window - Add button for config window
+ * TODO: Toolbar Window - Add button for detailed stats window
  * TODO: Persistent Storage - context.sharedStorage for pluginconfig
  * TODO: Config Window - Display spinners for each exp type
  * TODO: Config Window - Display totals for each exp type
