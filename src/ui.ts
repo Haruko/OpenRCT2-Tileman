@@ -81,6 +81,13 @@ const UIDataGenerators : GeneratorContainer = {
   },
 };
 
+const UIButtonStateStores : StoreContainer = {
+  buyButtonState: store<boolean>(false),
+  rightsButtonState: store<boolean>(false),
+  sellButtonState: store<boolean>(false),
+  viewRightsButtonState: store<boolean>(false),
+}
+
 
 /**
  * **********
@@ -183,18 +190,13 @@ const statsPanel = box({
 /**
  * Buttons for buttonPanel
  */
-const buyButtonPressed : WritableStore<boolean> = store<boolean>(false);
-const rightsButtonPressed : WritableStore<boolean> = store<boolean>(false);
-const sellButtonPressed : WritableStore<boolean> = store<boolean>(false);
-const viewRightsButtonPressed : WritableStore<boolean> = store<boolean>(false);
-
 const buyButton = toggle({
   image: Sprites.SPR_BUY_LAND_RIGHTS,
   tooltip: 'Buy land rights',
   width: 24,
   height: 24,
   onChange: () => onButtonClick(ButtonID.BUY_TOOL),
-  isPressed: { twoway: buyButtonPressed }
+  isPressed: { twoway: UIButtonStateStores.buyButtonState }
 });
 
 const rightsbutton = toggle({
@@ -203,7 +205,7 @@ const rightsbutton = toggle({
   width: 24,
   height: 24,
   onChange: () => onButtonClick(ButtonID.RIGHTS_TOOL),
-  isPressed: { twoway: rightsButtonPressed }
+  isPressed: { twoway: UIButtonStateStores.rightsButtonState }
 });
 
 const sellButton = toggle({
@@ -212,7 +214,7 @@ const sellButton = toggle({
   width: 24,
   height: 24,
   onChange: () => onButtonClick(ButtonID.SELL_TOOL),
-  isPressed: { twoway: sellButtonPressed }
+  isPressed: { twoway: UIButtonStateStores.sellButtonState }
 });
 
 const viewRightsButton = toggle({
@@ -221,7 +223,7 @@ const viewRightsButton = toggle({
   width: 24,
   height: 24,
   onChange: () => onButtonClick(ButtonID.VIEW_RIGHTS_BUTTON),
-  isPressed: { twoway: viewRightsButtonPressed }
+  isPressed: { twoway: UIButtonStateStores.viewRightsButtonState }
 });
 
 const toolSizeSpinner = spinner({
@@ -368,57 +370,57 @@ export function setButtonPressed(id : ButtonID | ToolID, pressed? : boolean) : v
     case ButtonID.BUY_TOOL:
       if (pressed === false) {
         // If false, just depress the button
-        buyButtonPressed.set(false);
+        UIButtonStateStores.buyButtonState.set(false);
       } else {
         if (typeof pressed === 'undefined') {
           // If undefined, toggle it
-          pressed = !buyButtonPressed.get();
+          pressed = !UIButtonStateStores.buyButtonState.get();
         }
 
-        buyButtonPressed.set(pressed);
-        rightsButtonPressed.set(false);
-        sellButtonPressed.set(false);
+        UIButtonStateStores.buyButtonState.set(pressed);
+        UIButtonStateStores.rightsButtonState.set(false);
+        UIButtonStateStores.sellButtonState.set(false);
       }
 
       break;
     case ButtonID.RIGHTS_TOOL:
       if (pressed === false) {
         // If false, just depress the button
-        rightsButtonPressed.set(false);
+        UIButtonStateStores.rightsButtonState.set(false);
       } else {
         if (typeof pressed === 'undefined') {
           // If undefined, toggle it
-          pressed = !rightsButtonPressed.get();
+          pressed = !UIButtonStateStores.rightsButtonState.get();
         }
 
-        buyButtonPressed.set(false);
-        rightsButtonPressed.set(pressed);
-        sellButtonPressed.set(false);
+        UIButtonStateStores.buyButtonState.set(false);
+        UIButtonStateStores.rightsButtonState.set(pressed);
+        UIButtonStateStores.sellButtonState.set(false);
       }
 
       break;
     case ButtonID.SELL_TOOL:
       if (pressed === false) {
         // If false, just depress the button
-        sellButtonPressed.set(false);
+        UIButtonStateStores.sellButtonState.set(false);
       } else {
         if (typeof pressed === 'undefined') {
           // If undefined, toggle it
-          pressed = !sellButtonPressed.get();
+          pressed = !UIButtonStateStores.sellButtonState.get();
         }
 
-        buyButtonPressed.set(false);
-        rightsButtonPressed.set(false);
-        sellButtonPressed.set(pressed);
+        UIButtonStateStores.buyButtonState.set(false);
+        UIButtonStateStores.rightsButtonState.set(false);
+        UIButtonStateStores.sellButtonState.set(pressed);
       }
 
       break;
     case ButtonID.VIEW_RIGHTS_BUTTON:
       if (typeof pressed === 'undefined') {
-        pressed = !viewRightsButtonPressed.get();
+        pressed = !UIButtonStateStores.viewRightsButtonState.get();
       }
 
-      viewRightsButtonPressed.set(pressed);
+      UIButtonStateStores.viewRightsButtonState.set(pressed);
       setRightsVisibility(pressed);
     break;
   }
@@ -432,13 +434,13 @@ export function setButtonPressed(id : ButtonID | ToolID, pressed? : boolean) : v
 export function getButtonPressed(buttonId : ButtonID) : boolean {
   switch (buttonId) {
     case ButtonID.BUY_TOOL:
-      return buyButtonPressed.get();
+      return UIButtonStateStores.buyButtonState.get();
     case ButtonID.RIGHTS_TOOL:
-      return rightsButtonPressed.get();
+      return UIButtonStateStores.rightsButtonState.get();
     case ButtonID.SELL_TOOL:
-      return sellButtonPressed.get();
+      return UIButtonStateStores.sellButtonState.get();
     case ButtonID.VIEW_RIGHTS_BUTTON:
-      return viewRightsButtonPressed.get();
+      return UIButtonStateStores.viewRightsButtonState.get();
   }
 }
 
