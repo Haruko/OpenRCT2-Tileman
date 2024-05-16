@@ -2,7 +2,7 @@
 
 import { getPluginConfig } from './data';
 import { LandOwnership, setTiles } from './land';
-import { setToolButtonPressed } from './ui';
+import { ButtonID, setButtonPressed } from './ui';
 
 import { CoordsXY } from './types/CoordsXY';
 import { MapRange } from './types/MapRange';
@@ -35,9 +35,9 @@ let toolLastUsedCoords : CoordsXY = CoordsXY(0, 0);
  */
 
 export enum ToolID {
-  BUY_TOOL = 'TilemanBuyTool',
-  RIGHTS_TOOL = 'TilemanBuildRightsTool',
-  SELL_TOOL = 'TilemanSellTool',
+  BUY_TOOL = PluginConfig.buyToolId,
+  RIGHTS_TOOL = PluginConfig.rightsToolId,
+  SELL_TOOL = PluginConfig.sellToolId,
 };
 
 
@@ -106,18 +106,23 @@ export function getToolArea(center : CoordsXY) : MapRange {
  * Called when user starts using a tool
  */
 export function onToolStart(toolId : ToolID) : void {
-  setToolButtonPressed(toolId, true);
+  setButtonPressed(toolId, true);
+
+  // Show construction rights if we're buying them or selling
+  if (toolId === ToolID.RIGHTS_TOOL || toolId === ToolID.SELL_TOOL) {
+    setButtonPressed(ButtonID.VIEW_RIGHTS_BUTTON, true);
+  }
 }
 
 /**
  * Called when the user holds left mouse button while using a tool
  * @param e event args
  */
-export function onToolDown(e : ToolEventArgs) : void {
+export function onToolDown(toolId : ToolID, e : ToolEventArgs) : void {
   if (e.mapCoords && e.mapCoords.x > 0) {
     const toolArea = getToolArea(e.mapCoords);
     ui.tileSelection.range = toolArea;
-    applyToolToArea(toolArea);
+    applyToolToArea(toolId, toolArea);
 
     toolLastUsedCoords = e.mapCoords;
   } else {
@@ -129,13 +134,13 @@ export function onToolDown(e : ToolEventArgs) : void {
  * Called when the user moves the mouse while using a tool
  * @param e event args
  */
-export function onToolMove(e : ToolEventArgs) : void {
+export function onToolMove(toolId : ToolID, e : ToolEventArgs) : void {
   if (e.mapCoords && e.mapCoords.x > 0) {
     const toolArea = getToolArea(e.mapCoords);
     ui.tileSelection.range = toolArea;
 
     if (e.isDown && (e.mapCoords.x !== toolLastUsedCoords.x || e.mapCoords.y !== toolLastUsedCoords.y)) {
-      applyToolToArea(toolArea);
+      applyToolToArea(toolId, toolArea);
       toolLastUsedCoords = e.mapCoords;
     }
   } else {
@@ -148,7 +153,7 @@ export function onToolMove(e : ToolEventArgs) : void {
  * Called when the user stops holding left mouse button while using a tool
  * @param e event args
  */
-export function onToolUp(e : ToolEventArgs) : void {
+export function onToolUp(toolId : ToolID, e : ToolEventArgs) : void {
   ui.tileSelection.range = null;
 }
 
@@ -156,8 +161,13 @@ export function onToolUp(e : ToolEventArgs) : void {
  * Called when the user stops using a tool
  */
 export function onToolFinish(toolId : ToolID) : void {
-  setToolButtonPressed(toolId, false);
+  setButtonPressed(toolId, false);
   ui.tileSelection.range = null;
+
+  // Show construction rights if we're buying them or selling
+  if (toolId === ToolID.RIGHTS_TOOL || toolId === ToolID.SELL_TOOL) {
+    setButtonPressed(ButtonID.VIEW_RIGHTS_BUTTON, false);
+  }
 }
 
 
@@ -179,8 +189,8 @@ export function cancelTool() : void {
  * Applies the current tool to an area
  * @param area Area to apply the tool to
  */
-export function applyToolToArea(area : MapRange) : void {
-  switch(ui.tool?.id) {
+export function applyToolToArea(toolId : ToolID, area : MapRange) : void {
+  switch(toolId) {
     case ToolID.BUY_TOOL:
       setTiles(area, LandOwnership.OWNED);
       break;

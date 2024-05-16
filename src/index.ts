@@ -5,18 +5,21 @@ import { openWindow, updateUIData } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
 /**
- * TODO: Toolbar Window - Add label over progress bar
- * TODO: Toolbar Window - Add button for construction rights visibility toggle
- * TODO: Toolbar Window - Add buttons for detailed stats window and config window at the bottom
- * TODO: Persistent Storage - context.sharedStorage for pluginconfig
+ * TODO: BUG - '[Tileman] TypeError: cannot write property 0 of undefined' when starting scenario with rides in it
+ * 
  * TODO: Config Window - Display spinners for each exp type
  * TODO: Config Window - Display totals for each exp type
  * TODO: Config Window - Add button to delete all rides
+ * TODO: Config Window - Add button to delete all guests
  * TODO: Detailed Stats Window - Create window with various stats including historical data about rides done in a list view
+ * TODO: Persistent Storage - context.sharedStorage for pluginconfig
+ * TODO: Toolbar Window - Add buttons for detailed stats window and config window at the bottom
+ * TODO: Toolbar Window - Make rights visibility button return to previous toggle status after using tool instead of always clearing
  * 
  * TODO MAYBE: Data - Initialize data for constructed rides?
  * TODO MAYBE: Options - Difficulty multiplier for ParkFlags?
  * TODO MAYBE: Options - Bonus exp/tiles for completing objective?
+ * TODO MAYBE: Toolbar Window - Add label over progress bar
  * TODO MAYBE: Toolbar Window - Update the tool UI to be like the land editing tool
  *   Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
  */
@@ -65,7 +68,7 @@ function subscribeEvents() : void {
 
   // Every time a ride is deleted, remove it from the current rides and add it to the list of deleted rides
   // I'd rather this trigger on action.query, but that is unreliable since cost is always 0
-  context.subscribe('action.execute', (e: GameActionEventArgs) : void => {
+  context.subscribe('action.execute', (e : GameActionEventArgs) : void => {
     // This action is raised if we cancel building something, but in that ase the cost is 0
     if (e.action === 'ridedemolish' && e.result.cost !== 0) {
       const rideId : number = (e.args as { ride : number }).ride;

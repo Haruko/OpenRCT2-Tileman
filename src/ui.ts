@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { Colour, FlexiblePosition, ViewportFlags, WidgetCreator, WindowTemplate, WritableStore, box, button, horizontal, label, spinner, store, vertical, widget, window } from 'openrct2-flexui';
+import { toggle, Colour, ViewportFlags, WindowTemplate, WritableStore, box, button, horizontal, label, spinner, store, vertical, window } from 'openrct2-flexui';
 
 import { computeTilesAvailable, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores } from './data';
 import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, onToolMove, onToolUp, onToolFinish } from './tool';
@@ -92,7 +92,15 @@ const UIDataGenerators : GeneratorContainer = {
 export enum Sprites {
   SPR_BUY_LAND_RIGHTS = 5176,
   SPR_BUY_CONSTRUCTION_RIGHTS = 5177,
-  SPR_FINANCE = 5190
+  SPR_FINANCE = 5190,
+  SPR_G2_SEARCH = 29401,
+};
+
+export enum ButtonID {
+  BUY_TOOL = PluginConfig.buyToolId,
+  RIGHTS_TOOL = PluginConfig.rightsToolId,
+  SELL_TOOL = PluginConfig.sellToolId,
+  VIEW_RIGHTS_BUTTON = PluginConfig.viewRightsButtonId,
 };
 
 
@@ -178,13 +186,14 @@ const statsPanel = box({
 const buyButtonPressed : WritableStore<boolean> = store<boolean>(false);
 const rightsButtonPressed : WritableStore<boolean> = store<boolean>(false);
 const sellButtonPressed : WritableStore<boolean> = store<boolean>(false);
+const viewRightsButtonPressed : WritableStore<boolean> = store<boolean>(false);
 
 const buyButton = button({
   image: Sprites.SPR_BUY_LAND_RIGHTS,
   tooltip: 'Buy land rights',
   width: 24,
   height: 24,
-  onClick: () => onToolButtonClick(ToolID.BUY_TOOL),
+  onClick: () => onButtonClick(ButtonID.BUY_TOOL),
   isPressed: buyButtonPressed
 });
 
@@ -193,7 +202,7 @@ const rightsbutton = button({
   tooltip: 'Buy construction rights',
   width: 24,
   height: 24,
-  onClick: () => onToolButtonClick(ToolID.RIGHTS_TOOL),
+  onClick: () => onButtonClick(ButtonID.RIGHTS_TOOL),
   isPressed: rightsButtonPressed
 });
 
@@ -202,8 +211,17 @@ const sellButton = button({
   tooltip: 'Sell land and construction rights',
   width: 24,
   height: 24,
-  onClick: () => onToolButtonClick(ToolID.SELL_TOOL),
+  onClick: () => onButtonClick(ButtonID.SELL_TOOL),
   isPressed: sellButtonPressed
+});
+
+const viewRightsButton = toggle({
+  image: Sprites.SPR_G2_SEARCH,
+  tooltip: 'Show owned construction rights',
+  width: 24,
+  height: 24,
+  onChange: () => onButtonClick(ButtonID.VIEW_RIGHTS_BUTTON),
+  isPressed: { twoway: viewRightsButtonPressed }
 });
 
 const toolSizeSpinner = spinner({
@@ -235,6 +253,7 @@ const buttonPanel = vertical({
         buyButton,
         rightsbutton,
         sellButton,
+        viewRightsButton,
         toolSizeSpinner
       ]
     })
@@ -246,7 +265,7 @@ const buttonPanel = vertical({
  */
 const toolbarWindow : WindowTemplate = window({
   title: PluginConfig.toolbarWindowTitle,
-	width: 150,
+	width: 175,
 	height: 'auto',
   padding: 1,
   content: [
@@ -267,7 +286,7 @@ const toolbarWindow : WindowTemplate = window({
  * Handles toolbar window's onOpen event
  */
 export function onToolbarWindowOpen() : void {
-  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags | ViewportFlags.ConstructionRights;
+
 }
 
 /**
@@ -290,9 +309,6 @@ export function onToolbarWindowClose() : void {
     y = oldWindow.y;
   }
 
-  cancelTool();
-  ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags & ~ViewportFlags.ConstructionRights;
-
   context.setTimeout(() : void => {
     openWindow(PluginConfig.toolbarWindowTitle);
     const foundWindow : Window | undefined = findWindow(PluginConfig.toolbarWindowTitle);
@@ -304,38 +320,54 @@ export function onToolbarWindowClose() : void {
 }
 
 /**
- * Handles clicks on tool buttons
- * @param toolId Tool ID for the button
+ * Handles clicks on buttons
+ * @param buttonId ButtonID that was clicked
  */
-export function onToolButtonClick(toolId : ToolID) : void {
-  // If the button is current depressed, it will be pressed, so start the tool
-  // Button pressing and depressing will be handled in onToolStart and onToolFinish
-  if(!getToolButtonPressed(toolId)) {
-    ui.activateTool({
-      id: toolId,
-      cursor: 'dig_down',
-      filter: ['terrain', 'water'],
-  
-      onStart: () => onToolStart(toolId),
-      onDown: (e: ToolEventArgs) => onToolDown(e),
-      onMove: (e: ToolEventArgs) => onToolMove(e),
-      onUp: (e: ToolEventArgs) => onToolUp(e),
-      onFinish: () => onToolFinish(toolId)
-    });
+export function onButtonClick(buttonId : ButtonID) : void {
+  const pressed = getButtonPressed(buttonId);
+
+  // Check if it is a tool button
+  if (buttonId in ToolID) {
+    const toolId = buttonId as unknown as ToolID;
+    
+    if (pressed) {
+      cancelTool();
+    } else {
+      // If the button is current depressed, it will be pressed, so start the tool
+      // Button pressing and depressing will be handled in onToolStart and onToolFinish
+      ui.activateTool({
+        id: ToolID[toolId],
+        cursor: 'dig_down',
+        filter: ['terrain', 'water'],
+    
+        onStart: () => onToolStart(toolId),
+        onDown: (e: ToolEventArgs) => onToolDown(toolId, e),
+        onMove: (e: ToolEventArgs) => onToolMove(toolId, e),
+        onUp: (e: ToolEventArgs) => onToolUp(toolId, e),
+        onFinish: () => onToolFinish(toolId)
+      });
+    }
   } else {
-    cancelTool();
+    switch (buttonId) {
+      case ButtonID.VIEW_RIGHTS_BUTTON:
+        setRightsVisibility(pressed);
+        break;
+    }
   }
 }
 
 /**
- * Pressed the specified button and depresses others
- * @param toolId ToolID whose button to press
+ * Presses the specified button and depresses others.
+ * @param id ButtonID to click or ToolID whose button should be clicked
  * @param pressed If defined, whether the button should be pressed or not. If undefined, use as a toggle
- * @returns final state of the specified button
  */
-export function setToolButtonPressed(toolId : ToolID, pressed? : boolean) : boolean {
-  switch(toolId) {
-    case ToolID.BUY_TOOL:
+export function setButtonPressed(id : ButtonID | ToolID, pressed? : boolean) : void {
+  if (id in ToolID) {
+    id = id as unknown as ButtonID;
+  }
+
+  switch (id) {
+    case ButtonID.BUY_TOOL:
       if (pressed === false) {
         // If false, just depress the button
         buyButtonPressed.set(false);
@@ -351,7 +383,7 @@ export function setToolButtonPressed(toolId : ToolID, pressed? : boolean) : bool
       }
 
       break;
-    case ToolID.RIGHTS_TOOL:
+    case ButtonID.RIGHTS_TOOL:
       if (pressed === false) {
         // If false, just depress the button
         rightsButtonPressed.set(false);
@@ -365,9 +397,9 @@ export function setToolButtonPressed(toolId : ToolID, pressed? : boolean) : bool
         rightsButtonPressed.set(pressed);
         sellButtonPressed.set(false);
       }
-      
+
       break;
-    case ToolID.SELL_TOOL:
+    case ButtonID.SELL_TOOL:
       if (pressed === false) {
         // If false, just depress the button
         sellButtonPressed.set(false);
@@ -383,24 +415,46 @@ export function setToolButtonPressed(toolId : ToolID, pressed? : boolean) : bool
       }
 
       break;
-  }
+    case ButtonID.VIEW_RIGHTS_BUTTON:
+      if (typeof pressed === 'undefined') {
+        pressed = !viewRightsButtonPressed.get();
+      }
 
-  return pressed;
+      viewRightsButtonPressed.set(pressed);
+      setRightsVisibility(pressed);
+    break;
+  }
 }
 
 /**
- * Returns whether the specified tool's button is pressed or not
- * @param toolId ToolID whose button to press
- * @returns true if the tool's button is pressed
+ * Returns whether the button is pressed or not
+ * @param buttonId ButtonID to check
+ * @returns true if the button is pressed
  */
-export function getToolButtonPressed(toolId : ToolID) : boolean {
-  switch(toolId) {
-    case ToolID.BUY_TOOL:
+export function getButtonPressed(buttonId : ButtonID) : boolean {
+  switch (buttonId) {
+    case ButtonID.BUY_TOOL:
       return buyButtonPressed.get();
-    case ToolID.RIGHTS_TOOL:
+    case ButtonID.RIGHTS_TOOL:
       return rightsButtonPressed.get();
-    case ToolID.SELL_TOOL:
+    case ButtonID.SELL_TOOL:
       return sellButtonPressed.get();
+    case ButtonID.VIEW_RIGHTS_BUTTON:
+      return viewRightsButtonPressed.get();
+  }
+}
+
+/**
+ * Toggles the visibility of owned construction rights
+ * @param visible true if we are setting the rights visible
+ */
+export function setRightsVisibility(visible : boolean) : void {
+  if (typeof visible === 'undefined') {
+    ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags ^ ViewportFlags.ConstructionRights;
+  } else if (visible) {
+    ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags | ViewportFlags.ConstructionRights;
+  } else {
+    ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags & ~ViewportFlags.ConstructionRights;
   }
 }
 

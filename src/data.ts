@@ -41,8 +41,17 @@ const PluginConfig = {
   toolbarWindowTitle: 'Tileman',
   configWindowTitle: 'Tileman Config',
 
+  // Tool IDs
+  buyToolId: 'TilemanBuyTool',
+  rightsToolId: 'TilemanBuildRightsTool',
+  sellToolId: 'TilemanSellTool',
+
+  // Tool Data
   minToolSize: 1,
   maxToolSize: 15,
+
+  // Other button IDs
+  viewRightsButtonId: 'TilemanViewRights',
 
   // User definable
   ticksPerUpdate: 40, // Ticks per update of data
