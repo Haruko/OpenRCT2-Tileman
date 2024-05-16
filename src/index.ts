@@ -35,7 +35,7 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 const ParkDataStores : StoreContainer = getParkDataStores();
 const PluginConfig = getPluginConfig();
 
-let ticksSinceLastUpdate : number = 0;
+let ticksToNextUpdate : number = 0;
 
 
 
@@ -55,9 +55,9 @@ function subscribeEvents() : void {
 
   // Days are about 13.2 seconds at 1x speed
   context.subscribe('interval.tick', () : void => {
-    ticksSinceLastUpdate = (ticksSinceLastUpdate + 1) % PluginConfig.ticksPerUpdate;
+    ticksToNextUpdate = (ticksToNextUpdate + 1) % PluginConfig.ticksPerUpdate;
 
-    if (ticksSinceLastUpdate === 0) {
+    if (ticksToNextUpdate === 0) {
       collectMetrics();
       const totalExp : number = computeTotalExp();
       ParkDataStores.totalExp.set(totalExp);
