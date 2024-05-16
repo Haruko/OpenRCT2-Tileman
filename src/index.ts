@@ -5,8 +5,6 @@ import { openWindow, updateUIData } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
 /**
- * TODO: BUG - '[Tileman] TypeError: cannot write property 0 of undefined' when starting scenario with rides in it
- * 
  * TODO: Config Window - Display spinners for each exp type
  * TODO: Config Window - Display totals for each exp type
  * TODO: Config Window - Add button to delete all rides
