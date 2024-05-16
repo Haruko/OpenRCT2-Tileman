@@ -106,12 +106,7 @@ export function getToolArea(center : CoordsXY) : MapRange {
  * Called when user starts using a tool
  */
 export function onToolStart(toolId : ToolID) : void {
-  setButtonPressed(toolId, true);
-
-  // Show construction rights if we're buying them or selling
-  if (toolId === ToolID.RIGHTS_TOOL || toolId === ToolID.SELL_TOOL) {
-    setButtonPressed(ButtonID.VIEW_RIGHTS_BUTTON, true);
-  }
+  setButtonPressed(ButtonID.VIEW_RIGHTS_BUTTON, true);
 }
 
 /**
@@ -162,12 +157,8 @@ export function onToolUp(toolId : ToolID, e : ToolEventArgs) : void {
  */
 export function onToolFinish(toolId : ToolID) : void {
   setButtonPressed(toolId, false);
+  setButtonPressed(ButtonID.VIEW_RIGHTS_BUTTON, false);
   ui.tileSelection.range = null;
-
-  // Show construction rights if we're buying them or selling
-  if (toolId === ToolID.RIGHTS_TOOL || toolId === ToolID.SELL_TOOL) {
-    setButtonPressed(ButtonID.VIEW_RIGHTS_BUTTON, false);
-  }
 }
 
 

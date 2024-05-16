@@ -188,31 +188,31 @@ const rightsButtonPressed : WritableStore<boolean> = store<boolean>(false);
 const sellButtonPressed : WritableStore<boolean> = store<boolean>(false);
 const viewRightsButtonPressed : WritableStore<boolean> = store<boolean>(false);
 
-const buyButton = button({
+const buyButton = toggle({
   image: Sprites.SPR_BUY_LAND_RIGHTS,
   tooltip: 'Buy land rights',
   width: 24,
   height: 24,
-  onClick: () => onButtonClick(ButtonID.BUY_TOOL),
-  isPressed: buyButtonPressed
+  onChange: () => onButtonClick(ButtonID.BUY_TOOL),
+  isPressed: { twoway: buyButtonPressed }
 });
 
-const rightsbutton = button({
+const rightsbutton = toggle({
   image: Sprites.SPR_BUY_CONSTRUCTION_RIGHTS,
   tooltip: 'Buy construction rights',
   width: 24,
   height: 24,
-  onClick: () => onButtonClick(ButtonID.RIGHTS_TOOL),
-  isPressed: rightsButtonPressed
+  onChange: () => onButtonClick(ButtonID.RIGHTS_TOOL),
+  isPressed: { twoway: rightsButtonPressed }
 });
 
-const sellButton = button({
+const sellButton = toggle({
   image: Sprites.SPR_FINANCE,
   tooltip: 'Sell land and construction rights',
   width: 24,
   height: 24,
-  onClick: () => onButtonClick(ButtonID.SELL_TOOL),
-  isPressed: sellButtonPressed
+  onChange: () => onButtonClick(ButtonID.SELL_TOOL),
+  isPressed: { twoway: sellButtonPressed }
 });
 
 const viewRightsButton = toggle({
@@ -331,10 +331,6 @@ export function onButtonClick(buttonId : ButtonID) : void {
     const toolId = buttonId as unknown as ToolID;
     
     if (pressed) {
-      cancelTool();
-    } else {
-      // If the button is current depressed, it will be pressed, so start the tool
-      // Button pressing and depressing will be handled in onToolStart and onToolFinish
       ui.activateTool({
         id: ToolID[toolId],
         cursor: 'dig_down',
@@ -346,6 +342,8 @@ export function onButtonClick(buttonId : ButtonID) : void {
         onUp: (e: ToolEventArgs) => onToolUp(toolId, e),
         onFinish: () => onToolFinish(toolId)
       });
+    } else {
+      cancelTool();
     }
   } else {
     switch (buttonId) {
