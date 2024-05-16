@@ -169,6 +169,14 @@ export function initParkData() : boolean {
   const savedParkData : ParkDataContainer = context.getParkStorage(PluginConfig.pluginName).getAll() as ParkDataContainer;
 
   if (Object.keys(savedParkData).length === 0) {
+    // Initialize keys
+    savedParkData.parkAdmissions = 0;
+    savedParkData.rideMap = { } as RideMap;
+    savedParkData.demolishedRides = [] as RideDataContainer[];
+
+    savedParkData.totalExp = 0;
+    savedParkData.tilesUsed = 0;
+
     return true;
   } else {
     // Load saved data
@@ -191,14 +199,14 @@ export function storeParkData() : void {
   // Get park data structure to save new data
   const savedParkData : ParkDataContainer = context.getParkStorage(PluginConfig.pluginName).getAll() as ParkDataContainer;
 
-    // Load saved data
-    savedParkData.parkAdmissions = ParkData.parkAdmissions;
-    savedParkData.rideMap = ParkData.rideMap;
-    savedParkData.demolishedRides = ParkData.demolishedRides;
+  // Load saved data
+  savedParkData.parkAdmissions = ParkData.parkAdmissions;
+  savedParkData.rideMap = ParkData.rideMap;
+  savedParkData.demolishedRides = ParkData.demolishedRides;
 
-    // Initialize stores
-    savedParkData.totalExp = ParkDataStores.totalExp.get();
-    savedParkData.tilesUsed = ParkDataStores.tilesUsed.get();
+  // Initialize stores
+  savedParkData.totalExp = ParkDataStores.totalExp.get();
+  savedParkData.tilesUsed = ParkDataStores.tilesUsed.get();
 }
 
 /**
