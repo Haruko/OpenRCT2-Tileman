@@ -1,10 +1,55 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { toggle, Colour, ViewportFlags, WindowTemplate, WritableStore, box, button, horizontal, label, spinner, store, vertical, window } from 'openrct2-flexui';
+import { toggle, Colour, ViewportFlags, WindowTemplate, WritableStore, box, button, horizontal, label, spinner, store, vertical, window, WidgetCreator, FlexiblePosition, Parsed } from 'openrct2-flexui';
 
 import { computeTilesAvailable, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores } from './data';
 import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, onToolMove, onToolUp, onToolFinish } from './tool';
 import { progressbar } from './flexui-extenson';
+
+const ParkDataStores : StoreContainer = getParkDataStores();
+const PluginConfig = getPluginConfig();
+
+
+
+
+
+/**
+ * **********
+ * Type / Interface / Enum definitions
+ * **********
+ */
+
+// From openrct2/sprites.h
+export enum Sprites {
+  SPR_RENAME = 5168,
+  SPR_BUY_LAND_RIGHTS = 5176,
+  SPR_BUY_CONSTRUCTION_RIGHTS = 5177,
+  // SPR_FLOPPY = 5183,
+  SPR_FINANCE = 5190,
+  SPR_G2_SEARCH = 29401,
+};
+
+/**
+ * A way to identify different buttons
+ */
+export enum ButtonID {
+  BUY_TOOL = PluginConfig.buyToolId,
+  RIGHTS_TOOL = PluginConfig.rightsToolId,
+  SELL_TOOL = PluginConfig.sellToolId,
+  VIEW_RIGHTS_BUTTON = PluginConfig.viewRightsButtonId,
+  OPEN_STATS_BUTTON = PluginConfig.openStatsButtonId,
+};
+
+/**
+ * A way to identify different windows
+ */
+export enum WindowID {
+  TOOLBAR_WINDOW = PluginConfig.toolbarWindowId,
+  CONFIG_WINDOW = PluginConfig.configWindowId,
+  STATS_WINDOW = PluginConfig.statsWindowId,
+};
+
+
 
 
 
@@ -13,9 +58,6 @@ import { progressbar } from './flexui-extenson';
  * Variables
  * **********
  */
-
-const ParkDataStores : StoreContainer = getParkDataStores();
-const PluginConfig = getPluginConfig();
 
 const UIDataStores : StoreContainer = {
   // Available tiles label text
@@ -88,43 +130,11 @@ const UIButtonStateStores : StoreContainer = {
   viewRightsButtonState: store<boolean>(false),
 }
 
+const toolbarWindow : WindowTemplate = buildToolbarWindow();
+const configWindow : WindowTemplate = buildConfigWindow();
+const statsWindow : WindowTemplate = buildStatsWindow();
 
 
-/**
- * **********
- * Type / Interface / Enum definitions
- * **********
- */
-
-// From openrct2/sprites.h
-export enum Sprites {
-  SPR_RENAME = 5168,
-  SPR_BUY_LAND_RIGHTS = 5176,
-  SPR_BUY_CONSTRUCTION_RIGHTS = 5177,
-  // SPR_FLOPPY = 5183,
-  SPR_FINANCE = 5190,
-  SPR_G2_SEARCH = 29401,
-};
-
-/**
- * A way to identify different buttons
- */
-export enum ButtonID {
-  BUY_TOOL = PluginConfig.buyToolId,
-  RIGHTS_TOOL = PluginConfig.rightsToolId,
-  SELL_TOOL = PluginConfig.sellToolId,
-  VIEW_RIGHTS_BUTTON = PluginConfig.viewRightsButtonId,
-  OPEN_STATS_BUTTON = PluginConfig.openStatsButtonId,
-};
-
-/**
- * A way to identify different windows
- */
-export enum WindowID {
-  TOOLBAR_WINDOW = PluginConfig.toolbarWindowId,
-  CONFIG_WINDOW = PluginConfig.configWindowId,
-  STATS_WINDOW = PluginConfig.statsWindowId,
-};
 
 
 
@@ -135,179 +145,188 @@ export enum WindowID {
  */
 
 /**
- * Box to display statistics in toolbar window
+ * Builds the entire toolbar window
+ * @returns the built window
  */
-const availableTilesLabel = horizontal({
-  spacing: 0,
-  content: [
-    label({
-      text: '  {BLACK}Available Tiles: ',
-      width: 90
-    }),
-    label({
-      // UIDataGenerators.availableTilesText()
-      text: UIDataStores.availableTilesText
-    })
-  ]
-});
+function buildToolbarWindow() : WindowTemplate {
+  const statsPanel = buildToolbarStatsPanel();
+  const buttonPanel = buildToolbarButtonPanel();
 
-const expToNextTileLabel = horizontal({
-  spacing: 0,
-  content: [
-    label({
-      text: '{BLACK}XP To Next Tile:',
-      width: 90
-    }),
-    label({
-      // UIDataGenerators.expToNextTileText()
-      text: UIDataStores.expToNextTileText
-    })
-  ]
-});
+  return window({
+    title: PluginConfig.toolbarWindowTitle,
+    width: 200,
+    height: 'auto',
+    padding: 1,
+    content: [
+      vertical({
+        spacing: 2,
+        padding: 0,
+        content: [
+          buttonPanel,
+          statsPanel
+        ]
+    })],
+    onOpen: () => onWindowOpen(WindowID.TOOLBAR_WINDOW),
+    onUpdate: () => onWindowUpdate(WindowID.TOOLBAR_WINDOW),
+    onClose: () => onWindowClose(WindowID.TOOLBAR_WINDOW)
+  });
+}
 
-const expToNextTileProgressBar = progressbar({
-  width: '1w',
-  height: 10,
-  background: Colour.Grey,
+/**
+ * Builds panel to store buttons in toolbar window
+ */
+function buildToolbarButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<FlexiblePosition>> {
+  const buyButton = toggle({
+    image: Sprites.SPR_BUY_LAND_RIGHTS,
+    tooltip: 'Buy land rights',
+    width: 24,
+    height: 24,
+    onChange: () => onButtonClick(ButtonID.BUY_TOOL),
+    isPressed: { twoway: UIButtonStateStores.buyButtonState }
+  });
+  
+  const rightsbutton = toggle({
+    image: Sprites.SPR_BUY_CONSTRUCTION_RIGHTS,
+    tooltip: 'Buy construction rights',
+    width: 24,
+    height: 24,
+    onChange: () => onButtonClick(ButtonID.RIGHTS_TOOL),
+    isPressed: { twoway: UIButtonStateStores.rightsButtonState }
+  });
+  
+  const sellButton = toggle({
+    image: Sprites.SPR_FINANCE,
+    tooltip: 'Sell land and construction rights',
+    width: 24,
+    height: 24,
+    onChange: () => onButtonClick(ButtonID.SELL_TOOL),
+    isPressed: { twoway: UIButtonStateStores.sellButtonState }
+  });
+  
+  const viewRightsButton = toggle({
+    image: Sprites.SPR_G2_SEARCH,
+    tooltip: 'Show owned construction rights',
+    width: 24,
+    height: 24,
+    onChange: () => onButtonClick(ButtonID.VIEW_RIGHTS_BUTTON),
+    isPressed: { twoway: UIButtonStateStores.viewRightsButtonState }
+  });
+  
+  const openStatsButton = button({
+    image: Sprites.SPR_RENAME,
+    tooltip: 'Open detailed statistics window',
+    width: 24,
+    height: 24,
+    onClick: () => onButtonClick(ButtonID.OPEN_STATS_BUTTON)
+  });
+  
+  const toolSizeSpinner = spinner({
+    width: 62,
+    padding: 5,
+    value: getToolSize(),
+    minimum: PluginConfig.minToolSize,
+    maximum: PluginConfig.maxToolSize + 1,
+    step: 1,
+    wrapMode: 'clamp',
+    onChange: (value: number, adjustment: number) : void => {
+      setToolSize(value);
+    },
+    format: (value: number) : string => {
+      return `${value}x${value}`;
+    }
+  });
+  
+  return vertical({
+    spacing: 0,
+    padding: [0, 3],
+    content: [
+      horizontal({
+        spacing: 0,
+        content: [
+          buyButton,
+          rightsbutton,
+          sellButton,
+          viewRightsButton,
+          openStatsButton,
+          toolSizeSpinner
+        ]
+      })
+    ]
+  });
+}
 
-  // UIDataGenerators.expToNextTileBarForeground()
-  foreground: UIDataStores.expToNextTileBarForeground,
-
-  // UIDataGenerators.expToNextTilePercent()
-  percentFilled: UIDataStores.expToNextTilePercent
-});
-
-const unlockedTilesLabel = horizontal({
-  spacing: 0,
-  content: [
-    label({
-      text: '   {BLACK}Tiles Unlocked:',
-      width: 90
-    }),
-    label({
-      // UIDataGenerators.unlockedTilesText()
-      text: UIDataStores.unlockedTilesText
-    })
-  ]
-});
-
-const statsPanel = box({
-  content: vertical({
+/**
+ * Builds panel to display statistics in toolbar window
+ */
+function buildToolbarStatsPanel() : WidgetCreator<FlexiblePosition, Parsed<FlexiblePosition>> {
+  const availableTilesLabel = horizontal({
     spacing: 0,
     content: [
-      availableTilesLabel,
-      unlockedTilesLabel,
-      expToNextTileLabel,
-      expToNextTileProgressBar
+      label({
+        text: '  {BLACK}Available Tiles: ',
+        width: 90
+      }),
+      label({
+        // UIDataGenerators.availableTilesText()
+        text: UIDataStores.availableTilesText
+      })
     ]
-  })
-});
-
-/**
- * Buttons for buttonPanel
- */
-const buyButton = toggle({
-  image: Sprites.SPR_BUY_LAND_RIGHTS,
-  tooltip: 'Buy land rights',
-  width: 24,
-  height: 24,
-  onChange: () => onButtonClick(ButtonID.BUY_TOOL),
-  isPressed: { twoway: UIButtonStateStores.buyButtonState }
-});
-
-const rightsbutton = toggle({
-  image: Sprites.SPR_BUY_CONSTRUCTION_RIGHTS,
-  tooltip: 'Buy construction rights',
-  width: 24,
-  height: 24,
-  onChange: () => onButtonClick(ButtonID.RIGHTS_TOOL),
-  isPressed: { twoway: UIButtonStateStores.rightsButtonState }
-});
-
-const sellButton = toggle({
-  image: Sprites.SPR_FINANCE,
-  tooltip: 'Sell land and construction rights',
-  width: 24,
-  height: 24,
-  onChange: () => onButtonClick(ButtonID.SELL_TOOL),
-  isPressed: { twoway: UIButtonStateStores.sellButtonState }
-});
-
-const viewRightsButton = toggle({
-  image: Sprites.SPR_G2_SEARCH,
-  tooltip: 'Show owned construction rights',
-  width: 24,
-  height: 24,
-  onChange: () => onButtonClick(ButtonID.VIEW_RIGHTS_BUTTON),
-  isPressed: { twoway: UIButtonStateStores.viewRightsButtonState }
-});
-
-const openStatsButton = button({
-  image: Sprites.SPR_RENAME,
-  tooltip: 'Open detailed statistics window',
-  width: 24,
-  height: 24,
-  onClick: () => onButtonClick(ButtonID.OPEN_STATS_BUTTON)
-});
-
-const toolSizeSpinner = spinner({
-  width: 62,
-  padding: 5,
-  value: getToolSize(),
-  minimum: PluginConfig.minToolSize,
-  maximum: PluginConfig.maxToolSize + 1,
-  step: 1,
-  wrapMode: 'clamp',
-  onChange: (value: number, adjustment: number) : void => {
-    setToolSize(value);
-  },
-  format: (value: number) : string => {
-    return `${value}x${value}`;
-  }
-});
-
-/**
- * Box to display buttons in toolbar window
- */
-const buttonPanel = vertical({
-  spacing: 0,
-  padding: [0, 3],
-  content: [
-    horizontal({
+  });
+  
+  const expToNextTileLabel = horizontal({
+    spacing: 0,
+    content: [
+      label({
+        text: '{BLACK}XP To Next Tile:',
+        width: 90
+      }),
+      label({
+        // UIDataGenerators.expToNextTileText()
+        text: UIDataStores.expToNextTileText
+      })
+    ]
+  });
+  
+  const expToNextTileProgressBar = progressbar({
+    width: '1w',
+    height: 10,
+    background: Colour.Grey,
+  
+    // UIDataGenerators.expToNextTileBarForeground()
+    foreground: UIDataStores.expToNextTileBarForeground,
+  
+    // UIDataGenerators.expToNextTilePercent()
+    percentFilled: UIDataStores.expToNextTilePercent
+  });
+  
+  const unlockedTilesLabel = horizontal({
+    spacing: 0,
+    content: [
+      label({
+        text: '   {BLACK}Tiles Unlocked:',
+        width: 90
+      }),
+      label({
+        // UIDataGenerators.unlockedTilesText()
+        text: UIDataStores.unlockedTilesText
+      })
+    ]
+  });
+  
+  return box({
+    content: vertical({
       spacing: 0,
       content: [
-        buyButton,
-        rightsbutton,
-        sellButton,
-        viewRightsButton,
-        openStatsButton,
-        toolSizeSpinner
+        availableTilesLabel,
+        unlockedTilesLabel,
+        expToNextTileLabel,
+        expToNextTileProgressBar
       ]
     })
-  ]
-});
+  });
+}
 
-/**
- * Main window
- */
-const toolbarWindow : WindowTemplate = window({
-  title: PluginConfig.toolbarWindowTitle,
-	width: 200,
-	height: 'auto',
-  padding: 1,
-  content: [
-    vertical({
-      spacing: 2,
-      padding: 0,
-      content: [
-        buttonPanel,
-        statsPanel
-      ]
-  })],
-  onOpen: () => onWindowOpen(WindowID.TOOLBAR_WINDOW),
-  onUpdate: () => onWindowUpdate(WindowID.TOOLBAR_WINDOW),
-  onClose: () => onWindowClose(WindowID.TOOLBAR_WINDOW)
-});
+
 
 
 
@@ -318,27 +337,32 @@ const toolbarWindow : WindowTemplate = window({
  */
 
 /**
- * Main window
+ * Builds the entire config window
+ * @returns the built window
  */
-const configWindow : WindowTemplate = window({
-  title: PluginConfig.configWindowTitle,
-	width: 175,
-	height: 'auto',
-  padding: 1,
-  content: [
-    vertical({
-      spacing: 2,
-      padding: 0,
-      content: [
-        label({
-          text: 'Config'
-        })
-      ]
-  })],
-  onOpen: () => onWindowOpen(WindowID.CONFIG_WINDOW),
-  onUpdate: () => onWindowUpdate(WindowID.CONFIG_WINDOW),
-  onClose: () => onWindowClose(WindowID.CONFIG_WINDOW)
-});
+function buildConfigWindow() : WindowTemplate {
+  return window({
+    title: PluginConfig.configWindowTitle,
+    width: 175,
+    height: 'auto',
+    padding: 1,
+    content: [
+      vertical({
+        spacing: 2,
+        padding: 0,
+        content: [
+          label({
+            text: 'Config'
+          })
+        ]
+    })],
+    onOpen: () => onWindowOpen(WindowID.CONFIG_WINDOW),
+    onUpdate: () => onWindowUpdate(WindowID.CONFIG_WINDOW),
+    onClose: () => onWindowClose(WindowID.CONFIG_WINDOW)
+  });
+}
+
+
 
 
 
@@ -349,27 +373,30 @@ const configWindow : WindowTemplate = window({
  */
 
 /**
- * Main window
+ * Builds the entire detailed statistics window
+ * @returns the built window
  */
-const statsWindow : WindowTemplate = window({
-  title: PluginConfig.statsWindowTitle,
-	width: 175,
-	height: 'auto',
-  padding: 1,
-  content: [
-    vertical({
-      spacing: 2,
-      padding: 0,
-      content: [
-        label({
-          text: 'Statistics'
-        })
-      ]
-  })],
-  onOpen: () => onWindowOpen(WindowID.STATS_WINDOW),
-  onUpdate: () => onWindowUpdate(WindowID.STATS_WINDOW),
-  onClose: () => onWindowClose(WindowID.STATS_WINDOW)
-});
+function buildStatsWindow() : WindowTemplate {
+  return window({
+    title: PluginConfig.statsWindowTitle,
+    width: 175,
+    height: 'auto',
+    padding: 1,
+    content: [
+      vertical({
+        spacing: 2,
+        padding: 0,
+        content: [
+          label({
+            text: 'Statistics'
+          })
+        ]
+    })],
+    onOpen: () => onWindowOpen(WindowID.STATS_WINDOW),
+    onUpdate: () => onWindowUpdate(WindowID.STATS_WINDOW),
+    onClose: () => onWindowClose(WindowID.STATS_WINDOW)
+  });
+}
 
 
 
