@@ -2,7 +2,7 @@
 
 import { getPluginConfig } from './data';
 import { LandOwnership, setTiles } from './land';
-import { ButtonID, setButtonPressed } from './ui';
+import { ButtonID, isButtonPressed, setButtonPressed } from './ui';
 
 import { CoordsXY } from './types/CoordsXY';
 import { MapRange } from './types/MapRange';
@@ -25,6 +25,9 @@ const ToolDataStores = {
 
 // Coordinates where tool was last used
 let toolLastUsedCoords : CoordsXY = CoordsXY(0, 0);
+
+// Used to restore view rights button state
+let lastViewRightsButtonState : boolean = false;
 
 
 
@@ -106,6 +109,7 @@ export function getToolArea(center : CoordsXY) : MapRange {
  * Called when user starts using a tool
  */
 export function onToolStart(toolId : ToolID) : void {
+  lastViewRightsButtonState = isButtonPressed(ButtonID.VIEW_RIGHTS_BUTTON);
   setButtonPressed(ButtonID.VIEW_RIGHTS_BUTTON, true);
 }
 
@@ -157,7 +161,7 @@ export function onToolUp(toolId : ToolID, e : ToolEventArgs) : void {
  */
 export function onToolFinish(toolId : ToolID) : void {
   setButtonPressed(toolId, false);
-  setButtonPressed(ButtonID.VIEW_RIGHTS_BUTTON, false);
+  setButtonPressed(ButtonID.VIEW_RIGHTS_BUTTON, lastViewRightsButtonState);
   ui.tileSelection.range = null;
 }
 
