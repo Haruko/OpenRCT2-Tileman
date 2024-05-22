@@ -100,6 +100,7 @@ const UIButtonStateStores : StoreContainer = {
 export enum Sprites {
   SPR_BUY_LAND_RIGHTS = 5176,
   SPR_BUY_CONSTRUCTION_RIGHTS = 5177,
+  SPR_FLOPPY = 5183,
   SPR_FINANCE = 5190,
   SPR_G2_SEARCH = 29401,
 };
@@ -112,6 +113,7 @@ export enum ButtonID {
   RIGHTS_TOOL = PluginConfig.rightsToolId,
   SELL_TOOL = PluginConfig.sellToolId,
   VIEW_RIGHTS_BUTTON = PluginConfig.viewRightsButtonId,
+  // OPEN_CONFIG_BUTTON = PluginConfig.openConfigButtonId,
 };
 
 /**
@@ -238,6 +240,14 @@ const viewRightsButton = toggle({
   isPressed: { twoway: UIButtonStateStores.viewRightsButtonState }
 });
 
+// const openConfigButton = button({
+//   image: Sprites.SPR_FLOPPY,
+//   tooltip: 'Open configuration window',
+//   width: 24,
+//   height: 24,
+//   onClick: () => onButtonClick(ButtonID.OPEN_CONFIG_BUTTON)
+// });
+
 const toolSizeSpinner = spinner({
   width: 62,
   padding: 5,
@@ -268,6 +278,7 @@ const buttonPanel = vertical({
         rightsbutton,
         sellButton,
         viewRightsButton,
+        // openConfigButton,
         toolSizeSpinner
       ]
     })
@@ -279,7 +290,7 @@ const buttonPanel = vertical({
  */
 const toolbarWindow : WindowTemplate = window({
   title: PluginConfig.toolbarWindowTitle,
-	width: 175,
+	width: 200,
 	height: 'auto',
   padding: 1,
   content: [
@@ -300,9 +311,35 @@ const toolbarWindow : WindowTemplate = window({
 
 /**
  * **********
- * Toolbar Window
+ * Config Window
  * **********
  */
+
+/**
+ * Main window
+ */
+const configWindow : WindowTemplate = window({
+  title: PluginConfig.configWindowTitle,
+	width: 175,
+	height: 'auto',
+  padding: 1,
+  content: [
+    vertical({
+      spacing: 2,
+      padding: 0,
+      content: [
+        label({
+          text: 'Config'
+        })
+      ]
+  })],
+  onOpen: () => onWindowOpen(WindowID.CONFIG_WINDOW),
+  onUpdate: () => onWindowUpdate(WindowID.CONFIG_WINDOW),
+  onClose: () => onWindowClose(WindowID.CONFIG_WINDOW)
+});
+
+
+
 
 
 /**
@@ -329,13 +366,21 @@ export function onWindowOpen(windowId : WindowID) : void {
  * Handles toolbar window's onUpdate event
  */
 export function onWindowUpdate(windowId : WindowID) : void {
-  switch (windowId) {
-    case WindowID.CONFIG_WINDOW:
+  const foundWindow : Window | undefined = findWindow(windowId);
 
-      break;
-    case WindowID.TOOLBAR_WINDOW:
+  if (typeof foundWindow !== 'undefined') {
+    // Always clamp to the screen
+    foundWindow.x = Math.max(0, Math.min(ui.width - foundWindow.width, foundWindow.x));
+    foundWindow.y = Math.max(0, Math.min(ui.height - foundWindow.height, foundWindow.y));
 
-      break;
+    switch (windowId) {
+      case WindowID.CONFIG_WINDOW:
+
+        break;
+      case WindowID.TOOLBAR_WINDOW:
+
+        break;
+    }
   }
 }
 
@@ -348,23 +393,7 @@ export function onWindowClose(windowId : WindowID) : void {
 
       break;
     case WindowID.TOOLBAR_WINDOW:
-      let x : number = 0;
-      let y : number = 0;
-    
-      const oldWindow : Window | undefined = findWindow(PluginConfig.toolbarWindowTitle);
-      if (typeof oldWindow !== 'undefined') {
-        x = oldWindow.x;
-        y = oldWindow.y;
-      }
-    
-      context.setTimeout(() : void => {
-        openWindow(PluginConfig.toolbarWindowTitle);
-        const foundWindow : Window | undefined = findWindow(PluginConfig.toolbarWindowTitle);
-        if (typeof foundWindow !== 'undefined') {
-          foundWindow.x = x;
-          foundWindow.y = y;
-        }
-      }, 1);
+      openWindow(WindowID.TOOLBAR_WINDOW);
       break;
   }
 }
@@ -402,52 +431,78 @@ export function onButtonClick(buttonId : ButtonID) : void {
     case ButtonID.VIEW_RIGHTS_BUTTON:
       setRightsVisibility(pressed);
       break;
+    // case ButtonID.OPEN_CONFIG_BUTTON:
+    //   const foundWindow = findWindow(WindowID.CONFIG_WINDOW);
+    //   if (typeof foundWindow !== 'undefined') {
+    //     closeWindows(WindowID.CONFIG_WINDOW);
+    //   }
+
+    //   configWindow.open();
+    //   break;
   }
 }
 
 /**
  * Opens matching window
- * @param title title of the window to open
+ * @param windowId ID for window to open
  */
-export function openWindow(title : string) : void {
+export function openWindow(windowId : WindowID) : void {
   updateUIData();
 
-  switch (title) {
-    case PluginConfig.toolbarWindowTitle:
-      // Prevent infinite open/close loop
-      const openWindow : Window | undefined = findWindow(PluginConfig.toolbarWindowTitle);
-
-      if (typeof openWindow === 'undefined') {
+  switch (windowId) {
+    case WindowID.TOOLBAR_WINDOW:
+      let x : number = 0;
+      let y : number = 0;
+    
+      const oldWindow : Window | undefined = findWindow(WindowID.TOOLBAR_WINDOW);
+      if (typeof oldWindow === 'undefined') {
+        // Didn't have the window open yet
         toolbarWindow.open();
-      }
+      } else {
+        // Already had an instance of the window open
+        x = oldWindow.x;
+        y = oldWindow.y;
+        
+        // Delay this so we make sure the old window is open before opening a new one
+        context.setTimeout(() : void => {
+          toolbarWindow.open();
 
+          const foundWindow : Window | undefined = findWindow(WindowID.TOOLBAR_WINDOW);
+          if (typeof foundWindow !== 'undefined' && typeof foundWindow !== 'undefined') {
+            foundWindow.x = x;
+            foundWindow.y = y;
+          }
+        }, 1);
+      }
       break;
-    case PluginConfig.configWindowTitle:
-      closeWindows(PluginConfig.configWindowTitle);
-      // TODO: configWindow.open();
+    case WindowID.CONFIG_WINDOW:
+      closeWindows(WindowID.CONFIG_WINDOW);
+      configWindow.open();
       break;
   }
 }
 
 /**
  * Closes all matching windows
- * @param title title of the windows to close
+ * @param windowId ID for windows to close
  */
-export function closeWindows(title : string) : void {
-  let foundWindow : Window | undefined = findWindow(title);
-
+export function closeWindows(windowId : WindowID) : void {
+  let foundWindow : Window | undefined = findWindow(windowId);
+  
   while(typeof foundWindow !== 'undefined') {
     foundWindow.close();
-    foundWindow = findWindow(title);
+    foundWindow = findWindow(windowId);
   }
 }
 
 /**
  * Finds a window of a certain type
- * @param title title of the window to find
+ * @param windowId ID to find
  * @returns the found Window or undefined
  */
-export function findWindow(title : string) : Window | undefined {
+export function findWindow(windowId : WindowID) : Window | undefined {
+  const title = getWindowTitle(windowId);
+
   for(let i = 0; i < ui.windows; ++i) {
     const win : Window = ui.getWindow(i);
     if (win.title === title) {
@@ -456,6 +511,19 @@ export function findWindow(title : string) : Window | undefined {
   }
 
   return;
+}
+
+/**
+ * Converts WindowID to string
+ * @param windowId ID to get the title of
+ */
+export function getWindowTitle(windowId : WindowID) : string {
+  switch (windowId) {
+    case WindowID.TOOLBAR_WINDOW:
+      return PluginConfig.toolbarWindowTitle;
+    case WindowID.CONFIG_WINDOW:
+      return PluginConfig.configWindowTitle;
+  }
 }
 
 /**
@@ -563,6 +631,8 @@ export function isButtonPressed(buttonId : ButtonID) : boolean {
       return UIButtonStateStores.sellButtonState.get();
     case ButtonID.VIEW_RIGHTS_BUTTON:
       return UIButtonStateStores.viewRightsButtonState.get();
+    default:
+      return false;
   }
 }
 

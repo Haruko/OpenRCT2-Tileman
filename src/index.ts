@@ -1,7 +1,7 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
 import { collectMetrics, computeTotalExp, getPluginConfig, storeParkData, recordDemolishedRide, initPluginConfig, initParkData, getParkDataStores, StoreContainer } from './data';
-import { openWindow, updateUIData } from './ui';
+import { WindowID, openWindow, updateUIData } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
 /**
@@ -102,10 +102,11 @@ async function main() : Promise<void> {
     }
 
     // Register options in menu under Map icon in toolbar
-    ui.registerMenuItem('Tileman Toolbar', () => openWindow(PluginConfig.toolbarWindowTitle));
-    ui.registerMenuItem('Tileman Config', () => openWindow(PluginConfig.configWindowTitle));
+    ui.registerMenuItem('Tileman Toolbar', () => openWindow(WindowID.TOOLBAR_WINDOW));
+    ui.registerMenuItem('Tileman Config', () => openWindow(WindowID.CONFIG_WINDOW));
 
-    openWindow(PluginConfig.toolbarWindowTitle);
+    openWindow(WindowID.TOOLBAR_WINDOW);
+    openWindow(WindowID.CONFIG_WINDOW);
   }
 }
 
