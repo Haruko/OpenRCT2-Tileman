@@ -290,7 +290,7 @@ const buttonPanel = vertical({
  */
 const toolbarWindow : WindowTemplate = window({
   title: PluginConfig.toolbarWindowTitle,
-	width: 200,
+	width: 175,
 	height: 'auto',
   padding: 1,
   content: [
