@@ -43,9 +43,19 @@ const PluginConfig = {
   toolbarWindowId: 'TilemanToolbarWindow',
   toolbarWindowTitle: 'Tileman',
 
+  viewRightsButtonId: 'TilemanViewRights',
+  openStatsButtonId: 'TilemanOpenStats',
+  // buyToolId
+  // rightsToolId
+  // sellToolId
+
   // Config window
   configWindowId: 'TilemanConfigWindow',
   configWindowTitle: 'Tileman Config',
+
+  fireStaffButtonId: 'TilemanFireStaff',
+  deleteGuestsButtonId: 'TilemanDeleteGuests',
+  deleteRidesButtonId: 'TilemanDeleteRides',
 
   // Detailed statistics window
   statsWindowId: 'TilemanStatsWindow',
@@ -60,12 +70,8 @@ const PluginConfig = {
   minToolSize: 1,
   maxToolSize: 15,
 
-  // Other button IDs
-  viewRightsButtonId: 'TilemanViewRights',
-  openStatsButtonId: 'TilemanOpenStats',
-  // buyToolId
-  // rightsToolId
-  // sellToolId
+  // Other
+  doubleClickLength: 2000,
 
   // User definable
   ticksPerUpdate: 40, // Ticks per update of data

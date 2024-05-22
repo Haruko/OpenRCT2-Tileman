@@ -38,6 +38,9 @@ export enum ButtonID {
   SELL_TOOL = PluginConfig.sellToolId,
   VIEW_RIGHTS_BUTTON = PluginConfig.viewRightsButtonId,
   OPEN_STATS_BUTTON = PluginConfig.openStatsButtonId,
+  FIRE_STAFF_BUTTON = PluginConfig.fireStaffButtonId,
+  DELETE_GUESTS_BUTTON = PluginConfig.deleteGuestsButtonId,
+  DELETE_RIDES_BUTTON = PluginConfig.deleteRidesButtonId,
 };
 
 /**
@@ -130,6 +133,10 @@ const UIButtonStateStores : StoreContainer = {
   viewRightsButtonState: store<boolean>(false),
 }
 
+let fireStaffButtonTimeout : number | undefined;
+let deleteGuestsButtonTimeout : number | undefined;
+let deleteRidesButtonTimeout : number | undefined;
+
 const toolbarWindow : WindowTemplate = buildToolbarWindow();
 const configWindow : WindowTemplate = buildConfigWindow();
 const statsWindow : WindowTemplate = buildStatsWindow();
@@ -140,8 +147,12 @@ const statsWindow : WindowTemplate = buildStatsWindow();
 
 /**
  * **********
- * Toolbar Window
+ * UI Construction
  * **********
+ */
+
+/**
+ * Toolbar Window
  */
 
 /**
@@ -235,22 +246,17 @@ function buildToolbarButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<Flex
       return `${value}x${value}`;
     }
   });
-  
-  return vertical({
+
+  return horizontal({
     spacing: 0,
     padding: [0, 3],
     content: [
-      horizontal({
-        spacing: 0,
-        content: [
-          buyButton,
-          rightsbutton,
-          sellButton,
-          viewRightsButton,
-          openStatsButton,
-          toolSizeSpinner
-        ]
-      })
+      buyButton,
+      rightsbutton,
+      sellButton,
+      viewRightsButton,
+      openStatsButton,
+      toolSizeSpinner
     ]
   });
 }
@@ -326,14 +332,8 @@ function buildToolbarStatsPanel() : WidgetCreator<FlexiblePosition, Parsed<Flexi
   });
 }
 
-
-
-
-
 /**
- * **********
  * Config Window
- * **********
  */
 
 /**
@@ -341,19 +341,19 @@ function buildToolbarStatsPanel() : WidgetCreator<FlexiblePosition, Parsed<Flexi
  * @returns the built window
  */
 function buildConfigWindow() : WindowTemplate {
+  const buttonPanel = buildConfigButtonPanel();
+
   return window({
     title: PluginConfig.configWindowTitle,
-    width: 175,
+    width: (90 * 3) + (3 * 4), // 3 buttons + 4 spacers
     height: 'auto',
-    padding: 1,
+    padding: 3,
     content: [
       vertical({
         spacing: 2,
         padding: 0,
         content: [
-          label({
-            text: 'Config'
-          })
+          buttonPanel
         ]
     })],
     onOpen: () => onWindowOpen(WindowID.CONFIG_WINDOW),
@@ -362,14 +362,60 @@ function buildConfigWindow() : WindowTemplate {
   });
 }
 
+/**
+ * Builds panel to store buttons in config window
+ */
+function buildConfigButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<FlexiblePosition>> {
+  const fireStaffButton = button({
+    text: 'Fire Staff',
+    tooltip: 'Fires all staff',
+    width: 90,
+    height: 14,
+    onClick: () => onButtonClick(ButtonID.FIRE_STAFF_BUTTON)
+  });
 
+  const deleteGuestsButton = button({
+    text: 'Delete Guests',
+    tooltip: 'Deletes the guests from the park',
+    width: 90,
+    height: 14,
+    onClick: () => onButtonClick(ButtonID.DELETE_GUESTS_BUTTON)
+  });
 
+  const deleteRidesButton = button({
+    text: 'Delete Rides',
+    tooltip: 'Deletes all rides from the park and removes their stats from exp calculation',
+    width: 90,
+    height: 14,
+    onClick: () => onButtonClick(ButtonID.DELETE_RIDES_BUTTON)
+  });
 
+  const warningLabel = label({
+    text: "{WHITE}Double click to use buttons\n{RED}Warning: {BLACK}Can't be undone!!!",
+    alignment: 'centred',
+    height: 20
+  });
+
+  return vertical({
+    spacing: 6,
+    padding: 0,
+    content: [
+      horizontal({
+        spacing: 3,
+        padding: 0,
+        content: [
+          fireStaffButton,
+          deleteGuestsButton,
+          deleteRidesButton
+        ]
+      }),
+      warningLabel
+    ]
+  });
+}
 
 /**
- * **********
  * Detailed Statistics Window
- * **********
  */
 
 /**
@@ -502,6 +548,60 @@ export function onButtonClick(buttonId : ButtonID) : void {
       break;
     case ButtonID.OPEN_STATS_BUTTON:
       openWindow(WindowID.STATS_WINDOW);
+      break;
+    case ButtonID.FIRE_STAFF_BUTTON:
+      if (typeof fireStaffButtonTimeout === 'undefined') {
+        // Set a timeout to force a double click
+        fireStaffButtonTimeout = context.setTimeout(() => {
+          if (typeof fireStaffButtonTimeout === 'number') {
+            // Button wasn't clicked in time, clear timeout
+            context.clearTimeout(fireStaffButtonTimeout);
+            fireStaffButtonTimeout = undefined;
+          }
+        }, PluginConfig.doubleClickLength);
+      } else {
+        // Timeout was already set, do action
+        context.clearTimeout(fireStaffButtonTimeout);
+        fireStaffButtonTimeout = undefined;
+
+        fireStaff();
+      }
+      break;
+    case ButtonID.DELETE_GUESTS_BUTTON:
+      if (typeof deleteGuestsButtonTimeout === 'undefined') {
+        // Set a timeout to force a double click
+        deleteGuestsButtonTimeout = context.setTimeout(() => {
+          if (typeof deleteGuestsButtonTimeout === 'number') {
+            // Button wasn't clicked in time, clear timeout
+            context.clearTimeout(deleteGuestsButtonTimeout);
+            deleteGuestsButtonTimeout = undefined;
+          }
+        }, PluginConfig.doubleClickLength);
+      } else {
+        // Timeout was already set, do action
+        context.clearTimeout(deleteGuestsButtonTimeout);
+        deleteGuestsButtonTimeout = undefined;
+        
+        deleteGuests();
+      }
+      break;
+    case ButtonID.DELETE_RIDES_BUTTON:
+      if (typeof deleteRidesButtonTimeout === 'undefined') {
+        // Set a timeout to force a double click
+        deleteRidesButtonTimeout = context.setTimeout(() => {
+          if (typeof deleteRidesButtonTimeout === 'number') {
+            // Button wasn't clicked in time, clear timeout
+            context.clearTimeout(deleteRidesButtonTimeout);
+            deleteRidesButtonTimeout = undefined;
+          }
+        }, PluginConfig.doubleClickLength);
+      } else {
+        // Timeout was already set, do action
+        context.clearTimeout(deleteRidesButtonTimeout);
+        deleteRidesButtonTimeout = undefined;
+        
+        deleteRides();
+      }
       break;
   }
 }
@@ -718,4 +818,28 @@ export function setRightsVisibility(visible : boolean) : void {
   } else {
     ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags & ~ViewportFlags.ConstructionRights;
   }
+}
+
+/**
+ * Fires all staff
+ */
+export function fireStaff() : void {
+  // TODO
+  console.log('fireStaff')
+}
+
+/**
+ * Deletes all guests and clears their data
+ */
+export function deleteGuests() : void {
+  // TODO
+  console.log('deleteGuests')
+}
+
+/**
+ * Deletes all rides and clears their data
+ */
+export function deleteRides() : void {
+  // TODO
+  console.log('deleteRides')
 }
