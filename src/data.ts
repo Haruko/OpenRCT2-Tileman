@@ -38,7 +38,13 @@ const ParkDataStores : StoreContainer = {
 const PluginConfig = {
   // Never changed
   pluginName: 'Tileman',
+
+  // Toolbar window
+  toolbarWindowId: 'TilemanToolbarWindow',
   toolbarWindowTitle: 'Tileman',
+
+  // Config window
+  configWindowId: 'TilemanConfigWindow',
   configWindowTitle: 'Tileman Config',
 
   // Tool IDs
@@ -52,6 +58,9 @@ const PluginConfig = {
 
   // Other button IDs
   viewRightsButtonId: 'TilemanViewRights',
+  // buyToolId
+  // rightsToolId
+  // sellToolId
 
   // User definable
   ticksPerUpdate: 40, // Ticks per update of data

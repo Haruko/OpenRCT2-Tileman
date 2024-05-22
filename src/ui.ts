@@ -104,11 +104,22 @@ export enum Sprites {
   SPR_G2_SEARCH = 29401,
 };
 
+/**
+ * A way to identify different buttons
+ */
 export enum ButtonID {
   BUY_TOOL = PluginConfig.buyToolId,
   RIGHTS_TOOL = PluginConfig.rightsToolId,
   SELL_TOOL = PluginConfig.sellToolId,
   VIEW_RIGHTS_BUTTON = PluginConfig.viewRightsButtonId,
+};
+
+/**
+ * A way to identify different windows
+ */
+export enum WindowID {
+  TOOLBAR_WINDOW = PluginConfig.toolbarWindowId,
+  CONFIG_WINDOW = PluginConfig.configWindowId,
 };
 
 
@@ -264,7 +275,7 @@ const buttonPanel = vertical({
 });
 
 /**
- * Primary window
+ * Main window
  */
 const toolbarWindow : WindowTemplate = window({
   title: PluginConfig.toolbarWindowTitle,
@@ -280,46 +291,82 @@ const toolbarWindow : WindowTemplate = window({
         statsPanel
       ]
   })],
-  onOpen: onToolbarWindowOpen,
-  onUpdate: onToolbarWindowUpdate,
-  onClose: onToolbarWindowClose
+  onOpen: () => onWindowOpen(WindowID.TOOLBAR_WINDOW),
+  onUpdate: () => onWindowUpdate(WindowID.TOOLBAR_WINDOW),
+  onClose: () => onWindowClose(WindowID.TOOLBAR_WINDOW)
 });
+
+
+
+/**
+ * **********
+ * Toolbar Window
+ * **********
+ */
+
+
+/**
+ * **********
+ * Shared
+ * **********
+ */
 
 /**
  * Handles toolbar window's onOpen event
  */
-export function onToolbarWindowOpen() : void {
+export function onWindowOpen(windowId : WindowID) : void {
+  switch (windowId) {
+    case WindowID.CONFIG_WINDOW:
 
+      break;
+    case WindowID.TOOLBAR_WINDOW:
+
+      break;
+  }
 }
 
 /**
  * Handles toolbar window's onUpdate event
  */
-export function onToolbarWindowUpdate() : void {
-  return;
+export function onWindowUpdate(windowId : WindowID) : void {
+  switch (windowId) {
+    case WindowID.CONFIG_WINDOW:
+
+      break;
+    case WindowID.TOOLBAR_WINDOW:
+
+      break;
+  }
 }
 
 /**
  * Handles toolbar window's onClose event
  */
-export function onToolbarWindowClose() : void {
-  let x : number = 0;
-  let y : number = 0;
+export function onWindowClose(windowId : WindowID) : void {
+  switch (windowId) {
+    case WindowID.CONFIG_WINDOW:
 
-  const oldWindow : Window | undefined = findWindow(PluginConfig.toolbarWindowTitle);
-  if (typeof oldWindow !== 'undefined') {
-    x = oldWindow.x;
-    y = oldWindow.y;
+      break;
+    case WindowID.TOOLBAR_WINDOW:
+      let x : number = 0;
+      let y : number = 0;
+    
+      const oldWindow : Window | undefined = findWindow(PluginConfig.toolbarWindowTitle);
+      if (typeof oldWindow !== 'undefined') {
+        x = oldWindow.x;
+        y = oldWindow.y;
+      }
+    
+      context.setTimeout(() : void => {
+        openWindow(PluginConfig.toolbarWindowTitle);
+        const foundWindow : Window | undefined = findWindow(PluginConfig.toolbarWindowTitle);
+        if (typeof foundWindow !== 'undefined') {
+          foundWindow.x = x;
+          foundWindow.y = y;
+        }
+      }, 1);
+      break;
   }
-
-  context.setTimeout(() : void => {
-    openWindow(PluginConfig.toolbarWindowTitle);
-    const foundWindow : Window | undefined = findWindow(PluginConfig.toolbarWindowTitle);
-    if (typeof foundWindow !== 'undefined') {
-      foundWindow.x = x;
-      foundWindow.y = y;
-    }
-  }, 1);
 }
 
 /**
@@ -327,34 +374,108 @@ export function onToolbarWindowClose() : void {
  * @param buttonId ButtonID that was clicked
  */
 export function onButtonClick(buttonId : ButtonID) : void {
-  const pressed = getButtonPressed(buttonId);
+  const pressed = isButtonPressed(buttonId);
 
-  // Check if it is a tool button
-  if (buttonId in ToolID) {
-    const toolId = buttonId as unknown as ToolID;
-    
-    if (pressed) {
-      ui.activateTool({
-        id: ToolID[toolId],
-        cursor: 'dig_down',
-        filter: ['terrain', 'water'],
-    
-        onStart: () => onToolStart(toolId),
-        onDown: (e: ToolEventArgs) => onToolDown(toolId, e),
-        onMove: (e: ToolEventArgs) => onToolMove(toolId, e),
-        onUp: (e: ToolEventArgs) => onToolUp(toolId, e),
-        onFinish: () => onToolFinish(toolId)
-      });
-    } else {
-      cancelTool();
-    }
-  } else {
-    switch (buttonId) {
-      case ButtonID.VIEW_RIGHTS_BUTTON:
-        setRightsVisibility(pressed);
-        break;
+  switch (buttonId) {
+    case ButtonID.BUY_TOOL:
+    case ButtonID.RIGHTS_TOOL:
+    case ButtonID.SELL_TOOL:
+      const toolId = buttonId as unknown as ToolID;
+      
+      if (pressed) {
+        ui.activateTool({
+          id: ToolID[toolId],
+          cursor: 'dig_down',
+          filter: ['terrain', 'water'],
+      
+          onStart: () => onToolStart(toolId),
+          onDown: (e: ToolEventArgs) => onToolDown(toolId, e),
+          onMove: (e: ToolEventArgs) => onToolMove(toolId, e),
+          onUp: (e: ToolEventArgs) => onToolUp(toolId, e),
+          onFinish: () => onToolFinish(toolId)
+        });
+      } else {
+        cancelTool();
+      }
+
+      break;
+    case ButtonID.VIEW_RIGHTS_BUTTON:
+      setRightsVisibility(pressed);
+      break;
+  }
+}
+
+/**
+ * Opens matching window
+ * @param title title of the window to open
+ */
+export function openWindow(title : string) : void {
+  updateUIData();
+
+  switch (title) {
+    case PluginConfig.toolbarWindowTitle:
+      // Prevent infinite open/close loop
+      const openWindow : Window | undefined = findWindow(PluginConfig.toolbarWindowTitle);
+
+      if (typeof openWindow === 'undefined') {
+        toolbarWindow.open();
+      }
+
+      break;
+    case PluginConfig.configWindowTitle:
+      closeWindows(PluginConfig.configWindowTitle);
+      // TODO: configWindow.open();
+      break;
+  }
+}
+
+/**
+ * Closes all matching windows
+ * @param title title of the windows to close
+ */
+export function closeWindows(title : string) : void {
+  let foundWindow : Window | undefined = findWindow(title);
+
+  while(typeof foundWindow !== 'undefined') {
+    foundWindow.close();
+    foundWindow = findWindow(title);
+  }
+}
+
+/**
+ * Finds a window of a certain type
+ * @param title title of the window to find
+ * @returns the found Window or undefined
+ */
+export function findWindow(title : string) : Window | undefined {
+  for(let i = 0; i < ui.windows; ++i) {
+    const win : Window = ui.getWindow(i);
+    if (win.title === title) {
+      return win;
     }
   }
+
+  return;
+}
+
+/**
+ * Update the labels in the window
+ */
+export function updateUIData() : void {
+  // Available tiles label text
+  UIDataStores.availableTilesText.set(UIDataGenerators.availableTilesText());
+
+  // Exp to next tile label text
+  UIDataStores.expToNextTileText.set(UIDataGenerators.expToNextTileText());
+
+  // Exp to next tile progress bar percent
+  UIDataStores.expToNextTilePercent.set(UIDataGenerators.expToNextTilePercent());
+
+  // Exp to next tile progress bar foreground color
+  UIDataStores.expToNextTileBarForeground.set(UIDataGenerators.expToNextTileBarForeground());
+
+  // Unlocked tiles label text
+  UIDataStores.unlockedTilesText.set(UIDataGenerators.unlockedTilesText());
 }
 
 /**
@@ -432,7 +553,7 @@ export function setButtonPressed(id : ButtonID | ToolID, pressed? : boolean) : v
  * @param buttonId ButtonID to check
  * @returns true if the button is pressed
  */
-export function getButtonPressed(buttonId : ButtonID) : boolean {
+export function isButtonPressed(buttonId : ButtonID) : boolean {
   switch (buttonId) {
     case ButtonID.BUY_TOOL:
       return UIButtonStateStores.buyButtonState.get();
@@ -456,85 +577,5 @@ export function setRightsVisibility(visible : boolean) : void {
     ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags | ViewportFlags.ConstructionRights;
   } else {
     ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags & ~ViewportFlags.ConstructionRights;
-  }
-}
-
-
-/**
- * **********
- * Shared
- * **********
- */
-
-/**
- * Update the labels in the window
- */
-export function updateUIData() : void {
-  // Available tiles label text
-  UIDataStores.availableTilesText.set(UIDataGenerators.availableTilesText());
-
-  // Exp to next tile label text
-  UIDataStores.expToNextTileText.set(UIDataGenerators.expToNextTileText());
-
-  // Exp to next tile progress bar percent
-  UIDataStores.expToNextTilePercent.set(UIDataGenerators.expToNextTilePercent());
-
-  // Exp to next tile progress bar foreground color
-  UIDataStores.expToNextTileBarForeground.set(UIDataGenerators.expToNextTileBarForeground());
-
-  // Unlocked tiles label text
-  UIDataStores.unlockedTilesText.set(UIDataGenerators.unlockedTilesText());
-}
-
-/**
- * Finds a window of a certain type
- * @param title title of the window to find
- * @returns the found Window or undefined
- */
-export function findWindow(title : string) : Window | undefined {
-  for(let i = 0; i < ui.windows; ++i) {
-    const win : Window = ui.getWindow(i);
-    if (win.title === title) {
-      return win;
-    }
-  }
-
-  return;
-}
-
-/**
- * Opens matching window
- * @param title title of the window to open
- */
-export function openWindow(title : string) : void {
-  updateUIData();
-
-  switch (title) {
-    case PluginConfig.toolbarWindowTitle:
-      // Prevent infinite open/close loop
-      const openWindow : Window | undefined = findWindow(PluginConfig.toolbarWindowTitle);
-
-      if (typeof openWindow === 'undefined') {
-        toolbarWindow.open();
-      }
-
-      break;
-    case PluginConfig.configWindowTitle:
-      closeWindowInstances(PluginConfig.configWindowTitle);
-      // TODO: configWindow.open();
-      break;
-  }
-}
-
-/**
- * Closes all matching windows
- * @param title title of the windows to close
- */
-export function closeWindowInstances(title : string) : void {
-  let foundWindow : Window | undefined = findWindow(title);
-
-  while(typeof foundWindow !== 'undefined') {
-    foundWindow.close();
-    foundWindow = findWindow(title);
   }
 }
