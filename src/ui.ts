@@ -98,9 +98,10 @@ const UIButtonStateStores : StoreContainer = {
 
 // From openrct2/sprites.h
 export enum Sprites {
+  SPR_RENAME = 5168,
   SPR_BUY_LAND_RIGHTS = 5176,
   SPR_BUY_CONSTRUCTION_RIGHTS = 5177,
-  SPR_FLOPPY = 5183,
+  // SPR_FLOPPY = 5183,
   SPR_FINANCE = 5190,
   SPR_G2_SEARCH = 29401,
 };
@@ -113,7 +114,7 @@ export enum ButtonID {
   RIGHTS_TOOL = PluginConfig.rightsToolId,
   SELL_TOOL = PluginConfig.sellToolId,
   VIEW_RIGHTS_BUTTON = PluginConfig.viewRightsButtonId,
-  // OPEN_CONFIG_BUTTON = PluginConfig.openConfigButtonId,
+  OPEN_STATS_BUTTON = PluginConfig.openStatsButtonId,
 };
 
 /**
@@ -122,6 +123,7 @@ export enum ButtonID {
 export enum WindowID {
   TOOLBAR_WINDOW = PluginConfig.toolbarWindowId,
   CONFIG_WINDOW = PluginConfig.configWindowId,
+  STATS_WINDOW = PluginConfig.statsWindowId,
 };
 
 
@@ -240,13 +242,13 @@ const viewRightsButton = toggle({
   isPressed: { twoway: UIButtonStateStores.viewRightsButtonState }
 });
 
-// const openConfigButton = button({
-//   image: Sprites.SPR_FLOPPY,
-//   tooltip: 'Open configuration window',
-//   width: 24,
-//   height: 24,
-//   onClick: () => onButtonClick(ButtonID.OPEN_CONFIG_BUTTON)
-// });
+const openStatsButton = button({
+  image: Sprites.SPR_RENAME,
+  tooltip: 'Open detailed statistics window',
+  width: 24,
+  height: 24,
+  onClick: () => onButtonClick(ButtonID.OPEN_STATS_BUTTON)
+});
 
 const toolSizeSpinner = spinner({
   width: 62,
@@ -278,7 +280,7 @@ const buttonPanel = vertical({
         rightsbutton,
         sellButton,
         viewRightsButton,
-        // openConfigButton,
+        openStatsButton,
         toolSizeSpinner
       ]
     })
@@ -290,7 +292,7 @@ const buttonPanel = vertical({
  */
 const toolbarWindow : WindowTemplate = window({
   title: PluginConfig.toolbarWindowTitle,
-	width: 175,
+	width: 200,
 	height: 'auto',
   padding: 1,
   content: [
@@ -340,6 +342,37 @@ const configWindow : WindowTemplate = window({
 
 
 
+/**
+ * **********
+ * Detailed Statistics Window
+ * **********
+ */
+
+/**
+ * Main window
+ */
+const statsWindow : WindowTemplate = window({
+  title: PluginConfig.statsWindowTitle,
+	width: 175,
+	height: 'auto',
+  padding: 1,
+  content: [
+    vertical({
+      spacing: 2,
+      padding: 0,
+      content: [
+        label({
+          text: 'Statistics'
+        })
+      ]
+  })],
+  onOpen: () => onWindowOpen(WindowID.STATS_WINDOW),
+  onUpdate: () => onWindowUpdate(WindowID.STATS_WINDOW),
+  onClose: () => onWindowClose(WindowID.STATS_WINDOW)
+});
+
+
+
 
 
 /**
@@ -353,10 +386,13 @@ const configWindow : WindowTemplate = window({
  */
 export function onWindowOpen(windowId : WindowID) : void {
   switch (windowId) {
+    case WindowID.TOOLBAR_WINDOW:
+
+      break;
     case WindowID.CONFIG_WINDOW:
 
       break;
-    case WindowID.TOOLBAR_WINDOW:
+    case WindowID.STATS_WINDOW:
 
       break;
   }
@@ -374,11 +410,14 @@ export function onWindowUpdate(windowId : WindowID) : void {
     foundWindow.y = Math.max(0, Math.min(ui.height - foundWindow.height, foundWindow.y));
 
     switch (windowId) {
+      case WindowID.TOOLBAR_WINDOW:
+
+        break;
       case WindowID.CONFIG_WINDOW:
 
         break;
-      case WindowID.TOOLBAR_WINDOW:
-
+      case WindowID.STATS_WINDOW:
+  
         break;
     }
   }
@@ -389,11 +428,14 @@ export function onWindowUpdate(windowId : WindowID) : void {
  */
 export function onWindowClose(windowId : WindowID) : void {
   switch (windowId) {
+    case WindowID.TOOLBAR_WINDOW:
+      openWindow(WindowID.TOOLBAR_WINDOW);
+      break;
     case WindowID.CONFIG_WINDOW:
 
       break;
-    case WindowID.TOOLBAR_WINDOW:
-      openWindow(WindowID.TOOLBAR_WINDOW);
+    case WindowID.STATS_WINDOW:
+
       break;
   }
 }
@@ -431,14 +473,9 @@ export function onButtonClick(buttonId : ButtonID) : void {
     case ButtonID.VIEW_RIGHTS_BUTTON:
       setRightsVisibility(pressed);
       break;
-    // case ButtonID.OPEN_CONFIG_BUTTON:
-    //   const foundWindow = findWindow(WindowID.CONFIG_WINDOW);
-    //   if (typeof foundWindow !== 'undefined') {
-    //     closeWindows(WindowID.CONFIG_WINDOW);
-    //   }
-
-    //   configWindow.open();
-    //   break;
+    case ButtonID.OPEN_STATS_BUTTON:
+      openWindow(WindowID.STATS_WINDOW);
+      break;
   }
 }
 
@@ -478,6 +515,10 @@ export function openWindow(windowId : WindowID) : void {
     case WindowID.CONFIG_WINDOW:
       closeWindows(WindowID.CONFIG_WINDOW);
       configWindow.open();
+      break;
+    case WindowID.STATS_WINDOW:
+      closeWindows(WindowID.STATS_WINDOW);
+      statsWindow.open();
       break;
   }
 }
@@ -523,6 +564,8 @@ export function getWindowTitle(windowId : WindowID) : string {
       return PluginConfig.toolbarWindowTitle;
     case WindowID.CONFIG_WINDOW:
       return PluginConfig.configWindowTitle;
+    case WindowID.STATS_WINDOW:
+      return PluginConfig.statsWindowTitle;
   }
 }
 

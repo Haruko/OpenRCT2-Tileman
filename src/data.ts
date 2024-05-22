@@ -47,6 +47,10 @@ const PluginConfig = {
   configWindowId: 'TilemanConfigWindow',
   configWindowTitle: 'Tileman Config',
 
+  // Detailed statistics window
+  statsWindowId: 'TilemanStatsWindow',
+  statsWindowTitle: 'Tileman Detailed Statistics',
+
   // Tool IDs
   buyToolId: 'TilemanBuyTool',
   rightsToolId: 'TilemanBuildRightsTool',
@@ -58,6 +62,7 @@ const PluginConfig = {
 
   // Other button IDs
   viewRightsButtonId: 'TilemanViewRights',
+  openStatsButtonId: 'TilemanOpenStats',
   // buyToolId
   // rightsToolId
   // sellToolId

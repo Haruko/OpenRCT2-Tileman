@@ -11,7 +11,6 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
  * TODO: Config Window - Add button to delete all guests
  * TODO: Detailed Stats Window - Create window with various stats including historical data about rides done in a list view
  * TODO: Persistent Storage - context.sharedStorage for pluginconfig
- * TODO: Toolbar Window - Add buttons for detailed stats window and config window at the bottom
  * TODO: Toolbar Window - Make rights visibility button return to previous toggle status after using tool instead of always clearing
  * 
  * TODO MAYBE: Data - Initialize data for constructed rides?
@@ -107,6 +106,7 @@ async function main() : Promise<void> {
 
     openWindow(WindowID.TOOLBAR_WINDOW);
     openWindow(WindowID.CONFIG_WINDOW);
+    openWindow(WindowID.STATS_WINDOW);
   }
 }
 
