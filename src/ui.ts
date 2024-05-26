@@ -824,8 +824,11 @@ export function setRightsVisibility(visible : boolean) : void {
  * Fires all staff
  */
 export function fireStaff() : void {
-  // TODO
-  console.log('fireStaff')
+  const staffList : Staff[] = map.getAllEntities('staff');
+
+  staffList.forEach((staff) => {
+    staff.remove();
+  });
 }
 
 /**

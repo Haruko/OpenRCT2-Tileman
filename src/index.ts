@@ -49,7 +49,7 @@ function subscribeEvents() : void {
   ParkDataStores.totalExp.subscribe(updateUIData);
   ParkDataStores.tilesUsed.subscribe(updateUIData);
 
-  // Days are about 13.2 seconds at 1x speed
+  // Subscribe to ticks so we can collect data every X ticks
   context.subscribe('interval.tick', () : void => {
     ticksToNextUpdate = (ticksToNextUpdate + 1) % PluginConfig.ticksPerUpdate;
 
