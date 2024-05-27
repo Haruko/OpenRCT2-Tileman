@@ -2,7 +2,7 @@
 
 import { toggle, Colour, ViewportFlags, WindowTemplate, WritableStore, box, button, horizontal, label, spinner, store, vertical, window, WidgetCreator, FlexiblePosition, Parsed } from 'openrct2-flexui';
 
-import { computeTilesAvailable, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores } from './data';
+import { computeTilesAvailable, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores, GameCommandFlag } from './data';
 import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, onToolMove, onToolUp, onToolFinish } from './tool';
 import { progressbar } from './flexui-extenson';
 
@@ -600,7 +600,7 @@ export function onButtonClick(buttonId : ButtonID) : void {
         context.clearTimeout(deleteRidesButtonTimeout);
         deleteRidesButtonTimeout = undefined;
         
-        deleteRides();
+        deleteRides(false);
       }
       break;
   }
@@ -826,7 +826,8 @@ export function setRightsVisibility(visible : boolean) : void {
 export function fireStaff() : void {
   const staffList : Staff[] = map.getAllEntities('staff');
 
-  staffList.forEach((staff) => {
+  staffList.forEach((staff : Staff) => {
+    // Removing a mechanic that is currently fixing a ride doesn't break anything
     staff.remove();
   });
 }
@@ -841,8 +842,26 @@ export function deleteGuests() : void {
 
 /**
  * Deletes all rides and clears their data
+ * @param refund true if we should issue refunds
  */
-export function deleteRides() : void {
-  // TODO
-  console.log('deleteRides')
+export function deleteRides(refund : boolean) : void {
+  //
+  const flags = GameCommandFlag.GAME_COMMAND_FLAG_APPLY
+              | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
+              | (refund ? 0 : GameCommandFlag.GAME_COMMAND_FLAG_NO_SPEND);
+
+  let promiseChain = Promise.resolve();
+
+  map.rides.forEach((ride : Ride) => {
+    // Deleting a ride with people on it ejects them to the queue 
+    promiseChain = promiseChain.then(() : void => {
+      context.executeAction('ridedemolish', {
+        flags: flags,
+        ride: ride.id,
+        modifyType: 0 // 0: demolish, 1: renew
+      }, (result : GameActionResult) => {
+        console.log(result);
+      });
+    });
+  });
 }

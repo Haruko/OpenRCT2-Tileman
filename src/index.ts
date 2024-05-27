@@ -5,6 +5,8 @@ import { WindowID, openWindow, updateUIData } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 
 /**
+ * TODO: Change land ownership setting to use GAME_COMMAND_FLAG_NO_SPEND
+ * TODO: Config Window - Add button for refund vs no refund when deleting rides
  * TODO: Config Window - Display spinners for each exp type
  * TODO: Config Window - Display totals for each exp type
  * TODO: Config Window - Add button to delete all rides
