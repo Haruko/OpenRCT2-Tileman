@@ -1,8 +1,8 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { toggle, Colour, ViewportFlags, WindowTemplate, WritableStore, box, button, horizontal, label, spinner, store, vertical, window, WidgetCreator, FlexiblePosition, Parsed } from 'openrct2-flexui';
+import { toggle, Colour, ViewportFlags, WindowTemplate, box, button, horizontal, label, spinner, store, vertical, window, WidgetCreator, FlexiblePosition, Parsed, tabwindow, TabLayoutable, tab, TabCreator } from 'openrct2-flexui';
 
-import { computeTilesAvailable, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores, GameCommandFlag, ParkDataContainer, getParkData } from './data';
+import { computeTilesAvailable, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores } from './data';
 import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, onToolMove, onToolUp, onToolFinish } from './tool';
 import { progressbar } from './flexui-extenson';
 import { deleteGuests, deleteRides, fireStaff } from './park';
@@ -22,13 +22,32 @@ const PluginConfig = getPluginConfig();
 
 // From openrct2/sprites.h
 export enum Sprites {
-  SPR_RENAME = 5168,
-  SPR_BUY_LAND_RIGHTS = 5176,
-  SPR_BUY_CONSTRUCTION_RIGHTS = 5177,
-  // SPR_FLOPPY = 5183,
-  SPR_FINANCE = 5190,
-  SPR_G2_SEARCH = 29401,
+  RENAME = 5168,
+  BUY_LAND_RIGHTS = 5176,
+  BUY_CONSTRUCTION_RIGHTS = 5177,
+  FLOPPY = 5183,
+  FINANCE = 5190,
+  SEARCH = 29401,
+  GRAPH = 29394,
 };
+
+export const AnimatedSprites = {
+  GEARS: {
+    frameBase: 5201,
+    frameCount: 4,
+    frameDuration: 4,
+  },
+  WRENCH: {
+    frameBase: 5205,
+    frameCount: 16,
+    frameDuration: 4,
+  },
+  RESEARCH: {
+    frameBase: 5327,
+    frameCount: 8,
+    frameDuration: 2,
+  }
+}
 
 /**
  * A way to identify different buttons
@@ -181,7 +200,8 @@ function buildToolbarWindow() : WindowTemplate {
           buttonPanel,
           statsPanel
         ]
-    })],
+      })
+    ],
     onOpen: () => onWindowOpen(WindowID.TOOLBAR_WINDOW),
     onUpdate: () => onWindowUpdate(WindowID.TOOLBAR_WINDOW),
     onClose: () => onWindowClose(WindowID.TOOLBAR_WINDOW)
@@ -193,7 +213,7 @@ function buildToolbarWindow() : WindowTemplate {
  */
 function buildToolbarButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<FlexiblePosition>> {
   const buyButton = toggle({
-    image: Sprites.SPR_BUY_LAND_RIGHTS,
+    image: Sprites.BUY_LAND_RIGHTS,
     tooltip: 'Buy land rights',
     width: 24,
     height: 24,
@@ -202,7 +222,7 @@ function buildToolbarButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<Flex
   });
   
   const rightsbutton = toggle({
-    image: Sprites.SPR_BUY_CONSTRUCTION_RIGHTS,
+    image: Sprites.BUY_CONSTRUCTION_RIGHTS,
     tooltip: 'Buy construction rights',
     width: 24,
     height: 24,
@@ -211,7 +231,7 @@ function buildToolbarButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<Flex
   });
   
   const sellButton = toggle({
-    image: Sprites.SPR_FINANCE,
+    image: Sprites.FINANCE,
     tooltip: 'Sell land and construction rights',
     width: 24,
     height: 24,
@@ -220,7 +240,7 @@ function buildToolbarButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<Flex
   });
   
   const viewRightsButton = toggle({
-    image: Sprites.SPR_G2_SEARCH,
+    image: Sprites.SEARCH,
     tooltip: 'Show owned construction rights',
     width: 24,
     height: 24,
@@ -229,7 +249,7 @@ function buildToolbarButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<Flex
   });
   
   const openStatsButton = button({
-    image: Sprites.SPR_RENAME,
+    image: Sprites.GRAPH,
     tooltip: 'Open detailed statistics window',
     width: 24,
     height: 24,
@@ -346,21 +366,19 @@ function buildToolbarStatsPanel() : WidgetCreator<FlexiblePosition, Parsed<Flexi
  * @returns the built window
  */
 function buildConfigWindow() : WindowTemplate {
-  const buttonPanel = buildConfigButtonPanel();
+  const configTab : TabCreator = buildConfigTab();
+  const debugTab : TabCreator = buildDebugTab();
 
-  return window({
+  return tabwindow({
     title: PluginConfig.configWindowTitle,
     width: (90 * 3) + (3 * 4), // 3 buttons + 4 spacers
     height: 'auto',
     padding: 3,
-    content: [
-      vertical({
-        spacing: 2,
-        padding: 0,
-        content: [
-          buttonPanel
-        ]
-    })],
+    startingTab: 0,
+    tabs: [
+      configTab,
+      debugTab,
+    ],
     onOpen: () => onWindowOpen(WindowID.CONFIG_WINDOW),
     onUpdate: () => onWindowUpdate(WindowID.CONFIG_WINDOW),
     onClose: () => onWindowClose(WindowID.CONFIG_WINDOW)
@@ -368,9 +386,52 @@ function buildConfigWindow() : WindowTemplate {
 }
 
 /**
- * Builds panel to store buttons in config window
+ * Builds the config tab of the config window
  */
-function buildConfigButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<FlexiblePosition>> {
+function buildConfigTab() : TabCreator {
+  return tab({
+    // image: {
+    //   frameBase: Sprites.SPR_FLOPPY,
+    //   offset: { x: 4, y: 1 },
+    // },
+    image: AnimatedSprites.RESEARCH,
+    content: [
+      label({
+        text: '{WHITE}Config',
+        height: 14
+      }),
+    ]
+  });
+}
+
+/**
+ * Builds the debug tab of the config window
+ */
+function buildDebugTab() : TabCreator {
+  const buttonPanel = buildDebugButtonPanel();
+
+  return tab({
+    image: AnimatedSprites.WRENCH,
+    content: [
+      vertical({
+        spacing: 2,
+        padding: 0,
+        content: [
+          label({
+            text: '{WHITE}Debug',
+            height: 14
+          }),
+          buttonPanel,
+        ]
+      })
+    ]
+  });
+}
+
+/**
+ * Builds panel to store buttons in debug tab of config window
+ */
+function buildDebugButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<FlexiblePosition>> {
   const fireStaffButton = button({
     text: 'Fire Staff',
     tooltip: 'Fires all staff',
@@ -398,14 +459,14 @@ function buildConfigButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<Flexi
     onClick: () => onButtonClick(ButtonID.DELETE_RIDES_BUTTON)
   });
 
-  const warningLabel = label({
-    text: "{WHITE}Double click to use buttons\n{RED}Warning: {BLACK}Can't be undone!!!",
+  const instructionLabel = label({
+    text: '{WHITE}Double click to use buttons',
     alignment: 'centred',
-    height: 20
+    height: 14
   });
 
   return vertical({
-    spacing: 6,
+    spacing: 2,
     padding: 0,
     content: [
       horizontal({
@@ -417,7 +478,7 @@ function buildConfigButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<Flexi
           deleteRidesButton
         ]
       }),
-      warningLabel
+      instructionLabel
     ]
   });
 }
