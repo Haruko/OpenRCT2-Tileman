@@ -197,7 +197,7 @@ export async function setLandOwnership(rangeOrCoords : any, ownership : any) : P
 
     const clampedRange : MapRange = clampRange(range);
 
-    // Turn on sandbox mode to make buying/selling land free and doable to any tile
+    // Turn on sandbox mode to fix NotInEditorMode error
     cheats.sandboxMode = true;
 
     const result = await new Promise<LandRightsResult>((resolve : Function, reject : Function) : void => {
@@ -208,7 +208,9 @@ export async function setLandOwnership(rangeOrCoords : any, ownership : any) : P
         y2: clampedRange.rightBottom.y,
         setting: 4, // Set ownership
         ownership: ownership,
-        flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
+        flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY
+              | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
+              | GameCommandFlag.GAME_COMMAND_FLAG_NO_SPEND
       }, (result : GameActionResult) : void => {
         if (typeof result.error !== 'undefined' && result.error !== GameActionResultErrorCodes.Ok) {
           reject(result.error);
@@ -229,7 +231,7 @@ export async function setLandOwnership(rangeOrCoords : any, ownership : any) : P
   } else {
     const coords : CoordsXY[] = rangeOrCoords as CoordsXY[];
 
-    // Turn on sandbox mode to make buying/selling land free and doable to any tile
+    // Turn on sandbox mode to fix NotInEditorMode error
     cheats.sandboxMode = true;
 
     const promises : Promise<GameActionResultErrorCodes>[] = [];
@@ -245,9 +247,11 @@ export async function setLandOwnership(rangeOrCoords : any, ownership : any) : P
           y2: value.y,
           setting: 4, // Set ownership
           ownership: ownership,
-          flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
+          flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY
+                | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
+                | GameCommandFlag.GAME_COMMAND_FLAG_NO_SPEND
         }, (result : GameActionResult) => {
-          if (typeof result.error !== 'undefined') {
+          if (typeof result.error !== 'undefined' && result.error !== GameActionResultErrorCodes.Ok) {
             resolve(result.error);
           } else {
             // Assume lack of an error is a success

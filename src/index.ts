@@ -87,10 +87,6 @@ async function main() : Promise<void> {
 
   // Make sure it's a client
   if (typeof ui !== 'undefined') {
-    // Setup map and data for game mode
-    park.landPrice = 0;
-    park.constructionRightsPrice = 0;
-
     // Register events before initializing data so we know the events will fire
     subscribeEvents();
 
