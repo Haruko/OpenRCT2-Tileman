@@ -133,6 +133,9 @@ const UIButtonStateStores : StoreContainer = {
   rightsButtonState: store<boolean>(false),
   sellButtonState: store<boolean>(false),
   viewRightsButtonState: store<boolean>(false),
+  fireStaffButtonState: store<boolean>(false),
+  deleteGuestsButtonState: store<boolean>(false),
+  deleteRidesButtonState: store<boolean>(false),
 }
 
 let fireStaffButtonTimeout : number | undefined;
@@ -373,6 +376,7 @@ function buildConfigButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<Flexi
     tooltip: 'Fires all staff',
     width: 90,
     height: 14,
+    isPressed: UIButtonStateStores.fireStaffButtonState,
     onClick: () => onButtonClick(ButtonID.FIRE_STAFF_BUTTON)
   });
 
@@ -381,6 +385,7 @@ function buildConfigButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<Flexi
     tooltip: 'Deletes the guests from the park',
     width: 90,
     height: 14,
+    isPressed: UIButtonStateStores.deleteGuestsButtonState,
     onClick: () => onButtonClick(ButtonID.DELETE_GUESTS_BUTTON)
   });
 
@@ -389,6 +394,7 @@ function buildConfigButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<Flexi
     tooltip: 'Deletes all rides from the park and removes their stats from exp calculation',
     width: 90,
     height: 14,
+    isPressed: UIButtonStateStores.deleteRidesButtonState,
     onClick: () => onButtonClick(ButtonID.DELETE_RIDES_BUTTON)
   });
 
@@ -559,12 +565,16 @@ export function onButtonClick(buttonId : ButtonID) : void {
             // Button wasn't clicked in time, clear timeout
             context.clearTimeout(fireStaffButtonTimeout);
             fireStaffButtonTimeout = undefined;
+            UIButtonStateStores.fireStaffButtonState.set(false);
           }
         }, PluginConfig.doubleClickLength);
+
+        UIButtonStateStores.fireStaffButtonState.set(true);
       } else {
         // Timeout was already set, do action
         context.clearTimeout(fireStaffButtonTimeout);
         fireStaffButtonTimeout = undefined;
+        UIButtonStateStores.fireStaffButtonState.set(false);
 
         fireStaff();
       }
@@ -577,12 +587,16 @@ export function onButtonClick(buttonId : ButtonID) : void {
             // Button wasn't clicked in time, clear timeout
             context.clearTimeout(deleteGuestsButtonTimeout);
             deleteGuestsButtonTimeout = undefined;
+            UIButtonStateStores.deleteGuestsButtonState.set(false);
           }
         }, PluginConfig.doubleClickLength);
+
+        UIButtonStateStores.deleteGuestsButtonState.set(true);
       } else {
         // Timeout was already set, do action
         context.clearTimeout(deleteGuestsButtonTimeout);
         deleteGuestsButtonTimeout = undefined;
+        UIButtonStateStores.deleteGuestsButtonState.set(false);
         
         deleteGuests();
       }
@@ -595,14 +609,18 @@ export function onButtonClick(buttonId : ButtonID) : void {
             // Button wasn't clicked in time, clear timeout
             context.clearTimeout(deleteRidesButtonTimeout);
             deleteRidesButtonTimeout = undefined;
+            UIButtonStateStores.deleteRidesButtonState.set(false);
           }
         }, PluginConfig.doubleClickLength);
+
+        UIButtonStateStores.deleteRidesButtonState.set(true);
       } else {
         // Timeout was already set, do action
         context.clearTimeout(deleteRidesButtonTimeout);
         deleteRidesButtonTimeout = undefined;
+        UIButtonStateStores.deleteRidesButtonState.set(false);
         
-        deleteRides(false);
+        deleteRides();
       }
       break;
   }

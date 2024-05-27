@@ -6,12 +6,10 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 import { clearPark } from './park';
 
 /**
- * TODO: Change land ownership setting to use GAME_COMMAND_FLAG_NO_SPEND
- * TODO: Config Window - Add button for refund vs no refund when deleting rides
+ * TODO: Config Window - Add new tab to config window for debug
+ * TODO: Config Window - Move button panel to debug
  * TODO: Config Window - Display spinners for each exp type
  * TODO: Config Window - Display totals for each exp type
- * TODO: Config Window - Add button to delete all rides
- * TODO: Config Window - Add button to delete all guests
  * TODO: Detailed Stats Window - Create window with various stats including historical data about rides done in a list view
  * TODO: Persistent Storage - context.sharedStorage for pluginconfig
  * 
