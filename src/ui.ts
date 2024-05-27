@@ -845,7 +845,6 @@ export function deleteGuests() : void {
  * @param refund true if we should issue refunds
  */
 export function deleteRides(refund : boolean) : void {
-  //
   const flags = GameCommandFlag.GAME_COMMAND_FLAG_APPLY
               | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
               | (refund ? 0 : GameCommandFlag.GAME_COMMAND_FLAG_NO_SPEND);
