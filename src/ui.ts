@@ -2,9 +2,10 @@
 
 import { toggle, Colour, ViewportFlags, WindowTemplate, WritableStore, box, button, horizontal, label, spinner, store, vertical, window, WidgetCreator, FlexiblePosition, Parsed } from 'openrct2-flexui';
 
-import { computeTilesAvailable, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores, GameCommandFlag } from './data';
+import { computeTilesAvailable, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores, GameCommandFlag, ParkDataContainer, getParkData } from './data';
 import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, onToolMove, onToolUp, onToolFinish } from './tool';
 import { progressbar } from './flexui-extenson';
+import { deleteGuests, deleteRides, fireStaff } from './park';
 
 const ParkDataStores : StoreContainer = getParkDataStores();
 const PluginConfig = getPluginConfig();
@@ -41,6 +42,7 @@ export enum ButtonID {
   FIRE_STAFF_BUTTON = PluginConfig.fireStaffButtonId,
   DELETE_GUESTS_BUTTON = PluginConfig.deleteGuestsButtonId,
   DELETE_RIDES_BUTTON = PluginConfig.deleteRidesButtonId,
+  CLEAR_PARK_BUTTON = PluginConfig.clearParkButtonId,
 };
 
 /**
@@ -818,49 +820,4 @@ export function setRightsVisibility(visible : boolean) : void {
   } else {
     ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags & ~ViewportFlags.ConstructionRights;
   }
-}
-
-/**
- * Fires all staff
- */
-export function fireStaff() : void {
-  const staffList : Staff[] = map.getAllEntities('staff');
-
-  staffList.forEach((staff : Staff) => {
-    // Removing a mechanic that is currently fixing a ride doesn't break anything
-    staff.remove();
-  });
-}
-
-/**
- * Deletes all guests and clears their data
- */
-export function deleteGuests() : void {
-  // TODO
-  console.log('deleteGuests')
-}
-
-/**
- * Deletes all rides and clears their data
- * @param refund true if we should issue refunds
- */
-export function deleteRides(refund : boolean) : void {
-  const flags = GameCommandFlag.GAME_COMMAND_FLAG_APPLY
-              | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
-              | (refund ? 0 : GameCommandFlag.GAME_COMMAND_FLAG_NO_SPEND);
-
-  let promiseChain = Promise.resolve();
-
-  map.rides.forEach((ride : Ride) => {
-    // Deleting a ride with people on it ejects them to the queue 
-    promiseChain = promiseChain.then(() : void => {
-      context.executeAction('ridedemolish', {
-        flags: flags,
-        ride: ride.id,
-        modifyType: 0 // 0: demolish, 1: renew
-      }, (result : GameActionResult) => {
-        console.log(result);
-      });
-    });
-  });
 }

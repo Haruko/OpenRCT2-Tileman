@@ -56,6 +56,7 @@ const PluginConfig = {
   fireStaffButtonId: 'TilemanFireStaff',
   deleteGuestsButtonId: 'TilemanDeleteGuests',
   deleteRidesButtonId: 'TilemanDeleteRides',
+  clearParkButtonId: 'TilemanClearPark',
 
   // Detailed statistics window
   statsWindowId: 'TilemanStatsWindow',
@@ -195,13 +196,16 @@ export function getParkDataStores() : StoreContainer {
 }
 
 /**
- * Loads ParkData from the persistent park-specific storage if it exists
+ * Loads ParkData from the persistent park-specific storage if it exists, otherwise creates new
+ * @param forceClear True if we want to forcibly clear the park data. Defaults to false
  * @returns true if it's a new park
  */
-export function initParkData() : boolean {
+export function initParkData(forceClear? : boolean) : boolean {
+  forceClear = (typeof forceClear === 'undefined') ? false : forceClear;
+  
   const savedParkData : ParkDataContainer = context.getParkStorage(PluginConfig.pluginName).getAll() as ParkDataContainer;
 
-  if (Object.keys(savedParkData).length === 0) {
+  if (Object.keys(savedParkData).length === 0 || forceClear) {
     // Initialize keys
     savedParkData.parkAdmissions = 0;
     savedParkData.rideMap = { } as RideMap;

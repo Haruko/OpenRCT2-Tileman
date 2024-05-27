@@ -3,6 +3,7 @@
 import { collectMetrics, computeTotalExp, getPluginConfig, storeParkData, recordDemolishedRide, initPluginConfig, initParkData, getParkDataStores, StoreContainer } from './data';
 import { WindowID, openWindow, updateUIData } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
+import { clearPark } from './park';
 
 /**
  * TODO: Change land ownership setting to use GAME_COMMAND_FLAG_NO_SPEND
@@ -76,6 +77,7 @@ function subscribeEvents() : void {
 }
 
 
+
 /**
  * **********
  * Entry point
@@ -94,6 +96,7 @@ async function main() : Promise<void> {
 
     const newPark : boolean = initParkData();
     if (newPark) {
+      clearPark();
       await setLandOwnership(getMapEdges(), LandOwnership.UNOWNED);
     }
 
