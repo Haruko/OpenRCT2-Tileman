@@ -73,6 +73,11 @@ export enum WindowID {
   STATS_WINDOW = PluginConfig.statsWindowId,
 };
 
+/**
+ * Shorthand for all widget usage
+ */
+export type FlexUIWidget = WidgetCreator<FlexiblePosition, Parsed<FlexiblePosition>>;
+
 
 
 
@@ -211,7 +216,7 @@ function buildToolbarWindow() : WindowTemplate {
 /**
  * Builds panel to store buttons in toolbar window
  */
-function buildToolbarButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<FlexiblePosition>> {
+function buildToolbarButtonPanel() : FlexUIWidget {
   const buyButton = toggle({
     image: Sprites.BUY_LAND_RIGHTS,
     tooltip: 'Buy land rights',
@@ -289,7 +294,7 @@ function buildToolbarButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<Flex
 /**
  * Builds panel to display statistics in toolbar window
  */
-function buildToolbarStatsPanel() : WidgetCreator<FlexiblePosition, Parsed<FlexiblePosition>> {
+function buildToolbarStatsPanel() : FlexUIWidget {
   const availableTilesLabel = horizontal({
     spacing: 0,
     content: [
@@ -431,7 +436,7 @@ function buildDebugTab() : TabCreator {
 /**
  * Builds panel to store buttons in debug tab of config window
  */
-function buildDebugButtonPanel() : WidgetCreator<FlexiblePosition, Parsed<FlexiblePosition>> {
+function buildDebugButtonPanel() : FlexUIWidget {
   const fireStaffButton = button({
     text: 'Fire Staff',
     tooltip: 'Fires all staff',
