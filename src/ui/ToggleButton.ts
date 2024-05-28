@@ -18,7 +18,7 @@ export class ToggleButton {
   readonly buttonGroup? : ToggleButtonGroup;
   readonly widget : FlexUIWidget;
 
-  protected isPressedStore : WritableStore<boolean> = store<boolean>(false);
+  readonly isPressedStore : WritableStore<boolean> = store<boolean>(false);
 
   constructor(buttonId : ButtonID, params : ToggleButtonParams, buttonGroup? : ToggleButtonGroup) {
     this.buttonId = buttonId;
