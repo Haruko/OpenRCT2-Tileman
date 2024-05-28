@@ -4,8 +4,10 @@ import { toggle, Colour, ViewportFlags, WindowTemplate, box, button, horizontal,
 
 import { computeTilesAvailable, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores } from './data';
 import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, onToolMove, onToolUp, onToolFinish } from './tool';
-import { progressbar } from './flexui-extenson';
+import { progressbar } from './ui/flexui-extenson';
 import { deleteGuests, deleteRides, fireStaff } from './park';
+import { ToggleButton } from './ui/ToggleButton';
+import { ToggleButtonGroup } from './ui/ToggleButtonGroup';
 
 const ParkDataStores : StoreContainer = getParkDataStores();
 const PluginConfig = getPluginConfig();
@@ -153,14 +155,15 @@ const UIDataGenerators : GeneratorContainer = {
 };
 
 const UIButtonStateStores : StoreContainer = {
-  buyButtonState: store<boolean>(false),
-  rightsButtonState: store<boolean>(false),
-  sellButtonState: store<boolean>(false),
-  viewRightsButtonState: store<boolean>(false),
   fireStaffButtonState: store<boolean>(false),
   deleteGuestsButtonState: store<boolean>(false),
   deleteRidesButtonState: store<boolean>(false),
 }
+
+let buyToggleButton : ToggleButton;
+let rightsToggleButton : ToggleButton;
+let sellToggleButton : ToggleButton;
+let viewRightsToggleButton : ToggleButton;
 
 let fireStaffButtonTimeout : number | undefined;
 let deleteGuestsButtonTimeout : number | undefined;
@@ -217,42 +220,43 @@ function buildToolbarWindow() : WindowTemplate {
  * Builds panel to store buttons in toolbar window
  */
 function buildToolbarButtonPanel() : FlexUIWidget {
-  const buyButton = toggle({
+  const buttonGroup : ToggleButtonGroup = new ToggleButtonGroup();
+
+  buyToggleButton = new ToggleButton(ButtonID.BUY_TOOL, {
     image: Sprites.BUY_LAND_RIGHTS,
     tooltip: 'Buy land rights',
     width: 24,
     height: 24,
-    onChange: () => onButtonClick(ButtonID.BUY_TOOL),
-    isPressed: { twoway: UIButtonStateStores.buyButtonState }
-  });
-  
-  const rightsbutton = toggle({
+    onChange: (pressed : boolean) => onButtonClick(ButtonID.BUY_TOOL, pressed),
+  }, buttonGroup);
+  buttonGroup.addButton(buyToggleButton);
+
+  rightsToggleButton = new ToggleButton(ButtonID.RIGHTS_TOOL, {
     image: Sprites.BUY_CONSTRUCTION_RIGHTS,
     tooltip: 'Buy construction rights',
     width: 24,
     height: 24,
-    onChange: () => onButtonClick(ButtonID.RIGHTS_TOOL),
-    isPressed: { twoway: UIButtonStateStores.rightsButtonState }
-  });
-  
-  const sellButton = toggle({
+    onChange: (pressed : boolean) => onButtonClick(ButtonID.RIGHTS_TOOL, pressed),
+  }, buttonGroup);
+  buttonGroup.addButton(rightsToggleButton);
+
+  sellToggleButton = new ToggleButton(ButtonID.SELL_TOOL, {
     image: Sprites.FINANCE,
     tooltip: 'Sell land and construction rights',
     width: 24,
     height: 24,
-    onChange: () => onButtonClick(ButtonID.SELL_TOOL),
-    isPressed: { twoway: UIButtonStateStores.sellButtonState }
-  });
+    onChange: (pressed : boolean) => onButtonClick(ButtonID.SELL_TOOL, pressed),
+  }, buttonGroup);
+  buttonGroup.addButton(sellToggleButton);
   
-  const viewRightsButton = toggle({
+  viewRightsToggleButton = new ToggleButton(ButtonID.VIEW_RIGHTS_BUTTON, {
     image: Sprites.SEARCH,
     tooltip: 'Show owned construction rights',
     width: 24,
     height: 24,
-    onChange: () => onButtonClick(ButtonID.VIEW_RIGHTS_BUTTON),
-    isPressed: { twoway: UIButtonStateStores.viewRightsButtonState }
+    onChange: (pressed : boolean) => onButtonClick(ButtonID.VIEW_RIGHTS_BUTTON, pressed),
   });
-  
+
   const openStatsButton = button({
     image: Sprites.GRAPH,
     tooltip: 'Open detailed statistics window',
@@ -281,12 +285,12 @@ function buildToolbarButtonPanel() : FlexUIWidget {
     spacing: 0,
     padding: [0, 3],
     content: [
-      buyButton,
-      rightsbutton,
-      sellButton,
-      viewRightsButton,
+      toolSizeSpinner,
+      buyToggleButton.widget,
+      rightsToggleButton.widget,
+      sellToggleButton.widget,
+      viewRightsToggleButton.widget,
       openStatsButton,
-      toolSizeSpinner
     ]
   });
 }
@@ -443,7 +447,7 @@ function buildDebugButtonPanel() : FlexUIWidget {
     width: 90,
     height: 14,
     isPressed: UIButtonStateStores.fireStaffButtonState,
-    onClick: () => onButtonClick(ButtonID.FIRE_STAFF_BUTTON)
+    // onClick: () => onButtonClick(ButtonID.FIRE_STAFF_BUTTON)
   });
 
   const deleteGuestsButton = button({
@@ -452,7 +456,7 @@ function buildDebugButtonPanel() : FlexUIWidget {
     width: 90,
     height: 14,
     isPressed: UIButtonStateStores.deleteGuestsButtonState,
-    onClick: () => onButtonClick(ButtonID.DELETE_GUESTS_BUTTON)
+    // onClick: () => onButtonClick(ButtonID.DELETE_GUESTS_BUTTON)
   });
 
   const deleteRidesButton = button({
@@ -461,7 +465,7 @@ function buildDebugButtonPanel() : FlexUIWidget {
     width: 90,
     height: 14,
     isPressed: UIButtonStateStores.deleteRidesButtonState,
-    onClick: () => onButtonClick(ButtonID.DELETE_RIDES_BUTTON)
+    // onClick: () => onButtonClick(ButtonID.DELETE_RIDES_BUTTON)
   });
 
   const instructionLabel = label({
@@ -590,9 +594,12 @@ export function onWindowClose(windowId : WindowID) : void {
 /**
  * Handles clicks on buttons
  * @param buttonId ButtonID that was clicked
+ * @param pressed true if the button is pressed
  */
-export function onButtonClick(buttonId : ButtonID) : void {
-  const pressed = isButtonPressed(buttonId);
+export function onButtonClick(buttonId : ButtonID, pressed? : boolean) : void {
+  if (typeof pressed === 'undefined') {
+    pressed = isButtonPressed(buttonId);
+  }
 
   switch (buttonId) {
     case ButtonID.BUY_TOOL:
@@ -804,70 +811,53 @@ export function updateUIData() : void {
 
 /**
  * Presses the specified button and depresses others.
- * @param id ButtonID to click or ToolID whose button should be clicked
- * @param pressed If defined, whether the button should be pressed or not. If undefined, use as a toggle
+ * @param id ButtonID to cli1ck or ToolID whose button should be clicked
+ * @param press If defined, whether the button should be pressed or not. If undefined, use as a toggle
  */
-export function setButtonPressed(id : ButtonID | ToolID, pressed? : boolean) : void {
+export function setButtonPressed(id : ButtonID | ToolID, press? : boolean) : void {
   if (id in ToolID) {
     id = id as unknown as ButtonID;
   }
 
   switch (id) {
     case ButtonID.BUY_TOOL:
-      if (pressed === false) {
-        // If false, just depress the button
-        UIButtonStateStores.buyButtonState.set(false);
+      if (typeof press === 'undefined') {
+        buyToggleButton.toggle();
+      } else if (press) {
+        buyToggleButton.press();
       } else {
-        if (typeof pressed === 'undefined') {
-          // If undefined, toggle it
-          pressed = !UIButtonStateStores.buyButtonState.get();
-        }
-
-        UIButtonStateStores.buyButtonState.set(pressed);
-        UIButtonStateStores.rightsButtonState.set(false);
-        UIButtonStateStores.sellButtonState.set(false);
+        buyToggleButton.depress();
       }
 
       break;
     case ButtonID.RIGHTS_TOOL:
-      if (pressed === false) {
-        // If false, just depress the button
-        UIButtonStateStores.rightsButtonState.set(false);
+      if (typeof press === 'undefined') {
+        rightsToggleButton.toggle();
+      } else if (press) {
+        rightsToggleButton.press();
       } else {
-        if (typeof pressed === 'undefined') {
-          // If undefined, toggle it
-          pressed = !UIButtonStateStores.rightsButtonState.get();
-        }
-
-        UIButtonStateStores.buyButtonState.set(false);
-        UIButtonStateStores.rightsButtonState.set(pressed);
-        UIButtonStateStores.sellButtonState.set(false);
+        rightsToggleButton.depress();
       }
 
       break;
     case ButtonID.SELL_TOOL:
-      if (pressed === false) {
-        // If false, just depress the button
-        UIButtonStateStores.sellButtonState.set(false);
+      if (typeof press === 'undefined') {
+        sellToggleButton.toggle();
+      } else if (press) {
+        sellToggleButton.press();
       } else {
-        if (typeof pressed === 'undefined') {
-          // If undefined, toggle it
-          pressed = !UIButtonStateStores.sellButtonState.get();
-        }
-
-        UIButtonStateStores.buyButtonState.set(false);
-        UIButtonStateStores.rightsButtonState.set(false);
-        UIButtonStateStores.sellButtonState.set(pressed);
+        sellToggleButton.depress();
       }
 
       break;
     case ButtonID.VIEW_RIGHTS_BUTTON:
-      if (typeof pressed === 'undefined') {
-        pressed = !UIButtonStateStores.viewRightsButtonState.get();
+      if (typeof press === 'undefined') {
+        viewRightsToggleButton.toggle();
+      } else if (press) {
+        viewRightsToggleButton.press();
+      } else {
+        viewRightsToggleButton.depress();
       }
-
-      UIButtonStateStores.viewRightsButtonState.set(pressed);
-      setRightsVisibility(pressed);
     break;
   }
 }
@@ -880,13 +870,13 @@ export function setButtonPressed(id : ButtonID | ToolID, pressed? : boolean) : v
 export function isButtonPressed(buttonId : ButtonID) : boolean {
   switch (buttonId) {
     case ButtonID.BUY_TOOL:
-      return UIButtonStateStores.buyButtonState.get();
+      return buyToggleButton.isPressed();
     case ButtonID.RIGHTS_TOOL:
-      return UIButtonStateStores.rightsButtonState.get();
+      return rightsToggleButton.isPressed();
     case ButtonID.SELL_TOOL:
-      return UIButtonStateStores.sellButtonState.get();
+      return sellToggleButton.isPressed();
     case ButtonID.VIEW_RIGHTS_BUTTON:
-      return UIButtonStateStores.viewRightsButtonState.get();
+      return viewRightsToggleButton.isPressed();
     default:
       return false;
   }

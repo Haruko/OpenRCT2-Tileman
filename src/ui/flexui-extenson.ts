@@ -1,4 +1,4 @@
-/// <reference path='../lib/openrct2.d.ts' />
+/// <reference path='../../lib/openrct2.d.ts' />
 
 import { Bindable, Colour, ElementParams, FlexiblePosition, WidgetCreator, isStore, widget } from "openrct2-flexui";
 
