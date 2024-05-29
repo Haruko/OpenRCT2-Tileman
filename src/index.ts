@@ -6,8 +6,6 @@ import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 import { clearPark } from './park';
 
 /**
- * TODO: Config Window - Add new tab to config window for debug
- * TODO: Config Window - Move button panel to debug
  * TODO: Config Window - Display spinners for each exp type
  * TODO: Config Window - Display totals for each exp type
  * TODO: Detailed Stats Window - Create window with various stats including historical data about rides done in a list view
