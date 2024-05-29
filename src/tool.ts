@@ -2,7 +2,7 @@
 
 import { getPluginConfig } from './data';
 import { LandOwnership, setTiles } from './land';
-import { ButtonID, toolbarWindow } from './ui';
+import { ButtonID, setRightsVisibility, toolbarWindow } from './ui';
 
 import { CoordsXY } from './types/CoordsXY';
 import { MapRange } from './types/MapRange';
@@ -113,7 +113,7 @@ export function getToolArea(center : CoordsXY) : MapRange {
  */
 export function onToolStart(toolId : ToolID) : void {
   lastViewRightsButtonState = (toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON) as ToggleButton).isPressed();
-  (toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON) as ToggleButton).press(true);
+  setRightsVisibility(true);
 }
 
 /**
@@ -163,8 +163,7 @@ export function onToolUp(toolId : ToolID, e : ToolEventArgs) : void {
  * Called when the user stops using a tool
  */
 export function onToolFinish(toolId : ToolButtonID) : void {
-  (toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON) as ToggleButton).depress(true);
-  (toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON) as ToggleButton).set(lastViewRightsButtonState, true);
+  setRightsVisibility(lastViewRightsButtonState);
   ui.tileSelection.range = null;
 }
 
