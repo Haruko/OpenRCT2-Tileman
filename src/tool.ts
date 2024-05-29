@@ -163,6 +163,7 @@ export function onToolUp(toolId : ToolID, e : ToolEventArgs) : void {
  * Called when the user stops using a tool
  */
 export function onToolFinish(toolId : ToolButtonID) : void {
+  (toolbarWindow.getUIElement(toolId as ButtonID) as ToggleButton).depress();
   setRightsVisibility(lastViewRightsButtonState);
   ui.tileSelection.range = null;
 }
