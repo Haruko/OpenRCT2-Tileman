@@ -3,11 +3,10 @@
 import { FlexiblePosition, Parsed, ViewportFlags, WidgetCreator } from 'openrct2-flexui';
 
 import { getPluginConfig } from './data';
-import { ToolID, cancelTool, onToolDown, onToolFinish, onToolMove, onToolStart, onToolUp } from './tool';
+import { ToggleButton } from './ui/elements/ToggleButton';
+import { ConfigWindow } from './ui/windows/ConfigWindow';
 import { StatsWindow } from './ui/windows/StatsWindow';
 import { ToolbarWindow } from './ui/windows/ToolbarWindow';
-import { ConfigWindow } from './ui/windows/ConfigWindow';
-import { ToggleButton } from './ui/elements/ToggleButton';
 
 const PluginConfig = getPluginConfig();
 
@@ -99,48 +98,6 @@ export const statsWindow : StatsWindow = new StatsWindow();
  * Shared
  * **********
  */
-
-/**
- * Handles clicks on buttons
- * @param buttonId ButtonID that was clicked
- * @param pressed true if the button is pressed
- */
-export function onButtonClick(buttonId : ButtonID, pressed : boolean) : void {
-  switch (buttonId) {
-    case ButtonID.BUY_TOOL:
-    case ButtonID.RIGHTS_TOOL:
-    case ButtonID.SELL_TOOL:
-      const toolId = buttonId as unknown as ToolID;
-      
-      if (pressed) {
-        ui.activateTool({
-          id: ToolID[toolId],
-          cursor: 'dig_down',
-          filter: ['terrain', 'water'],
-      
-          onStart: () => onToolStart(toolId),
-          onDown: (e: ToolEventArgs) => onToolDown(toolId, e),
-          onMove: (e: ToolEventArgs) => onToolMove(toolId, e),
-          onUp: (e: ToolEventArgs) => onToolUp(toolId, e),
-          onFinish: () => onToolFinish(toolId)
-        });
-      } else {
-        cancelTool();
-      }
-
-      break;
-    case ButtonID.VIEW_RIGHTS_BUTTON:
-      setRightsVisibility(pressed);
-      break;
-    case ButtonID.OPEN_STATS_BUTTON:
-      if (pressed) {
-        statsWindow.open();
-      } else {
-        statsWindow.close();
-      }
-      break;
-  }
-}
 
 /**
  * Closes all matching windows

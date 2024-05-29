@@ -175,6 +175,20 @@ export function onToolFinish(toolId : ToolButtonID) : void {
  * **********
  */
 
+export function activateTool(toolId : ToolID) : void {
+  ui.activateTool({
+    id: ToolID[toolId],
+    cursor: 'dig_down',
+    filter: ['terrain', 'water'],
+
+    onStart: () => onToolStart(toolId),
+    onDown: (e: ToolEventArgs) => onToolDown(toolId, e),
+    onMove: (e: ToolEventArgs) => onToolMove(toolId, e),
+    onUp: (e: ToolEventArgs) => onToolUp(toolId, e),
+    onFinish: () => onToolFinish(toolId)
+  });
+}
+
 /**
  * Cancels a tool being used
  */

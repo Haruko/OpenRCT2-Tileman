@@ -1,10 +1,10 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
 import { Colour, Store, WindowTemplate, box, compute, horizontal, label, spinner, vertical, window } from "openrct2-flexui";
-import { ButtonID, FlexUIWidget, Sprites, onButtonClick } from "../../ui";
+import { ButtonID, FlexUIWidget, Sprites, setRightsVisibility, statsWindow } from "../../ui";
 import { computeTilesAvailable, getParkDataStores, getPluginConfig } from "../../data";
 import { ToggleButton } from "../elements/ToggleButton";
-import { getToolSize, setToolSize } from "../../tool";
+import { ToolID, activateTool, cancelTool, getToolSize, setToolSize } from "../../tool";
 import { StatefulButtonGroup } from "../elements/ToggleButtonGroup";
 import { progressbar } from "../flexui-extenson";
 import { TilemanWindow } from "./TilemanWindow";
@@ -220,7 +220,7 @@ export class ToolbarWindow extends TilemanWindow {
           tooltip: 'Buy land rights',
           width: 24,
           height: 24,
-          onChange: (pressed : boolean) => onButtonClick(ButtonID.BUY_TOOL, pressed),
+          onChange: (pressed : boolean) => this.onBuyToolChange(pressed),
         }, this.toolButtonGroup);
 
         this.toolButtonGroup.addButton(newElement);
@@ -231,7 +231,7 @@ export class ToolbarWindow extends TilemanWindow {
           tooltip: 'Buy construction rights',
           width: 24,
           height: 24,
-          onChange: (pressed : boolean) => onButtonClick(ButtonID.RIGHTS_TOOL, pressed),
+          onChange: (pressed : boolean) => this.onRightsToolChange(pressed),
         }, this.toolButtonGroup);
 
         this.toolButtonGroup.addButton(newElement);
@@ -242,7 +242,7 @@ export class ToolbarWindow extends TilemanWindow {
           tooltip: 'Sell land and construction rights',
           width: 24,
           height: 24,
-          onChange: (pressed : boolean) => onButtonClick(ButtonID.SELL_TOOL, pressed),
+          onChange: (pressed : boolean) => this.onSellToolChange(pressed),
         }, this.toolButtonGroup);
 
         this.toolButtonGroup.addButton(newElement);
@@ -253,7 +253,7 @@ export class ToolbarWindow extends TilemanWindow {
           tooltip: 'Show owned construction rights',
           width: 24,
           height: 24,
-          onChange: (pressed : boolean) => onButtonClick(ButtonID.VIEW_RIGHTS_BUTTON, pressed),
+          onChange: (pressed : boolean) => this.onViewRightsChange(pressed),
         });
 
         break;
@@ -263,7 +263,7 @@ export class ToolbarWindow extends TilemanWindow {
           tooltip: 'Open detailed statistics window',
           width: 24,
           height: 24,
-          onChange: (pressed : boolean) => onButtonClick(ButtonID.OPEN_STATS_BUTTON, pressed),
+          onChange: (pressed : boolean) => this.onStatsChange(pressed),
         });
 
         break;
@@ -320,6 +320,62 @@ export class ToolbarWindow extends TilemanWindow {
    */
   protected onClose() : void {
     this.open();
+  }
+
+  /**
+   * Handle onChange for buy tool button
+   * @param isPressed true if the button is pressed
+   */
+  private onBuyToolChange(isPressed : boolean) : void {
+    if (isPressed) {
+      activateTool(ToolID.BUY_TOOL);
+    } else {
+      cancelTool();
+    }
+  }
+
+  /**
+   * Handle onChange for rights tool button
+   * @param isPressed true if the button is pressed
+   */
+  private onRightsToolChange(isPressed : boolean) : void {
+    if (isPressed) {
+      activateTool(ToolID.RIGHTS_TOOL);
+    } else {
+      cancelTool();
+    }
+  }
+
+  /**
+   * Handle onChange for sell tool button
+   * @param isPressed true if the button is pressed
+   */
+  private onSellToolChange(isPressed : boolean) : void {
+    if (isPressed) {
+      activateTool(ToolID.SELL_TOOL);
+    } else {
+      cancelTool();
+    }
+  }
+
+  /**
+   * Handle onChange for view rights toggle button
+   * @param isPressed true if the button is pressed
+   */
+  private onViewRightsChange(isPressed : boolean) : void {
+    setRightsVisibility(isPressed);
+  }
+
+  /**
+   * Handle onChange for statistics window button
+   * @param isPressed true if the button is pressed
+   */
+  private onStatsChange(isPressed : boolean) : void {
+    if (isPressed) {
+      statsWindow.open();
+    } else {
+      statsWindow.close();
+    }
   }
   
 
