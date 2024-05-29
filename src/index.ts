@@ -80,7 +80,7 @@ async function main() : Promise<void> {
   console.log('Initializing Tileman Plugin...');
 
   // Make sure it's a client
-  if (typeof ui !== 'undefined') {
+  if (typeof ui !== 'undefined' && context.mode === 'normal') {
     // Register events before initializing data so we know the events will fire
     subscribeEvents();
 
