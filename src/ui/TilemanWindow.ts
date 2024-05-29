@@ -4,14 +4,46 @@ import { WindowTemplate } from "openrct2-flexui";
 
 export abstract class TilemanWindow {
   readonly windowTitle : string;
-  readonly template : WindowTemplate;
+  protected template! : WindowTemplate;
 
   constructor(windowTitle : string) {
     this.windowTitle = windowTitle;
-
-    this.template = this._buildWindowTemplate();
   }
+  
 
+
+
+  
+  /**
+   * **********
+   * Template Construction
+   * **********
+   */
+
+  /**
+   * Builds the window template for initialization
+   * @returns WindowTemplate
+   */
+  protected abstract _buildWindowTemplate() : WindowTemplate;
+  
+
+
+
+  
+  /**
+   * **********
+   * Event Handling
+   * **********
+   */
+
+  /**
+   * Handles onOpen event
+   */
+  protected abstract onOpen() : void;
+
+  /**
+   * Handles onUpdate event
+   */
   protected onUpdate() : void {
     const foundWindow : Window | undefined = this.getWindowInstance();
     
@@ -21,8 +53,41 @@ export abstract class TilemanWindow {
       foundWindow.y = Math.max(0, Math.min(ui.height - foundWindow.height, foundWindow.y));
     }
   }
+
+  /**
+   * Handles onClose event
+   */
+  protected abstract onClose() : void;
   
-  private getWindowInstance() : Window | undefined {
+
+
+
+  
+  /**
+   * **********
+   * State Handling
+   * **********
+   */
+
+  /**
+   * Opens the window
+   */
+  open() : void {
+    this.template.open();
+  }
+
+  /**
+   * Closes the window
+   */
+  close() : void {
+    this.template.close();
+  }
+  
+  /**
+   * Gets instance of this type of Window by title
+   * @returns Window if found
+   */
+  protected getWindowInstance() : Window | undefined {
     for(let i = 0; i < ui.windows; ++i) {
       const win : Window = ui.getWindow(i);
 
@@ -33,10 +98,4 @@ export abstract class TilemanWindow {
 
     return;
   }
-
-  /**
-   * Builds the window template for initialization
-   * @returns WindowTemplate
-   */
-  protected abstract _buildWindowTemplate() : WindowTemplate;
 }

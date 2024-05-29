@@ -2,7 +2,7 @@
 
 import { getPluginConfig } from './data';
 import { LandOwnership, setTiles } from './land';
-import { ButtonID, isButtonPressed, setButtonPressed } from './ui';
+import { ButtonID, ToggleButtonID, toolbarWindow } from './ui';
 
 import { CoordsXY } from './types/CoordsXY';
 import { MapRange } from './types/MapRange';
@@ -42,6 +42,8 @@ export enum ToolID {
   RIGHTS_TOOL = PluginConfig.rightsToolId,
   SELL_TOOL = PluginConfig.sellToolId,
 };
+
+export type ToolButtonID = ToolID | ButtonID; //ButtonID.BUY_TOOL | ButtonID.RIGHTS_TOOL | ButtonID.SELL_TOOL;
 
 
 
@@ -109,8 +111,8 @@ export function getToolArea(center : CoordsXY) : MapRange {
  * Called when user starts using a tool
  */
 export function onToolStart(toolId : ToolID) : void {
-  lastViewRightsButtonState = isButtonPressed(ButtonID.VIEW_RIGHTS_BUTTON);
-  setButtonPressed(ButtonID.VIEW_RIGHTS_BUTTON, true);
+  lastViewRightsButtonState = toolbarWindow.getToggleButton(ButtonID.VIEW_RIGHTS_BUTTON).isPressed();
+  toolbarWindow.getToggleButton(ButtonID.VIEW_RIGHTS_BUTTON).press(true);
 }
 
 /**
@@ -159,9 +161,9 @@ export function onToolUp(toolId : ToolID, e : ToolEventArgs) : void {
 /**
  * Called when the user stops using a tool
  */
-export function onToolFinish(toolId : ToolID) : void {
-  setButtonPressed(toolId, false);
-  setButtonPressed(ButtonID.VIEW_RIGHTS_BUTTON, lastViewRightsButtonState);
+export function onToolFinish(toolId : ToolButtonID) : void {
+  toolbarWindow.getToggleButton(toolId as ToggleButtonID).depress(true);
+  toolbarWindow.getToggleButton(ButtonID.VIEW_RIGHTS_BUTTON).set(lastViewRightsButtonState, true);
   ui.tileSelection.range = null;
 }
 

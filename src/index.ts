@@ -1,7 +1,7 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
 import { collectMetrics, computeTotalExp, getPluginConfig, storeParkData, recordDemolishedRide, initPluginConfig, initParkData, getParkDataStores, StoreContainer } from './data';
-import { WindowID, openWindow, updateUIData } from './ui';
+import { WindowID, openWindow, toolbarWindow } from './ui';
 import { LandOwnership, getMapEdges, setLandOwnership } from './land';
 import { clearPark } from './park';
 
@@ -44,10 +44,6 @@ let ticksToNextUpdate : number = 0;
  * Sets up event subscriptions
  */
 function subscribeEvents() : void {
-  // Subscribe to changes in player data
-  ParkDataStores.totalExp.subscribe(updateUIData);
-  ParkDataStores.tilesUsed.subscribe(updateUIData);
-
   // Subscribe to ticks so we can collect data every X ticks
   context.subscribe('interval.tick', () : void => {
     ticksToNextUpdate = (ticksToNextUpdate + 1) % PluginConfig.ticksPerUpdate;
@@ -97,10 +93,10 @@ async function main() : Promise<void> {
     }
 
     // Register options in menu under Map icon in toolbar
-    ui.registerMenuItem('Tileman Toolbar', () => openWindow(WindowID.TOOLBAR_WINDOW));
+    ui.registerMenuItem('Tileman Toolbar', () => toolbarWindow.open());
     ui.registerMenuItem('Tileman Config', () => openWindow(WindowID.CONFIG_WINDOW));
 
-    openWindow(WindowID.TOOLBAR_WINDOW);
+    toolbarWindow.open();
     openWindow(WindowID.CONFIG_WINDOW);
     openWindow(WindowID.STATS_WINDOW);
   }
