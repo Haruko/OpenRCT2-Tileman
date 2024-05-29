@@ -100,19 +100,6 @@ export const statsWindow : StatsWindow = new StatsWindow();
  */
 
 /**
- * Closes all matching windows
- * @param windowId ID for windows to close
- */
-// export function closeWindows(windowId : WindowID) : void {
-//   let foundWindow : Window | undefined = findWindow(windowId);
-  
-//   while(typeof foundWindow !== 'undefined') {
-//     foundWindow.close();
-//     foundWindow = findWindow(windowId);
-//   }
-// }
-
-/**
  * Toggles the visibility of owned construction rights
  * @param visible true if we are setting the rights visible
  */
