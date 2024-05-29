@@ -45,6 +45,7 @@ const PluginConfig = {
 
   viewRightsButtonId: 'TilemanViewRights',
   openStatsButtonId: 'TilemanOpenStats',
+  toolSizeSpinnerId: 'TilemanToolSize',
   // buyToolId
   // rightsToolId
   // sellToolId
