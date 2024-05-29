@@ -4,6 +4,7 @@ import { WindowTemplate, label, vertical, window } from "openrct2-flexui";
 import { getPluginConfig } from "../data";
 import { TilemanWindow } from "./TilemanWindow";
 import { ButtonID, toolbarWindow } from "../ui";
+import { ToggleButton } from "./ToggleButton";
 
 const PluginConfig = getPluginConfig();
 
@@ -68,7 +69,7 @@ export class StatsWindow extends TilemanWindow {
    * Handles onOpen event
    */
   protected onOpen() : void {
-    toolbarWindow.getUIElement(ButtonID.OPEN_STATS_BUTTON).press();
+    (toolbarWindow.getUIElement(ButtonID.OPEN_STATS_BUTTON) as ToggleButton).press();
   }
 
   /**
@@ -82,6 +83,6 @@ export class StatsWindow extends TilemanWindow {
    * Handles window close event
    */
   protected onClose() : void {
-    toolbarWindow.getUIElement(ButtonID.OPEN_STATS_BUTTON).depress();
+    (toolbarWindow.getUIElement(ButtonID.OPEN_STATS_BUTTON) as ToggleButton).depress();
   }
 }
