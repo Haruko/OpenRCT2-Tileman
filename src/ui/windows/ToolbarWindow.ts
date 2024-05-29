@@ -6,8 +6,8 @@ import { computeTilesAvailable, getParkDataStores, getPluginConfig } from "../..
 import { ToggleButton } from "../elements/ToggleButton";
 import { ToolID, activateTool, cancelTool, getToolSize, setToolSize } from "../../tool";
 import { StatefulButtonGroup } from "../elements/ToggleButtonGroup";
-import { progressbar } from "../flexui-extenson";
 import { TilemanWindow } from "./TilemanWindow";
+import { ProgressBar } from "../elements/ProgressBar";
 
 const PluginConfig = getPluginConfig();
 const ParkDataStores = getParkDataStores();
@@ -103,7 +103,7 @@ export class ToolbarWindow extends TilemanWindow {
       }
     );
 
-    const availableTilesLabel = horizontal({
+    const availableTilesLabel : FlexUIWidget = horizontal({
       spacing: 0,
       content: [
         label({
@@ -124,7 +124,7 @@ export class ToolbarWindow extends TilemanWindow {
       }
     );
     
-    const expToNextTileLabel = horizontal({
+    const expToNextTileLabel : FlexUIWidget = horizontal({
       spacing: 0,
       content: [
         label({
@@ -164,7 +164,7 @@ export class ToolbarWindow extends TilemanWindow {
       }
     );
 
-    const expToNextTileProgressBar = progressbar({
+    const expToNextTileProgressBar : ProgressBar = new ProgressBar({
       width: '1w',
       height: 10,
       background: Colour.Grey,
@@ -179,7 +179,7 @@ export class ToolbarWindow extends TilemanWindow {
       }
     );
 
-    const unlockedTilesLabel = horizontal({
+    const unlockedTilesLabel : FlexUIWidget = horizontal({
       spacing: 0,
       content: [
         label({
@@ -199,7 +199,7 @@ export class ToolbarWindow extends TilemanWindow {
           availableTilesLabel,
           unlockedTilesLabel,
           expToNextTileLabel,
-          expToNextTileProgressBar
+          expToNextTileProgressBar.widget
         ]
       })
     });
