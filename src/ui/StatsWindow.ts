@@ -68,7 +68,7 @@ export class StatsWindow extends TilemanWindow {
    * Handles onOpen event
    */
   protected onOpen() : void {
-    toolbarWindow.getToggleButton(ButtonID.OPEN_STATS_BUTTON).press();
+    toolbarWindow.getUIElement(ButtonID.OPEN_STATS_BUTTON).press();
   }
 
   /**
@@ -82,6 +82,6 @@ export class StatsWindow extends TilemanWindow {
    * Handles window close event
    */
   protected onClose() : void {
-    toolbarWindow.getToggleButton(ButtonID.OPEN_STATS_BUTTON).depress();
+    toolbarWindow.getUIElement(ButtonID.OPEN_STATS_BUTTON).depress();
   }
 }

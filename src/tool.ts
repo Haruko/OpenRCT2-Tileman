@@ -111,8 +111,8 @@ export function getToolArea(center : CoordsXY) : MapRange {
  * Called when user starts using a tool
  */
 export function onToolStart(toolId : ToolID) : void {
-  lastViewRightsButtonState = toolbarWindow.getToggleButton(ButtonID.VIEW_RIGHTS_BUTTON).isPressed();
-  toolbarWindow.getToggleButton(ButtonID.VIEW_RIGHTS_BUTTON).press(true);
+  lastViewRightsButtonState = toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON).isPressed();
+  toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON).press(true);
 }
 
 /**
@@ -162,8 +162,8 @@ export function onToolUp(toolId : ToolID, e : ToolEventArgs) : void {
  * Called when the user stops using a tool
  */
 export function onToolFinish(toolId : ToolButtonID) : void {
-  toolbarWindow.getToggleButton(toolId as ToggleButtonID).depress(true);
-  toolbarWindow.getToggleButton(ButtonID.VIEW_RIGHTS_BUTTON).set(lastViewRightsButtonState, true);
+  toolbarWindow.getUIElement(toolId as ToggleButtonID).depress(true);
+  toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON).set(lastViewRightsButtonState, true);
   ui.tileSelection.range = null;
 }
 

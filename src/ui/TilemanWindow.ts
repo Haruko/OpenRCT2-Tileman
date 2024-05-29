@@ -1,10 +1,14 @@
 /// <reference path='../../lib/openrct2.d.ts' />
 
 import { WindowTemplate } from "openrct2-flexui";
+import { ButtonID, FlexUIWidget } from "../ui";
+import { ToggleButton } from "./ToggleButton";
 
 export abstract class TilemanWindow {
   readonly windowTitle : string;
   protected template! : WindowTemplate;
+
+  protected readonly uiElementsMap : Record<ButtonID, ToggleButton | FlexUIWidget> = {};
 
   constructor(windowTitle : string) {
     this.windowTitle = windowTitle;
@@ -97,5 +101,14 @@ export abstract class TilemanWindow {
     }
 
     return;
+  }
+
+  /**
+   * Gets a UI element from the UI map
+   * @param buttonId ButtonID to get instance of
+   * @returns Button instance
+   */
+  getUIElement(buttonId : ButtonID) : ToggleButton | FlexUIWidget {
+    return this.uiElementsMap[buttonId];
   }
 }

@@ -1,7 +1,7 @@
 /// <reference path='../../lib/openrct2.d.ts' />
 
 import { Colour, Store, WindowTemplate, box, compute, horizontal, label, spinner, vertical, window } from "openrct2-flexui";
-import { ButtonID, FlexUIWidget, Sprites, ToggleButtonID, onButtonClick } from "../ui";
+import { ButtonID, FlexUIWidget, Sprites, onButtonClick } from "../ui";
 import { computeTilesAvailable, getParkDataStores, getPluginConfig } from "../data";
 import { ToggleButton } from "./ToggleButton";
 import { getToolSize, setToolSize } from "../tool";
@@ -19,17 +19,16 @@ const ParkDataStores = getParkDataStores();
 export class ToolbarWindow extends TilemanWindow {
   private readonly toolButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
 
-  protected readonly uiElementsMap : Readonly<Record<ButtonID, ToggleButton | FlexUIWidget>> = {
-    [ButtonID.BUY_TOOL]: this._createUIElement(ButtonID.BUY_TOOL),
-    [ButtonID.RIGHTS_TOOL]: this._createUIElement(ButtonID.RIGHTS_TOOL),
-    [ButtonID.SELL_TOOL]: this._createUIElement(ButtonID.SELL_TOOL),
-    [ButtonID.VIEW_RIGHTS_BUTTON]: this._createUIElement(ButtonID.VIEW_RIGHTS_BUTTON),
-    [ButtonID.OPEN_STATS_BUTTON]: this._createUIElement(ButtonID.OPEN_STATS_BUTTON),
-    [ButtonID.TOOL_SIZE_SPINNER]: this._createUIElement(ButtonID.TOOL_SIZE_SPINNER),
-  };
-
   constructor() {
     super(PluginConfig.toolbarWindowTitle);
+
+    this.uiElementsMap[ButtonID.BUY_TOOL] =  this._createUIElement(ButtonID.BUY_TOOL);
+    this.uiElementsMap[ButtonID.RIGHTS_TOOL] =  this._createUIElement(ButtonID.RIGHTS_TOOL);
+    this.uiElementsMap[ButtonID.SELL_TOOL] =  this._createUIElement(ButtonID.SELL_TOOL);
+    this.uiElementsMap[ButtonID.VIEW_RIGHTS_BUTTON] =  this._createUIElement(ButtonID.VIEW_RIGHTS_BUTTON);
+    this.uiElementsMap[ButtonID.OPEN_STATS_BUTTON] =  this._createUIElement(ButtonID.OPEN_STATS_BUTTON);
+    this.uiElementsMap[ButtonID.TOOL_SIZE_SPINNER] =  this._createUIElement(ButtonID.TOOL_SIZE_SPINNER);
+
     this.template = this._buildWindowTemplate();
   }
   
@@ -73,7 +72,7 @@ export class ToolbarWindow extends TilemanWindow {
   }
 
   /**
-   * Builds panel to store buttons in toolbar window
+   * Builds panel to store buttons
    */
   private _buildToolbarButtonPanel() : FlexUIWidget {
     return horizontal({
@@ -91,7 +90,7 @@ export class ToolbarWindow extends TilemanWindow {
   }
 
   /**
-   * Builds panel to display statistics in toolbar window
+   * Builds panel to display statistics
    */
   private _buildToolbarStatsPanel() : FlexUIWidget {
     // Available tiles label
@@ -360,14 +359,5 @@ export class ToolbarWindow extends TilemanWindow {
         }
       }, 1);
     }
-  }
-
-  /**
-   * Gets a ToggleButton from the UI map
-   * @param buttonId ToggleButtonID to get instance of
-   * @returns ToggleButton instance
-   */
-  getToggleButton(buttonId : ToggleButtonID) : ToggleButton {
-    return this.uiElementsMap[buttonId] as ToggleButton;
   }
 }
