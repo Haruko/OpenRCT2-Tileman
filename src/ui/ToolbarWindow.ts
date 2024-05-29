@@ -21,14 +21,6 @@ export class ToolbarWindow extends TilemanWindow {
 
   constructor() {
     super(PluginConfig.toolbarWindowTitle);
-
-    this.uiElementsMap[ButtonID.BUY_TOOL] =  this._createUIElement(ButtonID.BUY_TOOL);
-    this.uiElementsMap[ButtonID.RIGHTS_TOOL] =  this._createUIElement(ButtonID.RIGHTS_TOOL);
-    this.uiElementsMap[ButtonID.SELL_TOOL] =  this._createUIElement(ButtonID.SELL_TOOL);
-    this.uiElementsMap[ButtonID.VIEW_RIGHTS_BUTTON] =  this._createUIElement(ButtonID.VIEW_RIGHTS_BUTTON);
-    this.uiElementsMap[ButtonID.OPEN_STATS_BUTTON] =  this._createUIElement(ButtonID.OPEN_STATS_BUTTON);
-    this.uiElementsMap[ButtonID.TOOL_SIZE_SPINNER] =  this._createUIElement(ButtonID.TOOL_SIZE_SPINNER);
-
     this.template = this._buildWindowTemplate();
   }
   
@@ -75,6 +67,13 @@ export class ToolbarWindow extends TilemanWindow {
    * Builds panel to store buttons
    */
   private _buildToolbarButtonPanel() : FlexUIWidget {
+    this.uiElementsMap[ButtonID.BUY_TOOL] =  this._createUIElement(ButtonID.BUY_TOOL);
+    this.uiElementsMap[ButtonID.RIGHTS_TOOL] =  this._createUIElement(ButtonID.RIGHTS_TOOL);
+    this.uiElementsMap[ButtonID.SELL_TOOL] =  this._createUIElement(ButtonID.SELL_TOOL);
+    this.uiElementsMap[ButtonID.VIEW_RIGHTS_BUTTON] =  this._createUIElement(ButtonID.VIEW_RIGHTS_BUTTON);
+    this.uiElementsMap[ButtonID.OPEN_STATS_BUTTON] =  this._createUIElement(ButtonID.OPEN_STATS_BUTTON);
+    this.uiElementsMap[ButtonID.TOOL_SIZE_SPINNER] =  this._createUIElement(ButtonID.TOOL_SIZE_SPINNER);
+
     return horizontal({
       spacing: 0,
       padding: [0, 3],
