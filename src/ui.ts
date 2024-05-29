@@ -3,7 +3,6 @@
 import { FlexiblePosition, Parsed, ViewportFlags, WidgetCreator } from 'openrct2-flexui';
 
 import { getPluginConfig } from './data';
-import { deleteGuests, deleteRides, fireStaff } from './park';
 import { ToolID, cancelTool, onToolDown, onToolFinish, onToolMove, onToolStart, onToolUp } from './tool';
 import { StatsWindow } from './ui/windows/StatsWindow';
 import { ToolbarWindow } from './ui/windows/ToolbarWindow';
@@ -139,15 +138,6 @@ export function onButtonClick(buttonId : ButtonID, pressed : boolean) : void {
       } else {
         statsWindow.close();
       }
-      break;
-    case ButtonID.FIRE_STAFF_BUTTON:
-      fireStaff();
-      break;
-    case ButtonID.DELETE_GUESTS_BUTTON:
-      deleteGuests();
-      break;
-    case ButtonID.DELETE_RIDES_BUTTON:
-      deleteRides();
       break;
   }
 }

@@ -3,10 +3,11 @@
 import { TabCreator, WindowTemplate, horizontal, label, tab, tabwindow, vertical } from "openrct2-flexui";
 import { getPluginConfig } from "../../data";
 import { TilemanWindow } from "./TilemanWindow";
-import { AnimatedSprites, ButtonID, FlexUIWidget, onButtonClick } from "../../ui";
+import { AnimatedSprites, ButtonID, FlexUIWidget } from "../../ui";
 import { StatefulButtonGroup } from "../elements/ToggleButtonGroup";
 import { ToggleButton } from "../elements/ToggleButton";
 import { DoubleClickButton } from "../elements/DoubleClickButton";
+import { deleteGuests, deleteRides, fireStaff } from "../../park";
 
 const PluginConfig = getPluginConfig();
 
@@ -143,7 +144,7 @@ export class ConfigWindow extends TilemanWindow {
           tooltip: 'Fires all staff',
           width: 90,
           height: 14,
-          onChange: (pressed : boolean) => onButtonClick(ButtonID.FIRE_STAFF_BUTTON, true)
+          onChange: this.onFireStaffChange.bind(this)
         }, this.debugButtonGroup);
 
         this.debugButtonGroup.addButton(newElement);
@@ -154,7 +155,7 @@ export class ConfigWindow extends TilemanWindow {
           tooltip: 'Deletes the guests from the park',
           width: 90,
           height: 14,
-          onChange: (pressed : boolean) => onButtonClick(ButtonID.DELETE_GUESTS_BUTTON, true)
+          onChange: this.onDeleteGuestsChange.bind(this)
         }, this.debugButtonGroup);
 
         this.debugButtonGroup.addButton(newElement);
@@ -165,7 +166,7 @@ export class ConfigWindow extends TilemanWindow {
           tooltip: 'Deletes all rides from the park and removes their stats from exp calculation',
           width: 90,
           height: 14,
-          onChange: (pressed : boolean) => onButtonClick(ButtonID.DELETE_RIDES_BUTTON, true)
+          onChange: this.onDeleteRidesChange.bind(this)
         }, this.debugButtonGroup);
 
         this.debugButtonGroup.addButton(newElement);
@@ -205,5 +206,29 @@ export class ConfigWindow extends TilemanWindow {
    */
   protected onClose() : void {
     
+  }
+
+  /**
+   * Handles clicks on fire staff button
+   * @param isPressed whether the button is pressed or not
+   */
+  onFireStaffChange(isPressed : boolean) : void {
+    fireStaff();
+  }
+
+  /**
+   * Handles clicks on fire staff button
+   * @param isPressed whether the button is pressed or not
+   */
+  onDeleteGuestsChange(isPressed : boolean) : void {
+    deleteGuests();
+  }
+
+  /**
+   * Handles clicks on fire staff button
+   * @param isPressed whether the button is pressed or not
+   */
+  onDeleteRidesChange(isPressed : boolean) : void {
+    deleteRides();
   }
 }
