@@ -2,7 +2,11 @@
 
 import { FlexiblePosition, ToggleParams, WritableStore, store, toggle } from "openrct2-flexui";
 import { ButtonID, FlexUIWidget } from "../ui";
-import { ToggleButtonGroup } from "./ToggleButtonGroup";
+import { StatefulButtonGroup } from "./ToggleButtonGroup";
+
+
+
+
 
 /**
  * Params for the toggle buttons with onChange set as required and omitting isPressed
@@ -15,12 +19,12 @@ type ToggleButtonParams = Required<Pick<ToggleParams, 'onChange'>>
  */
 export class ToggleButton {
   readonly buttonId : ButtonID;
-  readonly buttonGroup? : ToggleButtonGroup;
+  readonly buttonGroup? : StatefulButtonGroup;
   readonly widget : FlexUIWidget;
 
   readonly isPressedStore : WritableStore<boolean> = store<boolean>(false);
 
-  constructor(buttonId : ButtonID, params : ToggleButtonParams, buttonGroup? : ToggleButtonGroup) {
+  constructor(buttonId : ButtonID, params : ToggleButtonParams, buttonGroup? : StatefulButtonGroup) {
     this.buttonId = buttonId;
     this.buttonGroup = buttonGroup;
 

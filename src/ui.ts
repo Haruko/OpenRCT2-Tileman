@@ -7,7 +7,7 @@ import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, 
 import { progressbar } from './ui/flexui-extenson';
 import { deleteGuests, deleteRides, fireStaff } from './park';
 import { ToggleButton } from './ui/ToggleButton';
-import { ToggleButtonGroup } from './ui/ToggleButtonGroup';
+import { StatefulButtonGroup } from './ui/ToggleButtonGroup';
 import { DoubleClickButton } from './ui/DoubleClickButton';
 
 const ParkDataStores : StoreContainer = getParkDataStores();
@@ -215,7 +215,7 @@ function buildToolbarWindow() : WindowTemplate {
  * Builds panel to store buttons in toolbar window
  */
 function buildToolbarButtonPanel() : FlexUIWidget {
-  const buttonGroup : ToggleButtonGroup = new ToggleButtonGroup();
+  const buttonGroup : StatefulButtonGroup = new StatefulButtonGroup();
 
   buyToggleButton = new ToggleButton(ButtonID.BUY_TOOL, {
     image: Sprites.BUY_LAND_RIGHTS,
@@ -436,7 +436,7 @@ function buildDebugTab() : TabCreator {
  * Builds panel to store buttons in debug tab of config window
  */
 function buildDebugButtonPanel() : FlexUIWidget {
-  const buttonGroup : ToggleButtonGroup = new ToggleButtonGroup();
+  const buttonGroup : StatefulButtonGroup = new StatefulButtonGroup();
 
   fireStaffButton = new DoubleClickButton(ButtonID.FIRE_STAFF_BUTTON, {
     text: 'Fire Staff',

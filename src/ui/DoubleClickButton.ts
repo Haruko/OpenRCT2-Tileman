@@ -4,9 +4,13 @@ import { FlexiblePosition, ToggleParams } from "openrct2-flexui";
 import { ButtonID } from "../ui";
 import { ToggleButton } from "./ToggleButton";
 import { getPluginConfig } from "../data";
-import { ToggleButtonGroup } from "./ToggleButtonGroup";
+import { StatefulButtonGroup } from "./ToggleButtonGroup";
 
 const PluginConfig = getPluginConfig();
+
+
+
+
 
 /**
  * Params for the toggle buttons with onChange set as required and omitting isPressed
@@ -20,7 +24,7 @@ type DoubleClickButtonParams = Required<Pick<ToggleParams, 'onChange'>>
 export class DoubleClickButton extends ToggleButton {
   protected clickTimeout : number | undefined;
 
-  constructor(buttonId : ButtonID, params : DoubleClickButtonParams, buttonGroup? : ToggleButtonGroup) {
+  constructor(buttonId : ButtonID, params : DoubleClickButtonParams, buttonGroup? : StatefulButtonGroup) {
     super(buttonId, params, buttonGroup);
   }
 
