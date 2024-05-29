@@ -51,9 +51,6 @@ export class StatsWindow extends TilemanWindow {
       onOpen: this.onOpen.bind(this),
       onUpdate: this.onUpdate.bind(this),
       onClose: this.onClose.bind(this)
-      // onOpen: () => onWindowOpen(WindowID.STATS_WINDOW),
-      // onUpdate: () => onWindowUpdate(WindowID.STATS_WINDOW),
-      // onClose: () => onWindowClose(WindowID.STATS_WINDOW)
     });
   }
 
