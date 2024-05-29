@@ -32,7 +32,7 @@ export class DoubleClickButton extends ToggleButton {
    * Handles button state changes
    * @param callback Callback function
    */
-  override onChange(callback : (isPressed : boolean) => void) : void {
+  override onChange(isPressed? : boolean) : void {
     if (this.isPressed() && typeof this.clickTimeout === 'undefined') {
       this.clickTimeout = context.setTimeout(() => {
         if (typeof this.clickTimeout === 'number') {
@@ -50,7 +50,7 @@ export class DoubleClickButton extends ToggleButton {
       this.clickTimeout = undefined;
 
       // Always pass true since a double click determines that a button was clicked
-      callback(true);
+      this.callback(true);
     }
   }
 
