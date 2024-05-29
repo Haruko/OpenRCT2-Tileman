@@ -1,9 +1,9 @@
-/// <reference path='../../lib/openrct2.d.ts' />
+/// <reference path='../../../lib/openrct2.d.ts' />
 
 import { FlexiblePosition, ToggleParams } from "openrct2-flexui";
-import { ButtonID } from "../ui";
+import { ButtonID } from "../../ui";
 import { ToggleButton } from "./ToggleButton";
-import { getPluginConfig } from "../data";
+import { getPluginConfig } from "../../data";
 import { StatefulButtonGroup } from "./ToggleButtonGroup";
 
 const PluginConfig = getPluginConfig();

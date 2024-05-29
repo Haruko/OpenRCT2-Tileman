@@ -1,8 +1,8 @@
-/// <reference path='../../lib/openrct2.d.ts' />
+/// <reference path='../../../lib/openrct2.d.ts' />
 
 import { WindowTemplate } from "openrct2-flexui";
-import { ButtonID, FlexUIWidget } from "../ui";
-import { ToggleButton } from "./ToggleButton";
+import { ButtonID, FlexUIWidget } from "../../ui";
+import { ToggleButton } from "../elements/ToggleButton";
 
 export abstract class TilemanWindow {
   readonly windowTitle : string;

@@ -1,10 +1,10 @@
-/// <reference path='../../lib/openrct2.d.ts' />
+/// <reference path='../../../lib/openrct2.d.ts' />
 
 import { WindowTemplate, label, vertical, window } from "openrct2-flexui";
-import { getPluginConfig } from "../data";
+import { getPluginConfig } from "../../data";
 import { TilemanWindow } from "./TilemanWindow";
-import { ButtonID, toolbarWindow } from "../ui";
-import { ToggleButton } from "./ToggleButton";
+import { ButtonID, toolbarWindow } from "../../ui";
+import { ToggleButton } from "../elements/ToggleButton";
 
 const PluginConfig = getPluginConfig();
 

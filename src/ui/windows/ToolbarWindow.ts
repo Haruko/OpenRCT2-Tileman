@@ -1,12 +1,12 @@
-/// <reference path='../../lib/openrct2.d.ts' />
+/// <reference path='../../../lib/openrct2.d.ts' />
 
 import { Colour, Store, WindowTemplate, box, compute, horizontal, label, spinner, vertical, window } from "openrct2-flexui";
-import { ButtonID, FlexUIWidget, Sprites, onButtonClick } from "../ui";
-import { computeTilesAvailable, getParkDataStores, getPluginConfig } from "../data";
-import { ToggleButton } from "./ToggleButton";
-import { getToolSize, setToolSize } from "../tool";
-import { StatefulButtonGroup } from "./ToggleButtonGroup";
-import { progressbar } from "./flexui-extenson";
+import { ButtonID, FlexUIWidget, Sprites, onButtonClick } from "../../ui";
+import { computeTilesAvailable, getParkDataStores, getPluginConfig } from "../../data";
+import { ToggleButton } from "../elements/ToggleButton";
+import { getToolSize, setToolSize } from "../../tool";
+import { StatefulButtonGroup } from "../elements/ToggleButtonGroup";
+import { progressbar } from "../flexui-extenson";
 import { TilemanWindow } from "./TilemanWindow";
 
 const PluginConfig = getPluginConfig();

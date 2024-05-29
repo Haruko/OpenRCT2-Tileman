@@ -5,10 +5,10 @@ import { FlexiblePosition, Parsed, ViewportFlags, WidgetCreator } from 'openrct2
 import { getPluginConfig } from './data';
 import { deleteGuests, deleteRides, fireStaff } from './park';
 import { ToolID, cancelTool, onToolDown, onToolFinish, onToolMove, onToolStart, onToolUp } from './tool';
-import { StatsWindow } from './ui/StatsWindow';
-import { ToolbarWindow } from './ui/ToolbarWindow';
-import { ConfigWindow } from './ui/ConfigWindow';
-import { ToggleButton } from './ui/ToggleButton';
+import { StatsWindow } from './ui/windows/StatsWindow';
+import { ToolbarWindow } from './ui/windows/ToolbarWindow';
+import { ConfigWindow } from './ui/windows/ConfigWindow';
+import { ToggleButton } from './ui/elements/ToggleButton';
 
 const PluginConfig = getPluginConfig();
 

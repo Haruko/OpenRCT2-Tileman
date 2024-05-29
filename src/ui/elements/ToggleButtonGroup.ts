@@ -1,6 +1,6 @@
-/// <reference path='../../lib/openrct2.d.ts' />
+/// <reference path='../../../lib/openrct2.d.ts' />
 
-import { ButtonID } from "../ui";
+import { ButtonID } from "../../ui";
 import { DoubleClickButton } from "./DoubleClickButton";
 import { ToggleButton } from "./ToggleButton";
 

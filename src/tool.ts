@@ -2,11 +2,12 @@
 
 import { getPluginConfig } from './data';
 import { LandOwnership, setTiles } from './land';
-import { ButtonID, ToggleButtonID, toolbarWindow } from './ui';
+import { ButtonID, toolbarWindow } from './ui';
 
 import { CoordsXY } from './types/CoordsXY';
 import { MapRange } from './types/MapRange';
 import { Store, store } from 'openrct2-flexui';
+import { ToggleButton } from './ui/elements/ToggleButton';
 
 
 
@@ -111,8 +112,8 @@ export function getToolArea(center : CoordsXY) : MapRange {
  * Called when user starts using a tool
  */
 export function onToolStart(toolId : ToolID) : void {
-  lastViewRightsButtonState = toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON).isPressed();
-  toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON).press(true);
+  lastViewRightsButtonState = (toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON) as ToggleButton).isPressed();
+  (toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON) as ToggleButton).press(true);
 }
 
 /**
@@ -162,8 +163,8 @@ export function onToolUp(toolId : ToolID, e : ToolEventArgs) : void {
  * Called when the user stops using a tool
  */
 export function onToolFinish(toolId : ToolButtonID) : void {
-  toolbarWindow.getUIElement(toolId as ToggleButtonID).depress(true);
-  toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON).set(lastViewRightsButtonState, true);
+  (toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON) as ToggleButton).depress(true);
+  (toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON) as ToggleButton).set(lastViewRightsButtonState, true);
   ui.tileSelection.range = null;
 }
 
