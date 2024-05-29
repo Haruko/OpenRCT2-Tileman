@@ -22,6 +22,7 @@ export class ToggleButton {
   readonly buttonGroup? : StatefulButtonGroup;
   readonly widget : FlexUIWidget;
 
+  readonly callback : (isPressed : boolean) => void;
   readonly isPressedStore : WritableStore<boolean> = store<boolean>(false);
 
   constructor(buttonId : ButtonID, params : ToggleButtonParams, buttonGroup? : StatefulButtonGroup) {
@@ -30,11 +31,9 @@ export class ToggleButton {
 
     const buttonParams : ToggleParams & FlexiblePosition = params;
     buttonParams.isPressed = { twoway: this.isPressedStore };
-
-    // Do it like this to prevent infinite loop and use Store.subscribe to avoid double triggering on user clicks
-    const callback = params.onChange; // params because never undefined
-    delete buttonParams.onChange; // buttonParams so we can make it undefined
-    this.isPressedStore.subscribe((isPressed : boolean) : void => this.onChange(callback));
+    
+    this.callback = params.onChange; // params because never undefined
+    params.onChange = (isPressed : boolean) : void => this.onChange(isPressed);
 
     this.widget = toggle(buttonParams);
   }
@@ -48,40 +47,56 @@ export class ToggleButton {
 
   /**
    * Presses the button
+   * @param triggerChange true if we should simulate an onChange event trigger
    */
-  press() : void {
+  press(triggerChange? : boolean) : void {
     // Only follow through if it's a state change
     if (this.isPressed()) {
       return;
     }
 
-    this.buttonGroup?.depressOthers(this.buttonId);
-    this.isPressedStore.set(true);
+    this.buttonGroup?.depressOthers(this.buttonId, triggerChange);
+    this.set(true, triggerChange);
   }
 
   /**
    * Depresses the button
+   * @param triggerChange true if we should simulate an onChange event trigger
    */
-  depress() : void {
+  depress(triggerChange? : boolean) : void {
     // Only follow through if it's a state change
     if (!this.isPressed()) {
       return;
     }
-    
-    this.isPressedStore.set(false);
+
+    this.set(false, triggerChange);
   }
 
   /**
    * Toggles the button
+   * @param triggerChange true if we should simulate an onChange event trigger
    * @returns final state of the button
    */
-  toggle() : boolean {
-    if (this.isPressed()) {
-      this.depress();
-      return false;
-    } else {
-      this.press();
-      return true;
+  toggle(triggerChange? : boolean) : boolean {
+    this.set(!this.isPressed(), triggerChange);
+    return this.isPressed();
+  }
+
+  /**
+   * Sets the button state explicitly
+   * @param pressed state to set button
+   * @param triggerChange true if we should simulate an onChange event trigger
+   */
+  set(press : boolean, triggerChange? : boolean) : void {
+    // Only follow through if it's a state change
+    if (this.isPressed() === press) {
+      return;
+    }
+    
+    this.isPressedStore.set(press);
+
+    if (triggerChange) {
+      this.onChange(press);
     }
   }
 
@@ -89,11 +104,15 @@ export class ToggleButton {
    * Handles button state changes
    * @param callback Callback function
    */
-  onChange(callback : (isPressed : boolean) => void) : void {
-    if (this.isPressed()) {
-      this.buttonGroup?.depressOthers(this.buttonId);
+  onChange(isPressed? : boolean) : void {
+    if (typeof isPressed === 'undefined') {
+      isPressed = this.isPressed();
+    }
+    
+    if (isPressed) {
+      this.buttonGroup?.depressOthers(this.buttonId, true);
     }
 
-    callback(this.isPressed());
+    this.callback(isPressed);
   }
 }

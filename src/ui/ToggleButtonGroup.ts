@@ -27,14 +27,18 @@ export class StatefulButtonGroup {
   /**
    * Depress all but the active button, or all buttons if no ButtonID is supplied
    * @param activeButtonId the ButtonID for the one button that is activated. If undefined, depress all
+   * @param triggerChange true if we should trigger onChange events for each button
    */
-  depressOthers(activeButtonId? : ButtonID) : void {
+  depressOthers(activeButtonId? : ButtonID, triggerChange? : boolean) : void {
     this.buttons.forEach((button : StatefulButton) : void => {
       if(button.buttonId !== activeButtonId) {
         if (button instanceof DoubleClickButton) {
           button.cancelDoubleClick();
         } else {
           button.depress();
+          if (triggerChange) {
+            button.onChange();
+          }
         }
       }
     });
