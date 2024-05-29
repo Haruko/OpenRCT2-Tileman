@@ -4,6 +4,7 @@ import { FlexiblePosition, ToggleParams } from "openrct2-flexui";
 import { ButtonID } from "../ui";
 import { ToggleButton } from "./ToggleButton";
 import { getPluginConfig } from "../data";
+import { ToggleButtonGroup } from "./ToggleButtonGroup";
 
 const PluginConfig = getPluginConfig();
 
@@ -17,23 +18,17 @@ type DoubleClickButtonParams = Required<Pick<ToggleParams, 'onChange'>>
  * A wrapping class for Toggle to keep things cleaner elsewhere
  */
 export class DoubleClickButton extends ToggleButton {
-  // readonly buttonId : ButtonID;
-  // readonly buttonGroup? : ToggleButtonGroup;
-  // readonly widget : FlexUIWidget;
-
-  // protected isPressedStore : WritableStore<boolean> = store<boolean>(false);
-
   protected clickTimeout : number | undefined;
 
-  constructor(buttonId : ButtonID, params : DoubleClickButtonParams) {
-    super(buttonId, params);
+  constructor(buttonId : ButtonID, params : DoubleClickButtonParams, buttonGroup? : ToggleButtonGroup) {
+    super(buttonId, params, buttonGroup);
   }
 
   /**
    * Handles button state changes
    * @param callback Callback function
    */
-  override onChange(callback : Function) : void {
+  override onChange(callback : (isPressed : boolean) => void) : void {
     if (this.isPressed() && typeof this.clickTimeout === 'undefined') {
       this.clickTimeout = context.setTimeout(() => {
         if (typeof this.clickTimeout === 'number') {
@@ -43,13 +38,26 @@ export class DoubleClickButton extends ToggleButton {
           this.depress();
         }
       }, PluginConfig.doubleClickLength);
-    } else if (typeof this.clickTimeout === 'number') {
+
+      this.buttonGroup?.depressOthers(this.buttonId);
+    } else if (!this.isPressed() && typeof this.clickTimeout === 'number') {
       // Successful double click
       context.clearTimeout(this.clickTimeout);
       this.clickTimeout = undefined;
 
       // Always pass true since a double click determines that a button was clicked
       callback(true);
+    }
+  }
+
+  /**
+   * Cancels a double click
+   */
+  cancelDoubleClick() : void {
+    if (typeof this.clickTimeout !== 'undefined') {
+      context.clearTimeout(this.clickTimeout);
+      this.clickTimeout = undefined;
+      this.depress();
     }
   }
 }

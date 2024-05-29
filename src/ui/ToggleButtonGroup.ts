@@ -1,6 +1,7 @@
 /// <reference path='../../lib/openrct2.d.ts' />
 
 import { ButtonID } from "../ui";
+import { DoubleClickButton } from "./DoubleClickButton";
 import { ToggleButton } from "./ToggleButton";
 
 /**
@@ -16,10 +17,14 @@ export class ToggleButtonGroup {
     this.buttons.push(button);
   }
 
-  depressOthers(activeButton : ButtonID) : void {
+  depressOthers(activeButtonId : ButtonID) : void {
     this.buttons.forEach((button : ToggleButton) : void => {
-      if(button.buttonId !== activeButton) {
-        button.depress();
+      if(button.buttonId !== activeButtonId) {
+        if (button instanceof DoubleClickButton) {
+          button.cancelDoubleClick();
+        } else {
+          button.depress();
+        }
       }
     });
   }

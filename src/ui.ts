@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { toggle, Colour, ViewportFlags, WindowTemplate, box, button, horizontal, label, spinner, store, vertical, window, WidgetCreator, FlexiblePosition, Parsed, tabwindow, TabLayoutable, tab, TabCreator } from 'openrct2-flexui';
+import { Colour, ViewportFlags, WindowTemplate, box, button, horizontal, label, spinner, store, vertical, window, WidgetCreator, FlexiblePosition, Parsed, tabwindow, tab, TabCreator } from 'openrct2-flexui';
 
 import { computeTilesAvailable, getPluginConfig, StoreContainer, GeneratorContainer, getParkDataStores } from './data';
 import { getToolSize, setToolSize, ToolID, cancelTool, onToolStart, onToolDown, onToolMove, onToolUp, onToolFinish } from './tool';
@@ -8,6 +8,7 @@ import { progressbar } from './ui/flexui-extenson';
 import { deleteGuests, deleteRides, fireStaff } from './park';
 import { ToggleButton } from './ui/ToggleButton';
 import { ToggleButtonGroup } from './ui/ToggleButtonGroup';
+import { DoubleClickButton } from './ui/DoubleClickButton';
 
 const ParkDataStores : StoreContainer = getParkDataStores();
 const PluginConfig = getPluginConfig();
@@ -154,20 +155,14 @@ const UIDataGenerators : GeneratorContainer = {
   },
 };
 
-const UIButtonStateStores : StoreContainer = {
-  fireStaffButtonState: store<boolean>(false),
-  deleteGuestsButtonState: store<boolean>(false),
-  deleteRidesButtonState: store<boolean>(false),
-}
-
 let buyToggleButton : ToggleButton;
 let rightsToggleButton : ToggleButton;
 let sellToggleButton : ToggleButton;
 let viewRightsToggleButton : ToggleButton;
 
-let fireStaffButtonTimeout : number | undefined;
-let deleteGuestsButtonTimeout : number | undefined;
-let deleteRidesButtonTimeout : number | undefined;
+let fireStaffButton : DoubleClickButton;
+let deleteGuestsButton : DoubleClickButton;
+let deleteRidesButton : DoubleClickButton;
 
 const toolbarWindow : WindowTemplate = buildToolbarWindow();
 const configWindow : WindowTemplate = buildConfigWindow();
@@ -441,32 +436,34 @@ function buildDebugTab() : TabCreator {
  * Builds panel to store buttons in debug tab of config window
  */
 function buildDebugButtonPanel() : FlexUIWidget {
-  const fireStaffButton = button({
+  const buttonGroup : ToggleButtonGroup = new ToggleButtonGroup();
+
+  fireStaffButton = new DoubleClickButton(ButtonID.FIRE_STAFF_BUTTON, {
     text: 'Fire Staff',
     tooltip: 'Fires all staff',
     width: 90,
     height: 14,
-    isPressed: UIButtonStateStores.fireStaffButtonState,
-    // onClick: () => onButtonClick(ButtonID.FIRE_STAFF_BUTTON)
-  });
+    onChange: (pressed : boolean) => onButtonClick(ButtonID.FIRE_STAFF_BUTTON, true)
+  }, buttonGroup);
+  buttonGroup.addButton(fireStaffButton);
 
-  const deleteGuestsButton = button({
+  deleteGuestsButton = new DoubleClickButton(ButtonID.DELETE_GUESTS_BUTTON, {
     text: 'Delete Guests',
     tooltip: 'Deletes the guests from the park',
     width: 90,
     height: 14,
-    isPressed: UIButtonStateStores.deleteGuestsButtonState,
-    // onClick: () => onButtonClick(ButtonID.DELETE_GUESTS_BUTTON)
-  });
+    onChange: (pressed : boolean) => onButtonClick(ButtonID.DELETE_GUESTS_BUTTON, true)
+  }, buttonGroup);
+  buttonGroup.addButton(deleteGuestsButton);
 
-  const deleteRidesButton = button({
+  deleteRidesButton = new DoubleClickButton(ButtonID.DELETE_RIDES_BUTTON, {
     text: 'Delete Rides',
     tooltip: 'Deletes all rides from the park and removes their stats from exp calculation',
     width: 90,
     height: 14,
-    isPressed: UIButtonStateStores.deleteRidesButtonState,
-    // onClick: () => onButtonClick(ButtonID.DELETE_RIDES_BUTTON)
-  });
+    onChange: (pressed : boolean) => onButtonClick(ButtonID.DELETE_RIDES_BUTTON, true)
+  }, buttonGroup);
+  buttonGroup.addButton(deleteRidesButton);
 
   const instructionLabel = label({
     text: '{WHITE}Double click to use buttons',
@@ -482,9 +479,9 @@ function buildDebugButtonPanel() : FlexUIWidget {
         spacing: 3,
         padding: 0,
         content: [
-          fireStaffButton,
-          deleteGuestsButton,
-          deleteRidesButton
+          fireStaffButton.widget,
+          deleteGuestsButton.widget,
+          deleteRidesButton.widget
         ]
       }),
       instructionLabel
@@ -631,70 +628,13 @@ export function onButtonClick(buttonId : ButtonID, pressed? : boolean) : void {
       openWindow(WindowID.STATS_WINDOW);
       break;
     case ButtonID.FIRE_STAFF_BUTTON:
-      if (typeof fireStaffButtonTimeout === 'undefined') {
-        // Set a timeout to force a double click
-        fireStaffButtonTimeout = context.setTimeout(() => {
-          if (typeof fireStaffButtonTimeout === 'number') {
-            // Button wasn't clicked in time, clear timeout
-            context.clearTimeout(fireStaffButtonTimeout);
-            fireStaffButtonTimeout = undefined;
-            UIButtonStateStores.fireStaffButtonState.set(false);
-          }
-        }, PluginConfig.doubleClickLength);
-
-        UIButtonStateStores.fireStaffButtonState.set(true);
-      } else {
-        // Timeout was already set, do action
-        context.clearTimeout(fireStaffButtonTimeout);
-        fireStaffButtonTimeout = undefined;
-        UIButtonStateStores.fireStaffButtonState.set(false);
-
-        fireStaff();
-      }
+      fireStaff();
       break;
     case ButtonID.DELETE_GUESTS_BUTTON:
-      if (typeof deleteGuestsButtonTimeout === 'undefined') {
-        // Set a timeout to force a double click
-        deleteGuestsButtonTimeout = context.setTimeout(() => {
-          if (typeof deleteGuestsButtonTimeout === 'number') {
-            // Button wasn't clicked in time, clear timeout
-            context.clearTimeout(deleteGuestsButtonTimeout);
-            deleteGuestsButtonTimeout = undefined;
-            UIButtonStateStores.deleteGuestsButtonState.set(false);
-          }
-        }, PluginConfig.doubleClickLength);
-
-        UIButtonStateStores.deleteGuestsButtonState.set(true);
-      } else {
-        // Timeout was already set, do action
-        context.clearTimeout(deleteGuestsButtonTimeout);
-        deleteGuestsButtonTimeout = undefined;
-        UIButtonStateStores.deleteGuestsButtonState.set(false);
-        
-        deleteGuests();
-      }
+      deleteGuests();
       break;
     case ButtonID.DELETE_RIDES_BUTTON:
-      if (typeof deleteRidesButtonTimeout === 'undefined') {
-        // Set a timeout to force a double click
-        deleteRidesButtonTimeout = context.setTimeout(() => {
-          if (typeof deleteRidesButtonTimeout === 'number') {
-            // Button wasn't clicked in time, clear timeout
-            context.clearTimeout(deleteRidesButtonTimeout);
-            deleteRidesButtonTimeout = undefined;
-            UIButtonStateStores.deleteRidesButtonState.set(false);
-          }
-        }, PluginConfig.doubleClickLength);
-
-        UIButtonStateStores.deleteRidesButtonState.set(true);
-      } else {
-        // Timeout was already set, do action
-        context.clearTimeout(deleteRidesButtonTimeout);
-        deleteRidesButtonTimeout = undefined;
-        UIButtonStateStores.deleteRidesButtonState.set(false);
-        
-        deleteRides();
-      }
+      deleteRides();
       break;
   }
 }
@@ -725,7 +665,7 @@ export function openWindow(windowId : WindowID) : void {
           toolbarWindow.open();
 
           const foundWindow : Window | undefined = findWindow(WindowID.TOOLBAR_WINDOW);
-          if (typeof foundWindow !== 'undefined' && typeof foundWindow !== 'undefined') {
+          if (typeof foundWindow !== 'undefined') {
             foundWindow.x = x;
             foundWindow.y = y;
           }

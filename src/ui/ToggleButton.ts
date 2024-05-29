@@ -51,10 +51,7 @@ export class ToggleButton {
       return;
     }
 
-    if (typeof this.buttonGroup !== 'undefined') {
-      this.buttonGroup.depressOthers(this.buttonId);
-    }
-
+    this.buttonGroup?.depressOthers(this.buttonId);
     this.isPressedStore.set(true);
   }
 
@@ -88,9 +85,9 @@ export class ToggleButton {
    * Handles button state changes
    * @param callback Callback function
    */
-  onChange(callback : Function) : void {
-    if (this.isPressed() && typeof this.buttonGroup !== 'undefined') {
-      this.buttonGroup.depressOthers(this.buttonId);
+  onChange(callback : (isPressed : boolean) => void) : void {
+    if (this.isPressed()) {
+      this.buttonGroup?.depressOthers(this.buttonId);
     }
 
     callback(this.isPressed());
