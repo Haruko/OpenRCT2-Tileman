@@ -52,7 +52,7 @@ export class ToolbarWindow extends TilemanWindow {
     const statsPanel : FlexUIWidget  = this._buildToolbarStatsPanel();
 
     return window({
-      title: PluginConfig.toolbarWindowTitle,
+      title: this.windowTitle,
       width: 200,
       height: 'auto',
       padding: 1,

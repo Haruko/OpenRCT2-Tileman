@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { FlexiblePosition, Parsed, TabCreator, ViewportFlags, WidgetCreator, WindowTemplate, horizontal, label, tab, tabwindow, vertical, window } from 'openrct2-flexui';
+import { FlexiblePosition, Parsed, TabCreator, ViewportFlags, WidgetCreator, WindowTemplate, horizontal, label, tab, tabwindow, vertical } from 'openrct2-flexui';
 
 import { getPluginConfig } from './data';
 import { deleteGuests, deleteRides, fireStaff } from './park';
@@ -8,6 +8,7 @@ import { ToolID, cancelTool, onToolDown, onToolFinish, onToolMove, onToolStart, 
 import { DoubleClickButton } from './ui/DoubleClickButton';
 import { StatefulButtonGroup } from './ui/ToggleButtonGroup';
 import { ToolbarWindow } from './ui/ToolbarWindow';
+import { StatsWindow } from './ui/StatsWindow';
 
 const PluginConfig = getPluginConfig();
 
@@ -76,7 +77,6 @@ export type ToggleButtonID = ButtonID.BUY_TOOL | ButtonID.RIGHTS_TOOL | ButtonID
  */
 export enum WindowID {
   CONFIG_WINDOW = PluginConfig.configWindowId,
-  STATS_WINDOW = PluginConfig.statsWindowId,
 };
 
 /**
@@ -100,7 +100,7 @@ let deleteRidesButton : DoubleClickButton;
 
 export const toolbarWindow : ToolbarWindow = new ToolbarWindow();
 export const configWindow : WindowTemplate = buildConfigWindow();
-export const statsWindow : WindowTemplate = buildStatsWindow();
+export const statsWindow : StatsWindow = new StatsWindow();
 
 
 
@@ -240,36 +240,6 @@ function buildDebugButtonPanel() : FlexUIWidget {
   });
 }
 
-/**
- * Detailed Statistics Window
- */
-
-/**
- * Builds the entire detailed statistics window
- * @returns the built window
- */
-function buildStatsWindow() : WindowTemplate {
-  return window({
-    title: PluginConfig.statsWindowTitle,
-    width: 175,
-    height: 'auto',
-    padding: 1,
-    content: [
-      vertical({
-        spacing: 2,
-        padding: 0,
-        content: [
-          label({
-            text: 'Statistics'
-          })
-        ]
-    })],
-    onOpen: () => onWindowOpen(WindowID.STATS_WINDOW),
-    onUpdate: () => onWindowUpdate(WindowID.STATS_WINDOW),
-    onClose: () => onWindowClose(WindowID.STATS_WINDOW)
-  });
-}
-
 
 
 
@@ -286,10 +256,6 @@ function buildStatsWindow() : WindowTemplate {
 export function onWindowOpen(windowId : WindowID) : void {
   switch (windowId) {
     case WindowID.CONFIG_WINDOW:
-
-      break;
-    case WindowID.STATS_WINDOW:
-      toolbarWindow.getToggleButton(ButtonID.OPEN_STATS_BUTTON).press();
 
       break;
   }
@@ -310,9 +276,6 @@ export function onWindowUpdate(windowId : WindowID) : void {
       case WindowID.CONFIG_WINDOW:
 
         break;
-      case WindowID.STATS_WINDOW:
-  
-        break;
     }
   }
 }
@@ -323,10 +286,6 @@ export function onWindowUpdate(windowId : WindowID) : void {
 export function onWindowClose(windowId : WindowID) : void {
   switch (windowId) {
     case WindowID.CONFIG_WINDOW:
-
-      break;
-    case WindowID.STATS_WINDOW:
-      toolbarWindow.getToggleButton(ButtonID.OPEN_STATS_BUTTON).depress();
 
       break;
   }
@@ -366,9 +325,9 @@ export function onButtonClick(buttonId : ButtonID, pressed : boolean) : void {
       break;
     case ButtonID.OPEN_STATS_BUTTON:
       if (pressed) {
-        openWindow(WindowID.STATS_WINDOW);
+        statsWindow.open();
       } else {
-        closeWindows(WindowID.STATS_WINDOW);
+        statsWindow.close();
       }
       break;
     case ButtonID.FIRE_STAFF_BUTTON:
@@ -397,13 +356,6 @@ export function openWindow(windowId : WindowID) : void {
       }
 
       configWindow.open();
-      break;
-    case WindowID.STATS_WINDOW:
-      if (typeof existingWindow !== 'undefined') {
-        closeWindows(windowId);
-      }
-      
-      statsWindow.open();
       break;
   }
 }
@@ -447,8 +399,6 @@ export function getWindowTitle(windowId : WindowID) : string {
   switch (windowId) {
     case WindowID.CONFIG_WINDOW:
       return PluginConfig.configWindowTitle;
-    case WindowID.STATS_WINDOW:
-      return PluginConfig.statsWindowTitle;
   }
 
   return '';
