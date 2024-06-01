@@ -1,6 +1,6 @@
-import { isKeyValuePair, isObject, KeyValuePair } from '../types/KeyValuePair';
-import { DefaultStore } from "./flexui/defaultStore";
-import { ObjectStore } from "./ObjectStore";
+import { isKeyValuePair, isObject, KeyValuePair } from '@typedefs/KeyValuePair';
+import { DefaultStore } from "@flexui-ext/flexui/defaultStore";
+import { ObjectStore } from "@flexui-ext/ObjectStore";
 
 
 

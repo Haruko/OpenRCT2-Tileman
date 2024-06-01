@@ -1,8 +1,8 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
 import { FlexiblePosition, ToggleParams, WritableStore, store, toggle } from "openrct2-flexui";
-import { ButtonID, FlexUIWidget } from "../../ui";
-import { StatefulButtonGroup } from "./ToggleButtonGroup";
+import { ButtonID, FlexUIWidget } from "@src/ui";
+import { StatefulButtonGroup } from "@ui/elements/ToggleButtonGroup";
 
 
 

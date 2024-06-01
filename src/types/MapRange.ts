@@ -1,6 +1,6 @@
 /// <reference path='../../lib/openrct2.d.ts' />
 
-import { CoordsXY, isCoordsXY } from './CoordsXY';
+import { CoordsXY, isCoordsXY } from '@typedefs/CoordsXY';
 
 
 

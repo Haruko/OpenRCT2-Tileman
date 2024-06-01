@@ -1,13 +1,13 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
 import { TabCreator, WindowTemplate, horizontal, label, tab, tabwindow, vertical } from "openrct2-flexui";
-import { getPluginConfig } from "../../data";
-import { TilemanWindow } from "./TilemanWindow";
-import { AnimatedSprites, ButtonID, FlexUIWidget } from "../../ui";
-import { StatefulButtonGroup } from "../elements/ToggleButtonGroup";
-import { ToggleButton } from "../elements/ToggleButton";
-import { DoubleClickButton } from "../elements/DoubleClickButton";
-import { deleteGuests, deleteRides, fireStaff } from "../../park";
+import { getPluginConfig } from "@src/data";
+import { TilemanWindow } from "@ui/windows/TilemanWindow";
+import { AnimatedSprites, ButtonID, FlexUIWidget } from "@src/ui";
+import { StatefulButtonGroup } from "@ui/elements/ToggleButtonGroup";
+import { ToggleButton } from "@ui/elements/ToggleButton";
+import { DoubleClickButton } from "@ui/elements/DoubleClickButton";
+import { deleteGuests, deleteRides, fireStaff } from "@src/park";
 
 const PluginConfig = getPluginConfig();
 

@@ -1,9 +1,9 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { collectMetrics, computeTotalExp, getPluginConfig, storeParkData, recordDemolishedRide, initPluginConfig, initParkData, getParkDataStores, StoreContainer } from './data';
-import { configWindow, statsWindow, toolbarWindow } from './ui';
-import { LandOwnership, getMapEdges, setLandOwnership } from './land';
-import { clearPark } from './park';
+import { collectMetrics, computeTotalExp, getPluginConfig, storeParkData, recordDemolishedRide, initPluginConfig, initParkData, getParkDataStores, StoreContainer } from '@src/data';
+import { configWindow, statsWindow, toolbarWindow } from '@src/ui';
+import { LandOwnership, getMapEdges, setLandOwnership } from '@src/land';
+import { clearPark } from '@src/park';
 
 //TODO: Make tool.ts a class
 //TODO: Make some stores into computed

@@ -1,7 +1,7 @@
 // From https://github.dev/Basssiiie/OpenRCT2-FlexUI
 
 import { Store } from "openrct2-flexui";
-import { Event, invoke } from "./event";
+import { Event, invoke } from "@flexui-ext/flexui/event";
 
 
 /**
@@ -11,7 +11,7 @@ export abstract class DefaultStore<T> implements Store<T> {
   protected _listeners? : Event<T>;
 
   constructor(protected _value: T) {
-		
+
   }
 
   get(): T {

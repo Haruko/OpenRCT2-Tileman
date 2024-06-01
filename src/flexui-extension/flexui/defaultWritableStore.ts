@@ -1,6 +1,6 @@
 // From https://github.dev/Basssiiie/OpenRCT2-FlexUI
 
-import { DefaultStore } from "./defaultStore";
+import { DefaultStore } from "@flexui-ext/flexui/defaultStore";
 import { WritableStore } from "openrct2-flexui";
 
 

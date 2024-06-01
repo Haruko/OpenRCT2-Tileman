@@ -1,5 +1,5 @@
 import { Store } from 'openrct2-flexui';
-import { KeyValuePair } from '../types/KeyValuePair';
+import { KeyValuePair } from '@typedefs/KeyValuePair';
 
 
 

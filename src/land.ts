@@ -1,9 +1,9 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { computeTilesAvailable, StoreContainer, getParkDataStores, GameCommandFlag } from './data';
+import { computeTilesAvailable, StoreContainer, getParkDataStores, GameCommandFlag } from '@src/data';
 
-import { CoordsXY } from './types/CoordsXY';
-import { MapRange, isMapRange, computeTilesInRange } from './types/MapRange';
+import { CoordsXY } from '@typedefs/CoordsXY';
+import { MapRange, isMapRange, computeTilesInRange } from '@typedefs/MapRange';
 
 
 

@@ -1,5 +1,5 @@
-import { DefaultObjectStore } from './DefaultObjectStore';
-import { ObjectStore } from './ObjectStore';
+import { DefaultObjectStore } from '@flexui-ext/DefaultObjectStore';
+import { ObjectStore } from '@flexui-ext/ObjectStore';
 
 /**
  * Create an array that can be observed by the user interface for modifications.

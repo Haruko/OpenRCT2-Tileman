@@ -1,25 +1,33 @@
 // https://github.com/ltsSmitty/OpenRCT2-Simple-Typescript-Template-Async/blob/main/tsconfig.json
 {
-	"compilerOptions": {
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-		"module": "ES2020",
-		"moduleResolution": "node",
-		"noFallthroughCasesInSwitch": true,
-		"noImplicitAny": true,
-		"noImplicitOverride": true,
-		"noImplicitReturns": true,
-		"noImplicitThis": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": false,
-		// "outDir": "out",
-		"strict": true,
-		"target": "es5",
-		"lib": [ "es5", "ES2015.Promise"]
-	},
-	"include": [
-		"./lib/**/*.ts",
-		"./src/**/*.ts",
-	],
-	"noEmit": true
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "strict": true,
+    "target": "es5",
+    "lib": ["es5", "ES2015.Promise"],
+    "noEmit": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@src/*": ["./*"],
+      "@flexui-ext/*": ["./flexui-extension/*"],
+      "@polyfills/*": ["./polyfills/*"],
+      "@tools/*": ["./tools/*"],
+      "@typedefs/*": ["./types/*"],
+      "@ui/*": ["./ui/*"]
+    }
+  },
+  "include": [
+    "./lib/**/*.ts",
+    "./src/**/*.ts",
+  ]
 }

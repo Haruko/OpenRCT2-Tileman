@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { GameCommandFlag, initParkData } from "./data";
+import { GameCommandFlag, initParkData } from "@src/data";
 
 
 

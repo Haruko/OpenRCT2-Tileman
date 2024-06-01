@@ -3,10 +3,10 @@
 import { FlexiblePosition, Parsed, ViewportFlags, WidgetCreator } from 'openrct2-flexui';
 
 import { getPluginConfig } from './data';
-import { ToggleButton } from './ui/elements/ToggleButton';
-import { ConfigWindow } from './ui/windows/ConfigWindow';
-import { StatsWindow } from './ui/windows/StatsWindow';
-import { ToolbarWindow } from './ui/windows/ToolbarWindow';
+import { ToggleButton } from '@ui/elements/ToggleButton';
+import { ConfigWindow } from '@ui/windows/ConfigWindow';
+import { StatsWindow } from '@ui/windows/StatsWindow';
+import { ToolbarWindow } from '@ui/windows/ToolbarWindow';
 
 const PluginConfig = getPluginConfig();
 
