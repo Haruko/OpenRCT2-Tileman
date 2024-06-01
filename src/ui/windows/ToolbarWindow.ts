@@ -4,7 +4,7 @@ import { Colour, Store, WindowTemplate, box, compute, horizontal, label, spinner
 import { ButtonID, FlexUIWidget, Sprites, setRightsVisibility, statsWindow } from "../../ui";
 import { computeTilesAvailable, getParkDataStores, getPluginConfig } from "../../data";
 import { ToggleButton } from "../elements/ToggleButton";
-import { ToolID, activateTool, cancelTool, getToolSize, setToolSize } from "../../tool";
+import { ToolID, activateTool, cancelTool, getToolSize, setToolSize } from "../../tools/tool";
 import { StatefulButtonGroup } from "../elements/ToggleButtonGroup";
 import { TilemanWindow } from "./TilemanWindow";
 import { ProgressBar } from "../../flexui-extension/ProgressBar";

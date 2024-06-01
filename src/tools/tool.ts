@@ -1,13 +1,13 @@
-/// <reference path='../lib/openrct2.d.ts' />
+/// <reference path='../../lib/openrct2.d.ts' />
 
-import { getPluginConfig } from './data';
-import { LandOwnership, setTiles } from './land';
-import { ButtonID, setRightsVisibility, toolbarWindow } from './ui';
+import { getPluginConfig } from '../data';
+import { LandOwnership, setTiles } from '../land';
+import { ButtonID, setRightsVisibility, toolbarWindow } from '../ui';
 
-import { CoordsXY } from './types/CoordsXY';
-import { MapRange } from './types/MapRange';
+import { CoordsXY } from '../types/CoordsXY';
+import { MapRange } from '../types/MapRange';
 import { Store, store } from 'openrct2-flexui';
-import { ToggleButton } from './ui/elements/ToggleButton';
+import { ToggleButton } from '../ui/elements/ToggleButton';
 
 
 
