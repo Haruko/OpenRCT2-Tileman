@@ -304,8 +304,8 @@ export class ToolbarWindow extends TilemanWindow {
   /**
    * Handles onOpen event
    */
-  protected onOpen() : void {
-
+  protected override onOpen() : void {
+    super.onOpen();
   }
 
   /**
@@ -318,7 +318,8 @@ export class ToolbarWindow extends TilemanWindow {
   /**
    * Handles window close event
    */
-  protected onClose() : void {
+  protected override onClose() : void {
+    super.onClose();
     this.open();
   }
 

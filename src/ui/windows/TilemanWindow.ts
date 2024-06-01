@@ -43,7 +43,9 @@ export abstract class TilemanWindow {
   /**
    * Handles onOpen event
    */
-  protected abstract onOpen() : void;
+  protected onOpen() : void {
+
+  }
 
   /**
    * Handles onUpdate event
@@ -61,7 +63,9 @@ export abstract class TilemanWindow {
   /**
    * Handles onClose event
    */
-  protected abstract onClose() : void;
+  protected onClose() : void {
+    
+  }
   
 
 
