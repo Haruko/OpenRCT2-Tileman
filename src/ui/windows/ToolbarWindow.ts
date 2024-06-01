@@ -7,7 +7,7 @@ import { ToggleButton } from "../elements/ToggleButton";
 import { ToolID, activateTool, cancelTool, getToolSize, setToolSize } from "../../tool";
 import { StatefulButtonGroup } from "../elements/ToggleButtonGroup";
 import { TilemanWindow } from "./TilemanWindow";
-import { ProgressBar } from "../elements/ProgressBar";
+import { ProgressBar } from "../../flexui-extension/ProgressBar";
 
 const PluginConfig = getPluginConfig();
 const ParkDataStores = getParkDataStores();
