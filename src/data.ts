@@ -348,7 +348,7 @@ export function computeTotalExp() : number {
  * Exposes PluginConfig to other modules
  * @returns PluginConfig
  */
-export function getPluginConfig() : { [index : string] : any } {
+export function getPluginConfig() : Record<string, any> {
   return PluginConfig;
 }
 
