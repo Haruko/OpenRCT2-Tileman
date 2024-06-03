@@ -1,15 +1,12 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
 import { TabCreator, WindowTemplate, horizontal, label, tab, tabwindow, vertical } from "openrct2-flexui";
-import { getPluginConfig } from "@src/data";
-import { TilemanWindow } from "@ui/windows/TilemanWindow";
-import { AnimatedSprites, ButtonID, FlexUIWidget } from "@src/ui";
+import { AnimatedSprites, ButtonID, TilemanWindow } from "@ui/windows/TilemanWindow";
 import { StatefulButtonGroup } from "@ui/elements/ToggleButtonGroup";
 import { ToggleButton } from "@ui/elements/ToggleButton";
 import { DoubleClickButton } from "@ui/elements/DoubleClickButton";
-import { deleteGuests, deleteRides, fireStaff } from "@src/park";
-
-const PluginConfig = getPluginConfig();
+import { deleteGuests, deleteRides, fireStaff } from "@src/_park";
+import { FlexUIWidget } from '@src/flexui-extension/FlexUIWidget';
 
 
 
@@ -19,14 +16,12 @@ export class ConfigWindow extends TilemanWindow {
   private readonly debugButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
   
   constructor() {
-    super(PluginConfig.configWindowTitle);
+    super('Tileman Config');
     this.template = this._buildWindowTemplate();
   }
   
 
-
-
-
+  
   /**
    * **********
    * Template Construction

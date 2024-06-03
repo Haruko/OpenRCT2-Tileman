@@ -1,19 +1,11 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { computeTilesAvailable, StoreContainer, getParkDataStores, GameCommandFlag } from '@src/data';
+import { computeTilesAvailable, GameCommandFlag, ParkDataStores } from '@src/_data';
 
 import { CoordsXY } from '@typedefs/CoordsXY';
 import { MapRange, isMapRange, computeTilesInRange } from '@typedefs/MapRange';
 
 
-
-/**
- * **********
- * Variables
- * **********
- */
-
-const ParkDataStores : StoreContainer = getParkDataStores();
 
 
 
@@ -109,20 +101,22 @@ export function checkInsideMap(coords : CoordsXY) : boolean;
 export function checkInsideMap(rangeOrCoords : CoordsXY | MapRange) : boolean;
 
 export function checkInsideMap(rangeOrCoords : any) : boolean {
+  const mapEdges : MapRange = getMapEdges();
+
   if (isMapRange(rangeOrCoords)) {
     const range = rangeOrCoords as MapRange;
 
-    const xLow : boolean = (range.leftTop.x > getMapEdges().leftTop.x || range.rightBottom.x > getMapEdges().leftTop.x);
-    const xHigh : boolean = (range.leftTop.x < getMapEdges().rightBottom.x || range.rightBottom.x < getMapEdges().rightBottom.x);
-    const yLow : boolean = (range.leftTop.y > getMapEdges().leftTop.y || range.rightBottom.y > getMapEdges().leftTop.y);
-    const yHigh : boolean = (range.leftTop.y < getMapEdges().rightBottom.y || range.rightBottom.y < getMapEdges().rightBottom.y);
+    const xLow : boolean = (range.leftTop.x > mapEdges.leftTop.x || range.rightBottom.x > mapEdges.leftTop.x);
+    const xHigh : boolean = (range.leftTop.x < mapEdges.rightBottom.x || range.rightBottom.x < mapEdges.rightBottom.x);
+    const yLow : boolean = (range.leftTop.y > mapEdges.leftTop.y || range.rightBottom.y > mapEdges.leftTop.y);
+    const yHigh : boolean = (range.leftTop.y < mapEdges.rightBottom.y || range.rightBottom.y < mapEdges.rightBottom.y);
   
     return xLow && xHigh && yLow && yHigh;
   } else {
     const coords = rangeOrCoords as CoordsXY;
     
-    const x : boolean = coords.x > getMapEdges().leftTop.x && coords.x < getMapEdges().rightBottom.x;
-    const y : boolean = coords.y > getMapEdges().leftTop.y && coords.y < getMapEdges().rightBottom.y;
+    const x : boolean = coords.x > mapEdges.leftTop.x && coords.x < mapEdges.rightBottom.x;
+    const y : boolean = coords.y > mapEdges.leftTop.y && coords.y < mapEdges.rightBottom.y;
   
     return x && y;
   }
@@ -134,9 +128,10 @@ export function checkInsideMap(rangeOrCoords : any) : boolean {
  * @returns clamped coordinates
  */
 export function clampCoords(coords : CoordsXY) : CoordsXY {
+  const mapEdges : MapRange = getMapEdges();
   let clampedCoords : CoordsXY = CoordsXY(
-    Math.min(getMapEdges().rightBottom.x - 32, Math.max(getMapEdges().leftTop.x + 32, coords.x)),
-    Math.min(getMapEdges().rightBottom.y - 32, Math.max(getMapEdges().leftTop.y + 32, coords.y))
+    Math.min(mapEdges.rightBottom.x - 32, Math.max(mapEdges.leftTop.x + 32, coords.x)),
+    Math.min(mapEdges.rightBottom.y - 32, Math.max(mapEdges.leftTop.y + 32, coords.y))
   );
 
   return clampedCoords;
@@ -171,7 +166,7 @@ export async function setLandOwnership(coords : CoordsXY[], ownership : LandOwne
 /**
  * Sets tile ownership in a region
  * @overload
- * @param range Defaults and clamps to <getMapEdges().leftTop.x, getMapEdges().leftTop.y> -  <getMapEdges().rightBottom.x, getMapEdges().rightBottom.y>
+ * @param range Defaults and clamps to <mapEdges.leftTop.x, mapEdges.leftTop.y> - <mapEdges.rightBottom.x, mapEdges.rightBottom.y>
  * @param ownership LandOwnership enum value
  * @returns number of tiles successfully set, -1 if the tiles are entirely outside of map boundaries
  */

@@ -1,8 +1,8 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { ButtonID } from "@src/ui";
 import { DoubleClickButton } from "@ui/elements/DoubleClickButton";
 import { ToggleButton } from "@ui/elements/ToggleButton";
+import { ButtonID } from '../windows/TilemanWindow';
 
 
 

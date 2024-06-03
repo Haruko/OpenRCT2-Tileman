@@ -1,12 +1,10 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
 import { WindowTemplate, label, vertical, window } from "openrct2-flexui";
-import { getPluginConfig } from "@src/data";
-import { TilemanWindow } from "@ui/windows/TilemanWindow";
-import { ButtonID, toolbarWindow } from "@src/ui";
+import { ButtonID, TilemanWindow } from "@ui/windows/TilemanWindow";
 import { ToggleButton } from "@ui/elements/ToggleButton";
-
-const PluginConfig = getPluginConfig();
+import { IWindow } from './IWindow';
+import { UIManager, WindowID } from './UIManager';
 
 
 
@@ -14,7 +12,7 @@ const PluginConfig = getPluginConfig();
 
 export class StatsWindow extends TilemanWindow {
   constructor() {
-    super(PluginConfig.statsWindowTitle);
+    super('Tileman Statistics');
     this.template = this._buildWindowTemplate();
   }
   
@@ -70,7 +68,10 @@ export class StatsWindow extends TilemanWindow {
    */
   protected override onOpen() : void {
     super.onOpen();
-    (toolbarWindow.getUIElement(ButtonID.OPEN_STATS_BUTTON) as ToggleButton).press();
+
+    const toolbarWindow : IWindow = UIManager.instance().getWindow(WindowID.TOOLBAR);
+    const openStatsButton : ToggleButton = toolbarWindow.getUIElement(ButtonID.OPEN_STATS_BUTTON) as ToggleButton;
+    openStatsButton.press();
   }
 
   /**
@@ -85,6 +86,9 @@ export class StatsWindow extends TilemanWindow {
    */
   protected override onClose() : void {
     super.onClose();
-    (toolbarWindow.getUIElement(ButtonID.OPEN_STATS_BUTTON) as ToggleButton).depress();
+    
+    const toolbarWindow : IWindow = UIManager.instance().getWindow(WindowID.TOOLBAR);
+    const openStatsButton : ToggleButton = toolbarWindow.getUIElement(ButtonID.OPEN_STATS_BUTTON) as ToggleButton;
+    openStatsButton.depress();
   }
 }

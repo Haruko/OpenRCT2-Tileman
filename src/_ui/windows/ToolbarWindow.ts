@@ -1,16 +1,16 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
 import { Colour, Store, WindowTemplate, box, compute, horizontal, label, spinner, vertical, window } from "openrct2-flexui";
-import { ButtonID, FlexUIWidget, Sprites, setRightsVisibility, statsWindow } from "@src/ui";
-import { computeTilesAvailable, getParkDataStores, getPluginConfig } from "@src/data";
+import { ParkDataStores, PluginConfig, computeTilesAvailable } from "@src/_data";
 import { ToggleButton } from "@ui/elements/ToggleButton";
-import { ToolID, activateTool, cancelTool, getToolSize, setToolSize } from "@tools/tool";
 import { StatefulButtonGroup } from "@ui/elements/ToggleButtonGroup";
-import { TilemanWindow } from "@ui/windows/TilemanWindow";
+import { ButtonID, Sprites, TilemanWindow } from "@ui/windows/TilemanWindow";
 import { ProgressBar } from "@flexui-ext/ProgressBar";
+import { UIManager, WindowID } from './UIManager';
+import { ToolID, ToolManager } from '@src/_tools/ToolManager';
+import { FlexUIWidget } from '@src/flexui-extension/FlexUIWidget';
 
-const PluginConfig = getPluginConfig();
-const ParkDataStores = getParkDataStores();
+const toolManager = ToolManager.instance();
 
 
 
@@ -20,7 +20,7 @@ export class ToolbarWindow extends TilemanWindow {
   private readonly toolButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
 
   constructor() {
-    super(PluginConfig.toolbarWindowTitle);
+    super('Tileman Toolbar');
     this.template = this._buildWindowTemplate();
   }
   
@@ -271,13 +271,13 @@ export class ToolbarWindow extends TilemanWindow {
         newElement = spinner({
           width: 62,
           padding: 5,
-          value: getToolSize(),
+          value: toolManager.getToolSizeStore(),
           minimum: PluginConfig.minToolSize,
           maximum: PluginConfig.maxToolSize + 1,
           step: 1,
           wrapMode: 'clamp',
-          onChange: (value: number, adjustment: number) : void => {
-            setToolSize(value);
+          onChange: (value : number, adjustment : number) : void => {
+            toolManager.setToolSize(value);
           },
           format: (value: number) : string => {
             return `${value}x${value}`;
@@ -329,9 +329,9 @@ export class ToolbarWindow extends TilemanWindow {
    */
   private onBuyToolChange(isPressed : boolean) : void {
     if (isPressed) {
-      activateTool(ToolID.BUY_TOOL);
+      toolManager.setActiveTool(ToolID.BUY);
     } else {
-      cancelTool();
+      toolManager.cancelTool();
     }
   }
 
@@ -341,9 +341,9 @@ export class ToolbarWindow extends TilemanWindow {
    */
   private onRightsToolChange(isPressed : boolean) : void {
     if (isPressed) {
-      activateTool(ToolID.RIGHTS_TOOL);
+      toolManager.setActiveTool(ToolID.RIGHTS);
     } else {
-      cancelTool();
+      toolManager.cancelTool();
     }
   }
 
@@ -353,9 +353,9 @@ export class ToolbarWindow extends TilemanWindow {
    */
   private onSellToolChange(isPressed : boolean) : void {
     if (isPressed) {
-      activateTool(ToolID.SELL_TOOL);
+      toolManager.setActiveTool(ToolID.SELL);
     } else {
-      cancelTool();
+      toolManager.cancelTool();
     }
   }
 
@@ -364,7 +364,7 @@ export class ToolbarWindow extends TilemanWindow {
    * @param isPressed true if the button is pressed
    */
   private onViewRightsChange(isPressed : boolean) : void {
-    setRightsVisibility(isPressed);
+    //TODO setRightsVisibility(isPressed);
   }
 
   /**
@@ -372,6 +372,8 @@ export class ToolbarWindow extends TilemanWindow {
    * @param isPressed true if the button is pressed
    */
   private onStatsChange(isPressed : boolean) : void {
+    const statsWindow = UIManager.instance().getWindow(WindowID.STATS);
+    
     if (isPressed) {
       statsWindow.open();
     } else {

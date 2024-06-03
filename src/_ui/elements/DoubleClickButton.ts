@@ -1,12 +1,10 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
 import { FlexiblePosition, ToggleParams } from "openrct2-flexui";
-import { ButtonID } from "@src/ui";
 import { ToggleButton } from "@ui/elements/ToggleButton";
-import { getPluginConfig } from "@src/data";
 import { StatefulButtonGroup } from "@ui/elements/ToggleButtonGroup";
-
-const PluginConfig = getPluginConfig();
+import { PluginConfig } from '@src/_data';
+import { ButtonID } from '../windows/TilemanWindow';
 
 
 
