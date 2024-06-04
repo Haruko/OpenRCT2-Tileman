@@ -1,4 +1,8 @@
-export class DataStore<DataStoreType> {
+/// <reference path='../lib/openrct2.d.ts' />
+
+import { Storeless } from './types/types';
+
+export abstract class DataStore<DataStoreType> {
   private _namespace : string;
 
   protected data : DataStoreType;
@@ -8,6 +12,18 @@ export class DataStore<DataStoreType> {
     this._namespace = namespace;
     this.data = data;
     this._dataDefaults = this.deepCopy(data as object) as DataStoreType;
+  }
+
+  /**
+   * Initialize this DataStore
+   */
+  public abstract initialize() : void;
+
+  /**
+   * Resets this.data to the provided defaults
+   */
+  protected _restoreDataDefaults() : void {
+    this.deepCopy(this._dataDefaults as Record<string, any>, this.data as Record<string, any>);
   }
 
   /**
@@ -33,18 +49,11 @@ export class DataStore<DataStoreType> {
   }
 
   /**
-   * Resets this.data to the provided defaults
-   */
-  protected _restoreDataDefaults() : void {
-    this.deepCopy(this._dataDefaults as Record<string, any>, this.data as Record<string, any>);
-  }
-
-  /**
    * Gets stored data
    * @param key Key to retrieve value of
    * @returns Value of the key
    */
-  public getValue(key : keyof DataStoreType) : any {
+  public get(key : keyof DataStoreType) : any {
     return this.data[key];
   }
 
@@ -53,7 +62,7 @@ export class DataStore<DataStoreType> {
    * @param key Key to set value of
    * @returns True if the setting was successful
    */
-  public setValue(key : keyof DataStoreType, value : any) : boolean {
+  public set(key : keyof DataStoreType, value : any) : boolean {
     if (typeof this.data[key] === typeof value) {
       this.data[key] = value;
       return true;
@@ -65,7 +74,17 @@ export class DataStore<DataStoreType> {
   /**
    * Loads data from the persistent park-specific storage
    */
-  public getStoredData() : DataStoreType {
-    return context.getParkStorage().getAll(this._namespace) as DataStoreType;
+  public getStoredData() : Storeless<DataStoreType> {
+    return context.getParkStorage().getAll(this._namespace) as Storeless<DataStoreType>;
   }
+
+  /**
+   * Loads data from the persistent park-specific storage
+   */
+  public abstract loadData() : void;
+
+  /**
+   * Stores data into the persistent park-specific storage
+   */
+  public abstract storeData() : void;
 }

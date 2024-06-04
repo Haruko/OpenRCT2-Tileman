@@ -1,27 +1,5 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { ViewportFlags } from 'openrct2-flexui';
-import { ConfigWindow } from '@ui/windows/ConfigWindow';
-import { StatsWindow } from '@ui/windows/StatsWindow';
-import { ToolbarWindow } from '@ui/windows/ToolbarWindow';
-
-
-
-
-
-/**
- * **********
- * Variables
- * **********
- */
-
-export const toolbarWindow : ToolbarWindow = new ToolbarWindow();
-export const configWindow : ConfigWindow = new ConfigWindow();
-export const statsWindow : StatsWindow = new StatsWindow();
-
-
-
-
 
 /**
  * **********

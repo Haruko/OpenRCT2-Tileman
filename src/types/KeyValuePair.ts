@@ -10,7 +10,7 @@ export function isObject(item : any) : item is Record<string, any> {
 /**
  * Simplifies definition of a <key, value> pair
  */
-export type KeyValuePair<T> = {key : string, value : T};
+export type KeyValuePair<T> = { key : string, value : T | undefined };
 
 /**
  * Checks if item conforms to KeyValuePair<T>

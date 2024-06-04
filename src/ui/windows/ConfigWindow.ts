@@ -1,22 +1,24 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { TabCreator, WindowTemplate, horizontal, label, tab, tabwindow, vertical } from "openrct2-flexui";
-import { AnimatedSprites, ButtonID, TilemanWindow } from "@ui/windows/TilemanWindow";
-import { StatefulButtonGroup } from "@ui/elements/ToggleButtonGroup";
-import { ToggleButton } from "@ui/elements/ToggleButton";
-import { DoubleClickButton } from "@ui/elements/DoubleClickButton";
-import { deleteGuests, deleteRides, fireStaff } from "@src/_park";
+import { TabCreator, WindowTemplate, horizontal, label, tab, tabwindow, vertical } from 'openrct2-flexui';
+import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
+import { BaseWindow } from './BaseWindow';
+import { AnimatedSprites, UIElementID, WindowID } from '../types/enums';
 import { FlexUIWidget } from '@src/flexui-extension/FlexUIWidget';
+import { DoubleClickButton } from '../elements/DoubleClickButton';
+import { UIElement } from '../types/types';
+import { Park } from '@src/Park';
 
 
 
 
 
-export class ConfigWindow extends TilemanWindow {
-  private readonly debugButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
+export class ConfigWindow extends BaseWindow {
+  private readonly _debugButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
   
   constructor() {
-    super('Tileman Config');
+    super(WindowID.CONFIG, 'Tileman Config');
+
     this.template = this._buildWindowTemplate();
   }
   
@@ -96,9 +98,9 @@ export class ConfigWindow extends TilemanWindow {
    * Builds debug button panel
    */
   private _buildDebugButtonPanel() : FlexUIWidget {
-    this.uiElementsMap[ButtonID.FIRE_STAFF_BUTTON] = this._createUIElement(ButtonID.FIRE_STAFF_BUTTON);
-    this.uiElementsMap[ButtonID.DELETE_GUESTS_BUTTON] = this._createUIElement(ButtonID.DELETE_GUESTS_BUTTON);
-    this.uiElementsMap[ButtonID.DELETE_RIDES_BUTTON] = this._createUIElement(ButtonID.DELETE_RIDES_BUTTON);
+    this.uiElementMap[UIElementID.FIRE_STAFF_BUTTON] = this._createUIElement(UIElementID.FIRE_STAFF_BUTTON);
+    this.uiElementMap[UIElementID.DELETE_GUESTS_BUTTON] = this._createUIElement(UIElementID.DELETE_GUESTS_BUTTON);
+    this.uiElementMap[UIElementID.DELETE_RIDES_BUTTON] = this._createUIElement(UIElementID.DELETE_RIDES_BUTTON);
 
     const instructionLabel = label({
       text: '{WHITE}Double click to use buttons',
@@ -114,9 +116,9 @@ export class ConfigWindow extends TilemanWindow {
           spacing: 3,
           padding: 0,
           content: [
-            (this.uiElementsMap[ButtonID.FIRE_STAFF_BUTTON] as DoubleClickButton).widget,
-            (this.uiElementsMap[ButtonID.DELETE_GUESTS_BUTTON] as DoubleClickButton).widget,
-            (this.uiElementsMap[ButtonID.DELETE_RIDES_BUTTON] as DoubleClickButton).widget
+            (this.uiElementMap[UIElementID.FIRE_STAFF_BUTTON] as DoubleClickButton).widget,
+            (this.uiElementMap[UIElementID.DELETE_GUESTS_BUTTON] as DoubleClickButton).widget,
+            (this.uiElementMap[UIElementID.DELETE_RIDES_BUTTON] as DoubleClickButton).widget
           ]
         }),
         instructionLabel
@@ -129,42 +131,42 @@ export class ConfigWindow extends TilemanWindow {
    * @param buttonId 
    * @returns 
    */
-  private _createUIElement(buttonId : ButtonID) : ToggleButton | FlexUIWidget {
-    let newElement : ToggleButton | FlexUIWidget;
+  private _createUIElement(buttonId : UIElementID) : UIElement {
+    let newElement : UIElement;
 
     switch (buttonId) {
-      case ButtonID.FIRE_STAFF_BUTTON: {
-        newElement = new DoubleClickButton(ButtonID.FIRE_STAFF_BUTTON, {
+      case UIElementID.FIRE_STAFF_BUTTON: {
+        newElement = new DoubleClickButton(UIElementID.FIRE_STAFF_BUTTON, {
           text: 'Fire Staff',
           tooltip: 'Fires all staff',
           width: 90,
           height: 14,
           onChange: this.onFireStaffChange.bind(this)
-        }, this.debugButtonGroup);
+        }, this._debugButtonGroup);
 
-        this.debugButtonGroup.addButton(newElement);
+        this._debugButtonGroup.addButton(newElement);
         break;
-      } case ButtonID.DELETE_GUESTS_BUTTON: {
-        newElement = new DoubleClickButton(ButtonID.DELETE_GUESTS_BUTTON, {
+      } case UIElementID.DELETE_GUESTS_BUTTON: {
+        newElement = new DoubleClickButton(UIElementID.DELETE_GUESTS_BUTTON, {
           text: 'Delete Guests',
           tooltip: 'Deletes the guests from the park',
           width: 90,
           height: 14,
           onChange: this.onDeleteGuestsChange.bind(this)
-        }, this.debugButtonGroup);
+        }, this._debugButtonGroup);
 
-        this.debugButtonGroup.addButton(newElement);
+        this._debugButtonGroup.addButton(newElement);
         break;
-      } case ButtonID.DELETE_RIDES_BUTTON: {
-        newElement = new DoubleClickButton(ButtonID.DELETE_RIDES_BUTTON, {
+      } case UIElementID.DELETE_RIDES_BUTTON: {
+        newElement = new DoubleClickButton(UIElementID.DELETE_RIDES_BUTTON, {
           text: 'Delete Rides',
           tooltip: 'Deletes all rides from the park and removes their stats from exp calculation',
           width: 90,
           height: 14,
           onChange: this.onDeleteRidesChange.bind(this)
-        }, this.debugButtonGroup);
+        }, this._debugButtonGroup);
 
-        this.debugButtonGroup.addButton(newElement);
+        this._debugButtonGroup.addButton(newElement);
         break;
       }
     }
@@ -208,7 +210,7 @@ export class ConfigWindow extends TilemanWindow {
    * @param isPressed whether the button is pressed or not
    */
   onFireStaffChange(isPressed : boolean) : void {
-    fireStaff();
+    Park.fireStaff();
   }
 
   /**
@@ -216,7 +218,7 @@ export class ConfigWindow extends TilemanWindow {
    * @param isPressed whether the button is pressed or not
    */
   onDeleteGuestsChange(isPressed : boolean) : void {
-    deleteGuests();
+    Park.deleteGuests();
   }
 
   /**
@@ -224,6 +226,6 @@ export class ConfigWindow extends TilemanWindow {
    * @param isPressed whether the button is pressed or not
    */
   onDeleteRidesChange(isPressed : boolean) : void {
-    deleteRides();
+    Park.deleteRides();
   }
 }

@@ -1,32 +1,31 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { Colour, Store, WindowTemplate, box, compute, horizontal, label, spinner, vertical, window } from "openrct2-flexui";
-import { ParkDataStores, PluginConfig, computeTilesAvailable } from "@src/_data";
-import { ToggleButton } from "@ui/elements/ToggleButton";
-import { StatefulButtonGroup } from "@ui/elements/ToggleButtonGroup";
-import { ButtonID, Sprites, TilemanWindow } from "@ui/windows/TilemanWindow";
-import { ProgressBar } from "@flexui-ext/ProgressBar";
-import { UIManager, WindowID } from './UIManager';
-import { ToolID, ToolManager } from '@src/_tools/ToolManager';
+import { Colour, Store, WindowTemplate, box, compute, horizontal, label, spinner, vertical, window } from 'openrct2-flexui';
+import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
+import { Sprites, UIElementID, WindowID } from '../types/enums';
+import { BaseWindow } from './BaseWindow';
 import { FlexUIWidget } from '@src/flexui-extension/FlexUIWidget';
+import { ToggleButton } from '../elements/ToggleButton';
+import { UIManager } from '../UIManager';
+import { UIElement } from '../types/types';
+import { Plugin } from '@src/Plugin';
+import { Player } from '@src/Player';
+import { ProgressBar } from '@src/flexui-extension/ProgressBar';
+import { availableTilesStore, totalExpStore } from '@src/stores';
 
-const toolManager = ToolManager.instance();
 
 
 
 
-
-export class ToolbarWindow extends TilemanWindow {
-  private readonly toolButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
+export class ToolbarWindow extends BaseWindow {
+  private readonly _toolButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
 
   constructor() {
-    super('Tileman Toolbar');
+    super(WindowID.TOOLBAR, 'Tileman Toolbar');
     this.template = this._buildWindowTemplate();
   }
+
   
-
-
-
 
   /**
    * **********
@@ -67,23 +66,23 @@ export class ToolbarWindow extends TilemanWindow {
    * Builds panel to store buttons
    */
   private _buildToolbarButtonPanel() : FlexUIWidget {
-    this.uiElementsMap[ButtonID.BUY_TOOL] =  this._createUIElement(ButtonID.BUY_TOOL);
-    this.uiElementsMap[ButtonID.RIGHTS_TOOL] =  this._createUIElement(ButtonID.RIGHTS_TOOL);
-    this.uiElementsMap[ButtonID.SELL_TOOL] =  this._createUIElement(ButtonID.SELL_TOOL);
-    this.uiElementsMap[ButtonID.VIEW_RIGHTS_BUTTON] =  this._createUIElement(ButtonID.VIEW_RIGHTS_BUTTON);
-    this.uiElementsMap[ButtonID.OPEN_STATS_BUTTON] =  this._createUIElement(ButtonID.OPEN_STATS_BUTTON);
-    this.uiElementsMap[ButtonID.TOOL_SIZE_SPINNER] =  this._createUIElement(ButtonID.TOOL_SIZE_SPINNER);
+    this.uiElementMap[UIElementID.BUY_TOOL] =  this._createUIElement(UIElementID.BUY_TOOL);
+    this.uiElementMap[UIElementID.RIGHTS_TOOL] =  this._createUIElement(UIElementID.RIGHTS_TOOL);
+    this.uiElementMap[UIElementID.SELL_TOOL] =  this._createUIElement(UIElementID.SELL_TOOL);
+    this.uiElementMap[UIElementID.VIEW_RIGHTS_BUTTON] =  this._createUIElement(UIElementID.VIEW_RIGHTS_BUTTON);
+    this.uiElementMap[UIElementID.OPEN_STATS_BUTTON] =  this._createUIElement(UIElementID.OPEN_STATS_BUTTON);
+    this.uiElementMap[UIElementID.TOOL_SIZE_SPINNER] =  this._createUIElement(UIElementID.TOOL_SIZE_SPINNER);
 
     return horizontal({
       spacing: 0,
       padding: [0, 3],
       content: [
-        this.uiElementsMap[ButtonID.TOOL_SIZE_SPINNER] as FlexUIWidget,
-        (this.uiElementsMap[ButtonID.BUY_TOOL] as ToggleButton).widget,
-        (this.uiElementsMap[ButtonID.RIGHTS_TOOL] as ToggleButton).widget,
-        (this.uiElementsMap[ButtonID.SELL_TOOL] as ToggleButton).widget,
-        (this.uiElementsMap[ButtonID.VIEW_RIGHTS_BUTTON] as ToggleButton).widget,
-        (this.uiElementsMap[ButtonID.OPEN_STATS_BUTTON] as ToggleButton).widget,
+        this.uiElementMap[UIElementID.TOOL_SIZE_SPINNER] as FlexUIWidget,
+        (this.uiElementMap[UIElementID.BUY_TOOL] as ToggleButton).widget,
+        (this.uiElementMap[UIElementID.RIGHTS_TOOL] as ToggleButton).widget,
+        (this.uiElementMap[UIElementID.SELL_TOOL] as ToggleButton).widget,
+        (this.uiElementMap[UIElementID.VIEW_RIGHTS_BUTTON] as ToggleButton).widget,
+        (this.uiElementMap[UIElementID.OPEN_STATS_BUTTON] as ToggleButton).widget,
       ]
     });
   }
@@ -93,10 +92,8 @@ export class ToolbarWindow extends TilemanWindow {
    */
   private _buildToolbarStatsPanel() : FlexUIWidget {
     // Available tiles label
-    // TODO: simplify to be based on a computed tilesAvailable number only
-    const availableTilesText : Store<string> = compute<number, number, string>(ParkDataStores.totalExp, ParkDataStores.tilesUsed,
-      (totalExp : number, tilesUsed : number) : string => {
-        const availableTiles : number = computeTilesAvailable();
+    const availableTilesText : Store<string> = compute<number, string>(availableTilesStore,
+      (availableTiles : number) : string => {
         const textColor : string = (availableTiles === 0) ? 'RED' : 'BABYBLUE';
   
         return `{${textColor}}${context.formatString('{COMMA16}', availableTiles)}`;
@@ -117,9 +114,9 @@ export class ToolbarWindow extends TilemanWindow {
     });
     
     // Exp to next tile label
-    const expToNextTileText : Store<string> = compute<number, string>(ParkDataStores.totalExp,
-      (totalExp : number) : string => {
-          const expToNextTile : number = PluginConfig.expPerTile - (totalExp % PluginConfig.expPerTile);
+    const expToNextTileText : Store<string> = compute<number, number, string>(totalExpStore, Plugin.get('expPerTile'),
+      (totalExp : number, expPerTile : number) : string => {
+          const expToNextTile : number = expPerTile - (totalExp % expPerTile);
           return `{WHITE}${context.formatString('{COMMA16}', expToNextTile)}`;
       }
     );
@@ -138,17 +135,17 @@ export class ToolbarWindow extends TilemanWindow {
     });
     
     // Exp to next tile progress bar
-    const expToNextTilePercent : Store<number> = compute<number, number>(ParkDataStores.totalExp,
-      (totalExp : number) : number => {
-        const expSinceLastTile : number = totalExp % PluginConfig.expPerTile;
-        return expSinceLastTile / PluginConfig.expPerTile;
+    const expToNextTilePercent : Store<number> = compute<number, number, number>(totalExpStore, Plugin.get('expPerTile'),
+      (totalExp : number, expPerTile : number) : number => {
+        const expSinceLastTile : number = totalExp % expPerTile;
+        return expSinceLastTile / expPerTile;
       }
     );
     
-    const expToNextTileBarForeground : Store<Colour> = compute<number, Colour>(ParkDataStores.totalExp,
-      (totalExp : number) : Colour => {
-        const expSinceLastTile : number = totalExp % PluginConfig.expPerTile;
-        const percent : number = expSinceLastTile / PluginConfig.expPerTile;
+    const expToNextTileBarForeground : Store<Colour> = compute<number, number, Colour>(totalExpStore, Plugin.get('expPerTile'),
+      (totalExp : number, expPerTile : number) : Colour => {
+        const expSinceLastTile : number = totalExp % expPerTile;
+        const percent : number = expSinceLastTile / expPerTile;
   
         if (percent > 0.80) {
           return Colour.BrightPurple;
@@ -173,7 +170,7 @@ export class ToolbarWindow extends TilemanWindow {
     });
     
     // Unlocked tiles label
-    const unlockedTilesText : Store<string> = compute<number, string>(ParkDataStores.tilesUsed,
+    const unlockedTilesText : Store<string> = compute<number, string>(Player.get('tilesUsed'),
       (tilesUsed : number) : string => {
         return `{WHITE}${tilesUsed}`;
       }
@@ -207,48 +204,48 @@ export class ToolbarWindow extends TilemanWindow {
 
   /**
    * Creates buttons, ToggleButtons, DoubleClickButtons, and other singular UI controls
-   * @param buttonId 
-   * @returns 
+   * @param id ID of element to create
+   * @returns Created element
    */
-  private _createUIElement(buttonId : ButtonID) : ToggleButton | FlexUIWidget {
-    let newElement : ToggleButton | FlexUIWidget;
+  private _createUIElement(id : UIElementID) : UIElement {
+    let newElement : UIElement;
 
-    switch (buttonId) {
-      case ButtonID.BUY_TOOL: {
-        newElement = new ToggleButton(ButtonID.BUY_TOOL, {
+    switch (id) {
+      case UIElementID.BUY_TOOL: {
+        newElement = new ToggleButton(UIElementID.BUY_TOOL, {
           image: Sprites.BUY_LAND_RIGHTS,
           tooltip: 'Buy land rights',
           width: 24,
           height: 24,
           onChange: (pressed : boolean) => this.onBuyToolChange(pressed),
-        }, this.toolButtonGroup);
+        }, this._toolButtonGroup);
 
-        this.toolButtonGroup.addButton(newElement);
+        this._toolButtonGroup.addButton(newElement);
         break;
-      } case ButtonID.RIGHTS_TOOL: {
-        newElement = new ToggleButton(ButtonID.RIGHTS_TOOL, {
+      } case UIElementID.RIGHTS_TOOL: {
+        newElement = new ToggleButton(UIElementID.RIGHTS_TOOL, {
           image: Sprites.BUY_CONSTRUCTION_RIGHTS,
           tooltip: 'Buy construction rights',
           width: 24,
           height: 24,
           onChange: (pressed : boolean) => this.onRightsToolChange(pressed),
-        }, this.toolButtonGroup);
+        }, this._toolButtonGroup);
 
-        this.toolButtonGroup.addButton(newElement);
+        this._toolButtonGroup.addButton(newElement);
         break;
-      } case ButtonID.SELL_TOOL: {
-        newElement = new ToggleButton(ButtonID.SELL_TOOL, {
+      } case UIElementID.SELL_TOOL: {
+        newElement = new ToggleButton(UIElementID.SELL_TOOL, {
           image: Sprites.FINANCE,
           tooltip: 'Sell land and construction rights',
           width: 24,
           height: 24,
           onChange: (pressed : boolean) => this.onSellToolChange(pressed),
-        }, this.toolButtonGroup);
+        }, this._toolButtonGroup);
 
-        this.toolButtonGroup.addButton(newElement);
+        this._toolButtonGroup.addButton(newElement);
         break;
-      } case ButtonID.VIEW_RIGHTS_BUTTON: {
-        newElement = new ToggleButton(ButtonID.VIEW_RIGHTS_BUTTON, {
+      } case UIElementID.VIEW_RIGHTS_BUTTON: {
+        newElement = new ToggleButton(UIElementID.VIEW_RIGHTS_BUTTON, {
           image: Sprites.SEARCH,
           tooltip: 'Show owned construction rights',
           width: 24,
@@ -257,8 +254,8 @@ export class ToolbarWindow extends TilemanWindow {
         });
 
         break;
-      } case ButtonID.OPEN_STATS_BUTTON: {
-        newElement = new ToggleButton(ButtonID.OPEN_STATS_BUTTON, {
+      } case UIElementID.OPEN_STATS_BUTTON: {
+        newElement = new ToggleButton(UIElementID.OPEN_STATS_BUTTON, {
           image: Sprites.GRAPH,
           tooltip: 'Open detailed statistics window',
           width: 24,
@@ -267,17 +264,17 @@ export class ToolbarWindow extends TilemanWindow {
         });
 
         break;
-      } case ButtonID.TOOL_SIZE_SPINNER: {
+      } case UIElementID.TOOL_SIZE_SPINNER: {
         newElement = spinner({
           width: 62,
           padding: 5,
-          value: toolManager.getToolSizeStore(),
-          minimum: PluginConfig.minToolSize,
-          maximum: PluginConfig.maxToolSize + 1,
+          //TODO value: toolManager.getToolSizeStore(),
+          minimum: Plugin.get('minToolSize'),
+          maximum: Plugin.get('maxToolSize') + 1,
           step: 1,
           wrapMode: 'clamp',
           onChange: (value : number, adjustment : number) : void => {
-            toolManager.setToolSize(value);
+            //TODO toolManager.setToolSize(value);
           },
           format: (value: number) : string => {
             return `${value}x${value}`;
@@ -291,8 +288,6 @@ export class ToolbarWindow extends TilemanWindow {
     return newElement!;
   }
   
-
-
 
   
   /**
@@ -329,9 +324,9 @@ export class ToolbarWindow extends TilemanWindow {
    */
   private onBuyToolChange(isPressed : boolean) : void {
     if (isPressed) {
-      toolManager.setActiveTool(ToolID.BUY);
+      //TODO toolManager.setActiveTool(ToolID.BUY);
     } else {
-      toolManager.cancelTool();
+      //TODO toolManager.cancelTool();
     }
   }
 
@@ -341,9 +336,9 @@ export class ToolbarWindow extends TilemanWindow {
    */
   private onRightsToolChange(isPressed : boolean) : void {
     if (isPressed) {
-      toolManager.setActiveTool(ToolID.RIGHTS);
+      //TODO toolManager.setActiveTool(ToolID.RIGHTS);
     } else {
-      toolManager.cancelTool();
+      //TODO toolManager.cancelTool();
     }
   }
 
@@ -353,9 +348,9 @@ export class ToolbarWindow extends TilemanWindow {
    */
   private onSellToolChange(isPressed : boolean) : void {
     if (isPressed) {
-      toolManager.setActiveTool(ToolID.SELL);
+      //TODO toolManager.setActiveTool(ToolID.SELL);
     } else {
-      toolManager.cancelTool();
+      //TODO toolManager.cancelTool();
     }
   }
 
@@ -372,7 +367,7 @@ export class ToolbarWindow extends TilemanWindow {
    * @param isPressed true if the button is pressed
    */
   private onStatsChange(isPressed : boolean) : void {
-    const statsWindow = UIManager.instance().getWindow(WindowID.STATS);
+    const statsWindow = UIManager.getWindow(WindowID.STATS);
     
     if (isPressed) {
       statsWindow.open();
@@ -381,8 +376,6 @@ export class ToolbarWindow extends TilemanWindow {
     }
   }
   
-
-
 
   
   /**

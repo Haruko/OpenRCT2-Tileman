@@ -1,10 +1,9 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { FlexiblePosition, ToggleParams } from "openrct2-flexui";
-import { ToggleButton } from "@ui/elements/ToggleButton";
-import { StatefulButtonGroup } from "@ui/elements/ToggleButtonGroup";
-import { PluginConfig } from '@src/_data';
-import { ButtonID } from '../windows/TilemanWindow';
+import { FlexiblePosition, ToggleParams } from 'openrct2-flexui';
+import { ToggleButton } from './ToggleButton';
+import { UIElementID } from '../types/enums';
+import { StatefulButtonGroup } from './StatefulButtonGroup';
 
 
 
@@ -21,8 +20,9 @@ type DoubleClickButtonParams = Required<Pick<ToggleParams, 'onChange'>>
  */
 export class DoubleClickButton extends ToggleButton {
   protected clickTimeout : number | undefined;
+  protected doubleClickLength : number = 2000; // ms
 
-  constructor(buttonId : ButtonID, params : DoubleClickButtonParams, buttonGroup? : StatefulButtonGroup) {
+  constructor(buttonId : UIElementID, params : DoubleClickButtonParams, buttonGroup? : StatefulButtonGroup) {
     super(buttonId, params, buttonGroup);
   }
 
@@ -39,7 +39,7 @@ export class DoubleClickButton extends ToggleButton {
           this.clickTimeout = undefined;
           this.depress();
         }
-      }, PluginConfig.doubleClickLength);
+      }, this.doubleClickLength);
 
       this.buttonGroup?.depressOthers(this.buttonId);
     } else if (!this.isPressed() && typeof this.clickTimeout === 'number') {

@@ -1,5 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
+import { Store, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
 
 
@@ -11,26 +12,52 @@ import { DataStore } from './DataStore';
  */
 
 export type PlayerData = {
-  // Player's total experience points
-  totalExp : number,
   // Tiles used by player
-  tilesUsed : number,
+  tilesUsed : Store<number>,
 };
 
 
 
-export class Player extends DataStore<PlayerData> {
-  // Only access functions through instance
-  public static readonly instance : Player = new Player();
-
-  private constructor() {
+class TilemanPlayer extends DataStore<PlayerData> {
+  constructor() {
     super('player', {
-      // Player's total experience points
-      totalExp: 0,
       // Tiles used by player
-      tilesUsed: 0,
+      tilesUsed: store<number>(0),
     });
+  }
+
+  /**
+   * Initialize this DataStore
+   */
+  public initialize() : void {
+
+  }
+
+
+
+  /**
+   * **********
+   * Data Handling
+   * **********
+   */
+
+  /**
+   * Loads data from the persistent park-specific storage
+   */
+  public loadData() : void {
+    const savedData : PlayerData = this.getStoredData();
+
+    this.data.tilesUsed = savedData.tilesUsed;
+  }
+
+  /**
+   * Stores data into the persistent park-specific storage
+   */
+  public storeData() : void {
+    const savedData : PlayerData = this.getStoredData();
+
+    savedData.tilesUsed = this.data.tilesUsed;
   }
 }
 
-export const TilemanPlayer = Player.instance;
+export const Player : TilemanPlayer = new TilemanPlayer();

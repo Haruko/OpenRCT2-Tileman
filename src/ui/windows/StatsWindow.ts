@@ -1,18 +1,20 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { WindowTemplate, label, vertical, window } from "openrct2-flexui";
-import { ButtonID, TilemanWindow } from "@ui/windows/TilemanWindow";
-import { ToggleButton } from "@ui/elements/ToggleButton";
+import { label, vertical, window, WindowTemplate } from 'openrct2-flexui';
+import { UIElementID, WindowID } from '../types/enums';
+import { BaseWindow } from './BaseWindow';
 import { IWindow } from './IWindow';
-import { UIManager, WindowID } from './UIManager';
+import { UIManager } from '../UIManager';
+import { ToggleButton } from '../elements/ToggleButton';
 
 
 
 
 
-export class StatsWindow extends TilemanWindow {
+export class StatsWindow extends BaseWindow {
   constructor() {
-    super('Tileman Statistics');
+    super(WindowID.STATS, 'Tileman Statistics');
+
     this.template = this._buildWindowTemplate();
   }
   
@@ -69,9 +71,11 @@ export class StatsWindow extends TilemanWindow {
   protected override onOpen() : void {
     super.onOpen();
 
-    const toolbarWindow : IWindow = UIManager.instance().getWindow(WindowID.TOOLBAR);
-    const openStatsButton : ToggleButton = toolbarWindow.getUIElement(ButtonID.OPEN_STATS_BUTTON) as ToggleButton;
-    openStatsButton.press();
+    const toolbarWindow : IWindow = UIManager.getWindow(WindowID.TOOLBAR);
+    if (typeof toolbarWindow !== 'undefined') {
+      const openStatsButton : ToggleButton = toolbarWindow.getUIElement(UIElementID.OPEN_STATS_BUTTON) as ToggleButton;
+      openStatsButton.press();
+    }
   }
 
   /**
@@ -87,8 +91,10 @@ export class StatsWindow extends TilemanWindow {
   protected override onClose() : void {
     super.onClose();
     
-    const toolbarWindow : IWindow = UIManager.instance().getWindow(WindowID.TOOLBAR);
-    const openStatsButton : ToggleButton = toolbarWindow.getUIElement(ButtonID.OPEN_STATS_BUTTON) as ToggleButton;
-    openStatsButton.depress();
+    const toolbarWindow : IWindow = UIManager.getWindow(WindowID.TOOLBAR);
+    if (typeof toolbarWindow !== 'undefined') {
+      const openStatsButton : ToggleButton = toolbarWindow.getUIElement(UIElementID.OPEN_STATS_BUTTON) as ToggleButton;
+      openStatsButton.depress();
+    }
   }
 }

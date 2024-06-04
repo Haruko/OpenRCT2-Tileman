@@ -1,6 +1,11 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
+import { ArrayStore, WritableStore, arrayStore, read, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
+import { GameCommandFlag, RideLifecycleFlags } from './types/enums';
+import { RideData, Storeless } from './types/types';
+import { objectStore } from './flexui-extension/createObjectStore';
+import { ObjectStore } from './flexui-extension/ObjectStore';
 
 
 
@@ -12,72 +17,108 @@ import { DataStore } from './DataStore';
 
 type ParkData = {
   // Data used to calculate experience
-  parkAdmissions : number,
+  parkAdmissions : WritableStore<number>,
   // Maps ride IDs (numbers) and historical data
-  rideMap : Record<number, RideData>,
+  rideMap : ObjectStore<RideData>,
   // List of rides that were demolished
-  demolishedRides : RideData[]
-};
-
-type RideData = {
-  // ride.name
-  name : string,
-  // ride.classification ('ride' | 'stall' | 'facility')
-  classification : RideClassification,
-  // ride.type (RideType enum)
-  type : number,
-  // ride.age
-  age : number,
-  // ride.value
-  value : number,
-  // ride.totalCustomers
-  totalCustomers : number,
-  // ride.totalProfit
-  totalProfit : number,
-  // ride.lifecycleFlags
-  lifecycleFlags : number
+  demolishedRides : ArrayStore<RideData>
 };
 
 
 
-/**
- * **********
- * Enum Definitions
- * **********
- */
-
-// From openrct2/ride/Ride.h
-export enum RideLifecycleFlags {
-  RIDE_LIFECYCLE_EVER_BEEN_OPENED = 1 << 12
-};
-
-// From openrct2/Game.h
-export enum GameCommandFlag {
-  GAME_COMMAND_FLAG_APPLY = (1 << 0),               // If this flag is set, the command is applied, otherwise only the cost is retrieved
-  GAME_COMMAND_FLAG_REPLAY = (1 << 1),              // Command was issued from replay manager.
-  GAME_COMMAND_FLAG_2 = (1 << 2),                   // Unused
-  GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED = (1 << 3), // Allow while paused
-  GAME_COMMAND_FLAG_4 = (1 << 4),                   // Unused
-  GAME_COMMAND_FLAG_NO_SPEND = (1 << 5),            // Game command is not networked
-  GAME_COMMAND_FLAG_GHOST = (1 << 6),               // Game command is not networked
-  GAME_COMMAND_FLAG_TRACK_DESIGN = (1 << 7),
-  // GAME_COMMAND_FLAG_NETWORKED = (1u << 31)          // Game command is coming from network (Doesn't have equivalent in TS?)
-};
-
-
-
-export class Park extends DataStore<ParkData> {
-  // Only access functions through instance
-  public static readonly instance : Park = new Park();
-
-  private constructor() {
+class TilemanPark extends DataStore<ParkData> {
+  constructor() {
     super('park', {
       // Data used to calculate experience
-      parkAdmissions : 0,
+      parkAdmissions : store(0),
       // Maps ride IDs (numbers) and historical data
-      rideMap : {},
+      rideMap : objectStore({}),
       // List of rides that were demolished
-      demolishedRides : []
+      demolishedRides : arrayStore<RideData>([])
+    });
+  }
+
+  /**
+   * Initialize this DataStore
+   */
+  public initialize() : void {
+    if (this.isNewPark()) {
+      this.clearPark();
+    } else {
+      this.loadData();
+    }
+  }
+
+  
+
+  /**
+   * **********
+   * Data Handling
+   * **********
+   */
+
+  /**
+   * Loads data from the persistent park-specific storage
+   */
+  public loadData() : void {
+    const savedData : Storeless<ParkData> = this.getStoredData();
+
+    this.data.parkAdmissions.set(savedData.parkAdmissions);
+    this.data.rideMap.set(savedData.rideMap as Record<string, RideData>);
+    this.data.demolishedRides.set(savedData.demolishedRides as RideData[]);
+    //TODO Make sure this is working
+  }
+
+  /**
+   * Stores data into the persistent park-specific storage
+   */
+  public storeData() : void {
+    const savedData : Storeless<ParkData> = this.getStoredData();
+
+    savedData.parkAdmissions = read(this.data.parkAdmissions);
+    savedData.rideMap = read(this.data.rideMap);
+    savedData.demolishedRides = read(this.data.demolishedRides);
+  }
+
+  /**
+   * Move ride from ParkData.rideMap to ParkData.demolishedRides
+   * @param rideId Index of the ride that was demolished. Won't exist in stored park data, but will exist in our local copy
+   */
+  public recordDemolishedRide(rideId : number | string) : void {
+    const rideData : RideData | undefined = this.data.rideMap.getValue(rideId);
+  
+    if(typeof rideData !== 'undefined') {
+      this.data.demolishedRides.push(rideData);
+      this.data.rideMap.set(rideId, undefined);
+    }
+  }
+
+  /**
+   * Collects metric data used for experience calculations
+   */
+  public collectMetrics() : void {
+    // Get total park admissions
+    console.log('admins', park.totalAdmissions)
+    this.data.parkAdmissions.set(park.totalAdmissions);
+  
+    // Collect data from each active ride/stall/facility
+    const rideMap : ObjectStore<RideData> = this.data.rideMap;
+    map.rides.forEach((ride : Ride) : void => {
+      if (ride.lifecycleFlags & RideLifecycleFlags.RIDE_LIFECYCLE_EVER_BEEN_OPENED) {
+        // Only record rides that have opened
+        const rideData : RideData = {
+          name: ride.name,
+          classification: ride.classification,
+          type: ride.type,
+          age: ride.age,
+          value: ride.value,
+          totalCustomers: ride.totalCustomers,
+          totalProfit: ride.totalProfit,
+          lifecycleFlags: ride.lifecycleFlags
+        };
+
+        rideMap.set(ride.id, rideData);
+      }
     });
   }
   
@@ -85,78 +126,17 @@ export class Park extends DataStore<ParkData> {
 
   /**
    * **********
-   * Data Access
+   * Other
    * **********
    */
 
   /**
-   * Re-initializes park data to defaults
-   * @param forceClear True if we want to forcibly clear the park data. Defaults to false
-   * @returns True if it's a new park
+   * Checks if the park is new based on whether it has stored data
+   * @returns True if this is a brand new park
    */
-  public initialize() : boolean {
-    const savedData : ParkData = this.getStoredData();
-
-    if (Object.keys(savedData).length === 0) {
-      // Initialize keys
-      this._restoreDataDefaults();
-
-      return true; // New park
-    } else {
-      // Load saved data
-      const parkData : ParkData = {
-        parkAdmissions: savedData.parkAdmissions,
-        rideMap: savedData.rideMap,
-        demolishedRides: savedData.demolishedRides,
-      };
-
-      this.deepCopy(parkData, this.data);
-
-      // Initialize stores
-      //TODO ParkDataStores.totalExp.set(savedParkData.totalExp);
-      //TODO ParkDataStores.tilesUsed.set(savedParkData.tilesUsed);
-
-      return false; // Loaded park
-    }
+  public isNewPark() : boolean {
+    return Object.keys(this.getStoredData()).length === 0;
   }
-
-  /**
-   * Stores ParkData into the persistent park-specific storage
-   */
-  public storeParkData() : void {
-    // Get park data structure to save new data
-    const savedData : ParkData = this.getStoredData();
-  
-    // Load saved data
-    savedData.parkAdmissions = this.data.parkAdmissions;
-    savedData.rideMap = this.data.rideMap;
-    savedData.demolishedRides = this.data.demolishedRides;
-  
-    // Initialize stores
-    //TODO savedData.totalExp = ParkDataStores.totalExp.get();
-    //TODO savedData.tilesUsed = ParkDataStores.tilesUsed.get();
-  }
-
-  /**
-   * Move ride from ParkData.rideMap to ParkData.demolishedRides
-   * @param rideId Index of the ride that was demolished. Won't exist in stored park data, but will exist in our local copy
-   */
-  public recordDemolishedRide(rideId : number) : void {
-    const rideData : RideData = this.data.rideMap[rideId];
-  
-    if(typeof rideData !== 'undefined') {
-      this.data.demolishedRides.push(rideData);
-      delete this.data.rideMap[rideId];
-    }
-  }
-  
-
-
-  /**
-   * **********
-   * Actions
-   * **********
-   */
 
   /**
    * Demolishes all rides, deletes all guests, fires all staff
@@ -165,15 +145,17 @@ export class Park extends DataStore<ParkData> {
     this.deleteRides();
     this.deleteGuests();
     this.fireStaff();
+
+    //TODO await setLandOwnership(getMapEdges(), LandOwnership.UNOWNED);
     
     this._restoreDataDefaults();
-    this.storeParkData();
+    this.storeData();
   }
 
   /**
    * Fires all staff
    */
-  fireStaff() : void {
+  public fireStaff() : void {
     const staffList : Staff[] = map.getAllEntities('staff');
   
     staffList.forEach((staff : Staff) : void => {
@@ -185,7 +167,7 @@ export class Park extends DataStore<ParkData> {
   /**
    * Deletes all guests
    */
-  deleteGuests() : void {
+  public deleteGuests() : void {
     const guestList : Guest[] = map.getAllEntities('guest');
   
     let guestsOnRide = false;
@@ -206,7 +188,7 @@ export class Park extends DataStore<ParkData> {
   /**
    * Deletes all rides
    */
-  deleteRides() : void {
+  public deleteRides() : void {
     const rideList : Ride[] = map.rides;
   
     let promiseChain = Promise.resolve();
@@ -228,4 +210,4 @@ export class Park extends DataStore<ParkData> {
   }
 }
 
-export const TilemanPark = Park.instance;
+export const Park : TilemanPark = new TilemanPark();

@@ -1,6 +1,7 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { TilemanPlugin } from './Plugin';
+import { Plugin } from './Plugin';
+import { initializeUI } from './ui/uiInitializer';
 
 //TODO Make tool.ts a class
 //TODO Make some stores into computed
@@ -21,10 +22,11 @@ import { TilemanPlugin } from './Plugin';
 
 
 function main() : void {
-  if (TilemanPlugin.isValidRunConfig()) {
+  if (Plugin.isValidRunConfig()) {
     console.log('Initializing Tileman Plugin...');
 
-    TilemanPlugin.initialize();
+    Plugin.initialize();
+    initializeUI();
   }
 }
 

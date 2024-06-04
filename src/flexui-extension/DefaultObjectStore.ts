@@ -39,9 +39,9 @@ export class DefaultObjectStore<T> extends DefaultStore<Record<string, T>> imple
    */
   set(key : string, value : T) : void;
 
-  set(unknownType : Record<string, T> | KeyValuePair<T> | Exclude<string, ''>, value? : T) : void {
-    if (typeof unknownType === 'string') {
-			const key : string = unknownType;
+  set(unknownType : Record<string, T> | KeyValuePair<T> | Exclude<string, ''> | number, value? : T | undefined) : void {
+    if (typeof unknownType === 'string' || typeof unknownType == 'number') {
+			const key : string = unknownType + '';
 
 			if (typeof value === 'undefined') {
 				// Delete if unsetting value
@@ -79,24 +79,19 @@ export class DefaultObjectStore<T> extends DefaultStore<Record<string, T>> imple
   }
 
   /**
-   * Gets clone of the value;
+   * Gets the value.
    */
   override get() : Record<string, T> {
-    const newObj : Record<string, T> = {};
-
-    for(const key in this._value) {
-      newObj[key] = this._value[key];
-    }
-
-		return newObj;
+    return this._value;
 	}
 
   /**
    * Gets value of a specific key.
-   * @param key Key to get value of, or undefined to get entire object.
+   * @param key Key to get value of.
    */
-  getValue(key? : string) : T | undefined {
-    if(typeof key !== 'undefined' && key in this._value) {
+  getValue(key : string | number) : T | undefined {
+    if(typeof key !== 'undefined') {
+      key = key + '';
       return this._value[key];
     } else {
       return undefined;
@@ -116,21 +111,4 @@ export class DefaultObjectStore<T> extends DefaultStore<Record<string, T>> imple
   getValues() : T[] {
     return Object.keys(this._value).map((key : string) : T => this._value[key]);
   }
-
-  /**
-   * Call the underlying array method with the same name using the supplied arguments.
-   */
-  // private _wrapArrayMethod<K extends keyof ArrayStore<T>>(method: K): (...args: Parameters<ArrayStore<T>[K]>) => ReturnType<ArrayStore<T>[K]>
-  // {
-  //   // eslint-disable-next-line @typescript-eslint/no-this-alias
-  //   const store = this;
-  //   return function(...args: unknown[]): never
-  //   {
-  //     const array = store._value;
-  //     const arrayMethod = <(...arg: unknown[]) => unknown>array[<keyof Array<T>>method];
-  //     const value = arrayMethod.apply(array, args);
-  //     store._updateListeners(array);
-  //     return <never>value;
-  //   };
-  // }
 }

@@ -1,7 +1,10 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
+import { WritableStore, read, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
-import { TilemanPark } from './Park';
+import { Park } from './Park';
+import { Storeless } from './types/types';
+import { Player } from './Player';
 
 
 
@@ -15,14 +18,11 @@ type PluginData = {
   /**
    * Static data
    */
-  pluginName: 'Tileman',
+  readonly pluginName: 'Tileman',
   
   // Tools
   readonly minToolSize : number,
   readonly maxToolSize : number,
-
-  // UI
-  readonly doubleClickLength : number,
 
   /**
    * User definable
@@ -30,23 +30,20 @@ type PluginData = {
 
   ticksPerUpdate : number, // Ticks per update of data
 
-  expPerTile : number, // Exp cost per tile
-  minTiles : number, // 1 path + 1 stall minimum
+  expPerTile : WritableStore<number>, // Exp cost per tile
+  minTiles : WritableStore<number>, // 1 path + 1 stall minimum
 
-  expPerParkAdmission : number,
+  expPerParkAdmission : WritableStore<number>,
 
-  rideExpPerCustomer : number,
-  stallExpPerCustomer : number,
-  facilityExpPerCustomer : number,
+  rideExpPerCustomer : WritableStore<number>,
+  stallExpPerCustomer : WritableStore<number>,
+  facilityExpPerCustomer : WritableStore<number>,
 };
 
 
 
-export class Plugin extends DataStore<PluginData> {
-  // Only access functions through instance
-  public static readonly instance : Plugin = new Plugin();
-
-  private constructor() {
+class TilemanPlugin extends DataStore<PluginData> {
+  constructor() {
     super('plugin', {
       /**
        * Static data
@@ -57,45 +54,71 @@ export class Plugin extends DataStore<PluginData> {
       minToolSize: 1,
       maxToolSize: 15,
   
-      // UI
-      doubleClickLength: 2000,
-  
       /**
        * User definable
        */
       ticksPerUpdate: 40, // Ticks per update of data
   
-      expPerTile: 50, // Exp cost per tile
-      minTiles: 2, // 1 path + 1 stall minimum
+      expPerTile: store<number>(50), // Exp cost per tile
+      minTiles: store<number>(2), // 1 path + 1 stall minimum
   
-      expPerParkAdmission: 1,
+      expPerParkAdmission: store<number>(1),
   
-      rideExpPerCustomer: 1,
-      stallExpPerCustomer: 1,
-      facilityExpPerCustomer: 1,
+      rideExpPerCustomer: store<number>(1),
+      stallExpPerCustomer: store<number>(1),
+      facilityExpPerCustomer: store<number>(1),
     });
   }
 
   /**
-   * Set up initial plugin state
+   * Initialize this DataStore
    */
   public initialize() : void {
     this._registerEventHandlers();
 
-    const newPark : boolean = TilemanPark.initialize();
-    if (newPark) {
-      TilemanPark.clearPark();
-      //TODO await setLandOwnership(getMapEdges(), LandOwnership.UNOWNED);
-    }
+    Park.initialize();
+  }
 
-    // Register menu items in toolbars
-    //TODO ui.registerMenuItem('Tileman Toolbar', () => toolbarWindow.open());
-    //TODO ui.registerMenuItem('Tileman Statistics', () => statsWindow.open());
-    //TODO ui.registerMenuItem('Tileman Config', () => configWindow.open());
 
-    //TODO toolbarWindow.open();
-    //TODO configWindow.open();
-    //TODO statsWindow.open();
+
+  /**
+   * **********
+   * Data Handling
+   * **********
+   */
+
+  /**
+   * Loads data from the persistent park-specific storage
+   */
+  public loadData() : void {
+    const savedData : Storeless<PluginData> = this.getStoredData();
+
+    this.data.ticksPerUpdate = savedData.ticksPerUpdate;
+
+    // Stores
+    this.data.expPerTile.set(savedData.expPerTile);
+    this.data.minTiles.set(savedData.minTiles);
+
+    this.data.expPerParkAdmission.set(savedData.expPerParkAdmission);
+
+    this.data.rideExpPerCustomer.set(savedData.rideExpPerCustomer);
+    this.data.stallExpPerCustomer.set(savedData.stallExpPerCustomer);
+    this.data.facilityExpPerCustomer.set(savedData.facilityExpPerCustomer);
+  }
+
+  /**
+   * Stores data into the persistent park-specific storage
+   */
+  public storeData() : void {
+    const savedData : Storeless<PluginData> = this.getStoredData();
+
+    savedData.ticksPerUpdate = read(this.data.ticksPerUpdate);
+    savedData.expPerTile = read(this.data.expPerTile);
+    savedData.minTiles = read(this.data.minTiles);
+    savedData.expPerParkAdmission = read(this.data.expPerParkAdmission);
+    savedData.rideExpPerCustomer = read(this.data.rideExpPerCustomer);
+    savedData.stallExpPerCustomer = read(this.data.stallExpPerCustomer);
+    savedData.facilityExpPerCustomer = read(this.data.facilityExpPerCustomer);
   }
 
 
@@ -106,6 +129,9 @@ export class Plugin extends DataStore<PluginData> {
    * **********
    */
 
+  /**
+   * Register event handlers
+   */
   private _registerEventHandlers() : void {
     // Subscribe to events
     context.subscribe('interval.tick', this._onTick.bind(this));
@@ -118,10 +144,9 @@ export class Plugin extends DataStore<PluginData> {
    */
   private _onTick() : void {
     if (date.ticksElapsed % this.data.ticksPerUpdate === 0) {
-      //TODO collectMetrics();
-      //TODO const totalExp : number = computeTotalExp();
-      //TODO ParkDataStores.totalExp.set(totalExp);
-      //TODO storeParkData();
+      Park.collectMetrics();
+      Park.storeData();
+      Player.storeData();
     }
   }
 
@@ -135,7 +160,7 @@ export class Plugin extends DataStore<PluginData> {
       // This action is raised if we cancel building something, but in that case the cost is 0
       if (e.result.cost !== 0) {
         const rideId : number = (e.args as { ride : number }).ride;
-        TilemanPark.recordDemolishedRide(rideId);
+        Park.recordDemolishedRide(rideId);
       }
     }
   }
@@ -144,7 +169,7 @@ export class Plugin extends DataStore<PluginData> {
 
   /**
    * **********
-   * Static Members
+   * Other
    * **********
    */
 
@@ -157,4 +182,4 @@ export class Plugin extends DataStore<PluginData> {
   }
 }
 
-export const TilemanPlugin = Plugin.instance;
+export const Plugin : TilemanPlugin = new TilemanPlugin();

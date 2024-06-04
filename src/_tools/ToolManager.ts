@@ -28,10 +28,10 @@ export class ToolManager {
   // Stores tools
   private _tools : Record<ToolID, ITool> = {} as Record<ToolID, ITool>;
 
-  private activeToolId : ToolID | null = null;
-  private readonly toolSize : WritableStore<number> = store<number>(PluginConfig.minToolSize);
+  private _activeToolId : ToolID | null = null;
+  private readonly _toolSize : WritableStore<number> = store<number>(PluginConfig.minToolSize);
 
-  private viewRightsStateCache : boolean = false;
+  private _viewRightsStateCache : boolean = false;
 
   private constructor() {}
 
@@ -58,10 +58,10 @@ export class ToolManager {
    * @param toolId New tool's id
    */
   setActiveTool(toolId : ToolID) : void {
-    if(this.activeToolId !== toolId) {
+    if(this._activeToolId !== toolId) {
       this.cancelTool();
 
-      this.activeToolId = toolId;
+      this._activeToolId = toolId;
       this._tools[toolId].activate();
     }
   }
@@ -70,9 +70,9 @@ export class ToolManager {
    * Cancels the active tool
    */
   cancelTool() : void {
-    if (this.activeToolId !== null) {
+    if (this._activeToolId !== null) {
       ui.tool?.cancel();
-      this.activeToolId = null;
+      this._activeToolId = null;
     }
   }
 
@@ -81,7 +81,7 @@ export class ToolManager {
    * @returns The tool size store
    */
   getToolSizeStore() : Store<number> {
-    return this.toolSize;
+    return this._toolSize;
   }
 
   /**
@@ -89,7 +89,7 @@ export class ToolManager {
    * @returns Current tool size
    */
   getToolSize() : number {
-    return this.toolSize.get();
+    return this._toolSize.get();
   }
 
   /**
@@ -97,7 +97,7 @@ export class ToolManager {
    * @param size New size, will be clamped to valid min-max range
    */
   setToolSize(size : number) : void {
-    this.toolSize.set(Math.max(PluginConfig.minToolSize, Math.min(PluginConfig.maxToolSize, size)));
+    this._toolSize.set(Math.max(PluginConfig.minToolSize, Math.min(PluginConfig.maxToolSize, size)));
   }
 
   /**
@@ -106,7 +106,7 @@ export class ToolManager {
    * @returns MapRange for the affected area
    */
   getToolArea(center : CoordsXY) : MapRange {
-    const halfSize : number = ((this.toolSize.get() - 1) / 2);
+    const halfSize : number = ((this._toolSize.get() - 1) / 2);
 
     const left : number = Math.floor((center.x / 32) - halfSize) * 32;
     const top : number = Math.floor((center.y / 32) - halfSize) * 32;
@@ -122,14 +122,14 @@ export class ToolManager {
   cacheViewRightsState() : boolean {
     const toolbarWindow : IWindow = UIManager.instance().getWindow(WindowID.TOOLBAR);
     const viewRightsButton : ToggleButton = toolbarWindow.getUIElement(ButtonID.VIEW_RIGHTS_BUTTON) as ToggleButton;
-    this.viewRightsStateCache = viewRightsButton.isPressed();
-    return this.viewRightsStateCache;
+    this._viewRightsStateCache = viewRightsButton.isPressed();
+    return this._viewRightsStateCache;
   }
 
   /**
    * Returns the view rights button's cached state
    */
   getCachedViewRightsState() : boolean {
-    return this.viewRightsStateCache;
+    return this._viewRightsStateCache;
   }
 }

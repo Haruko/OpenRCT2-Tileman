@@ -27,7 +27,7 @@ export interface ObjectStore<T> extends Store<Record<string, T>> {
    * @param key Key to update.
    * @param value Value to set.
    */
-  set(key : string, value : T) : void;
+  set(key : string | number, value : T | undefined) : void;
 
   /**
    * Gets clone of the value;
@@ -36,9 +36,9 @@ export interface ObjectStore<T> extends Store<Record<string, T>> {
 
   /**
    * Gets value of a specific key.
-   * @param key Key to get value of, or undefined to get entire object.
+   * @param key Key to get value of.
    */
-  getValue(key? : string) : T | undefined;
+  getValue(key : string | number) : T | undefined;
 
   /**
    * Get array of keys.

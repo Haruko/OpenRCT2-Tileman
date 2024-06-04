@@ -1,6 +1,11 @@
-import { ToggleButton } from '@ui/elements/ToggleButton';
-import { ButtonID } from './TilemanWindow';
-import { FlexUIWidget } from '@src/flexui-extension/FlexUIWidget';
+/// <reference path='../../../lib/openrct2.d.ts' />
+
+import { UIElementID } from '../types/enums';
+import { UIElement } from '../types/types';
+
+
+
+
 
 export interface IWindow {
   readonly windowTitle : string;
@@ -20,5 +25,5 @@ export interface IWindow {
    * @param buttonId ButtonID to get instance of
    * @returns Button instance
    */
-  getUIElement(buttonId : ButtonID) : ToggleButton | FlexUIWidget | undefined;
+  getUIElement(buttonId : UIElementID) : UIElement | undefined;
 }
