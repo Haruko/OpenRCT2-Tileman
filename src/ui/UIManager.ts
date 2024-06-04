@@ -1,5 +1,6 @@
 /// <reference path='../../lib/openrct2.d.ts' />
 
+import { ViewportFlags } from 'openrct2-flexui';
 import { WindowID } from './types/enums';
 import { IWindow } from './windows/IWindow';
 
@@ -19,7 +20,7 @@ class TilemanUIManager {
    * @param id ID to register to
    * @param window Window to register
    */
-  registerWindow(id : WindowID, window : IWindow) : void {
+  public registerWindow(id : WindowID, window : IWindow) : void {
     if (typeof this._windows[id] === 'undefined') {
       this._windows[id] = window;
     }
@@ -30,8 +31,20 @@ class TilemanUIManager {
    * @param id ID to retrieve window of
    * @returns The window
    */
-  getWindow(id : WindowID) : IWindow {
+  public getWindow(id : WindowID) : IWindow {
     return this._windows[id];
+  }
+
+  /**
+   * Toggles the visibility of owned construction rights
+   * @param visible true if we are setting the rights visible
+   */
+  public setRightsVisibility(visible : boolean) : void {
+    if (visible) {
+      ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags | ViewportFlags.ConstructionRights;
+    } else {
+      ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags & ~ViewportFlags.ConstructionRights;
+    }
   }
 };
 

@@ -359,7 +359,7 @@ export class ToolbarWindow extends BaseWindow {
    * @param isPressed true if the button is pressed
    */
   private onViewRightsChange(isPressed : boolean) : void {
-    //TODO setRightsVisibility(isPressed);
+    UIManager.setRightsVisibility(isPressed);
   }
 
   /**
