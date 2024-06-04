@@ -1,5 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
+import { Park } from './Park';
 import { Plugin } from './Plugin';
 import { initializeUI } from './ui/uiInitializer';
 
@@ -26,6 +27,7 @@ function main() : void {
     console.log('Initializing Tileman Plugin...');
 
     Plugin.initialize();
+    Park.initialize();
     initializeUI();
   }
 }

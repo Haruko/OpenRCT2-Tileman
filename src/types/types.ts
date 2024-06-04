@@ -1,15 +1,24 @@
 /// <reference path='../../lib/openrct2.d.ts' />
 
-import { WritableStore } from 'openrct2-flexui';
+import { Store } from 'openrct2-flexui';
 
+/**
+ * Maps properties of one type to another type
+ */
 export type Mapped<Source, OrigType, DestType> = {
   [Property in keyof Source] : Source[Property] extends OrigType ? DestType : Source[Property];
 };
 
+/**
+ * Maps all Store<T> to T
+ */
 export type Storeless<Source> = {
-  [Property in keyof Source] : Source[Property] extends WritableStore<infer T> ? T : Source[Property];
+  [Property in keyof Source] : Source[Property] extends Store<infer T> ? T : Source[Property];
 };
 
+/**
+ * Ride data for plugin storage
+ */
 export type RideData = {
   // ride.name
   name : string,

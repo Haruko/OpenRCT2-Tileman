@@ -8,46 +8,48 @@ import { RideData } from './types/types';
 
 
 
-/**
- * Computed total experience earned
- */
-export const totalExpStore : Store<number> = compute<number, number, Record<string, RideData>, RideData[], number>(
-  Park.get('parkAdmissions'),
-  Plugin.get('expPerParkAdmission'),
+const rideExpStore : Store<number> = compute<Record<string, RideData>, RideData[], number, number, number, number>(
   Park.get('rideMap'),
   Park.get('demolishedRides'),
-  (parkAdmissions : number, expPerParkAdmission : number, rideMap : Record<string, RideData>, demolishedRides : RideData[]) : number => {
-    let totalExp : number = 0;
-
-    // Add park admissions
-    totalExp += parkAdmissions * expPerParkAdmission;
-
+  Plugin.get('rideExpPerCustomer'),
+  Plugin.get('stallExpPerCustomer'),
+  Plugin.get('facilityExpPerCustomer'),
+  (rideMap : Record<string, RideData>, demolishedRides : RideData[], rideExpPerCustomer : number, stallExpPerCustomer : number, facilityExpPerCustomer : number) : number => {
     // Iterate over rides
     const activeRideData : RideData[] = Object.keys(rideMap)
       .map((value : string) : RideData => rideMap[+value]);
     const allRideData = [...activeRideData, ...demolishedRides];
-
-
-    totalExp += allRideData.reduce((previousValue : number, ride : RideData) : number => {
+    
+    return allRideData.reduce((previousValue : number, ride : RideData) : number => {
       let rideExp : number = 0;
       
       switch (ride.classification) {
         case 'ride':
-          rideExp = ride.totalCustomers * Plugin.get('rideExpPerCustomer');
+          rideExp = ride.totalCustomers * rideExpPerCustomer;
           break;
         case 'stall':
-          rideExp = ride.totalCustomers * Plugin.get('stallExpPerCustomer');
+          rideExp = ride.totalCustomers * stallExpPerCustomer;
           break;
         case 'facility':
-          rideExp = ride.totalCustomers * Plugin.get('facilityExpPerCustomer');
+          rideExp = ride.totalCustomers * facilityExpPerCustomer;
           break;
       }
   
       return previousValue + rideExp;
     }, 0);
+  }
+);
 
-    console.log(totalExp)
-    return totalExp;
+/**
+ * Computed total experience earned
+ */
+export const totalExpStore : Store<number> = compute<number, number, number, number>(
+  Park.get('parkAdmissions'),
+  Plugin.get('expPerParkAdmission'),
+  rideExpStore,
+  (parkAdmissions : number, expPerParkAdmission : number, rideExp : number) : number => {
+    const admissionsExp : number = parkAdmissions * expPerParkAdmission;
+    return admissionsExp + rideExp;
   }
 );
 

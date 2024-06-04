@@ -30,9 +30,9 @@ class TilemanPark extends DataStore<ParkData> {
   constructor() {
     super('park', {
       // Data used to calculate experience
-      parkAdmissions : store(0),
+      parkAdmissions : store<number>(0),
       // Maps ride IDs (numbers) and historical data
-      rideMap : objectStore({}),
+      rideMap : objectStore<RideData>({}),
       // List of rides that were demolished
       demolishedRides : arrayStore<RideData>([])
     });
@@ -66,13 +66,12 @@ class TilemanPark extends DataStore<ParkData> {
     this.data.parkAdmissions.set(savedData.parkAdmissions);
     this.data.rideMap.set(savedData.rideMap as Record<string, RideData>);
     this.data.demolishedRides.set(savedData.demolishedRides as RideData[]);
-    //TODO Make sure this is working
   }
 
   /**
    * Stores data into the persistent park-specific storage
    */
-  public storeData() : void {
+  public override storeData() : void {
     const savedData : Storeless<ParkData> = this.getStoredData();
 
     savedData.parkAdmissions = read(this.data.parkAdmissions);
@@ -81,24 +80,10 @@ class TilemanPark extends DataStore<ParkData> {
   }
 
   /**
-   * Move ride from ParkData.rideMap to ParkData.demolishedRides
-   * @param rideId Index of the ride that was demolished. Won't exist in stored park data, but will exist in our local copy
-   */
-  public recordDemolishedRide(rideId : number | string) : void {
-    const rideData : RideData | undefined = this.data.rideMap.getValue(rideId);
-  
-    if(typeof rideData !== 'undefined') {
-      this.data.demolishedRides.push(rideData);
-      this.data.rideMap.set(rideId, undefined);
-    }
-  }
-
-  /**
    * Collects metric data used for experience calculations
    */
   public collectMetrics() : void {
     // Get total park admissions
-    console.log('admins', park.totalAdmissions)
     this.data.parkAdmissions.set(park.totalAdmissions);
   
     // Collect data from each active ride/stall/facility
@@ -120,6 +105,56 @@ class TilemanPark extends DataStore<ParkData> {
         rideMap.set(ride.id, rideData);
       }
     });
+
+    this.storeData();
+  }
+
+
+
+  /**
+   * **********
+   * Event Handling
+   * **********
+   */
+
+  /**
+   * Handles action.execute event
+   * @param e Event data
+   */
+  public onActionExecute(e : GameActionEventArgs) : void {
+    if (e.action === 'ridedemolish') {
+      this._onRideDemolish(e);
+    }
+  }
+
+  /**
+   * Handles interval.tick event
+   * @param ticksPerUpdate Number of ticks per update as defined in the Plugin data
+   */
+  public onTick(ticksPerUpdate : number) : void {
+    if (date.ticksElapsed % ticksPerUpdate === 0) {
+      this.collectMetrics();
+    }
+  }
+
+  /**
+   * Move ride from rideMap to demolishedRides
+   * @param e Event data
+   */
+  public _onRideDemolish(e : GameActionEventArgs) : void {
+    // Every time a ride is deleted, remove it from the current rides and add it to the list of deleted rides
+    // This action is raised if we cancel building something, but in that case the cost is 0
+    if (e.result.cost !== 0) {
+      const rideId : number = (e.args as { ride : number }).ride;
+      const rideData : RideData | undefined = this.data.rideMap.getValue(rideId);
+    
+      if(typeof rideData !== 'undefined') {
+        this.data.demolishedRides.push(rideData);
+        this.data.rideMap.set(rideId, undefined);
+
+        this.storeData();
+      }
+    }
   }
   
 
@@ -207,6 +242,13 @@ class TilemanPark extends DataStore<ParkData> {
         });
       });
     });
+
+    // promiseChain.then(() : void => {
+    //   // Make sure the stored is cleared
+    //   this.data.rideMap.set({});
+    //   this.data.demolishedRides.set([]);
+    //   this.storeData();
+    // });
   }
 }
 

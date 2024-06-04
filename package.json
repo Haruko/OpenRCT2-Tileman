@@ -6,6 +6,7 @@
   "scripts": {
     "build-develop": "rollup -c rollup.config.develop.js",
     "build-release": "rollup -c rollup.config.release.js",
+    "kill-node": "taskkill /f /im node.exe",
     "run": "Start-Process -NoNewWindow -Wait 'C:\\Program Files\\OpenRCT2\\openrct2.com'"
   },
   "repository": {

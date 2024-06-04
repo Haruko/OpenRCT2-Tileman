@@ -1,5 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
+import { isStore, read } from 'openrct2-flexui';
 import { Storeless } from './types/types';
 
 export abstract class DataStore<DataStoreType> {
@@ -11,7 +12,12 @@ export abstract class DataStore<DataStoreType> {
   protected constructor(namespace : string, data : DataStoreType) {
     this._namespace = namespace;
     this.data = data;
-    this._dataDefaults = this.deepCopy(data as object) as DataStoreType;
+    this._dataDefaults = {} as DataStoreType;
+    this._carefulCopy(data, this._dataDefaults) as DataStoreType;
+
+    if (typeof context.getParkStorage().getAll()[namespace] === 'undefined') {
+      context.getParkStorage().set(namespace, {});
+    }
   }
 
   /**
@@ -23,29 +29,28 @@ export abstract class DataStore<DataStoreType> {
    * Resets this.data to the provided defaults
    */
   protected _restoreDataDefaults() : void {
-    this.deepCopy(this._dataDefaults as Record<string, any>, this.data as Record<string, any>);
+    this._carefulCopy(this._dataDefaults as Record<string, any>, this.data as Record<string, any>);
   }
 
   /**
-   * Deep copies data in an object
-   * @param src Object to copy
-   * @param dest Optional object to copy to
-   * @returns Copy of obj
+   * Copies data from one object to another, being careful about Stores.
+   * Does NOT delete keys in dest that don't exist in src!
+   * @param src Source object
+   * @param dest Destination object
    */
-  protected deepCopy(src : Record<string, any>, dest? : Record<string, any>) : Record<string, any> {
-    const newObj : Record<string, any> = dest ?? {};
+  protected _carefulCopy(src : Record<string, any> | DataStoreType, dest : Record<string, any> | DataStoreType) : void {
+    src = src as Record<string, any>;
+    dest = dest as Record<string, any>;
 
-    for (const key in src) {
-      const value : any = src[key];
+    for (const key in src as object) {
+      const value = read(src[key]);
 
-      if (typeof value === 'object' && value !== null) {
-        newObj[key] = this.deepCopy(value);
+      if (isStore(dest[key])) {
+        dest[key].set(value);
       } else {
-        newObj[key] = value;
+        dest[key] = value;
       }
     }
-
-    return newObj;
   }
 
   /**
@@ -75,7 +80,7 @@ export abstract class DataStore<DataStoreType> {
    * Loads data from the persistent park-specific storage
    */
   public getStoredData() : Storeless<DataStoreType> {
-    return context.getParkStorage().getAll(this._namespace) as Storeless<DataStoreType>;
+    return context.getParkStorage().getAll()[this._namespace] as Storeless<DataStoreType>;
   }
 
   /**

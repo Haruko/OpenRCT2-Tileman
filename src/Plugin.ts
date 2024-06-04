@@ -2,9 +2,8 @@
 
 import { WritableStore, read, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
-import { Park } from './Park';
 import { Storeless } from './types/types';
-import { Player } from './Player';
+import { Park } from './Park';
 
 
 
@@ -59,7 +58,7 @@ class TilemanPlugin extends DataStore<PluginData> {
        */
       ticksPerUpdate: 40, // Ticks per update of data
   
-      expPerTile: store<number>(50), // Exp cost per tile
+      expPerTile: store<number>(10), // Exp cost per tile
       minTiles: store<number>(2), // 1 path + 1 stall minimum
   
       expPerParkAdmission: store<number>(1),
@@ -74,9 +73,9 @@ class TilemanPlugin extends DataStore<PluginData> {
    * Initialize this DataStore
    */
   public initialize() : void {
-    this._registerEventHandlers();
-
-    Park.initialize();
+    // Subscribe to events
+    context.subscribe('interval.tick', () => Park.onTick(this.data.ticksPerUpdate));
+    context.subscribe('action.execute', (e : GameActionEventArgs) => Park.onActionExecute(e));
   }
 
 
@@ -109,7 +108,7 @@ class TilemanPlugin extends DataStore<PluginData> {
   /**
    * Stores data into the persistent park-specific storage
    */
-  public storeData() : void {
+  public override storeData() : void {
     const savedData : Storeless<PluginData> = this.getStoredData();
 
     savedData.ticksPerUpdate = read(this.data.ticksPerUpdate);
@@ -119,50 +118,6 @@ class TilemanPlugin extends DataStore<PluginData> {
     savedData.rideExpPerCustomer = read(this.data.rideExpPerCustomer);
     savedData.stallExpPerCustomer = read(this.data.stallExpPerCustomer);
     savedData.facilityExpPerCustomer = read(this.data.facilityExpPerCustomer);
-  }
-
-
-
-  /**
-   * **********
-   * Event Handling
-   * **********
-   */
-
-  /**
-   * Register event handlers
-   */
-  private _registerEventHandlers() : void {
-    // Subscribe to events
-    context.subscribe('interval.tick', this._onTick.bind(this));
-    context.subscribe('action.execute', this._onActionExecute.bind(this));
-  }
-
-  /**
-   * Handles interval.tick event
-   * @param tickCount 
-   */
-  private _onTick() : void {
-    if (date.ticksElapsed % this.data.ticksPerUpdate === 0) {
-      Park.collectMetrics();
-      Park.storeData();
-      Player.storeData();
-    }
-  }
-
-  /**
-   * Handles action.execute event
-   * @param e Event data
-   */
-  private _onActionExecute(e : GameActionEventArgs) : void {
-    if (e.action === 'ridedemolish') {
-      // Every time a ride is deleted, remove it from the current rides and add it to the list of deleted rides
-      // This action is raised if we cancel building something, but in that case the cost is 0
-      if (e.result.cost !== 0) {
-        const rideId : number = (e.args as { ride : number }).ride;
-        Park.recordDemolishedRide(rideId);
-      }
-    }
   }
 
 

@@ -1,7 +1,8 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { Store, store } from 'openrct2-flexui';
+import { WritableStore, read, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
+import { Storeless } from './types/types';
 
 
 
@@ -13,7 +14,7 @@ import { DataStore } from './DataStore';
 
 export type PlayerData = {
   // Tiles used by player
-  tilesUsed : Store<number>,
+  tilesUsed : WritableStore<number>,
 };
 
 
@@ -45,18 +46,18 @@ class TilemanPlayer extends DataStore<PlayerData> {
    * Loads data from the persistent park-specific storage
    */
   public loadData() : void {
-    const savedData : PlayerData = this.getStoredData();
+    const savedData : Storeless<PlayerData> = this.getStoredData();
 
-    this.data.tilesUsed = savedData.tilesUsed;
+    this.data.tilesUsed.set(savedData.tilesUsed);
   }
 
   /**
    * Stores data into the persistent park-specific storage
    */
-  public storeData() : void {
-    const savedData : PlayerData = this.getStoredData();
+  public override storeData() : void {
+    const savedData : Storeless<PlayerData> = this.getStoredData();
 
-    savedData.tilesUsed = this.data.tilesUsed;
+    savedData.tilesUsed = read(this.data.tilesUsed);
   }
 }
 
