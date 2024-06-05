@@ -6,7 +6,7 @@ export enum WindowID {
   STATS,
 };
 
-export enum UIElementID {
+export enum ElementID {
   // ToolbarWindow
   BUY_TOOL,
   RIGHTS_TOOL,

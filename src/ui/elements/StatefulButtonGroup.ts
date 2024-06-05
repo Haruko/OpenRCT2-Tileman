@@ -1,6 +1,6 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { UIElementID } from '../types/enums';
+import { ElementID } from '../types/enums';
 import { DoubleClickButton } from './DoubleClickButton';
 import { ToggleButton } from './ToggleButton';
 
@@ -29,7 +29,7 @@ export class StatefulButtonGroup {
    * @param activeButtonId the ButtonID for the one button that is activated. If undefined, depress all
    * @param triggerChange true if we should trigger onChange events for each button
    */
-  depressOthers(activeButtonId? : UIElementID, triggerChange? : boolean) : void {
+  depressOthers(activeButtonId? : ElementID, triggerChange? : boolean) : void {
     this.buttons.forEach((button : StatefulButton) : void => {
       if(button.buttonId !== activeButtonId) {
         if (button instanceof DoubleClickButton) {

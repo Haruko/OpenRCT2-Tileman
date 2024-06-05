@@ -1,7 +1,7 @@
 /// <reference path='../../lib/openrct2.d.ts' />
 
 import { Bindable, Colour, ElementParams, FlexiblePosition, isStore, widget } from "openrct2-flexui";
-import { FlexUIWidget } from './FlexUIWidget';
+import { FlexUIWidget } from './types/FlexUIWidget';
 
 
 

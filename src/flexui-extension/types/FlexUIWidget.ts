@@ -1,4 +1,4 @@
-/// <reference path='../../lib/openrct2.d.ts' />
+/// <reference path='../../../lib/openrct2.d.ts' />
 
 import { FlexiblePosition, Parsed, WidgetCreator } from 'openrct2-flexui';
 

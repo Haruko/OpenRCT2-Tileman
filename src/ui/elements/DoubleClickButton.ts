@@ -2,7 +2,7 @@
 
 import { FlexiblePosition, ToggleParams } from 'openrct2-flexui';
 import { ToggleButton } from './ToggleButton';
-import { UIElementID } from '../types/enums';
+import { ElementID } from '../types/enums';
 import { StatefulButtonGroup } from './StatefulButtonGroup';
 
 
@@ -22,7 +22,7 @@ export class DoubleClickButton extends ToggleButton {
   protected clickTimeout : number | undefined;
   protected doubleClickLength : number = 2000; // ms
 
-  constructor(buttonId : UIElementID, params : DoubleClickButtonParams, buttonGroup? : StatefulButtonGroup) {
+  constructor(buttonId : ElementID, params : DoubleClickButtonParams, buttonGroup? : StatefulButtonGroup) {
     super(buttonId, params, buttonGroup);
   }
 

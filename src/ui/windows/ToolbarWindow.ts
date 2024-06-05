@@ -2,9 +2,9 @@
 
 import { Colour, Store, WindowTemplate, box, compute, horizontal, label, spinner, vertical, window } from 'openrct2-flexui';
 import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
-import { Sprites, UIElementID, WindowID } from '../types/enums';
+import { Sprites, ElementID, WindowID } from '../types/enums';
 import { BaseWindow } from './BaseWindow';
-import { FlexUIWidget } from '@src/flexui-extension/FlexUIWidget';
+import { FlexUIWidget } from '@src/flexui-extension/types/FlexUIWidget';
 import { ToggleButton } from '../elements/ToggleButton';
 import { UIManager } from '../UIManager';
 import { UIElement } from '../types/types';
@@ -12,6 +12,7 @@ import { Plugin } from '@src/Plugin';
 import { Player } from '@src/Player';
 import { ProgressBar } from '@src/flexui-extension/ProgressBar';
 import { availableTilesStore, totalExpStore } from '@src/stores';
+import { IWindow } from './IWindow';
 
 
 
@@ -66,23 +67,23 @@ export class ToolbarWindow extends BaseWindow {
    * Builds panel to store buttons
    */
   private _buildToolbarButtonPanel() : FlexUIWidget {
-    this.uiElementMap[UIElementID.BUY_TOOL] =  this._createUIElement(UIElementID.BUY_TOOL);
-    this.uiElementMap[UIElementID.RIGHTS_TOOL] =  this._createUIElement(UIElementID.RIGHTS_TOOL);
-    this.uiElementMap[UIElementID.SELL_TOOL] =  this._createUIElement(UIElementID.SELL_TOOL);
-    this.uiElementMap[UIElementID.VIEW_RIGHTS_BUTTON] =  this._createUIElement(UIElementID.VIEW_RIGHTS_BUTTON);
-    this.uiElementMap[UIElementID.OPEN_STATS_BUTTON] =  this._createUIElement(UIElementID.OPEN_STATS_BUTTON);
-    this.uiElementMap[UIElementID.TOOL_SIZE_SPINNER] =  this._createUIElement(UIElementID.TOOL_SIZE_SPINNER);
+    this.uiElementMap[ElementID.BUY_TOOL] =  this._createUIElement(ElementID.BUY_TOOL);
+    this.uiElementMap[ElementID.RIGHTS_TOOL] =  this._createUIElement(ElementID.RIGHTS_TOOL);
+    this.uiElementMap[ElementID.SELL_TOOL] =  this._createUIElement(ElementID.SELL_TOOL);
+    this.uiElementMap[ElementID.VIEW_RIGHTS_BUTTON] =  this._createUIElement(ElementID.VIEW_RIGHTS_BUTTON);
+    this.uiElementMap[ElementID.OPEN_STATS_BUTTON] =  this._createUIElement(ElementID.OPEN_STATS_BUTTON);
+    this.uiElementMap[ElementID.TOOL_SIZE_SPINNER] =  this._createUIElement(ElementID.TOOL_SIZE_SPINNER);
 
     return horizontal({
       spacing: 0,
       padding: [0, 3],
       content: [
-        this.uiElementMap[UIElementID.TOOL_SIZE_SPINNER] as FlexUIWidget,
-        (this.uiElementMap[UIElementID.BUY_TOOL] as ToggleButton).widget,
-        (this.uiElementMap[UIElementID.RIGHTS_TOOL] as ToggleButton).widget,
-        (this.uiElementMap[UIElementID.SELL_TOOL] as ToggleButton).widget,
-        (this.uiElementMap[UIElementID.VIEW_RIGHTS_BUTTON] as ToggleButton).widget,
-        (this.uiElementMap[UIElementID.OPEN_STATS_BUTTON] as ToggleButton).widget,
+        this.uiElementMap[ElementID.TOOL_SIZE_SPINNER] as FlexUIWidget,
+        (this.uiElementMap[ElementID.BUY_TOOL] as ToggleButton).widget,
+        (this.uiElementMap[ElementID.RIGHTS_TOOL] as ToggleButton).widget,
+        (this.uiElementMap[ElementID.SELL_TOOL] as ToggleButton).widget,
+        (this.uiElementMap[ElementID.VIEW_RIGHTS_BUTTON] as ToggleButton).widget,
+        (this.uiElementMap[ElementID.OPEN_STATS_BUTTON] as ToggleButton).widget,
       ]
     });
   }
@@ -207,12 +208,12 @@ export class ToolbarWindow extends BaseWindow {
    * @param id ID of element to create
    * @returns Created element
    */
-  private _createUIElement(id : UIElementID) : UIElement {
+  private _createUIElement(id : ElementID) : UIElement {
     let newElement : UIElement;
 
     switch (id) {
-      case UIElementID.BUY_TOOL: {
-        newElement = new ToggleButton(UIElementID.BUY_TOOL, {
+      case ElementID.BUY_TOOL: {
+        newElement = new ToggleButton(ElementID.BUY_TOOL, {
           image: Sprites.BUY_LAND_RIGHTS,
           tooltip: 'Buy land rights',
           width: 24,
@@ -222,8 +223,8 @@ export class ToolbarWindow extends BaseWindow {
 
         this._toolButtonGroup.addButton(newElement);
         break;
-      } case UIElementID.RIGHTS_TOOL: {
-        newElement = new ToggleButton(UIElementID.RIGHTS_TOOL, {
+      } case ElementID.RIGHTS_TOOL: {
+        newElement = new ToggleButton(ElementID.RIGHTS_TOOL, {
           image: Sprites.BUY_CONSTRUCTION_RIGHTS,
           tooltip: 'Buy construction rights',
           width: 24,
@@ -233,8 +234,8 @@ export class ToolbarWindow extends BaseWindow {
 
         this._toolButtonGroup.addButton(newElement);
         break;
-      } case UIElementID.SELL_TOOL: {
-        newElement = new ToggleButton(UIElementID.SELL_TOOL, {
+      } case ElementID.SELL_TOOL: {
+        newElement = new ToggleButton(ElementID.SELL_TOOL, {
           image: Sprites.FINANCE,
           tooltip: 'Sell land and construction rights',
           width: 24,
@@ -244,8 +245,8 @@ export class ToolbarWindow extends BaseWindow {
 
         this._toolButtonGroup.addButton(newElement);
         break;
-      } case UIElementID.VIEW_RIGHTS_BUTTON: {
-        newElement = new ToggleButton(UIElementID.VIEW_RIGHTS_BUTTON, {
+      } case ElementID.VIEW_RIGHTS_BUTTON: {
+        newElement = new ToggleButton(ElementID.VIEW_RIGHTS_BUTTON, {
           image: Sprites.SEARCH,
           tooltip: 'Show owned construction rights',
           width: 24,
@@ -254,8 +255,8 @@ export class ToolbarWindow extends BaseWindow {
         });
 
         break;
-      } case UIElementID.OPEN_STATS_BUTTON: {
-        newElement = new ToggleButton(UIElementID.OPEN_STATS_BUTTON, {
+      } case ElementID.OPEN_STATS_BUTTON: {
+        newElement = new ToggleButton(ElementID.OPEN_STATS_BUTTON, {
           image: Sprites.GRAPH,
           tooltip: 'Open detailed statistics window',
           width: 24,
@@ -264,7 +265,7 @@ export class ToolbarWindow extends BaseWindow {
         });
 
         break;
-      } case UIElementID.TOOL_SIZE_SPINNER: {
+      } case ElementID.TOOL_SIZE_SPINNER: {
         newElement = spinner({
           width: 62,
           padding: 5,
@@ -367,12 +368,14 @@ export class ToolbarWindow extends BaseWindow {
    * @param isPressed true if the button is pressed
    */
   private onStatsChange(isPressed : boolean) : void {
-    const statsWindow = UIManager.getWindow(WindowID.STATS);
+    const statsWindow : IWindow = UIManager.getInstance(WindowID.STATS);
     
-    if (isPressed) {
-      statsWindow.open();
-    } else {
-      statsWindow.close();
+    if (typeof statsWindow !== 'undefined') {
+      if (isPressed) {
+        statsWindow.open();
+      } else {
+        statsWindow.close();
+      }
     }
   }
   

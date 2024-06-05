@@ -3,8 +3,8 @@
 import { TabCreator, WindowTemplate, horizontal, label, tab, tabwindow, vertical } from 'openrct2-flexui';
 import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
 import { BaseWindow } from './BaseWindow';
-import { AnimatedSprites, UIElementID, WindowID } from '../types/enums';
-import { FlexUIWidget } from '@src/flexui-extension/FlexUIWidget';
+import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
+import { FlexUIWidget } from '@src/flexui-extension/types/FlexUIWidget';
 import { DoubleClickButton } from '../elements/DoubleClickButton';
 import { UIElement } from '../types/types';
 import { Park } from '@src/Park';
@@ -98,9 +98,9 @@ export class ConfigWindow extends BaseWindow {
    * Builds debug button panel
    */
   private _buildDebugButtonPanel() : FlexUIWidget {
-    this.uiElementMap[UIElementID.FIRE_STAFF_BUTTON] = this._createUIElement(UIElementID.FIRE_STAFF_BUTTON);
-    this.uiElementMap[UIElementID.DELETE_GUESTS_BUTTON] = this._createUIElement(UIElementID.DELETE_GUESTS_BUTTON);
-    this.uiElementMap[UIElementID.DELETE_RIDES_BUTTON] = this._createUIElement(UIElementID.DELETE_RIDES_BUTTON);
+    this.uiElementMap[ElementID.FIRE_STAFF_BUTTON] = this._createUIElement(ElementID.FIRE_STAFF_BUTTON);
+    this.uiElementMap[ElementID.DELETE_GUESTS_BUTTON] = this._createUIElement(ElementID.DELETE_GUESTS_BUTTON);
+    this.uiElementMap[ElementID.DELETE_RIDES_BUTTON] = this._createUIElement(ElementID.DELETE_RIDES_BUTTON);
 
     const instructionLabel = label({
       text: '{WHITE}Double click to use buttons',
@@ -116,9 +116,9 @@ export class ConfigWindow extends BaseWindow {
           spacing: 3,
           padding: 0,
           content: [
-            (this.uiElementMap[UIElementID.FIRE_STAFF_BUTTON] as DoubleClickButton).widget,
-            (this.uiElementMap[UIElementID.DELETE_GUESTS_BUTTON] as DoubleClickButton).widget,
-            (this.uiElementMap[UIElementID.DELETE_RIDES_BUTTON] as DoubleClickButton).widget
+            (this.uiElementMap[ElementID.FIRE_STAFF_BUTTON] as DoubleClickButton).widget,
+            (this.uiElementMap[ElementID.DELETE_GUESTS_BUTTON] as DoubleClickButton).widget,
+            (this.uiElementMap[ElementID.DELETE_RIDES_BUTTON] as DoubleClickButton).widget
           ]
         }),
         instructionLabel
@@ -127,16 +127,16 @@ export class ConfigWindow extends BaseWindow {
   }
 
   /**
-   * Creates buttons, ToggleButtons, DoubleClickButtons, and other singular UI controls
-   * @param buttonId 
-   * @returns 
+   * Creates UI elements
+   * @param elementId ElementID to make element for
+   * @returns The UI element
    */
-  private _createUIElement(buttonId : UIElementID) : UIElement {
+  private _createUIElement(elementId : ElementID) : UIElement {
     let newElement : UIElement;
 
-    switch (buttonId) {
-      case UIElementID.FIRE_STAFF_BUTTON: {
-        newElement = new DoubleClickButton(UIElementID.FIRE_STAFF_BUTTON, {
+    switch (elementId) {
+      case ElementID.FIRE_STAFF_BUTTON: {
+        newElement = new DoubleClickButton(ElementID.FIRE_STAFF_BUTTON, {
           text: 'Fire Staff',
           tooltip: 'Fires all staff',
           width: 90,
@@ -146,8 +146,8 @@ export class ConfigWindow extends BaseWindow {
 
         this._debugButtonGroup.addButton(newElement);
         break;
-      } case UIElementID.DELETE_GUESTS_BUTTON: {
-        newElement = new DoubleClickButton(UIElementID.DELETE_GUESTS_BUTTON, {
+      } case ElementID.DELETE_GUESTS_BUTTON: {
+        newElement = new DoubleClickButton(ElementID.DELETE_GUESTS_BUTTON, {
           text: 'Delete Guests',
           tooltip: 'Deletes the guests from the park',
           width: 90,
@@ -157,8 +157,8 @@ export class ConfigWindow extends BaseWindow {
 
         this._debugButtonGroup.addButton(newElement);
         break;
-      } case UIElementID.DELETE_RIDES_BUTTON: {
-        newElement = new DoubleClickButton(UIElementID.DELETE_RIDES_BUTTON, {
+      } case ElementID.DELETE_RIDES_BUTTON: {
+        newElement = new DoubleClickButton(ElementID.DELETE_RIDES_BUTTON, {
           text: 'Delete Rides',
           tooltip: 'Deletes all rides from the park and removes their stats from exp calculation',
           width: 90,

@@ -1,9 +1,9 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
 import { FlexiblePosition, ToggleParams, WritableStore, store, toggle } from 'openrct2-flexui';
-import { UIElementID } from '../types/enums';
+import { ElementID } from '../types/enums';
 import { StatefulButtonGroup } from './StatefulButtonGroup';
-import { FlexUIWidget } from '@src/flexui-extension/FlexUIWidget';
+import { FlexUIWidget } from '@src/flexui-extension/types/FlexUIWidget';
 
 
 
@@ -19,14 +19,14 @@ type ToggleButtonParams = Required<Pick<ToggleParams, 'onChange'>>
  * A wrapping class for Toggle to keep things cleaner elsewhere
  */
 export class ToggleButton {
-  readonly buttonId : UIElementID;
+  readonly buttonId : ElementID;
   readonly buttonGroup? : StatefulButtonGroup;
   readonly widget : FlexUIWidget;
 
   protected readonly callback : (isPressed : boolean) => void;
   protected readonly isPressedStore : WritableStore<boolean> = store<boolean>(false);
 
-  constructor(buttonId : UIElementID, params : ToggleButtonParams, buttonGroup? : StatefulButtonGroup) {
+  constructor(buttonId : ElementID, params : ToggleButtonParams, buttonGroup? : StatefulButtonGroup) {
     this.buttonId = buttonId;
     this.buttonGroup = buttonGroup;
 

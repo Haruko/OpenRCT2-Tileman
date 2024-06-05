@@ -8,13 +8,16 @@ import { ToolbarWindow } from './windows/ToolbarWindow';
 
 export function initializeUI() : void {
   const toolbarWindow : ToolbarWindow = new ToolbarWindow();
-  UIManager.registerWindow(WindowID.TOOLBAR, toolbarWindow);
-  UIManager.registerWindow(WindowID.STATS, new StatsWindow());
-  UIManager.registerWindow(WindowID.CONFIG, new ConfigWindow());
+  const statsWindow : ConfigWindow = new ConfigWindow();
+  const configWindow : StatsWindow = new StatsWindow();
+
+  UIManager.registerInstance(WindowID.TOOLBAR, toolbarWindow);
+  UIManager.registerInstance(WindowID.STATS, statsWindow);
+  UIManager.registerInstance(WindowID.CONFIG, configWindow);
 
   toolbarWindow.open();
 
   //TODO Remove when done developing
-  UIManager.getWindow(WindowID.STATS).open();
-  UIManager.getWindow(WindowID.CONFIG).open();
+  statsWindow.open();
+  configWindow.open();
 }

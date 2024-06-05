@@ -1,39 +1,17 @@
 /// <reference path='../../lib/openrct2.d.ts' />
 
 import { ViewportFlags } from 'openrct2-flexui';
-import { WindowID } from './types/enums';
+import { ElementID, WindowID } from './types/enums';
 import { IWindow } from './windows/IWindow';
+import { Manager } from '@src/Manager';
+import { ToggleButton } from './elements/ToggleButton';
 
 
 
 
 
-class TilemanUIManager {
-  private readonly _windows : Record<WindowID, IWindow> = {} as Record<WindowID, IWindow>;
-
-  constructor() {
-    
-  }
-
-  /**
-   * Registers a window to an id if it doesn't already exist
-   * @param id ID to register to
-   * @param window Window to register
-   */
-  public registerWindow(id : WindowID, window : IWindow) : void {
-    if (typeof this._windows[id] === 'undefined') {
-      this._windows[id] = window;
-    }
-  }
-
-  /**
-   * Gets a window instance
-   * @param id ID to retrieve window of
-   * @returns The window
-   */
-  public getWindow(id : WindowID) : IWindow {
-    return this._windows[id];
-  }
+class TilemanUIManager extends Manager<WindowID, IWindow> {
+  private _cachedRightsVisibility : boolean = false;
 
   /**
    * Toggles the visibility of owned construction rights
@@ -45,6 +23,19 @@ class TilemanUIManager {
     } else {
       ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags & ~ViewportFlags.ConstructionRights;
     }
+  }
+
+  public cacheRightsVisibility() : void {
+    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
+    const viewRightsButton : ToggleButton = toolbarWindow.getChildElement(ElementID.VIEW_RIGHTS_BUTTON) as ToggleButton;
+    this._cachedRightsVisibility = viewRightsButton.isPressed();
+  }
+
+  /**
+   * Restores the rights visibility to what was last cached
+   */
+  public restoreRightsVisibility() : void {
+    this.setRightsVisibility(this._cachedRightsVisibility);
   }
 };
 

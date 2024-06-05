@@ -1,31 +1,10 @@
 /// <reference path='../../lib/openrct2.d.ts' />
 
-import { LandOwnership, setTiles } from '@src/_land';
-
-import { CoordsXY } from '@typedefs/CoordsXY';
-import { ToolID, ToolManager } from './ToolManager';
-import { ButtonID } from '@src/_ui/windows/TilemanWindow';
-
-
-
-
-
 /**
  * **********
  * Variables
  * **********
  */
-
-
-
-
-
-
-
-
-
-
-
 
 // Coordinates where tool was last used
 let toolLastUsedCoords : CoordsXY = CoordsXY(0, 0);

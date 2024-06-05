@@ -2,7 +2,7 @@
 
 import { WindowTemplate } from 'openrct2-flexui';
 import { IWindow } from './IWindow';
-import { UIElementID, WindowID } from '../types/enums';
+import { ElementID, WindowID } from '../types/enums';
 import { UIElement } from '../types/types';
 
 
@@ -20,7 +20,7 @@ export abstract class BaseWindow implements IWindow {
   readonly windowTitle : string;
   protected template! : WindowTemplate;
 
-  protected readonly uiElementMap : Partial<Record<UIElementID, UIElement>> = {};
+  protected readonly uiElementMap : Partial<Record<ElementID, UIElement>> = {};
 
   constructor(windowId : WindowID, windowTitle : string) {
     this.windowId = windowId;
@@ -115,11 +115,11 @@ export abstract class BaseWindow implements IWindow {
   }
 
   /**
-   * Gets a UI element from the UI map
-   * @param buttonId ButtonID to get instance of
+   * Gets a UI element from the map
+   * @param elementId ElementID to get instance of
    * @returns Button instance
    */
-  getUIElement(buttonId : UIElementID) : UIElement | undefined {
-    return this.uiElementMap[buttonId];
+  getChildElement(elementId : ElementID) : UIElement | undefined {
+    return this.uiElementMap[elementId];
   }
 }

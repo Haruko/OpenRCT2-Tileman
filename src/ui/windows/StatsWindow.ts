@@ -1,7 +1,7 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
 import { label, vertical, window, WindowTemplate } from 'openrct2-flexui';
-import { UIElementID, WindowID } from '../types/enums';
+import { ElementID, WindowID } from '../types/enums';
 import { BaseWindow } from './BaseWindow';
 import { IWindow } from './IWindow';
 import { UIManager } from '../UIManager';
@@ -71,9 +71,9 @@ export class StatsWindow extends BaseWindow {
   protected override onOpen() : void {
     super.onOpen();
 
-    const toolbarWindow : IWindow = UIManager.getWindow(WindowID.TOOLBAR);
+    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
     if (typeof toolbarWindow !== 'undefined') {
-      const openStatsButton : ToggleButton = toolbarWindow.getUIElement(UIElementID.OPEN_STATS_BUTTON) as ToggleButton;
+      const openStatsButton : ToggleButton = toolbarWindow.getChildElement(ElementID.OPEN_STATS_BUTTON) as ToggleButton;
       openStatsButton.press();
     }
   }
@@ -91,9 +91,9 @@ export class StatsWindow extends BaseWindow {
   protected override onClose() : void {
     super.onClose();
     
-    const toolbarWindow : IWindow = UIManager.getWindow(WindowID.TOOLBAR);
+    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
     if (typeof toolbarWindow !== 'undefined') {
-      const openStatsButton : ToggleButton = toolbarWindow.getUIElement(UIElementID.OPEN_STATS_BUTTON) as ToggleButton;
+      const openStatsButton : ToggleButton = toolbarWindow.getChildElement(ElementID.OPEN_STATS_BUTTON) as ToggleButton;
       openStatsButton.depress();
     }
   }
