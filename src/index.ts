@@ -2,6 +2,7 @@
 
 import { Park } from './Park';
 import { Plugin } from './Plugin';
+import { initializeTools } from './tools/toolInitializer';
 import { initializeUI } from './ui/uiInitializer';
 
 //TODO Config Window - Display spinners for each exp type
@@ -27,6 +28,7 @@ function main() : void {
     Plugin.initialize();
     Park.initialize();
     initializeUI();
+    initializeTools();
   }
 }
 
