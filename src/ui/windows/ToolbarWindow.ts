@@ -13,6 +13,8 @@ import { Player } from '@src/Player';
 import { ProgressBar } from '@src/flexui-extension/ProgressBar';
 import { availableTilesStore, totalExpStore } from '@src/stores';
 import { IWindow } from './IWindow';
+import { ToolManager } from '@src/tools/ToolManager';
+import { ToolID } from '@src/tools/types/enums';
 
 
 
@@ -269,13 +271,13 @@ export class ToolbarWindow extends BaseWindow {
         newElement = spinner({
           width: 62,
           padding: 5,
-          //TODO value: toolManager.getToolSizeStore(),
+          value: ToolManager.getToolSizeStore(),
           minimum: Plugin.get('minToolSize'),
           maximum: Plugin.get('maxToolSize') + 1,
           step: 1,
           wrapMode: 'clamp',
           onChange: (value : number, adjustment : number) : void => {
-            //TODO toolManager.setToolSize(value);
+            ToolManager.setToolSize(value);
           },
           format: (value: number) : string => {
             return `${value}x${value}`;
@@ -325,9 +327,9 @@ export class ToolbarWindow extends BaseWindow {
    */
   private onBuyToolChange(isPressed : boolean) : void {
     if (isPressed) {
-      //TODO toolManager.setActiveTool(ToolID.BUY);
+      ToolManager.setActiveTool(ToolID.BUY);
     } else {
-      //TODO toolManager.cancelTool();
+      ToolManager.cancelTool();
     }
   }
 
@@ -337,9 +339,9 @@ export class ToolbarWindow extends BaseWindow {
    */
   private onRightsToolChange(isPressed : boolean) : void {
     if (isPressed) {
-      //TODO toolManager.setActiveTool(ToolID.RIGHTS);
+      ToolManager.setActiveTool(ToolID.RIGHTS);
     } else {
-      //TODO toolManager.cancelTool();
+      ToolManager.cancelTool();
     }
   }
 
@@ -349,9 +351,9 @@ export class ToolbarWindow extends BaseWindow {
    */
   private onSellToolChange(isPressed : boolean) : void {
     if (isPressed) {
-      //TODO toolManager.setActiveTool(ToolID.SELL);
+      ToolManager.setActiveTool(ToolID.SELL);
     } else {
-      //TODO toolManager.cancelTool();
+      ToolManager.cancelTool();
     }
   }
 

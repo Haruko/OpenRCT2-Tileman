@@ -5,6 +5,7 @@ import { ElementID, WindowID } from './types/enums';
 import { IWindow } from './windows/IWindow';
 import { Manager } from '@src/Manager';
 import { ToggleButton } from './elements/ToggleButton';
+import { isMapRange } from '@src/types/MapRange';
 
 
 
@@ -13,6 +14,14 @@ import { ToggleButton } from './elements/ToggleButton';
 class TilemanUIManager extends Manager<WindowID, IWindow> {
   private _cachedRightsVisibility : boolean = false;
 
+
+
+  /**
+   * **********
+   * Construction Rights Visibility
+   * **********
+   */
+  
   /**
    * Toggles the visibility of owned construction rights
    * @param visible true if we are setting the rights visible
@@ -36,6 +45,42 @@ class TilemanUIManager extends Manager<WindowID, IWindow> {
    */
   public restoreRightsVisibility() : void {
     this.setRightsVisibility(this._cachedRightsVisibility);
+  }
+
+
+
+  /**
+   * **********
+   * Selection Area
+   * **********
+   */
+
+  /**
+   * Sets the selection grid
+   * @param areaOrArray Area or array of CoordsXY to select
+   */
+  public setSelectionArea(areaOrArray : MapRange | CoordsXY[]) : void {
+    if (isMapRange(areaOrArray)) {
+      // Set one
+      ui.tileSelection.range = areaOrArray;
+
+      // Clear the other
+      ui.tileSelection.tiles = [];
+    } else {
+      // Set one
+      ui.tileSelection.tiles = areaOrArray;
+
+      // Clear the other
+      ui.tileSelection.range = null;
+    }
+  }
+
+  /**
+   * Clears the selection grid
+   */
+  public clearSelectionArea() : void {
+    ui.tileSelection.range = null;
+    ui.tileSelection.tiles = [];
   }
 };
 
