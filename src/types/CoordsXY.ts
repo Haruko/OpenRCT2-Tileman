@@ -36,3 +36,15 @@ export function isCoordsXY(obj : any) : obj is CoordsXY {
     && typeof objAsCoordsXY.x !== 'undefined'
     && typeof objAsCoordsXY.y !== 'undefined' ;
 }
+
+/**
+ * Checks if a CoordsXY is in the MapRange
+ * @param coords CoordsXY to check
+ * @param range MapRange to check
+ */
+export function isInRange(coords : CoordsXY, range : MapRange) : boolean {
+  const x : boolean = range.leftTop.x <= coords.x && coords.x <= range.rightBottom.x;
+  const y : boolean = range.leftTop.y <= coords.y && coords.y <= range.rightBottom.y;
+
+  return x && y;
+}

@@ -75,8 +75,6 @@ export abstract class BaseTool implements ITool {
    * Handles onStart
    */
   protected _onToolStart() : void {
-    console.log('super _onToolStart');
-
     UIManager.cacheRightsVisibility();
     UIManager.setRightsVisibility(true);
   }
@@ -85,8 +83,6 @@ export abstract class BaseTool implements ITool {
    * Handles onDown
    */
   protected _onToolDown(e : ToolEventArgs) : void {
-    console.log('super _onToolDown');
-
     if (e.mapCoords?.x ?? 0 > 0) {
       const coords : CoordsXY = e.mapCoords as CoordsXY;
       const area = this.getToolArea(coords);
@@ -106,8 +102,6 @@ export abstract class BaseTool implements ITool {
    * Handles onMove
    */
   protected _onToolMove(e : ToolEventArgs) : void {
-    console.log('super _onToolMove');
-
     if (e.mapCoords?.x ?? 0 > 0) {
       const coords : CoordsXY = e.mapCoords as CoordsXY;
       const area = this.getToolArea(coords);
@@ -137,15 +131,13 @@ export abstract class BaseTool implements ITool {
    * Handles onUp
    */
   protected _onToolUp(e : ToolEventArgs) : void {
-    console.log('super _onToolUp');
+    
   }
 
   /**
    * Handles onFinish
    */
   protected _onToolFinish() : void {
-    console.log('super _onToolFinish');
-
     // Depress the tool's button
     const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
     if (typeof toolbarWindow !== 'undefined') {

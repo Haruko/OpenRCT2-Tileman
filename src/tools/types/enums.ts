@@ -5,3 +5,12 @@ export enum ToolID {
   RIGHTS = 'Tileman-RightsTool',
   SELL = 'Tileman-SellTool'
 };
+
+/**
+ * What action a tool is trying to do
+ */
+export enum LandOwnershipAction {
+  SELL,
+  BUY,
+  RIGHTS
+};

@@ -6,6 +6,7 @@ import { GameCommandFlag, RideLifecycleFlags } from './types/enums';
 import { RideData, Storeless } from './types/types';
 import { objectStore } from './flexui-extension/createObjectStore';
 import { ObjectStore } from './flexui-extension/ObjectStore';
+import { Plugin } from './Plugin';
 
 
 
@@ -36,14 +37,24 @@ class TilemanPark extends DataStore<ParkData> {
       // List of rides that were demolished
       demolishedRides : arrayStore<RideData>([])
     });
+    
   }
 
   /**
    * Initialize this DataStore
    */
   public initialize() : void {
+    // Subscribe to events
+    context.subscribe('interval.tick', () => Park.onTick(Plugin.get('ticksPerUpdate')));
+    context.subscribe('action.execute', (e : GameActionEventArgs) => Park.onActionExecute(e));
+
     if (this.isNewPark()) {
-      this.clearPark();
+      this.deleteRides();
+      this.deleteGuests();
+      this.fireStaff();
+      
+      this._restoreDataDefaults();
+      this.storeData();
     } else {
       this.loadData();
     }
@@ -171,20 +182,6 @@ class TilemanPark extends DataStore<ParkData> {
    */
   public isNewPark() : boolean {
     return Object.keys(this.getStoredData()).length === 0;
-  }
-
-  /**
-   * Demolishes all rides, deletes all guests, fires all staff
-   */
-  public clearPark() : void {
-    this.deleteRides();
-    this.deleteGuests();
-    this.fireStaff();
-
-    //TODO await setLandOwnership(getMapEdges(), LandOwnership.UNOWNED);
-    
-    this._restoreDataDefaults();
-    this.storeData();
   }
 
   /**

@@ -52,8 +52,54 @@ export function isMapRange(obj : any) : obj is MapRange {
  * @param range Range to calculate from
  * @returns Number of tiles in MapRange
  */
-export function computeTilesInRange(range : MapRange) : number {
+export function getRangeSize(range : MapRange) : number {
   const xLength = Math.abs(range.rightBottom.x - range.leftTop.x) / 32 + 1;
   const yLength = Math.abs(range.rightBottom.y - range.leftTop.y) / 32 + 1;
   return xLength * yLength;
+}
+
+/**
+ * Returns coordinates clamped to the map bounds
+ * @param coords CoordsXY to clamp
+ * @param range MapRange to clamp to
+ * @returns Clamped CoordsXY
+ */
+export function clampCoords(coords : CoordsXY, range : MapRange) : CoordsXY {
+  return CoordsXY(
+    Math.min(range.rightBottom.x - 32, Math.max(range.leftTop.x + 32, coords.x)),
+    Math.min(range.rightBottom.y - 32, Math.max(range.leftTop.y + 32, coords.y))
+  );
+}
+
+/**
+ * Clamp one range to conform to another
+ * @param range Range to clamp
+ * @param limitingRange Range to clamp to
+ * @returns Range with clamped corners
+ */
+export function clampRange(range : MapRange, limitingRange : MapRange) : MapRange {
+  return MapRange(
+    clampCoords(range.leftTop, limitingRange),
+    clampCoords(range.rightBottom, limitingRange)
+  );
+}
+
+/**
+ * Checks if the two ranges intersect
+ * @param a 
+ * @param b 
+ * @returns true if they intersect
+ */
+export function rangesIntersect(a : MapRange, b : MapRange) : boolean {
+  // Don't intersect along X
+  if (a.rightBottom.x < b.leftTop.x || b.rightBottom.x < a.leftTop.x) {
+    return false;
+  }
+
+  // Don't intersect along Y
+  if (a.rightBottom.y < b.leftTop.y || b.rightBottom.y < a.leftTop.y) {
+    return false;
+  }
+
+  return true;
 }

@@ -1,16 +1,13 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { Park } from './Park';
 import { Plugin } from './Plugin';
-import { initializeTools } from './tools/toolInitializer';
-import { initializeUI } from './ui/uiInitializer';
+import { initialize } from './pluginInitializer';
 
 //TODO Config Window - Display spinners for each exp type
 //TODO Config Window - Display totals for each exp type
 //TODO Detailed Stats Window - Create window with various stats including historical data about rides done in a list view
 
 //TODO MAYBE: Persistent Storage - context.sharedStorage for pluginconfig with profiles?
-//TODO MAYBE: Data - Initialize data for constructed rides?
 //TODO MAYBE: Options - Difficulty multiplier for ParkFlags?
 //TODO MAYBE: Options - Bonus exp/tiles for completing objective?
 //TODO MAYBE: Toolbar Window - Add label over progress bar
@@ -25,10 +22,7 @@ function main() : void {
   if (Plugin.isValidRunConfig()) {
     console.log('Initializing Tileman Plugin...');
 
-    Plugin.initialize();
-    Park.initialize();
-    initializeUI();
-    initializeTools();
+    initialize();
   }
 }
 

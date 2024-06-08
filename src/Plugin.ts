@@ -3,7 +3,6 @@
 import { WritableStore, read, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
 import { Storeless } from './types/types';
-import { Park } from './Park';
 
 
 
@@ -73,9 +72,7 @@ class TilemanPlugin extends DataStore<PluginData> {
    * Initialize this DataStore
    */
   public initialize() : void {
-    // Subscribe to events
-    context.subscribe('interval.tick', () => Park.onTick(this.data.ticksPerUpdate));
-    context.subscribe('action.execute', (e : GameActionEventArgs) => Park.onActionExecute(e));
+    
   }
 
 
