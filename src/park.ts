@@ -239,13 +239,6 @@ class TilemanPark extends DataStore<ParkData> {
         });
       });
     });
-
-    // promiseChain.then(() : void => {
-    //   // Make sure the stored is cleared
-    //   this.data.rideMap.set({});
-    //   this.data.demolishedRides.set([]);
-    //   this.storeData();
-    // });
   }
 }
 
