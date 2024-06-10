@@ -34,7 +34,7 @@ export class ProgressBar extends BaseElement<ProgressBarParams> {
       type: 'custom',
       width: this.params.width ?? '1w',
       height: this.params.height ?? 10,
-      onDraw: this._onDraw,
+      onDraw: this._onDraw.bind(this),
     });
   }
 
