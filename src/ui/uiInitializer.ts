@@ -8,8 +8,8 @@ import { ToolbarWindow } from './windows/ToolbarWindow';
 
 export function initializeUI() : void {
   const toolbarWindow : ToolbarWindow = new ToolbarWindow();
-  const statsWindow : ConfigWindow = new ConfigWindow();
-  const configWindow : StatsWindow = new StatsWindow();
+  const statsWindow : StatsWindow = new StatsWindow();
+  const configWindow : ConfigWindow = new ConfigWindow();
 
   UIManager.registerInstance(WindowID.TOOLBAR, toolbarWindow);
   UIManager.registerInstance(WindowID.STATS, statsWindow);

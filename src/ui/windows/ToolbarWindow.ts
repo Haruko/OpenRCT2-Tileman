@@ -394,7 +394,6 @@ export class ToolbarWindow extends BaseWindow {
    */
   override open() : void {
     const existingWindow : Window | undefined = this.getWindowInstance();
-    
   
     if (typeof existingWindow === 'undefined') {
       // Didn't have the window open yet
