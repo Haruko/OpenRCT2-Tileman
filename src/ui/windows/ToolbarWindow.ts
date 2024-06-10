@@ -10,11 +10,11 @@ import { UIManager } from '../UIManager';
 import { UIElement } from '../types/types';
 import { Plugin } from '@src/Plugin';
 import { Player } from '@src/Player';
-import { ProgressBar } from '@src/flexui-extension/ProgressBar';
 import { availableTilesStore, totalExpStore } from '@src/stores';
 import { IWindow } from './IWindow';
 import { ToolManager } from '@src/tools/ToolManager';
 import { ToolID } from '@src/tools/types/enums';
+import { ProgressBar } from '../elements/ProgressBar';
 
 
 
@@ -164,7 +164,7 @@ export class ToolbarWindow extends BaseWindow {
       }
     );
 
-    const expToNextTileProgressBar : ProgressBar = new ProgressBar({
+    const expToNextTileProgressBar : ProgressBar = new ProgressBar(ElementID.EXP_NEXT_PROGRESSBAR, {
       width: '1w',
       height: 10,
       background: Colour.Grey,
