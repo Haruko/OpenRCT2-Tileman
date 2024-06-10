@@ -22,8 +22,8 @@ export class DoubleClickButton extends ToggleButton {
   protected clickTimeout : number | undefined;
   protected doubleClickLength : number = 2000; // ms
 
-  constructor(buttonId : ElementID, params : DoubleClickButtonParams, buttonGroup? : StatefulButtonGroup) {
-    super(buttonId, params, buttonGroup);
+  constructor(id : ElementID, params : DoubleClickButtonParams, buttonGroup? : StatefulButtonGroup) {
+    super(id, params, buttonGroup);
   }
 
   /**
@@ -41,7 +41,7 @@ export class DoubleClickButton extends ToggleButton {
         }
       }, this.doubleClickLength);
 
-      this.buttonGroup?.depressOthers(this.buttonId);
+      this.buttonGroup?.depressOthers(this.id);
     } else if (!this.isPressed() && typeof this.clickTimeout === 'number') {
       // Successful double click
       context.clearTimeout(this.clickTimeout);

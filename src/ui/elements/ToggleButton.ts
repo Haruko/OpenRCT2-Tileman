@@ -19,15 +19,15 @@ type ToggleButtonParams = Required<Pick<ToggleParams, 'onChange'>>
  * A wrapping class for Toggle to keep things cleaner elsewhere
  */
 export class ToggleButton {
-  readonly buttonId : ElementID;
+  readonly id : ElementID;
   readonly buttonGroup? : StatefulButtonGroup;
   readonly widget : FlexUIWidget;
 
   protected readonly callback : (isPressed : boolean) => void;
   protected readonly isPressedStore : WritableStore<boolean> = store<boolean>(false);
 
-  constructor(buttonId : ElementID, params : ToggleButtonParams, buttonGroup? : StatefulButtonGroup) {
-    this.buttonId = buttonId;
+  constructor(id : ElementID, params : ToggleButtonParams, buttonGroup? : StatefulButtonGroup) {
+    this.id = id;
     this.buttonGroup = buttonGroup;
 
     const buttonParams : ToggleParams & FlexiblePosition = params;
@@ -56,7 +56,7 @@ export class ToggleButton {
       return;
     }
 
-    this.buttonGroup?.depressOthers(this.buttonId, triggerChange);
+    this.buttonGroup?.depressOthers(this.id, triggerChange);
     this.set(true, triggerChange);
   }
 
@@ -111,7 +111,7 @@ export class ToggleButton {
     }
     
     if (isPressed) {
-      this.buttonGroup?.depressOthers(this.buttonId, true);
+      this.buttonGroup?.depressOthers(this.id, true);
     }
 
     this.callback(isPressed);

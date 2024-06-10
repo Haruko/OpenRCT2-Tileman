@@ -31,7 +31,7 @@ export class StatefulButtonGroup {
    */
   depressOthers(activeButtonId? : ElementID, triggerChange? : boolean) : void {
     this.buttons.forEach((button : StatefulButton) : void => {
-      if(button.buttonId !== activeButtonId) {
+      if(button.id !== activeButtonId) {
         if (button instanceof DoubleClickButton) {
           button.cancelDoubleClick();
         } else {
