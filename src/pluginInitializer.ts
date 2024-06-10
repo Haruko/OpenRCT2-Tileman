@@ -11,8 +11,8 @@ import { initializeUI } from './ui/uiInitializer';
  */
 export async function initialize() : Promise<void> {
   Plugin.initialize();
-  Park.initialize();
   await Map.initialize();
+  Park.initialize();
   initializeUI();
   initializeTools();
 }

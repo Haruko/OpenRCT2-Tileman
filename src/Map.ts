@@ -7,6 +7,7 @@ import { LandOwnershipAction } from './tools/types/enums';
 import { CoordsXY, isInRange } from './types/CoordsXY';
 import { MapRange, clampRange, getRangeSize, isMapRange, rangesIntersect } from './types/MapRange';
 import { EntranceType, GameActionResultErrorCodes, GameCommandFlag, LandOwnership, LandRightsResult } from './types/enums';
+import { Park } from './Park';
 
 
 
@@ -22,7 +23,9 @@ class TilemanMap {
   private _playableArea? : MapRange;
 
   public async initialize() : Promise<void> {
-    await Map.setLandOwnership(Map.getPlayableArea(), LandOwnership.UNOWNED);
+    if(Park.isNewPark()) {
+      await Map.setLandOwnership(Map.getPlayableArea(), LandOwnership.UNOWNED);
+    }
   }
 
 
