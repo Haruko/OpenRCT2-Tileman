@@ -3,7 +3,7 @@
 import { Bindable, Colour, ElementParams, FlexiblePosition, WritableStore, isStore, read, widget } from "openrct2-flexui";
 import { ElementID } from '../types/enums';
 import { BaseElement } from './BaseElement';
-import { FlexUIWidget } from '@src/flexui-extension/types/FlexUIWidget';
+import { FlexUIWidget } from '../types/types';
 
 
 

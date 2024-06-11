@@ -4,7 +4,7 @@ import { TabCreator, WindowTemplate, horizontal, label, tab, tabwindow, vertical
 import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
 import { BaseWindow } from './BaseWindow';
 import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
-import { FlexUIWidget } from '@src/flexui-extension/types/FlexUIWidget';
+import { FlexUIWidget } from '../types/types';
 import { DoubleClickButton } from '../elements/DoubleClickButton';
 import { UIElement } from '../types/types';
 import { Park } from '@src/Park';

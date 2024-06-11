@@ -4,7 +4,7 @@ import { Colour, Store, WindowTemplate, box, compute, horizontal, label, spinner
 import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
 import { Sprites, ElementID, WindowID } from '../types/enums';
 import { BaseWindow } from './BaseWindow';
-import { FlexUIWidget } from '@src/flexui-extension/types/FlexUIWidget';
+import { FlexUIWidget } from '../types/types';
 import { ToggleButton } from '../elements/ToggleButton';
 import { UIManager } from '../UIManager';
 import { UIElement } from '../types/types';

@@ -3,7 +3,7 @@
 import { FlexiblePosition, ToggleParams, WritableStore, store, toggle } from 'openrct2-flexui';
 import { ElementID } from '../types/enums';
 import { StatefulButtonGroup } from './StatefulButtonGroup';
-import { FlexUIWidget } from '@src/flexui-extension/types/FlexUIWidget';
+import { FlexUIWidget } from '../types/types';
 
 
 

@@ -1,6 +1,6 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { FlexUIWidget } from '@src/flexui-extension/types/FlexUIWidget';
+import { FlexUIWidget } from '../types/types';
 import { ElementID } from '../types/enums';
 
 
