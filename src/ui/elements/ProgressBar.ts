@@ -12,7 +12,7 @@ import { FlexUIWidget } from '../types/types';
 /**
  * Parameters to create a new ProgressBar
  */
-type ProgressBarParams = ElementParams  & FlexiblePosition & {
+export type ProgressBarParams = ElementParams  & FlexiblePosition & {
   background : Bindable<Colour>,
   foreground : Bindable<Colour>,
   percentFilled : Bindable<number>
