@@ -32,6 +32,10 @@ class TilemanUIManager extends Manager<WindowID, IWindow> {
     } else {
       ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags & ~ViewportFlags.ConstructionRights;
     }
+
+    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
+    const viewRightsButton : ToggleButton = toolbarWindow.getChildElement(ElementID.VIEW_RIGHTS_BUTTON) as ToggleButton;
+    viewRightsButton.set(visible, true);
   }
 
   public cacheRightsVisibility() : void {
