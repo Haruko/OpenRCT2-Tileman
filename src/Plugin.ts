@@ -12,7 +12,7 @@ import { Storeless } from './types/types';
  * **********
  */
 
-type PluginData = {
+export type PluginData = {
   /**
    * Static data
    */
@@ -70,8 +70,9 @@ class TilemanPlugin extends DataStore<PluginData> {
 
   /**
    * Initialize this DataStore
+   * @param isNewPark True if this is a new park
    */
-  public initialize() : void {
+  public initialize(isNewPark : boolean) : void {
     
   }
 

@@ -22,8 +22,9 @@ export abstract class DataStore<DataStoreType> {
 
   /**
    * Initialize this DataStore
+   * @param isNewPark True if this is a new park
    */
-  public abstract initialize() : void;
+  public abstract initialize(isNewPark : boolean) : void;
 
   /**
    * Resets this.data to the provided defaults

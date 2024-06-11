@@ -16,7 +16,7 @@ import { Plugin } from './Plugin';
  * **********
  */
 
-type ParkData = {
+export type ParkData = {
   // Data used to calculate experience
   parkAdmissions : WritableStore<number>,
   // Maps ride IDs (numbers) and historical data
@@ -42,21 +42,20 @@ class TilemanPark extends DataStore<ParkData> {
 
   /**
    * Initialize this DataStore
+   * @param isNewPark True if this is a new park
    */
-  public initialize() : void {
+  public initialize(isNewPark : boolean) : void {
     // Subscribe to events
     context.subscribe('interval.tick', () => Park.onTick(Plugin.get('ticksPerUpdate')));
     context.subscribe('action.execute', (e : GameActionEventArgs) => Park.onActionExecute(e));
 
-    if (this.isNewPark()) {
+    if (isNewPark) {
       this.deleteRides();
       this.deleteGuests();
       this.fireStaff();
       
       this._restoreDataDefaults();
       this.storeData();
-    } else {
-      this.loadData();
     }
   }
 
@@ -175,14 +174,6 @@ class TilemanPark extends DataStore<ParkData> {
    * Other
    * **********
    */
-
-  /**
-   * Checks if the park is new based on whether it has stored data
-   * @returns True if this is a brand new park
-   */
-  public isNewPark() : boolean {
-    return Object.keys(this.getStoredData()).length === 0;
-  }
 
   /**
    * Fires all staff

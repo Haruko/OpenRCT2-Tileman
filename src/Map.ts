@@ -7,7 +7,6 @@ import { LandOwnershipAction } from './tools/types/enums';
 import { CoordsXY, isInRange } from './types/CoordsXY';
 import { MapRange, clampRange, getRangeSize, isMapRange, rangesIntersect } from './types/MapRange';
 import { EntranceType, GameActionResultErrorCodes, GameCommandFlag, LandOwnership, LandRightsResult } from './types/enums';
-import { Park } from './Park';
 
 
 
@@ -22,8 +21,12 @@ type ValidTilesResult = {
 class TilemanMap {
   private _playableArea? : MapRange;
 
-  public async initialize() : Promise<void> {
-    if(Park.isNewPark()) {
+  /**
+   * Initialize this DataStore
+   * @param isNewPark True if this is a new park
+   */
+  public async initialize(isNewPark : boolean) : Promise<void> {
+    if(isNewPark) {
       await Map.setLandOwnership(Map.getPlayableArea(), LandOwnership.UNOWNED);
     }
   }
