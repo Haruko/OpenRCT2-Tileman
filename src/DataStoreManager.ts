@@ -9,27 +9,33 @@ class TilemanDataStoreManager extends Manager<DataStoreID, DataStore<any>> {
    * Runs initialize on all data stores
    */
   public initializeAll(isNewPark : boolean) : void {
-    for (const id in DataStoreID) {
-      this.getInstance(DataStoreID[id as keyof typeof DataStoreID]).initialize(isNewPark);
-    }
+    Object.keys(DataStoreID)
+      .filter((key : string) : boolean => isNaN(Number(key)))
+      .forEach((key : string) : void => {
+        this.getInstance(DataStoreID[key as keyof typeof DataStoreID]).initialize(isNewPark);
+      });
   }
 
   /**
    * Runs loadData on all data stores
    */
   public loadAllData() : void {
-    for (const id in DataStoreID) {
-      this.getInstance(DataStoreID[id as keyof typeof DataStoreID]).loadData();
-    }
+    Object.keys(DataStoreID)
+      .filter((key : string) : boolean => isNaN(Number(key)))
+      .forEach((key : string) : void => {
+        this.getInstance(DataStoreID[key as keyof typeof DataStoreID]).loadData();
+      });
   }
 
   /**
    * Runs storeData on all data stores
    */
   public storeAllData() : void {
-    for (const id in DataStoreID) {
-      this.getInstance(DataStoreID[id as keyof typeof DataStoreID]).storeData();
-    }
+    Object.keys(DataStoreID)
+      .filter((key : string) : boolean => isNaN(Number(key)))
+      .forEach((key : string) : void => {
+        this.getInstance(DataStoreID[key as keyof typeof DataStoreID]).storeData();
+      });
   }
 }
 
