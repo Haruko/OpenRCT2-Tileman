@@ -16,6 +16,10 @@ export type ProgressBarParams = ElementParams & FlexiblePosition & {
   background : Bindable<Colour>,
   foreground : Bindable<Colour>,
   text? : Bindable<string>,
+  textAlignment? : {
+    horizontal?: 'left' | 'right' | 'center'
+    vertical?: 'top' | 'bottom' | 'center'
+  }
   percentFilled : Bindable<number>
 };
 
@@ -50,16 +54,56 @@ export class ProgressBar extends BaseElement<InternalType> {
    * @param g GraphicsContext to draw with
    */
   private _onDraw(g : GraphicsContext) : void {
+    // Background well
     g.colour = read(this.params.background);
     g.well(0, 0, g.width, g.height);
 
+    // Foreground bar
     g.colour = read(this.params.foreground);
     g.box(1, 1, g.width * read(this.params.percentFilled) - 2, g.height - 2);
 
+    // Text
     g.colour = Colour.White;
     const text = read(this.params.text);
     const textSize : ScreenSize = g.measureText(text);
-    g.text(text, (g.width / 2) - (textSize.width / 2), (g.height / 2) - (textSize.height / 2));
+
+    let x : number;
+    switch (this.params.textAlignment?.horizontal) {
+      case 'left': {
+        x = 0;
+        break;
+      } case 'center': {
+        x = (g.width / 2) - (textSize.width / 2);
+        break;
+      } case 'right': {
+        x = g.width - textSize.width;
+        break;
+      } default: {
+        // Default to left
+        x = 0;
+        break;
+      }
+    }
+
+    let y : number;
+    switch (this.params.textAlignment?.vertical) {
+      case 'top': {
+        y = 0;
+        break;
+      } case 'center': {
+        y = (g.height / 2) - (textSize.height / 2);
+        break;
+      } case 'bottom': {
+        y = g.height - textSize.height;
+        break;
+      } default: {
+        // Default to top
+        y = 0;
+        break;
+      }
+    }
+
+    g.text(text, x, y);
   }
 
   /**

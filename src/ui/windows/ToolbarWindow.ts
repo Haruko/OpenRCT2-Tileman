@@ -189,7 +189,7 @@ export class ToolbarWindow extends BaseWindow {
       spacing: 0,
       content: [
         label({
-          text: '  {BLACK}Available Tiles: ',
+          text: '{BLACK}Available Tiles  : ',
           width: 90
         }),
         label({
@@ -203,25 +203,11 @@ export class ToolbarWindow extends BaseWindow {
       spacing: 0,
       content: [
         label({
-          text: '   {BLACK}Tiles Unlocked:',
+          text: '{BLACK}Tiles Unlocked   :',
           width: 90
         }),
         label({
           text: this._createStatsLabelStore(ElementID.UNLOCKED_TILES)
-        })
-      ]
-    });
-    
-    // Exp to next tile label
-    const expToNextTileLabel : FlexUIWidget = horizontal({
-      spacing: 0,
-      content: [
-        label({
-          text: '{BLACK}XP To Next Tile:',
-          width: 90
-        }),
-        label({
-          text: this._createStatsLabelStore(ElementID.EXP_TO_NEXT_TILE)
         })
       ]
     });
@@ -258,7 +244,11 @@ export class ToolbarWindow extends BaseWindow {
       height: 16,
       background: Colour.Grey,
       foreground: expToNextTileBarForeground,
-      text: 'TODO',
+      text: this._createStatsLabelStore(ElementID.EXP_NEXT_PROGRESSBAR),
+      textAlignment: {
+        horizontal: 'left',
+        vertical: 'center'
+      },
       percentFilled: expToNextTilePercent
     });
     
@@ -268,7 +258,6 @@ export class ToolbarWindow extends BaseWindow {
         content: [
           availableTilesLabel,
           unlockedTilesLabel,
-          expToNextTileLabel,
           expToNextTileProgressBar.widget
         ]
       })
@@ -300,6 +289,14 @@ export class ToolbarWindow extends BaseWindow {
           (totalExp : number, expPerTile : number) : string => {
               const expToNextTile : number = expPerTile - (totalExp % expPerTile);
               return `{WHITE}${context.formatString('{COMMA16}', expToNextTile)}`;
+          }
+        );
+        break;
+      } case ElementID.EXP_NEXT_PROGRESSBAR: {
+        newStore = compute<number, number, string>(totalExpStore, Plugin.get('expPerTile'),
+          (totalExp : number, expPerTile : number) : string => {
+            const expToNextTile : number = expPerTile - (totalExp % expPerTile);
+            return `  {WHITE}${context.formatString('{COMMA16}', expToNextTile)} {BLACK}to next`;
           }
         );
         break;

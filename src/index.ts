@@ -10,7 +10,6 @@ import { initialize } from './pluginInitializer';
 //TODO MAYBE: Persistent Storage - context.sharedStorage for pluginconfig with profiles?
 //TODO MAYBE: Options - Difficulty multiplier for ParkFlags?
 //TODO MAYBE: Options - Bonus exp/tiles for completing objective?
-//TODO MAYBE: Toolbar Window - Add label over progress bar
 //TODO MAYBE: Toolbar Window - Update the tool UI to be like the land editing tool
 //            Check out https://github.com/OpenRCT2/OpenRCT2/blob/17920b60390aa0c4afc84c09aa897a596f41705a/src/openrct2-ui/windows/Land.cpp#L43
 
