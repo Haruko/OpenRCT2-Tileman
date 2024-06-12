@@ -255,9 +255,10 @@ export class ToolbarWindow extends BaseWindow {
 
     const expToNextTileProgressBar : ProgressBar = new ProgressBar(ElementID.EXP_NEXT_PROGRESSBAR, {
       width: '1w',
-      height: 10,
+      height: 16,
       background: Colour.Grey,
       foreground: expToNextTileBarForeground,
+      text: 'TODO',
       percentFilled: expToNextTilePercent
     });
     
