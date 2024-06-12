@@ -4,6 +4,8 @@ import { FlexiblePosition, ToggleParams } from 'openrct2-flexui';
 import { ToggleButton } from './ToggleButton';
 import { ElementID } from '../types/enums';
 import { StatefulButtonGroup } from './StatefulButtonGroup';
+import { DataStoreManager } from '@src/DataStoreManager';
+import { DataStoreID } from '@src/types/types';
 
 
 
@@ -12,15 +14,13 @@ import { StatefulButtonGroup } from './StatefulButtonGroup';
 /**
  * Params for the toggle buttons with onChange set as required and omitting isPressed
  */
-type DoubleClickButtonParams = Required<Pick<ToggleParams, 'onChange'>>
-                          & Omit<ToggleParams & FlexiblePosition, 'isPressed'>;
+type DoubleClickButtonParams = ToggleParams & Omit<ToggleParams & FlexiblePosition, 'isPressed'>;
 
 /**
  * A wrapping class for Toggle to keep things cleaner elsewhere
  */
 export class DoubleClickButton extends ToggleButton {
   protected clickTimeout : number | undefined;
-  protected doubleClickLength : number = 2000; // ms
 
   constructor(id : ElementID, params : DoubleClickButtonParams, buttonGroup? : StatefulButtonGroup) {
     super(id, params, buttonGroup);
@@ -32,6 +32,8 @@ export class DoubleClickButton extends ToggleButton {
    */
   override onChange(isPressed? : boolean) : void {
     if (this.isPressed() && typeof this.clickTimeout === 'undefined') {
+      const doubleClickLength : number = DataStoreManager.getInstance(DataStoreID.PLUGIN).get('doubleClickLength');
+
       this.clickTimeout = context.setTimeout(() => {
         if (typeof this.clickTimeout === 'number') {
           // Double click timed out
@@ -39,7 +41,7 @@ export class DoubleClickButton extends ToggleButton {
           this.clickTimeout = undefined;
           this.depress();
         }
-      }, this.doubleClickLength);
+      }, doubleClickLength);
 
       this.buttonGroup?.depressOthers(this.id);
     } else if (!this.isPressed() && typeof this.clickTimeout === 'number') {

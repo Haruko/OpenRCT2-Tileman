@@ -17,6 +17,8 @@ export type PluginData = {
    * Static data
    */
   readonly pluginName: 'Tileman',
+
+  readonly doubleClickLength : number,
   
   // Tools
   readonly minToolSize : number,
@@ -47,6 +49,8 @@ class TilemanPlugin extends DataStore<PluginData> {
        * Static data
        */
       pluginName: 'Tileman',
+
+      doubleClickLength: 2000, //ms
       
       // Tools
       minToolSize: 1,
