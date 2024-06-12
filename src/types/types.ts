@@ -2,11 +2,14 @@
 
 import { Store } from 'openrct2-flexui';
 
+/**
+ * IDs for the data stores
+ */
 export enum DataStoreID {
   PLUGIN,
   PLAYER,
   PARK
-}
+};
 
 /**
  * Maps properties of one type to another type

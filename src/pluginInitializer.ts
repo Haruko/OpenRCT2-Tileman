@@ -19,9 +19,7 @@ export async function initialize() : Promise<void> {
   DataStoreManager.registerInstance(DataStoreID.PLAYER, Player);
   DataStoreManager.registerInstance(DataStoreID.PARK, Park);
 
-  if (isNewPark) {
-    DataStoreManager.loadAllData();
-  }
+  DataStoreManager.loadAllData();
 
   DataStoreManager.initializeAll(isNewPark);
   await Map.initialize(isNewPark);

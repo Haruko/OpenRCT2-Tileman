@@ -3,10 +3,10 @@
 import { ArrayStore, WritableStore, arrayStore, read, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
 import { GameCommandFlag, RideLifecycleFlags } from './types/enums';
-import { RideData, Storeless } from './types/types';
+import { DataStoreID, RideData, Storeless } from './types/types';
 import { objectStore } from './flexui-extension/createObjectStore';
 import { ObjectStore } from './flexui-extension/ObjectStore';
-import { Plugin } from './Plugin';
+import { DataStoreManager } from './DataStoreManager';
 
 
 
@@ -46,7 +46,8 @@ class TilemanPark extends DataStore<ParkData> {
    */
   public initialize(isNewPark : boolean) : void {
     // Subscribe to events
-    context.subscribe('interval.tick', () => Park.onTick(Plugin.get('ticksPerUpdate')));
+    const PluginDataStore : DataStore<any> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
+    context.subscribe('interval.tick', () => Park.onTick(PluginDataStore.get('ticksPerUpdate')));
     context.subscribe('action.execute', (e : GameActionEventArgs) => Park.onActionExecute(e));
 
     if (isNewPark) {
@@ -55,7 +56,7 @@ class TilemanPark extends DataStore<ParkData> {
       this.fireStaff();
       
       this._restoreDataDefaults();
-      this.storeData();
+      DataStoreManager.storeAllData();
     }
   }
 
@@ -71,11 +72,13 @@ class TilemanPark extends DataStore<ParkData> {
    * Loads data from the persistent park-specific storage
    */
   public loadData() : void {
-    const savedData : Storeless<ParkData> = this.getStoredData();
+    let savedData : Storeless<ParkData> = this.getStoredData();
 
-    this.data.parkAdmissions.set(savedData.parkAdmissions);
-    this.data.rideMap.set(savedData.rideMap as Record<string, RideData>);
-    this.data.demolishedRides.set(savedData.demolishedRides as RideData[]);
+    if (typeof savedData !== 'undefined') {
+      this.data.parkAdmissions.set(savedData.parkAdmissions);
+      this.data.rideMap.set(savedData.rideMap as Record<string, RideData>);
+      this.data.demolishedRides.set(savedData.demolishedRides as RideData[]);
+    }
   }
 
   /**
@@ -116,7 +119,7 @@ class TilemanPark extends DataStore<ParkData> {
       }
     });
 
-    this.storeData();
+    DataStoreManager.storeAllData();
   }
 
 
@@ -162,6 +165,7 @@ class TilemanPark extends DataStore<ParkData> {
         this.data.demolishedRides.push(rideData);
         this.data.rideMap.set(rideId, undefined);
 
+        // Only store data of this data store because it doesn't change exp calculation
         this.storeData();
       }
     }

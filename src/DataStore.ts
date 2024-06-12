@@ -14,10 +14,6 @@ export abstract class DataStore<DataStoreType> {
     this.data = data;
     this._dataDefaults = {} as DataStoreType;
     this._carefulCopy(data, this._dataDefaults) as DataStoreType;
-
-    if (typeof context.getParkStorage().getAll()[namespace] === 'undefined') {
-      context.getParkStorage().set(namespace, {});
-    }
   }
 
   /**
@@ -81,7 +77,17 @@ export abstract class DataStore<DataStoreType> {
    * Loads data from the persistent park-specific storage
    */
   public getStoredData() : Storeless<DataStoreType> {
-    return context.getParkStorage().getAll()[this._namespace] as Storeless<DataStoreType>;
+    const savedData = context.getParkStorage().getAll()[this._namespace];
+
+    if (typeof savedData === 'undefined') {
+      const newData = {};
+      this._carefulCopy(this._dataDefaults, newData);
+
+      context.getParkStorage().set(this._namespace, newData);
+      return newData as Storeless<DataStoreType>;
+    } else {
+      return savedData as Storeless<DataStoreType>;
+    }
   }
 
   /**
