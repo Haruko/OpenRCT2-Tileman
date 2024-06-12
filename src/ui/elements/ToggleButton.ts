@@ -1,6 +1,6 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { FlexiblePosition, ToggleParams, WritableStore, store, toggle } from 'openrct2-flexui';
+import { FlexiblePosition, ToggleParams, TwoWayBinding, WritableStore, isStore, store, toggle, twoway } from 'openrct2-flexui';
 import { ElementID } from '../types/enums';
 import { StatefulButtonGroup } from './StatefulButtonGroup';
 import { FlexUIWidget } from '../types/types';
@@ -12,8 +12,11 @@ import { FlexUIWidget } from '../types/types';
 /**
  * Params for the toggle buttons with onChange set as required and omitting isPressed
  */
-type ToggleButtonParams = Required<Pick<ToggleParams, 'onChange'>>
-                          & Omit<ToggleParams & FlexiblePosition, 'isPressed'>;
+export type ToggleButtonParams = ToggleParams & FlexiblePosition & Required<Pick<ToggleParams, 'onChange'>>;
+
+type InternalParams = ToggleButtonParams & {
+  isPressed : TwoWayBinding<boolean>
+};
 
 /**
  * A wrapping class for Toggle to keep things cleaner elsewhere
@@ -22,28 +25,34 @@ export class ToggleButton {
   readonly id : ElementID;
   readonly buttonGroup? : StatefulButtonGroup;
   readonly widget : FlexUIWidget;
+  readonly params : InternalParams;
 
   protected readonly callback : (isPressed : boolean) => void;
-  protected readonly isPressedStore : WritableStore<boolean> = store<boolean>(false);
 
   constructor(id : ElementID, params : ToggleButtonParams, buttonGroup? : StatefulButtonGroup) {
     this.id = id;
     this.buttonGroup = buttonGroup;
 
-    const buttonParams : ToggleParams & FlexiblePosition = params;
-    buttonParams.isPressed = { twoway: this.isPressedStore };
+    if (typeof params.isPressed === 'undefined') {
+      params.isPressed = twoway(store(false));
+    } else if (typeof params.isPressed === 'boolean') {
+      params.isPressed = twoway(store(params.isPressed));
+    } else if (isStore(params.isPressed)) {
+      params.isPressed = twoway(params.isPressed as WritableStore<boolean>);
+    }
     
     this.callback = params.onChange; // params because never undefined
     params.onChange = (isPressed : boolean) : void => this.onChange(isPressed);
 
-    this.widget = toggle(buttonParams);
+    this.params = params as InternalParams;
+    this.widget = toggle(params);
   }
 
   /**
    * @returns true if the button is pressed
    */
   isPressed() : boolean {
-    return this.isPressedStore.get();
+    return this.params.isPressed.twoway.get();
   }
 
   /**
@@ -94,7 +103,7 @@ export class ToggleButton {
       return;
     }
     
-    this.isPressedStore.set(press);
+    this.params.isPressed.twoway.set(press);
 
     if (triggerChange) {
       this.onChange(press);
