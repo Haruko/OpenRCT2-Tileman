@@ -16,14 +16,14 @@ import { UIElement } from '../types/types';
  */
 
 export abstract class BaseWindow implements IWindow {
-  readonly windowId : WindowID;
+  readonly id : WindowID;
   readonly windowTitle : string;
   protected template! : WindowTemplate;
 
-  protected readonly uiElementMap : Partial<Record<ElementID, UIElement>> = {};
+  private readonly _uiElementMap : Partial<Record<ElementID, UIElement>> = {};
 
-  constructor(windowId : WindowID, windowTitle : string) {
-    this.windowId = windowId;
+  constructor(id : WindowID, windowTitle : string) {
+    this.id = id;
     this.windowTitle = windowTitle;
   }
   
@@ -40,6 +40,30 @@ export abstract class BaseWindow implements IWindow {
    * @returns WindowTemplate
    */
   protected abstract _buildWindowTemplate() : WindowTemplate;
+
+  /**
+   * Registers a new element to the list of elements
+   * @param id ID to register to
+   * @param el Element to register
+   * @returns True if the instance was set, otherwise false 
+   */
+  protected registerElement(id : ElementID, el : UIElement) : boolean {
+    if (typeof this._uiElementMap[id] === 'undefined') {
+      this._uiElementMap[id] = el;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Gets a UI element from the map
+   * @param id ElementID to get instance of
+   * @returns Button instance
+   */
+  public getChildElement(id : ElementID) : UIElement | undefined {
+    return this._uiElementMap[id];
+  }
   
   
 
@@ -87,14 +111,14 @@ export abstract class BaseWindow implements IWindow {
   /**
    * Opens the window
    */
-  open() : void {
+  public open() : void {
     this.template.open();
   }
 
   /**
    * Closes the window
    */
-  close() : void {
+  public close() : void {
     this.template.close();
   }
   
@@ -112,14 +136,5 @@ export abstract class BaseWindow implements IWindow {
     }
 
     return;
-  }
-
-  /**
-   * Gets a UI element from the map
-   * @param elementId ElementID to get instance of
-   * @returns Button instance
-   */
-  getChildElement(elementId : ElementID) : UIElement | undefined {
-    return this.uiElementMap[elementId];
   }
 }

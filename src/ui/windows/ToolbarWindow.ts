@@ -7,7 +7,6 @@ import { BaseWindow } from './BaseWindow';
 import { FlexUIWidget } from '../types/types';
 import { ToggleButton } from '../elements/ToggleButton';
 import { UIManager } from '../UIManager';
-import { UIElement } from '../types/types';
 import { Plugin } from '@src/Plugin';
 import { Player } from '@src/Player';
 import { availableTilesStore, totalExpStore } from '@src/stores';
@@ -69,25 +68,116 @@ export class ToolbarWindow extends BaseWindow {
    * Builds panel to store buttons
    */
   private _buildToolbarButtonPanel() : FlexUIWidget {
-    this.uiElementMap[ElementID.BUY_TOOL] =  this._createUIElement(ElementID.BUY_TOOL);
-    this.uiElementMap[ElementID.RIGHTS_TOOL] =  this._createUIElement(ElementID.RIGHTS_TOOL);
-    this.uiElementMap[ElementID.SELL_TOOL] =  this._createUIElement(ElementID.SELL_TOOL);
-    this.uiElementMap[ElementID.VIEW_RIGHTS_BUTTON] =  this._createUIElement(ElementID.VIEW_RIGHTS_BUTTON);
-    this.uiElementMap[ElementID.OPEN_STATS_BUTTON] =  this._createUIElement(ElementID.OPEN_STATS_BUTTON);
-    this.uiElementMap[ElementID.TOOL_SIZE_SPINNER] =  this._createUIElement(ElementID.TOOL_SIZE_SPINNER);
+    const buyToolButton : ToggleButton = this._createToolbarButton(ElementID.BUY_TOOL);
+    const rightsToolButton : ToggleButton = this._createToolbarButton(ElementID.RIGHTS_TOOL);
+    const sellToolButton : ToggleButton = this._createToolbarButton(ElementID.SELL_TOOL);
+    const viewRightsButton : ToggleButton = this._createToolbarButton(ElementID.VIEW_RIGHTS_BUTTON);
+    const openStatsButton : ToggleButton = this._createToolbarButton(ElementID.OPEN_STATS_BUTTON);
+
+    const toolSizeSpinner : FlexUIWidget = spinner({
+      width: 62,
+      padding: 5,
+      value: ToolManager.getToolSizeStore(),
+      minimum: Plugin.get('minToolSize'),
+      maximum: Plugin.get('maxToolSize') + 1,
+      step: 1,
+      wrapMode: 'clamp',
+      onChange: (value : number, adjustment : number) : void => {
+        ToolManager.setToolSize(value);
+      },
+      format: (value: number) : string => {
+        return `${value}x${value}`;
+      }
+    });
+
+    this.registerElement(ElementID.TOOL_SIZE_SPINNER, toolSizeSpinner);
 
     return horizontal({
       spacing: 0,
       padding: [0, 3],
       content: [
-        this.uiElementMap[ElementID.TOOL_SIZE_SPINNER] as FlexUIWidget,
-        (this.uiElementMap[ElementID.BUY_TOOL] as ToggleButton).widget,
-        (this.uiElementMap[ElementID.RIGHTS_TOOL] as ToggleButton).widget,
-        (this.uiElementMap[ElementID.SELL_TOOL] as ToggleButton).widget,
-        (this.uiElementMap[ElementID.VIEW_RIGHTS_BUTTON] as ToggleButton).widget,
-        (this.uiElementMap[ElementID.OPEN_STATS_BUTTON] as ToggleButton).widget,
+        toolSizeSpinner,
+        buyToolButton.widget,
+        rightsToolButton.widget,
+        sellToolButton.widget,
+        viewRightsButton.widget,
+        openStatsButton.widget,
       ]
     });
+  }
+
+  /**
+   * Creates buttons for toolbar button panel
+   * @param id ElementID of element to make
+   * @returns The element
+   */
+  private _createToolbarButton(id : ElementID) : ToggleButton {
+    let newElement! : ToggleButton;
+
+    switch (id) {
+      case ElementID.BUY_TOOL: {
+        newElement = new ToggleButton(ElementID.BUY_TOOL, {
+          image: Sprites.BUY_LAND_RIGHTS,
+          tooltip: 'Buy land rights',
+          width: 24,
+          height: 24,
+          onChange: (pressed : boolean) => this.onBuyToolChange(pressed),
+        }, this._toolButtonGroup);
+
+        this._toolButtonGroup.addButton(newElement);
+        this.registerElement(ElementID.BUY_TOOL, newElement);
+        break;
+      } case ElementID.RIGHTS_TOOL: {
+        newElement = new ToggleButton(ElementID.RIGHTS_TOOL, {
+          image: Sprites.BUY_CONSTRUCTION_RIGHTS,
+          tooltip: 'Buy construction rights',
+          width: 24,
+          height: 24,
+          onChange: (pressed : boolean) => this.onRightsToolChange(pressed),
+        }, this._toolButtonGroup);
+
+        this._toolButtonGroup.addButton(newElement);
+        this.registerElement(ElementID.RIGHTS_TOOL, newElement);
+        break;
+      } case ElementID.SELL_TOOL: {
+        newElement = new ToggleButton(ElementID.SELL_TOOL, {
+          image: Sprites.FINANCE,
+          tooltip: 'Sell land and construction rights',
+          width: 24,
+          height: 24,
+          onChange: (pressed : boolean) => this.onSellToolChange(pressed),
+        }, this._toolButtonGroup);
+
+        this._toolButtonGroup.addButton(newElement);
+        this.registerElement(ElementID.SELL_TOOL, newElement);
+        break;
+      } case ElementID.VIEW_RIGHTS_BUTTON: {
+        newElement = new ToggleButton(ElementID.VIEW_RIGHTS_BUTTON, {
+          image: Sprites.SEARCH,
+          tooltip: 'Show owned construction rights',
+          width: 24,
+          height: 24,
+          onChange: (pressed : boolean) => this.onViewRightsChange(pressed),
+        });
+
+        this._toolButtonGroup.addButton(newElement);
+        this.registerElement(ElementID.VIEW_RIGHTS_BUTTON, newElement);
+        break;
+      } case ElementID.OPEN_STATS_BUTTON: {
+        newElement = new ToggleButton(ElementID.OPEN_STATS_BUTTON, {
+          image: Sprites.GRAPH,
+          tooltip: 'Open detailed statistics window',
+          width: 24,
+          height: 24,
+          onChange: (pressed : boolean) => this.onStatsChange(pressed),
+        });
+
+        this.registerElement(ElementID.OPEN_STATS_BUTTON, newElement);
+        break;
+      }
+    }
+
+    return newElement;
   }
 
   /**
@@ -95,14 +185,6 @@ export class ToolbarWindow extends BaseWindow {
    */
   private _buildToolbarStatsPanel() : FlexUIWidget {
     // Available tiles label
-    const availableTilesText : Store<string> = compute<number, string>(availableTilesStore,
-      (availableTiles : number) : string => {
-        const textColor : string = (availableTiles === 0) ? 'RED' : 'BABYBLUE';
-  
-        return `{${textColor}}${context.formatString('{COMMA16}', availableTiles)}`;
-      }
-    );
-
     const availableTilesLabel : FlexUIWidget = horizontal({
       spacing: 0,
       content: [
@@ -111,19 +193,26 @@ export class ToolbarWindow extends BaseWindow {
           width: 90
         }),
         label({
-          text: availableTilesText
+          text: this._createStatsLabelStore(ElementID.AVAILABLE_TILES)
+        })
+      ]
+    });
+    
+    // Unlocked tiles label
+    const unlockedTilesLabel : FlexUIWidget = horizontal({
+      spacing: 0,
+      content: [
+        label({
+          text: '   {BLACK}Tiles Unlocked:',
+          width: 90
+        }),
+        label({
+          text: this._createStatsLabelStore(ElementID.UNLOCKED_TILES)
         })
       ]
     });
     
     // Exp to next tile label
-    const expToNextTileText : Store<string> = compute<number, number, string>(totalExpStore, Plugin.get('expPerTile'),
-      (totalExp : number, expPerTile : number) : string => {
-          const expToNextTile : number = expPerTile - (totalExp % expPerTile);
-          return `{WHITE}${context.formatString('{COMMA16}', expToNextTile)}`;
-      }
-    );
-    
     const expToNextTileLabel : FlexUIWidget = horizontal({
       spacing: 0,
       content: [
@@ -132,7 +221,7 @@ export class ToolbarWindow extends BaseWindow {
           width: 90
         }),
         label({
-          text: expToNextTileText
+          text: this._createStatsLabelStore(ElementID.EXP_TO_NEXT_TILE)
         })
       ]
     });
@@ -172,26 +261,6 @@ export class ToolbarWindow extends BaseWindow {
       percentFilled: expToNextTilePercent
     });
     
-    // Unlocked tiles label
-    const unlockedTilesText : Store<string> = compute<number, string>(Player.get('tilesUsed'),
-      (tilesUsed : number) : string => {
-        return `{WHITE}${tilesUsed}`;
-      }
-    );
-
-    const unlockedTilesLabel : FlexUIWidget = horizontal({
-      spacing: 0,
-      content: [
-        label({
-          text: '   {BLACK}Tiles Unlocked:',
-          width: 90
-        }),
-        label({
-          text: unlockedTilesText
-        })
-      ]
-    });
-    
     return box({
       content: vertical({
         spacing: 0,
@@ -205,90 +274,38 @@ export class ToolbarWindow extends BaseWindow {
     });
   }
 
-  /**
-   * Creates buttons, ToggleButtons, DoubleClickButtons, and other singular UI controls
-   * @param id ID of element to create
-   * @returns Created element
-   */
-  private _createUIElement(id : ElementID) : UIElement {
-    let newElement : UIElement;
+  private _createStatsLabelStore(id : ElementID) : Store<string> {
+    let newStore! : Store<string>;
 
     switch (id) {
-      case ElementID.BUY_TOOL: {
-        newElement = new ToggleButton(ElementID.BUY_TOOL, {
-          image: Sprites.BUY_LAND_RIGHTS,
-          tooltip: 'Buy land rights',
-          width: 24,
-          height: 24,
-          onChange: (pressed : boolean) => this.onBuyToolChange(pressed),
-        }, this._toolButtonGroup);
-
-        this._toolButtonGroup.addButton(newElement);
-        break;
-      } case ElementID.RIGHTS_TOOL: {
-        newElement = new ToggleButton(ElementID.RIGHTS_TOOL, {
-          image: Sprites.BUY_CONSTRUCTION_RIGHTS,
-          tooltip: 'Buy construction rights',
-          width: 24,
-          height: 24,
-          onChange: (pressed : boolean) => this.onRightsToolChange(pressed),
-        }, this._toolButtonGroup);
-
-        this._toolButtonGroup.addButton(newElement);
-        break;
-      } case ElementID.SELL_TOOL: {
-        newElement = new ToggleButton(ElementID.SELL_TOOL, {
-          image: Sprites.FINANCE,
-          tooltip: 'Sell land and construction rights',
-          width: 24,
-          height: 24,
-          onChange: (pressed : boolean) => this.onSellToolChange(pressed),
-        }, this._toolButtonGroup);
-
-        this._toolButtonGroup.addButton(newElement);
-        break;
-      } case ElementID.VIEW_RIGHTS_BUTTON: {
-        newElement = new ToggleButton(ElementID.VIEW_RIGHTS_BUTTON, {
-          image: Sprites.SEARCH,
-          tooltip: 'Show owned construction rights',
-          width: 24,
-          height: 24,
-          onChange: (pressed : boolean) => this.onViewRightsChange(pressed),
-        });
-
-        break;
-      } case ElementID.OPEN_STATS_BUTTON: {
-        newElement = new ToggleButton(ElementID.OPEN_STATS_BUTTON, {
-          image: Sprites.GRAPH,
-          tooltip: 'Open detailed statistics window',
-          width: 24,
-          height: 24,
-          onChange: (pressed : boolean) => this.onStatsChange(pressed),
-        });
-
-        break;
-      } case ElementID.TOOL_SIZE_SPINNER: {
-        newElement = spinner({
-          width: 62,
-          padding: 5,
-          value: ToolManager.getToolSizeStore(),
-          minimum: Plugin.get('minToolSize'),
-          maximum: Plugin.get('maxToolSize') + 1,
-          step: 1,
-          wrapMode: 'clamp',
-          onChange: (value : number, adjustment : number) : void => {
-            ToolManager.setToolSize(value);
-          },
-          format: (value: number) : string => {
-            return `${value}x${value}`;
+      case ElementID.AVAILABLE_TILES: {
+        newStore = compute<number, string>(availableTilesStore,
+          (availableTiles : number) : string => {
+            const textColor : string = (availableTiles === 0) ? 'RED' : 'BABYBLUE';
+      
+            return `{${textColor}}${context.formatString('{COMMA16}', availableTiles)}`;
           }
-        });
-        
+        );
+        break;
+      } case ElementID.UNLOCKED_TILES: {
+        newStore = compute<number, string>(Player.get('tilesUsed'),
+          (tilesUsed : number) : string => {
+            return `{WHITE}${tilesUsed}`;
+          }
+        );
+        break;
+      } case ElementID.EXP_TO_NEXT_TILE: {
+        newStore = compute<number, number, string>(totalExpStore, Plugin.get('expPerTile'),
+          (totalExp : number, expPerTile : number) : string => {
+              const expToNextTile : number = expPerTile - (totalExp % expPerTile);
+              return `{WHITE}${context.formatString('{COMMA16}', expToNextTile)}`;
+          }
+        );
         break;
       }
     }
 
-    return newElement!;
+    return newStore;
   }
   
 

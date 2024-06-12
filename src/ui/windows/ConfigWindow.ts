@@ -6,7 +6,6 @@ import { BaseWindow } from './BaseWindow';
 import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
 import { FlexUIWidget } from '../types/types';
 import { DoubleClickButton } from '../elements/DoubleClickButton';
-import { UIElement } from '../types/types';
 import { Park } from '@src/Park';
 
 
@@ -98,9 +97,9 @@ export class ConfigWindow extends BaseWindow {
    * Builds debug button panel
    */
   private _buildDebugButtonPanel() : FlexUIWidget {
-    this.uiElementMap[ElementID.FIRE_STAFF_BUTTON] = this._createUIElement(ElementID.FIRE_STAFF_BUTTON);
-    this.uiElementMap[ElementID.DELETE_GUESTS_BUTTON] = this._createUIElement(ElementID.DELETE_GUESTS_BUTTON);
-    this.uiElementMap[ElementID.DELETE_RIDES_BUTTON] = this._createUIElement(ElementID.DELETE_RIDES_BUTTON);
+    const fireStaffButton : DoubleClickButton = this._createDebugButton(ElementID.FIRE_STAFF_BUTTON);
+    const deleteGuestsButton : DoubleClickButton = this._createDebugButton(ElementID.DELETE_GUESTS_BUTTON);
+    const deleteRidesButton : DoubleClickButton = this._createDebugButton(ElementID.DELETE_RIDES_BUTTON);
 
     const instructionLabel = label({
       text: '{WHITE}Double click to use buttons',
@@ -116,9 +115,9 @@ export class ConfigWindow extends BaseWindow {
           spacing: 3,
           padding: 0,
           content: [
-            (this.uiElementMap[ElementID.FIRE_STAFF_BUTTON] as DoubleClickButton).widget,
-            (this.uiElementMap[ElementID.DELETE_GUESTS_BUTTON] as DoubleClickButton).widget,
-            (this.uiElementMap[ElementID.DELETE_RIDES_BUTTON] as DoubleClickButton).widget
+            fireStaffButton.widget,
+            deleteGuestsButton.widget,
+            deleteRidesButton.widget,
           ]
         }),
         instructionLabel
@@ -127,14 +126,14 @@ export class ConfigWindow extends BaseWindow {
   }
 
   /**
-   * Creates UI elements
-   * @param elementId ElementID to make element for
-   * @returns The UI element
+   * Creates buttons for debug button panel
+   * @param id ElementID of element to make
+   * @returns The element
    */
-  private _createUIElement(elementId : ElementID) : UIElement {
-    let newElement : UIElement;
+  private _createDebugButton(id : ElementID) : DoubleClickButton {
+    let newElement! : DoubleClickButton;
 
-    switch (elementId) {
+    switch (id) {
       case ElementID.FIRE_STAFF_BUTTON: {
         newElement = new DoubleClickButton(ElementID.FIRE_STAFF_BUTTON, {
           text: 'Fire Staff',
@@ -145,6 +144,7 @@ export class ConfigWindow extends BaseWindow {
         }, this._debugButtonGroup);
 
         this._debugButtonGroup.addButton(newElement);
+        this.registerElement(ElementID.FIRE_STAFF_BUTTON, newElement);
         break;
       } case ElementID.DELETE_GUESTS_BUTTON: {
         newElement = new DoubleClickButton(ElementID.DELETE_GUESTS_BUTTON, {
@@ -156,6 +156,7 @@ export class ConfigWindow extends BaseWindow {
         }, this._debugButtonGroup);
 
         this._debugButtonGroup.addButton(newElement);
+        this.registerElement(ElementID.DELETE_GUESTS_BUTTON, newElement);
         break;
       } case ElementID.DELETE_RIDES_BUTTON: {
         newElement = new DoubleClickButton(ElementID.DELETE_RIDES_BUTTON, {
@@ -167,11 +168,12 @@ export class ConfigWindow extends BaseWindow {
         }, this._debugButtonGroup);
 
         this._debugButtonGroup.addButton(newElement);
+        this.registerElement(ElementID.DELETE_RIDES_BUTTON, newElement);
         break;
       }
     }
 
-    return newElement!;
+    return newElement;
   }
 
 
