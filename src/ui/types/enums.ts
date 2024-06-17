@@ -7,6 +7,8 @@ export enum WindowID {
 };
 
 export enum ElementID {
+  NONE,
+  
   // ToolbarWindow
     // Buttons
     BUY_TOOL,

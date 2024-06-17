@@ -9,6 +9,7 @@ import { DoubleClickButton } from '../elements/DoubleClickButton';
 import { Park } from '@src/Park';
 import { Plugin, PluginData } from '@src/Plugin';
 import { facilityExpStore, parkAdmissionsExpStore, rideExpStore, stallExpStore, tilesEarnedStore, totalExpStore } from '@src/stores';
+import { AlignedLabel } from '../elements/AlignedLabel';
 
 
 
@@ -105,16 +106,25 @@ export class ConfigWindow extends BaseWindow {
           text: '',
           width: '50%',
         }),
-        label({
+        new AlignedLabel(ElementID.NONE, {
           text: '{BLACK}Total XP',
-          alignment: 'centred',
           width: '25%',
-        }),
-        label({
+          height: 14,
+          textAlignment: {
+            horizontal: 'right',
+            vertical: 'center'
+          },
+        }).widget,
+        new AlignedLabel(ElementID.NONE, {
           text: compute<number, string>(totalExpStore, (totalExp : number) : string => context.formatString('{COMMA16} {BLACK}xp', totalExp)),
           padding: { left: 5 },
           width: '25%',
-        }),
+          height: 14,
+          textAlignment: {
+            horizontal: 'right',
+            vertical: 'center'
+          },
+        }).widget,
       ]
     });
 
@@ -239,18 +249,29 @@ export class ConfigWindow extends BaseWindow {
       }
     }
 
-    const totalLabel : FlexUIWidget = label({
-      text: expLabelText,
-      padding: { left: 5 },
-      width: '25%',
+    const totalLabel : AlignedLabel = new AlignedLabel(id, {
+        text: expLabelText,
+        padding: { left: 5 },
+        width: '25%',
+        height: 14,
+        textAlignment: {
+          horizontal: 'right',
+          vertical: 'center'
+        },
     });
+
+    // const totalLabel : FlexUIWidget = label({
+    //   text: expLabelText,
+    //   padding: { left: 5 },
+    //   width: '25%',
+    // });
 
     return horizontal({
       spacing: 0,
       content: [
         newLabel,
         newTextbox,
-        totalLabel,
+        totalLabel.widget,
       ]
     });
   }
