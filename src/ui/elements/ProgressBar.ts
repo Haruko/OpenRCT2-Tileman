@@ -59,8 +59,11 @@ export class ProgressBar extends BaseElement<InternalType> {
     g.well(0, 0, g.width, g.height);
 
     // Foreground bar
-    g.colour = read(this.params.foreground);
-    g.box(1, 1, g.width * read(this.params.percentFilled) - 2, g.height - 2);
+    const percent : number = read(this.params.percentFilled);
+    if (percent > 0) {
+      g.colour = read(this.params.foreground);
+      g.box(1, 1, g.width * read(this.params.percentFilled) - 2, g.height - 2);
+    }
 
     // Text
     g.colour = Colour.White;

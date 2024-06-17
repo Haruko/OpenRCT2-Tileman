@@ -225,14 +225,10 @@ export class ToolbarWindow extends BaseWindow {
         const expSinceLastTile : number = totalExp % expPerTile;
         const percent : number = expSinceLastTile / expPerTile;
   
-        if (percent > 0.80) {
-          return Colour.BrightPurple;
-        } else if (percent > 0.60) {
+        if (percent > 0.66) {
           return Colour.LightBlue;
-        } else if (percent > 0.40) {
+        } else if (percent > 0.33) {
           return Colour.BrightGreen;
-        } else if (percent > 0.20) {
-          return Colour.BrightYellow;
         } else {
           return Colour.BrightRed;
         }
@@ -296,7 +292,7 @@ export class ToolbarWindow extends BaseWindow {
         newStore = compute<number, number, string>(totalExpStore, Plugin.get('expPerTile'),
           (totalExp : number, expPerTile : number) : string => {
             const expToNextTile : number = expPerTile - (totalExp % expPerTile);
-            return `  {WHITE}${context.formatString('{COMMA16}', expToNextTile)} {BLACK}to next`;
+            return `  {WHITE}${context.formatString('{COMMA16}', expToNextTile)} {BLACK}xp to next`;
           }
         );
         break;
