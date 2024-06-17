@@ -9,7 +9,7 @@ import { Plugin } from '@src/Plugin';
 
 
 class TilemanToolManager extends Manager<ToolID, ITool> {
-  public _activeToolId : ToolID | null = null;
+  private _activeToolId : ToolID | null = null;
   private readonly _toolSize : WritableStore<number> = store<number>(Plugin.get('minToolSize'));
 
 
