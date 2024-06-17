@@ -48,6 +48,7 @@ class TilemanPark extends DataStore<ParkData> {
     // Subscribe to events
     const PluginDataStore : DataStore<any> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
     context.subscribe('interval.tick', () => Park.onTick(PluginDataStore.get('ticksPerUpdate')));
+    context.subscribe('map.save', () => DataStoreManager.storeAllData());
     context.subscribe('action.execute', (e : GameActionEventArgs) => Park.onActionExecute(e));
 
     if (isNewPark) {
