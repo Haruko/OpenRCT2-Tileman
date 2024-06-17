@@ -1,12 +1,13 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { TabCreator, WindowTemplate, horizontal, label, tab, tabwindow, vertical } from 'openrct2-flexui';
+import { TabCreator, WindowTemplate, WritableStore, button, horizontal, label, read, store, tab, tabwindow, textbox, vertical } from 'openrct2-flexui';
 import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
 import { BaseWindow } from './BaseWindow';
 import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
 import { FlexUIWidget } from '../types/types';
 import { DoubleClickButton } from '../elements/DoubleClickButton';
 import { Park } from '@src/Park';
+import { Plugin, PluginData } from '@src/Plugin';
 
 
 
@@ -14,6 +15,7 @@ import { Park } from '@src/Park';
 
 export class ConfigWindow extends BaseWindow {
   private readonly _debugButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
+  private readonly settingsStores : Partial<Record<ElementID, WritableStore<string>>> = {};
   
   constructor() {
     super(WindowID.CONFIG, 'Tileman Config');
@@ -40,7 +42,7 @@ export class ConfigWindow extends BaseWindow {
   
     return tabwindow({
       title: this.windowTitle,
-      width: (90 * 3) + (3 * 4), // 3 buttons + 4 spacers
+      width: 283, // 3x90px + 4x3px + 1px for some reason
       height: 'auto',
       padding: 3,
       startingTab: 0,
@@ -61,13 +63,145 @@ export class ConfigWindow extends BaseWindow {
     return tab({
       image: AnimatedSprites.RESEARCH,
       content: [
-        label({
-          text: '{WHITE}Config',
-          height: 14
+        vertical({
+          content: [
+            label({
+              text: '{WHITE}Config',
+              height: 14
+            }),
+            this._buildConfigSettingPanel(),
+            this._buildConfigButtonPanel(),
+          ]
         })
+      ],
+    });
+  }
+
+  /**
+   * Makes the list of config option controls for the config tab of the config window
+   */
+  private _buildConfigSettingPanel() : FlexUIWidget {
+    const ticksPerUpdateRow : FlexUIWidget = this._createConfigRow(ElementID.TICKS_PER_UPDATE, 'ticksPerUpdate', 'Game ticks per update');
+    const minTilesRow : FlexUIWidget = this._createConfigRow(ElementID.MIN_TILES, 'minTiles', 'Starting tiles');
+    const expPerTileRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_TILE, 'expPerTile', 'Tile XP cost');
+    const expPerParkAdmissionRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_PARK_ADMISSION, 'expPerParkAdmission', 'XP per park admission');
+    const rideExpPerCustomerRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_RIDE_ADMISSION, 'rideExpPerCustomer', 'XP per ride admission');
+    const stallExpPerCustomerRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_STALL_ADMISSION, 'stallExpPerCustomer', 'XP per stall admission');
+    const facilityExpPerCustomerRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_FACILITY_ADMISSION, 'facilityExpPerCustomer', 'XP per facility admission');
+
+    return vertical({
+      content: [
+        ticksPerUpdateRow,
+        minTilesRow,
+        expPerTileRow,
+        expPerParkAdmissionRow,
+        rideExpPerCustomerRow,
+        stallExpPerCustomerRow,
+        facilityExpPerCustomerRow,
+      ],
+    });
+  }
+  
+  /**
+   * Creates row for config options with a text label and a textbox
+   * @param id ElementID of row to make
+   * @param key Key for Plugin.get()
+   * @param labelText String to show in the label
+   * @returns The row
+   */
+  private _createConfigRow(id : ElementID, key : keyof PluginData, labelText : string) : FlexUIWidget {
+    // Make the label
+    const newLabel = label({
+      text: labelText,
+      width: '65%',
+    });
+
+    // Make the textbox
+    const defaultValue : string = read(Plugin.get(key)) + '';
+    const textStore : WritableStore<string> = store<string>(defaultValue);
+
+    this.settingsStores[id] = textStore;
+    
+    const newTextbox = textbox({
+      width: '35%',
+      padding: 0,
+      text: { twoway : textStore },
+      maxLength: 9,
+      onChange: (text : string) : void => {
+        // Filter out non-numbers
+        let newText : string = text.replace(/[^\d]+/g, '');
+
+        // Remove leading zeroes
+        newText = newText.replace(/^0+/, '');
+
+        newText = newText === '' ? '0' : newText;
+  
+        if (newText !== text) {
+          textStore.set(newText);
+        }
+      },
+    });
+
+    this.registerElement(id, newTextbox);
+
+    return horizontal({
+      spacing: 0,
+      content: [
+        newLabel,
+        newTextbox,
       ]
     });
   }
+
+  /**
+   * Makes the list of config option controls for the config tab of the config window
+   */
+  private _buildConfigButtonPanel() : FlexUIWidget {
+    const defaultsButton : FlexUIWidget = button({
+      text: 'Defaults',
+      width: '25%',
+      height: 14,
+      padding: { right: '25%' },
+      onClick: () : void => {
+        // Reset Plugin values to defaults
+        // Set all settings back to default values
+      }
+    });
+    this.registerElement(ElementID.CONFIG_DEFAULTS, defaultsButton);
+
+    const cancelButton : FlexUIWidget = button({
+      text: 'Cancel',
+      width: '25%',
+      height: 14,
+      onClick: () : void => {
+        // Set all settings back to Plugin.get() value
+      }
+    });
+    this.registerElement(ElementID.CONFIG_CANCEL, cancelButton);
+
+    const saveButton : FlexUIWidget = button({
+      text: 'Save',
+      width: '25%',
+      height: 14,
+      onClick: () : void => {
+        // Save all settings with Plugin.set
+      }
+    });
+    this.registerElement(ElementID.CONFIG_SAVE, saveButton);
+
+    return horizontal({
+      content: [
+        defaultsButton,
+        cancelButton,
+        saveButton,
+      ],
+    });
+  }
+
+  /**
+   * Creates element for config options
+   * @returns The element
+   */
   
   /**
    * Builds the debug tab
