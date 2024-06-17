@@ -1,6 +1,6 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { TabCreator, WindowTemplate, WritableStore, button, horizontal, isWritableStore, label, read, store, tab, tabwindow, textbox, vertical } from 'openrct2-flexui';
+import { TabCreator, WindowTemplate, WritableStore, button, compute, horizontal, isWritableStore, label, read, store, tab, tabwindow, textbox, vertical } from 'openrct2-flexui';
 import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
 import { BaseWindow } from './BaseWindow';
 import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
@@ -110,14 +110,10 @@ export class ConfigWindow extends BaseWindow {
    * @returns The row
    */
   private _createConfigRow(id : ElementID, key : keyof PluginData, labelText : string) : FlexUIWidget {
-    // Make the label
-    const newLabel = label({
-      text: labelText,
-      width: '65%',
-    });
+    const pluginStore = Plugin.get(key);
 
     // Make the textbox
-    const defaultValue : string = read(Plugin.get(key)) + '';
+    const defaultValue : string = read(pluginStore) + '';
     const textStore : WritableStore<string> = store<string>(defaultValue);
 
     this._settingsStores[key] = textStore;
@@ -143,6 +139,20 @@ export class ConfigWindow extends BaseWindow {
     });
 
     this.registerElement(id, newTextbox);
+
+    // Make the label
+    const newLabel = label({
+      text: compute<number, string, string>(pluginStore, textStore, (pluginValue : number, textboxValue : string) : string => {
+        const isChanged : boolean = pluginValue !== Number(textboxValue);
+
+        if (isChanged) {
+          return `{TOPAZ}* ${labelText} *`;
+        } else {
+          return labelText;
+        }
+      }),
+      width: '65%',
+    });
 
     return horizontal({
       spacing: 0,
