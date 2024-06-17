@@ -182,11 +182,19 @@ export class ConfigWindow extends BaseWindow {
     });
     this.registerElement(ElementID.CONFIG_SAVE, saveButton);
 
-    return horizontal({
+    return vertical({
       content: [
-        defaultsButton,
-        revertButton,
-        saveButton,
+        label({
+          text: '{BABYBLUE}Changes are only permanent after saving the map!',
+          alignment: 'centred',
+        }),
+        horizontal({
+          content: [
+            defaultsButton,
+            revertButton,
+            saveButton,
+          ],
+        }),
       ],
     });
   }
