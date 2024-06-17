@@ -28,7 +28,7 @@ export type PluginData = {
    * User definable
    */
 
-  ticksPerUpdate : number, // Ticks per update of data
+  ticksPerUpdate : WritableStore<number>, // Ticks per update of data
 
   expPerTile : WritableStore<number>, // Exp cost per tile
   minTiles : WritableStore<number>, // 1 path + 1 stall minimum
@@ -59,7 +59,7 @@ class TilemanPlugin extends DataStore<PluginData> {
       /**
        * User definable
        */
-      ticksPerUpdate: 40, // Ticks per update of data
+      ticksPerUpdate: store<number>(40), // Ticks per update of data
   
       expPerTile: store<number>(10), // Exp cost per tile
       minTiles: store<number>(2), // 1 path + 1 stall minimum
@@ -94,9 +94,8 @@ class TilemanPlugin extends DataStore<PluginData> {
   public loadData() : void {
     const savedData : Storeless<PluginData> = this.getStoredData();
 
-    this.data.ticksPerUpdate = savedData.ticksPerUpdate;
+    this.data.ticksPerUpdate.set(savedData.ticksPerUpdate);
 
-    // Stores
     this.data.expPerTile.set(savedData.expPerTile);
     this.data.minTiles.set(savedData.minTiles);
 
