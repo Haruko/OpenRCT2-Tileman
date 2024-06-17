@@ -66,8 +66,8 @@ export function getRangeSize(range : MapRange) : number {
  */
 export function clampCoords(coords : CoordsXY, range : MapRange) : CoordsXY {
   return CoordsXY(
-    Math.min(range.rightBottom.x - 32, Math.max(range.leftTop.x + 32, coords.x)),
-    Math.min(range.rightBottom.y - 32, Math.max(range.leftTop.y + 32, coords.y))
+    Math.min(range.rightBottom.x, Math.max(range.leftTop.x, coords.x)),
+    Math.min(range.rightBottom.y, Math.max(range.leftTop.y, coords.y))
   );
 }
 
