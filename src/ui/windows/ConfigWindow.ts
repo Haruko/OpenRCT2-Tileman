@@ -65,10 +65,6 @@ export class ConfigWindow extends BaseWindow {
       content: [
         vertical({
           content: [
-            label({
-              text: '{WHITE}Config',
-              height: 14
-            }),
             this._buildConfigSettingPanel(),
             this._buildConfigButtonPanel(),
           ]
@@ -81,6 +77,22 @@ export class ConfigWindow extends BaseWindow {
    * Makes the list of config option controls for the config tab of the config window
    */
   private _buildConfigSettingPanel() : FlexUIWidget {
+    const headerRow : FlexUIWidget = horizontal({
+      spacing: 0,
+      content: [
+        label({
+          text: '{BABYBLUE}Config Setting',
+          width: '65%',
+        }),
+        label({
+          text: '{BABYBLUE}Value',
+          alignment: 'centred',
+          width: '35%',
+        }),
+      ]
+    });
+
+
     const ticksPerUpdateRow : FlexUIWidget = this._createConfigRow(ElementID.TICKS_PER_UPDATE, 'ticksPerUpdate', 'Game ticks per update');
     const minTilesRow : FlexUIWidget = this._createConfigRow(ElementID.MIN_TILES, 'minTiles', 'Starting tiles');
     const expPerTileRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_TILE, 'expPerTile', 'Tile XP cost');
@@ -91,6 +103,7 @@ export class ConfigWindow extends BaseWindow {
 
     return vertical({
       content: [
+        headerRow,
         ticksPerUpdateRow,
         minTilesRow,
         expPerTileRow,
