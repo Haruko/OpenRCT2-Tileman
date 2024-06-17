@@ -57,10 +57,11 @@ export abstract class BaseTool implements ITool {
    * Cancels tool usage
    */
   public cancel() : void {
-    if(this._isActive) {
-      ui.tool!.cancel();
-      this._isActive = false;
+    if (ui.tool && ui.tool.id === this._id) {
+      ui.tool.cancel();
     }
+
+    this._isActive = false;
   }
 
 
@@ -77,6 +78,8 @@ export abstract class BaseTool implements ITool {
   protected _onToolStart() : void {
     UIManager.cacheRightsVisibility();
     UIManager.setRightsVisibility(true);
+
+    this._isActive = true;
   }
 
   /**
@@ -150,6 +153,8 @@ export abstract class BaseTool implements ITool {
 
     // Clear the selection grid
     UIManager.clearSelectionArea();
+
+    ToolManager.cancelTool();
   }
 
 

@@ -35,10 +35,7 @@ export class StatefulButtonGroup {
         if (button instanceof DoubleClickButton) {
           button.cancelDoubleClick();
         } else {
-          button.depress();
-          if (triggerChange) {
-            button.onChange();
-          }
+          button.depress(triggerChange);
         }
       }
     });

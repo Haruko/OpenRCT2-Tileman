@@ -9,7 +9,7 @@ import { Plugin } from '@src/Plugin';
 
 
 class TilemanToolManager extends Manager<ToolID, ITool> {
-  private _activeToolId : ToolID | null = null;
+  public _activeToolId : ToolID | null = null;
   private readonly _toolSize : WritableStore<number> = store<number>(Plugin.get('minToolSize'));
 
 
@@ -57,16 +57,16 @@ class TilemanToolManager extends Manager<ToolID, ITool> {
    * @param toolId New active tool
    */
   public setActiveTool(toolId : ToolID) : void {
-    if(this._activeToolId !== toolId) {
+    if(this._activeToolId !== null && this._activeToolId !== toolId) {
       this.cancelTool();
-
-      this._activeToolId = toolId;
-      this.getInstance(toolId).activate();
     }
+
+    this._activeToolId = toolId;
+    this.getInstance(toolId).activate();
   }
 
   /**
-   * Cancels the currently active tool
+   * Cancels active tool
    */
   public cancelTool() : void {
     if (this._activeToolId !== null) {
