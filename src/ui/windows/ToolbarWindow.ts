@@ -219,27 +219,12 @@ export class ToolbarWindow extends BaseWindow {
         return expSinceLastTile / expPerTile;
       }
     );
-    
-    const expToNextTileBarForeground : Store<Colour> = compute<number, number, Colour>(totalExpStore, Plugin.get('expPerTile'),
-      (totalExp : number, expPerTile : number) : Colour => {
-        const expSinceLastTile : number = totalExp % expPerTile;
-        const percent : number = expSinceLastTile / expPerTile;
-  
-        if (percent > 0.66) {
-          return Colour.LightBlue;
-        } else if (percent > 0.33) {
-          return Colour.BrightGreen;
-        } else {
-          return Colour.BrightRed;
-        }
-      }
-    );
 
     const expToNextTileProgressBar : ProgressBar = new ProgressBar(ElementID.EXP_NEXT_PROGRESSBAR, {
       width: '1w',
       height: 16,
       background: Colour.Grey,
-      foreground: expToNextTileBarForeground,
+      foreground: Colour.LightBlue,
       text: this._createStatsLabelStore(ElementID.EXP_NEXT_PROGRESSBAR),
       textAlignment: {
         horizontal: 'left',
