@@ -321,7 +321,8 @@ export class ConfigWindow extends BaseWindow {
           content: [
             label({
               text: '{WHITE}Debug',
-              height: 14
+              height: 14,
+              alignment: 'centred',
             }),
             buttonPanel
           ]
@@ -375,7 +376,7 @@ export class ConfigWindow extends BaseWindow {
         newElement = new DoubleClickButton(ElementID.FIRE_STAFF_BUTTON, {
           text: 'Fire Staff',
           tooltip: 'Fires all staff',
-          width: 90,
+          width: '33%',
           height: 14,
           onChange: this.onFireStaffChange.bind(this)
         }, this._debugButtonGroup);
@@ -387,7 +388,7 @@ export class ConfigWindow extends BaseWindow {
         newElement = new DoubleClickButton(ElementID.DELETE_GUESTS_BUTTON, {
           text: 'Delete Guests',
           tooltip: 'Deletes the guests from the park',
-          width: 90,
+          width: '33%',
           height: 14,
           onChange: this.onDeleteGuestsChange.bind(this)
         }, this._debugButtonGroup);
@@ -399,7 +400,7 @@ export class ConfigWindow extends BaseWindow {
         newElement = new DoubleClickButton(ElementID.DELETE_RIDES_BUTTON, {
           text: 'Delete Rides',
           tooltip: 'Deletes all rides from the park and removes their stats from exp calculation',
-          width: 90,
+          width: '33%',
           height: 14,
           onChange: this.onDeleteRidesChange.bind(this)
         }, this._debugButtonGroup);
