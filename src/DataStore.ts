@@ -25,7 +25,7 @@ export abstract class DataStore<DataStoreType> {
   /**
    * Resets this.data to the provided defaults
    */
-  protected _restoreDataDefaults() : void {
+  public loadDefaults() : void {
     this._carefulCopy(this._dataDefaults as Record<string, any>, this.data as Record<string, any>);
   }
 

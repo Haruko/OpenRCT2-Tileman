@@ -1,6 +1,6 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { TabCreator, WindowTemplate, WritableStore, button, horizontal, label, read, store, tab, tabwindow, textbox, vertical } from 'openrct2-flexui';
+import { TabCreator, WindowTemplate, WritableStore, button, horizontal, isWritableStore, label, read, store, tab, tabwindow, textbox, vertical } from 'openrct2-flexui';
 import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
 import { BaseWindow } from './BaseWindow';
 import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
@@ -15,7 +15,7 @@ import { Plugin, PluginData } from '@src/Plugin';
 
 export class ConfigWindow extends BaseWindow {
   private readonly _debugButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
-  private readonly settingsStores : Partial<Record<ElementID, WritableStore<string>>> = {};
+  private readonly _settingsStores : Partial<Record<keyof PluginData, WritableStore<string>>> = {};
   
   constructor() {
     super(WindowID.CONFIG, 'Tileman Config');
@@ -120,7 +120,7 @@ export class ConfigWindow extends BaseWindow {
     const defaultValue : string = read(Plugin.get(key)) + '';
     const textStore : WritableStore<string> = store<string>(defaultValue);
 
-    this.settingsStores[id] = textStore;
+    this._settingsStores[key] = textStore;
     
     const newTextbox = textbox({
       width: '35%',
@@ -162,37 +162,30 @@ export class ConfigWindow extends BaseWindow {
       width: '25%',
       height: 14,
       padding: { right: '25%' },
-      onClick: () : void => {
-        // Reset Plugin values to defaults
-        // Set all settings back to default values
-      }
+      onClick: this.onDefaultsButtonClick.bind(this),
     });
     this.registerElement(ElementID.CONFIG_DEFAULTS, defaultsButton);
 
-    const cancelButton : FlexUIWidget = button({
-      text: 'Cancel',
+    const revertButton : FlexUIWidget = button({
+      text: 'Revert',
       width: '25%',
       height: 14,
-      onClick: () : void => {
-        // Set all settings back to Plugin.get() value
-      }
+      onClick: this.onRevertButtonClick.bind(this),
     });
-    this.registerElement(ElementID.CONFIG_CANCEL, cancelButton);
+    this.registerElement(ElementID.CONFIG_REVERT, revertButton);
 
     const saveButton : FlexUIWidget = button({
       text: 'Save',
       width: '25%',
       height: 14,
-      onClick: () : void => {
-        // Save all settings with Plugin.set
-      }
+      onClick: this.onSaveButtonClick.bind(this),
     });
     this.registerElement(ElementID.CONFIG_SAVE, saveButton);
 
     return horizontal({
       content: [
         defaultsButton,
-        cancelButton,
+        revertButton,
         saveButton,
       ],
     });
@@ -345,7 +338,7 @@ export class ConfigWindow extends BaseWindow {
    * Handles clicks on fire staff button
    * @param isPressed whether the button is pressed or not
    */
-  onFireStaffChange(isPressed : boolean) : void {
+  private onFireStaffChange(isPressed : boolean) : void {
     Park.fireStaff();
   }
 
@@ -353,7 +346,7 @@ export class ConfigWindow extends BaseWindow {
    * Handles clicks on fire staff button
    * @param isPressed whether the button is pressed or not
    */
-  onDeleteGuestsChange(isPressed : boolean) : void {
+  private onDeleteGuestsChange(isPressed : boolean) : void {
     Park.deleteGuests();
   }
 
@@ -361,7 +354,53 @@ export class ConfigWindow extends BaseWindow {
    * Handles clicks on fire staff button
    * @param isPressed whether the button is pressed or not
    */
-  onDeleteRidesChange(isPressed : boolean) : void {
+  private onDeleteRidesChange(isPressed : boolean) : void {
     Park.deleteRides();
+  }
+
+  /**
+   * Handles clicks on config defaults button
+   */
+  private onDefaultsButtonClick() : void {
+    // Reset Plugin values to defaults
+    Plugin.loadDefaults();
+
+    // Set all settings back to default values
+    (Object.keys(this._settingsStores) as (keyof PluginData)[]).forEach((key : keyof PluginData) : void => {
+        this._settingsStores[key]!.set(read(Plugin.get(key)) + '')
+      });
+    
+    // Store data after
+    Plugin.storeData();
+  }
+
+  /**
+   * Handles clicks on config revert button
+   */
+  private onRevertButtonClick() : void {
+    // Set all settings back to Plugin.get() value
+    (Object.keys(this._settingsStores) as (keyof PluginData)[]).forEach((key : keyof PluginData) : void => {
+        this._settingsStores[key]!.set(read(Plugin.get(key)) + '')
+      });
+  }
+
+  /**
+   * Handles clicks on config save button
+   */
+  private onSaveButtonClick() : void {
+    // Save all settings with Plugin.set
+    (Object.keys(this._settingsStores) as (keyof PluginData)[]).forEach((key : keyof PluginData) : void => {
+      const fieldValue : number = Number(read(this._settingsStores[key]));
+      const value : any = Plugin.get(key);
+
+      if (isWritableStore(value)) {
+        value.set(fieldValue);
+      } else {
+        Plugin.set(key, fieldValue)
+      }
+    });
+    
+    // Store data after
+    Plugin.storeData();
   }
 }

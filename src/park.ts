@@ -55,7 +55,7 @@ class TilemanPark extends DataStore<ParkData> {
       this.deleteGuests();
       this.fireStaff();
       
-      this._restoreDataDefaults();
+      this.loadDefaults();
       DataStoreManager.storeAllData();
     }
   }
