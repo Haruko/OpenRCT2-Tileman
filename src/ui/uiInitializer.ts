@@ -15,6 +15,10 @@ export function initializeUI() : void {
   UIManager.registerInstance(WindowID.STATS, statsWindow);
   UIManager.registerInstance(WindowID.CONFIG, configWindow);
 
+  ui.registerMenuItem('Tileman Toolbar', () => UIManager.getInstance(WindowID.TOOLBAR).open());
+  ui.registerMenuItem('Tileman Statistics', () => UIManager.getInstance(WindowID.STATS).open());
+  ui.registerMenuItem('Tileman Config', () => UIManager.getInstance(WindowID.CONFIG).open());
+
   toolbarWindow.open();
 
   //TODO Remove when done developing
