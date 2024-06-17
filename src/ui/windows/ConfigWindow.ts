@@ -1,6 +1,6 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { TabCreator, WindowTemplate, WritableStore, button, compute, horizontal, isWritableStore, label, read, store, tab, tabwindow, textbox, vertical } from 'openrct2-flexui';
+import { Bindable, TabCreator, WindowTemplate, WritableStore, button, compute, horizontal, isWritableStore, label, read, store, tab, tabwindow, textbox, vertical } from 'openrct2-flexui';
 import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
 import { BaseWindow } from './BaseWindow';
 import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
@@ -8,6 +8,7 @@ import { FlexUIWidget } from '../types/types';
 import { DoubleClickButton } from '../elements/DoubleClickButton';
 import { Park } from '@src/Park';
 import { Plugin, PluginData } from '@src/Plugin';
+import { facilityExpStore, parkAdmissionsExpStore, rideExpStore, stallExpStore, tilesEarnedStore, totalExpStore } from '@src/stores';
 
 
 
@@ -42,7 +43,7 @@ export class ConfigWindow extends BaseWindow {
   
     return tabwindow({
       title: this.windowTitle,
-      width: 283, // 3x90px + 4x3px + 1px for some reason
+      width: 380, // 3x90px + 4x3px + 1px for some reason
       height: 'auto',
       padding: 3,
       startingTab: 0,
@@ -82,12 +83,37 @@ export class ConfigWindow extends BaseWindow {
       content: [
         label({
           text: '{BABYBLUE}Config Setting',
-          width: '65%',
+          width: '50%',
         }),
         label({
           text: '{BABYBLUE}Value',
           alignment: 'centred',
-          width: '35%',
+          width: '25%',
+        }),
+        label({
+          text: '{BABYBLUE}Total',
+          padding: { left: 5 },
+          width: '25%',
+        }),
+      ]
+    });
+
+    const totalExpRow : FlexUIWidget = horizontal({
+      spacing: 0,
+      content: [
+        label({
+          text: '',
+          width: '50%',
+        }),
+        label({
+          text: '{BLACK}Total XP',
+          alignment: 'centred',
+          width: '25%',
+        }),
+        label({
+          text: compute<number, string>(totalExpStore, (totalExp : number) : string => context.formatString('{COMMA16} {BLACK}xp', totalExp)),
+          padding: { left: 5 },
+          width: '25%',
         }),
       ]
     });
@@ -107,6 +133,7 @@ export class ConfigWindow extends BaseWindow {
         ticksPerUpdateRow,
         minTilesRow,
         expPerTileRow,
+        totalExpRow,
         expPerParkAdmissionRow,
         rideExpPerCustomerRow,
         stallExpPerCustomerRow,
@@ -131,8 +158,8 @@ export class ConfigWindow extends BaseWindow {
 
     this._settingsStores[key] = textStore;
     
-    const newTextbox = textbox({
-      width: '35%',
+    const newTextbox : FlexUIWidget = textbox({
+      width: '25%',
       padding: 0,
       text: { twoway : textStore },
       maxLength: 9,
@@ -153,8 +180,8 @@ export class ConfigWindow extends BaseWindow {
 
     this.registerElement(id, newTextbox);
 
-    // Make the label
-    const newLabel = label({
+    // Make the labels
+    const newLabel : FlexUIWidget = label({
       text: compute<number, string, string>(pluginStore, textStore, (pluginValue : number, textboxValue : string) : string => {
         const isChanged : boolean = pluginValue !== Number(textboxValue);
 
@@ -164,7 +191,58 @@ export class ConfigWindow extends BaseWindow {
           return labelText;
         }
       }),
-      width: '65%',
+      width: '50%',
+    });
+
+    // Set exp totals for relevant rows
+    let expLabelText : Bindable<string>;
+
+    switch (id) {
+      case ElementID.EXP_PER_TILE: {
+        expLabelText = compute<number, string>(tilesEarnedStore,
+          (tilesEarned : number) : string => {
+            return context.formatString('{COMMA16} {BLACK}tiles', tilesEarned);
+          }
+        );
+        break;
+      } case ElementID.EXP_PER_PARK_ADMISSION: {
+        expLabelText = compute<number, string>(parkAdmissionsExpStore,
+          (exp : number) : string => {
+            return context.formatString('{COMMA16} {BLACK}xp', exp);
+          }
+        );
+        break;
+      } case ElementID.EXP_PER_RIDE_ADMISSION: {
+        expLabelText = compute<number, string>(rideExpStore,
+          (exp : number) : string => {
+            return context.formatString('{COMMA16} {BLACK}xp', exp);
+          }
+        );
+        break;
+      } case ElementID.EXP_PER_STALL_ADMISSION: {
+        expLabelText = compute<number, string>(stallExpStore,
+          (exp : number) : string => {
+            return context.formatString('{COMMA16} {BLACK}xp', exp);
+          }
+        );
+        break;
+      } case ElementID.EXP_PER_FACILITY_ADMISSION: {
+        expLabelText = compute<number, string>(facilityExpStore,
+          (exp : number) : string => {
+            return context.formatString('{COMMA16} {BLACK}xp', exp);
+          }
+        );
+        break;
+      } default: {
+        expLabelText = '';
+        break;
+      }
+    }
+
+    const totalLabel : FlexUIWidget = label({
+      text: expLabelText,
+      padding: { left: 5 },
+      width: '25%',
     });
 
     return horizontal({
@@ -172,6 +250,7 @@ export class ConfigWindow extends BaseWindow {
       content: [
         newLabel,
         newTextbox,
+        totalLabel,
       ]
     });
   }
