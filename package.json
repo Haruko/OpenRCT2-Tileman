@@ -26,6 +26,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@rollup/plugin-replace": "^5.0.7",
     "openrct2-flexui": "^0.1.0-prerelease.18"
   }
 }

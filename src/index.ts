@@ -18,7 +18,7 @@ import { initialize } from './pluginInitializer';
 
 function main() : void {
   if (Plugin.isValidRunConfig()) {
-    console.log('Initializing Tileman Plugin...');
+    console.log(`Initializing Tileman Plugin in ${__environment} mode...`);
 
     initialize();
   }

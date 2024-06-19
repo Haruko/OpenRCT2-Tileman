@@ -7,6 +7,8 @@ import { Player } from './Player';
 import { Plugin } from './Plugin';
 import { initializeTools } from './tools/toolInitializer';
 import { DataStoreID } from './types/types';
+import { UIManager } from './ui/UIManager';
+import { WindowID } from './ui/types/enums';
 import { initializeUI } from './ui/uiInitializer';
 
 const isNewPark : boolean = Object.keys(context.getParkStorage().getAll()).length === 0;
@@ -26,4 +28,9 @@ export async function initialize() : Promise<void> {
 
   initializeUI();
   initializeTools();
+
+  if (__environment === 'development') {
+    UIManager.getInstance(WindowID.CONFIG).open();
+    UIManager.getInstance(WindowID.STATS).open();
+  }
 }

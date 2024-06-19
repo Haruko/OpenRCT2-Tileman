@@ -3,6 +3,7 @@
 
 import inject from "@rollup/plugin-inject";
 import resolve from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
 import typescript from '@rollup/plugin-typescript';
 import terser from '@rollup/plugin-terser';
 
@@ -25,6 +26,10 @@ export default {
       Promise: [path.resolve('src/polyfills/promisePolyfill.ts'), 'PromisePolyfill'],
     }),
     resolve(),
+    replace({
+      preventAssignment: true,
+      __environment: JSON.stringify('release')
+    }),
     typescript(),
     terser({
       format: {

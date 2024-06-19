@@ -20,7 +20,4 @@ export function initializeUI() : void {
   ui.registerMenuItem('Tileman Config', () => UIManager.getInstance(WindowID.CONFIG).open());
 
   toolbarWindow.open();
-
-  //TODO Remove when done developing
-  configWindow.open();
 }
