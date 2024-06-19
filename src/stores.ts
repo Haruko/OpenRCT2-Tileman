@@ -101,7 +101,6 @@ export const availableTilesStore : Store<number> = compute<number, number, numbe
   Player.get('tilesUsed'),
   Plugin.get('minTiles'),
   (tilesEarned : number, tilesUsed : number, minTiles : number) : number => {
-    console.log(tilesEarned)
     return tilesEarned + minTiles - tilesUsed;
   }
 );

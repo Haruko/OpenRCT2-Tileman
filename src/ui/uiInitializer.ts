@@ -22,6 +22,5 @@ export function initializeUI() : void {
   toolbarWindow.open();
 
   //TODO Remove when done developing
-  statsWindow.open();
   configWindow.open();
 }
