@@ -23,7 +23,7 @@ export class ToolbarWindow extends BaseWindow {
   private readonly _toolButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
 
   constructor() {
-    super(WindowID.TOOLBAR, 'Tileman Toolbar');
+    super(WindowID.TOOLBAR, 'Tileman');
     this.template = this._buildWindowTemplate();
   }
 
