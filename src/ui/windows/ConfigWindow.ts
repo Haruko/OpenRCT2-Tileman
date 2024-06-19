@@ -178,10 +178,16 @@ export class ConfigWindow extends BaseWindow {
       maxLength: 9,
       onChange: (text : string) : void => {
         // Filter out non-numbers and remove leading zeroes
-        const value : string = Number(text.replace(/[^\d]+/g, '')).toString();
+        let value : number = Number(text.replace(/[^\d]+/g, ''))
         
-        if (value !== text) {
-          textStore.set(value);
+        // Minimum of 1 tick per update
+        if (id === ElementID.TICKS_PER_UPDATE) {
+          value = Math.max(value, 1);
+        }
+        
+        // Update the store if the value is different
+        if (value.toString() !== text) {
+          textStore.set(value.toString());
         }
       },
     });
