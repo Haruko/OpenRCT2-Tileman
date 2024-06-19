@@ -91,11 +91,15 @@ export class ConfigWindow extends BaseWindow {
           alignment: 'centred',
           width: '25%',
         }),
-        label({
+        new AlignedLabel(ElementID.NONE, {
           text: '{BABYBLUE}Total',
-          padding: { left: 5 },
           width: '25%',
-        }),
+          height: 14,
+          textAlignment: {
+            horizontal: 'right',
+            vertical: 'center'
+          },
+        }).widget,
       ]
     });
 
@@ -117,7 +121,6 @@ export class ConfigWindow extends BaseWindow {
         }).widget,
         new AlignedLabel(ElementID.NONE, {
           text: compute<number, string>(totalExpStore, (totalExp : number) : string => context.formatString('{COMMA16} {BLACK}xp', totalExp)),
-          padding: { left: 5 },
           width: '25%',
           height: 14,
           textAlignment: {
@@ -251,7 +254,6 @@ export class ConfigWindow extends BaseWindow {
 
     const totalLabel : AlignedLabel = new AlignedLabel(id, {
         text: expLabelText,
-        padding: { left: 5 },
         width: '25%',
         height: 14,
         textAlignment: {
