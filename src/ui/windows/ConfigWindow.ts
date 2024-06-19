@@ -95,6 +95,7 @@ export class ConfigWindow extends BaseWindow {
           text: '{BABYBLUE}Total',
           width: '25%',
           height: 14,
+          padding: { right: 1 },
           textAlignment: {
             horizontal: 'right',
             vertical: 'center'
@@ -123,6 +124,7 @@ export class ConfigWindow extends BaseWindow {
           text: compute<number, string>(totalExpStore, (totalExp : number) : string => context.formatString('{COMMA16} {BLACK}xp', totalExp)),
           width: '25%',
           height: 14,
+          padding: { right: 1 },
           textAlignment: {
             horizontal: 'right',
             vertical: 'center'
@@ -262,6 +264,7 @@ export class ConfigWindow extends BaseWindow {
         text: expLabelText,
         width: '25%',
         height: 14,
+        padding: { right: 1 },
         textAlignment: {
           horizontal: 'right',
           vertical: 'center'
