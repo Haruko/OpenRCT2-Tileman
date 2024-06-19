@@ -79,7 +79,7 @@ export class ToolbarWindow extends BaseWindow {
       padding: 5,
       value: ToolManager.getToolSizeStore(),
       minimum: Plugin.get('minToolSize'),
-      maximum: Plugin.get('maxToolSize') + 1,
+      maximum: Plugin.get('maxToolSize'),
       step: 1,
       wrapMode: 'clamp',
       onChange: (value : number, adjustment : number) : void => {
@@ -252,9 +252,13 @@ export class ToolbarWindow extends BaseWindow {
       case ElementID.AVAILABLE_TILES: {
         newStore = compute<number, string>(availableTilesStore,
           (availableTiles : number) : string => {
-            const textColor : string = (availableTiles === 0) ? 'RED' : 'BABYBLUE';
-      
-            return `{${textColor}}${context.formatString('{COMMA16}', availableTiles)}`;
+            if (availableTiles === Infinity) {
+              return '{RED}I want to get off';
+            } else {
+              const textColor : string = (availableTiles === 0) ? 'RED' : 'BABYBLUE';
+        
+              return `{${textColor}}${context.formatString('{COMMA16}', availableTiles)}`;
+            }
           }
         );
         break;
@@ -276,8 +280,12 @@ export class ToolbarWindow extends BaseWindow {
       } case ElementID.EXP_NEXT_PROGRESSBAR: {
         newStore = compute<number, number, string>(totalExpStore, Plugin.get('expPerTile'),
           (totalExp : number, expPerTile : number) : string => {
-            const expToNextTile : number = expPerTile - (totalExp % expPerTile);
-            return `  {WHITE}${context.formatString('{COMMA16}', expToNextTile)} {BLACK}xp to next`;
+            if (expPerTile === 0) {
+              return `  {RED}Mr Bone's Wild Ride!`;
+            } else {
+              const expToNextTile : number = expPerTile - (totalExp % expPerTile);
+              return `  {WHITE}${context.formatString('{COMMA16}', expToNextTile)} {BLACK}xp to next`;
+            }
           }
         );
         break;

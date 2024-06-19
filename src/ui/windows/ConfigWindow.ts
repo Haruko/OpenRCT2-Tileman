@@ -177,16 +177,11 @@ export class ConfigWindow extends BaseWindow {
       text: { twoway : textStore },
       maxLength: 9,
       onChange: (text : string) : void => {
-        // Filter out non-numbers
-        let newText : string = text.replace(/[^\d]+/g, '');
-
-        // Remove leading zeroes
-        newText = newText.replace(/^0+/, '');
-
-        newText = newText === '' ? '0' : newText;
-  
-        if (newText !== text) {
-          textStore.set(newText);
+        // Filter out non-numbers and remove leading zeroes
+        const value : string = Number(text.replace(/[^\d]+/g, '')).toString();
+        
+        if (value !== text) {
+          textStore.set(value);
         }
       },
     });
@@ -214,7 +209,12 @@ export class ConfigWindow extends BaseWindow {
       case ElementID.EXP_PER_TILE: {
         expLabelText = compute<number, string>(tilesEarnedStore,
           (tilesEarned : number) : string => {
-            return context.formatString('{COMMA16} {BLACK}tiles', tilesEarned);
+            if (tilesEarned === Infinity) {
+              return '{RED}rosebud ;!;!;!;!;! ...';
+              // return context.formatString('{COMMA16} {BLACK}tiles', tilesEarned);
+            } else {
+              return context.formatString('{COMMA16} {BLACK}tiles', tilesEarned);
+            }
           }
         );
         break;
@@ -262,12 +262,6 @@ export class ConfigWindow extends BaseWindow {
         },
     });
 
-    // const totalLabel : FlexUIWidget = label({
-    //   text: expLabelText,
-    //   padding: { left: 5 },
-    //   width: '25%',
-    // });
-
     return horizontal({
       spacing: 0,
       content: [
@@ -279,7 +273,7 @@ export class ConfigWindow extends BaseWindow {
   }
 
   /**
-   * Makes the list of config option controls for the config tab of the config window
+   * Adds buttons to bottom of the config panel
    */
   private _buildConfigButtonPanel() : FlexUIWidget {
     const defaultsButton : FlexUIWidget = button({

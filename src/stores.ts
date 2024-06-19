@@ -89,7 +89,11 @@ export const tilesEarnedStore : Store<number> = compute<number, number, number>(
   totalExpStore,
   Plugin.get('expPerTile'),
   (totalExp : number, expPerTile : number) : number => {
-    return Math.floor(totalExp / expPerTile);
+    if (expPerTile === 0) {
+      return Infinity;
+    } else {
+      return Math.floor(totalExp / expPerTile);
+    }
   }
 );
 
