@@ -101,7 +101,7 @@ export class ToolbarWindow extends BaseWindow {
         rightsToolButton.widget,
         sellToolButton.widget,
         viewRightsButton.widget,
-        openStatsButton.widget,
+        // openStatsButton.widget,
       ]
     });
   }
