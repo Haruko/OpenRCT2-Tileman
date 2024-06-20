@@ -1,14 +1,14 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { Colour, FlexiblePosition, LabelParams, read, widget } from 'openrct2-flexui';
+import { Bindable, Colour, FlexiblePosition, LabelParams, read, widget } from 'openrct2-flexui';
 import { BaseElement } from './BaseElement';
 import { ElementID } from '../types/enums';
-import { FlexUIWidget } from '../types/types';
+import { FlexUIWidget, HorizontalAlignment, VerticalAlignment } from '../types/types';
 
 export type AlignedLabelParams = FlexiblePosition & Omit<LabelParams, 'alignment'> & {
   textAlignment? : {
-    horizontal?: 'left' | 'right' | 'center'
-    vertical?: 'top' | 'bottom' | 'center'
+    horizontal?: Bindable<HorizontalAlignment>
+    vertical?: Bindable<VerticalAlignment>
   }
 };
 
@@ -50,7 +50,7 @@ export class AlignedLabel extends BaseElement<AlignedLabelParams> {
     const textSize : ScreenSize = g.measureText(text);
 
     let x : number;
-    switch (this.params.textAlignment?.horizontal) {
+    switch (read(this.params.textAlignment?.horizontal)) {
       case 'left': {
         x = 0;
         break;
@@ -68,7 +68,7 @@ export class AlignedLabel extends BaseElement<AlignedLabelParams> {
     }
 
     let y : number;
-    switch (this.params.textAlignment?.vertical) {
+    switch (read(this.params.textAlignment?.vertical)) {
       case 'top': {
         y = 0;
         break;
@@ -79,8 +79,8 @@ export class AlignedLabel extends BaseElement<AlignedLabelParams> {
         y = g.height - textSize.height;
         break;
       } default: {
-        // Default to top
-        y = 0;
+        // Default to center
+        y = (g.height / 2) - (textSize.height / 2);
         break;
       }
     }

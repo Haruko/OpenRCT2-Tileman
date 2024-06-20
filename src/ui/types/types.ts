@@ -13,3 +13,9 @@ export type UIElement = ToggleButton | ProgressBar | FlexUIWidget;
  * Shorthand for all widget usage
  */
 export type FlexUIWidget = WidgetCreator<FlexiblePosition, Parsed<FlexiblePosition>>;
+
+/**
+ * Alignment options
+ */
+export type HorizontalAlignment = 'left' | 'center' | 'right';
+export type VerticalAlignment = 'top' | 'center' | 'bottom';

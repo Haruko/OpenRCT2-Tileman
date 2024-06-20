@@ -221,8 +221,7 @@ export class ConfigWindow extends BaseWindow {
         expLabelText = compute<number, string>(tilesEarnedStore,
           (tilesEarned : number) : string => {
             if (tilesEarned === Infinity) {
-              return '{RED}rosebud ;!;!;!;!;! ...';
-              // return context.formatString('{COMMA16} {BLACK}tiles', tilesEarned);
+              return '{RED}rosebud;!;!;!;!;!;!...';
             } else {
               return context.formatString('{COMMA16} {BLACK}tiles', tilesEarned);
             }

@@ -3,7 +3,7 @@
 import { Bindable, Colour, ElementParams, FlexiblePosition, WritableStore, isStore, read, widget } from "openrct2-flexui";
 import { ElementID } from '../types/enums';
 import { BaseElement } from './BaseElement';
-import { FlexUIWidget } from '../types/types';
+import { FlexUIWidget, HorizontalAlignment, VerticalAlignment } from '../types/types';
 
 
 
@@ -17,8 +17,8 @@ export type ProgressBarParams = ElementParams & FlexiblePosition & {
   foreground : Bindable<Colour>,
   text? : Bindable<string>,
   textAlignment? : {
-    horizontal?: 'left' | 'right' | 'center'
-    vertical?: 'top' | 'bottom' | 'center'
+    horizontal?: Bindable<HorizontalAlignment>,
+    vertical?: Bindable<VerticalAlignment>
   }
   percentFilled : Bindable<number>
 };
@@ -71,7 +71,7 @@ export class ProgressBar extends BaseElement<InternalType> {
     const textSize : ScreenSize = g.measureText(text);
 
     let x : number;
-    switch (this.params.textAlignment?.horizontal) {
+    switch (read(this.params.textAlignment?.horizontal)) {
       case 'left': {
         x = 0;
         break;
@@ -89,7 +89,7 @@ export class ProgressBar extends BaseElement<InternalType> {
     }
 
     let y : number;
-    switch (this.params.textAlignment?.vertical) {
+    switch (read(this.params.textAlignment?.vertical)) {
       case 'top': {
         y = 0;
         break;
@@ -100,8 +100,8 @@ export class ProgressBar extends BaseElement<InternalType> {
         y = g.height - textSize.height;
         break;
       } default: {
-        // Default to top
-        y = 0;
+        // Default to center
+        y = (g.height / 2) - (textSize.height / 2);
         break;
       }
     }

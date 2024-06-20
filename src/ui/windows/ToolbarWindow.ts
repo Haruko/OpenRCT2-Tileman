@@ -1,10 +1,10 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { Colour, Store, WindowTemplate, box, compute, horizontal, label, spinner, vertical, window } from 'openrct2-flexui';
+import { Colour, Store, WindowTemplate, box, compute, horizontal, spinner, vertical, window } from 'openrct2-flexui';
 import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
 import { Sprites, ElementID, WindowID } from '../types/enums';
 import { BaseWindow } from './BaseWindow';
-import { FlexUIWidget } from '../types/types';
+import { FlexUIWidget, HorizontalAlignment } from '../types/types';
 import { ToggleButton } from '../elements/ToggleButton';
 import { UIManager } from '../UIManager';
 import { Plugin } from '@src/Plugin';
@@ -14,6 +14,7 @@ import { IWindow } from './IWindow';
 import { ToolManager } from '@src/tools/ToolManager';
 import { ToolID } from '@src/tools/types/enums';
 import { ProgressBar } from '../elements/ProgressBar';
+import { AlignedLabel } from '../elements/AlignedLabel';
 
 
 
@@ -45,7 +46,7 @@ export class ToolbarWindow extends BaseWindow {
 
     return window({
       title: this.windowTitle,
-      width: 200,
+      width: 222,
       height: 'auto',
       padding: 1,
       content: [
@@ -72,8 +73,8 @@ export class ToolbarWindow extends BaseWindow {
     const rightsToolButton : ToggleButton = this._createToolbarButton(ElementID.RIGHTS_TOOL);
     const sellToolButton : ToggleButton = this._createToolbarButton(ElementID.SELL_TOOL);
     const viewRightsButton : ToggleButton = this._createToolbarButton(ElementID.VIEW_RIGHTS_BUTTON);
+    const openStatsButton : ToggleButton = this._createToolbarButton(ElementID.OPEN_STATS_BUTTON);
     const openConfigButton : ToggleButton = this._createToolbarButton(ElementID.OPEN_CONFIG_BUTTON);
-    // const openStatsButton : ToggleButton = this._createToolbarButton(ElementID.OPEN_STATS_BUTTON);
 
     const toolSizeSpinner : FlexUIWidget = spinner({
       width: 62,
@@ -102,8 +103,8 @@ export class ToolbarWindow extends BaseWindow {
         rightsToolButton.widget,
         sellToolButton.widget,
         viewRightsButton.widget,
-        openConfigButton.widget,
-        // openStatsButton.widget,
+        openStatsButton.widget,
+        openConfigButton.widget
       ]
     });
   }
@@ -201,28 +202,38 @@ export class ToolbarWindow extends BaseWindow {
     const availableTilesLabel : FlexUIWidget = horizontal({
       spacing: 0,
       content: [
-        label({
-          text: '{BLACK}Available Tiles  : ',
-          width: 90
-        }),
-        label({
-          text: this._createStatsLabelStore(ElementID.AVAILABLE_TILES)
-        })
-      ]
+        new AlignedLabel(ElementID.NONE, {
+          text: '{BLACK}Available Tiles : ',
+          width: 90,
+          height: 14,
+          textAlignment: {
+            horizontal: 'right',
+          },
+        }).widget,
+        new AlignedLabel(ElementID.NONE, {
+          text: this._createStatsLabelStore(ElementID.AVAILABLE_TILES),
+          height: 14,
+        }).widget,
+      ],
     });
     
     // Unlocked tiles label
     const unlockedTilesLabel : FlexUIWidget = horizontal({
       spacing: 0,
       content: [
-        label({
-          text: '{BLACK}Tiles Unlocked   :',
-          width: 90
-        }),
-        label({
-          text: this._createStatsLabelStore(ElementID.UNLOCKED_TILES)
-        })
-      ]
+        new AlignedLabel(ElementID.NONE, {
+          text: '{BLACK}Tiles Spent : ',
+          width: 90,
+          height: 14,
+          textAlignment: {
+            horizontal: 'right',
+          },
+        }).widget,
+        new AlignedLabel(ElementID.NONE, {
+          text: this._createStatsLabelStore(ElementID.UNLOCKED_TILES),
+          height: 14,
+        }).widget,
+      ],
     });
     
     // Exp to next tile progress bar
@@ -240,7 +251,9 @@ export class ToolbarWindow extends BaseWindow {
       foreground: Colour.LightBlue,
       text: this._createStatsLabelStore(ElementID.EXP_NEXT_PROGRESSBAR),
       textAlignment: {
-        horizontal: 'left',
+        horizontal: compute<number, HorizontalAlignment>(Plugin.get('expPerTile'), (expPerTile : number) : HorizontalAlignment => {
+          return expPerTile === 0 ? 'center' : 'left';
+        }),
         vertical: 'center'
       },
       percentFilled: expToNextTilePercent
@@ -253,8 +266,8 @@ export class ToolbarWindow extends BaseWindow {
           availableTilesLabel,
           unlockedTilesLabel,
           expToNextTileProgressBar.widget
-        ]
-      })
+        ],
+      }),
     });
   }
 
@@ -266,7 +279,7 @@ export class ToolbarWindow extends BaseWindow {
         newStore = compute<number, string>(availableTilesStore,
           (availableTiles : number) : string => {
             if (availableTiles === Infinity) {
-              return '{RED}I want to get off';
+              return '{GREEN}Yes';
             } else {
               const textColor : string = (availableTiles === 0) ? 'RED' : 'BABYBLUE';
         
@@ -294,7 +307,7 @@ export class ToolbarWindow extends BaseWindow {
         newStore = compute<number, number, string>(totalExpStore, Plugin.get('expPerTile'),
           (totalExp : number, expPerTile : number) : string => {
             if (expPerTile === 0) {
-              return `  {RED}Mr Bone's Wild Ride!`;
+              return `  {RED}I want to get off Mr. Bone's Wild Ride!`;
             } else {
               const expToNextTile : number = expPerTile - (totalExp % expPerTile);
               return `  {WHITE}${context.formatString('{COMMA16}', expToNextTile)} {BLACK}xp to next`;
