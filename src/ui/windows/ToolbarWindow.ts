@@ -72,7 +72,8 @@ export class ToolbarWindow extends BaseWindow {
     const rightsToolButton : ToggleButton = this._createToolbarButton(ElementID.RIGHTS_TOOL);
     const sellToolButton : ToggleButton = this._createToolbarButton(ElementID.SELL_TOOL);
     const viewRightsButton : ToggleButton = this._createToolbarButton(ElementID.VIEW_RIGHTS_BUTTON);
-    const openStatsButton : ToggleButton = this._createToolbarButton(ElementID.OPEN_STATS_BUTTON);
+    const openConfigButton : ToggleButton = this._createToolbarButton(ElementID.OPEN_CONFIG_BUTTON);
+    // const openStatsButton : ToggleButton = this._createToolbarButton(ElementID.OPEN_STATS_BUTTON);
 
     const toolSizeSpinner : FlexUIWidget = spinner({
       width: 62,
@@ -101,6 +102,7 @@ export class ToolbarWindow extends BaseWindow {
         rightsToolButton.widget,
         sellToolButton.widget,
         viewRightsButton.widget,
+        openConfigButton.widget,
         // openStatsButton.widget,
       ]
     });
@@ -162,6 +164,17 @@ export class ToolbarWindow extends BaseWindow {
 
         this._toolButtonGroup.addButton(newElement);
         this.registerElement(ElementID.VIEW_RIGHTS_BUTTON, newElement);
+        break;
+      } case ElementID.OPEN_CONFIG_BUTTON: {
+        newElement = new ToggleButton(ElementID.OPEN_CONFIG_BUTTON, {
+          image: Sprites.FLOPPY,
+          tooltip: 'Open configuration window',
+          width: 24,
+          height: 24,
+          onChange: (pressed : boolean) => this.onConfigChange(pressed),
+        });
+
+        this.registerElement(ElementID.OPEN_CONFIG_BUTTON, newElement);
         break;
       } case ElementID.OPEN_STATS_BUTTON: {
         newElement = new ToggleButton(ElementID.OPEN_STATS_BUTTON, {
@@ -367,6 +380,22 @@ export class ToolbarWindow extends BaseWindow {
    */
   private onViewRightsChange(isPressed : boolean) : void {
     UIManager.setRightsVisibility(isPressed);
+  }
+
+  /**
+   * Handle onChange for configuration window button
+   * @param isPressed true if the button is pressed
+   */
+  private onConfigChange(isPressed : boolean) : void {
+    const configWindow : IWindow = UIManager.getInstance(WindowID.CONFIG);
+    
+    if (typeof configWindow !== 'undefined') {
+      if (isPressed) {
+        configWindow.open();
+      } else {
+        configWindow.close();
+      }
+    }
   }
 
   /**

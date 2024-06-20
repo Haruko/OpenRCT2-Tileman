@@ -10,6 +10,9 @@ import { Park } from '@src/Park';
 import { Plugin, PluginData } from '@src/Plugin';
 import { facilityExpStore, parkAdmissionsExpStore, rideExpStore, stallExpStore, tilesEarnedStore, totalExpStore } from '@src/stores';
 import { AlignedLabel } from '../elements/AlignedLabel';
+import { IWindow } from './IWindow';
+import { UIManager } from '../UIManager';
+import { ToggleButton } from '../elements/ToggleButton';
 
 
 
@@ -453,8 +456,14 @@ export class ConfigWindow extends BaseWindow {
   /**
    * Handles onOpen event
    */
-  protected override onOpen() : void {
+   protected override onOpen() : void {
     super.onOpen();
+
+    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
+    if (typeof toolbarWindow !== 'undefined') {
+      const openConfigButton : ToggleButton = toolbarWindow.getChildElement(ElementID.OPEN_CONFIG_BUTTON) as ToggleButton;
+      openConfigButton.press();
+    }
   }
 
   /**
@@ -469,6 +478,12 @@ export class ConfigWindow extends BaseWindow {
    */
   protected override onClose() : void {
     super.onClose();
+
+    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
+    if (typeof toolbarWindow !== 'undefined') {
+      const openConfigButton : ToggleButton = toolbarWindow.getChildElement(ElementID.OPEN_CONFIG_BUTTON) as ToggleButton;
+      openConfigButton.depress();
+    }
   }
 
   /**
