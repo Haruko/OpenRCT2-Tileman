@@ -28,7 +28,8 @@ export default {
     resolve(),
     replace({
       preventAssignment: true,
-      __environment: JSON.stringify('release')
+      __environment: JSON.stringify('release'),
+      __version: JSON.stringify(npmPackage.version),
     }),
     typescript(),
     terser({

@@ -27,7 +27,8 @@ export default {
     resolve(),
     replace({
       preventAssignment: true,
-      __environment: JSON.stringify('development')
+      __environment: JSON.stringify('development'),
+      __version: JSON.stringify(npmPackage.version),
     }),
     typescript()
   ],

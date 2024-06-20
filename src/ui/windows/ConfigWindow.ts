@@ -1,6 +1,6 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { Bindable, TabCreator, WindowTemplate, WritableStore, button, compute, horizontal, isWritableStore, label, read, store, tab, tabwindow, textbox, vertical } from 'openrct2-flexui';
+import { Bindable, TabCreator, WindowTemplate, WritableStore, button, compute, horizontal, isWritableStore, label, read, store, tab, tabwindow, textbox, vertical, widget } from 'openrct2-flexui';
 import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
 import { BaseWindow } from './BaseWindow';
 import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
@@ -47,9 +47,9 @@ export class ConfigWindow extends BaseWindow {
   
     return tabwindow({
       title: this.windowTitle,
-      width: 380, // 3x90px + 4x3px + 1px for some reason
+      width: 380,
       height: 'auto',
-      padding: 3,
+      padding: { top: 3, right: 6, bottom: 0, left: 6 },
       startingTab: 0,
       tabs: [
         configTab,
@@ -72,9 +72,16 @@ export class ConfigWindow extends BaseWindow {
           content: [
             this._buildConfigSettingPanel(),
             this._buildConfigButtonPanel(),
+            widget({
+              type: 'label',
+              text: `v${__version} ◀▶ Created by Isoitiro`,
+              height: 14,
+              textAlign: 'centred',
+              disabled: true,
+            }),
           ]
-        })
-      ],
+        }),
+      ]
     });
   }
 

@@ -4,6 +4,7 @@ import { Plugin } from './Plugin';
 import { initialize } from './pluginInitializer';
 
 //TODO Detailed Stats Window - Create window with various stats including historical data about rides done in a list view
+//TODO Config Window - Add reset park data button
 
 //TODO MAYBE: Persistent Storage - context.sharedStorage for pluginconfig with profiles?
 //TODO MAYBE: Options - Difficulty multiplier for ParkFlags?
@@ -28,7 +29,7 @@ function main() : void {
  */
 registerPlugin({
   name: 'Tileman',
-  version: '1.0.0',
+  version: __version,
   authors: ['Isoitiro'],
   type: 'remote',
   licence: 'GNU GPLv3',
