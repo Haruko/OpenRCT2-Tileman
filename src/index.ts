@@ -3,7 +3,6 @@
 import { Plugin } from './Plugin';
 import { initialize } from './pluginInitializer';
 
-//TODO Config Window - Minimums on settings
 //TODO Detailed Stats Window - Create window with various stats including historical data about rides done in a list view
 
 //TODO MAYBE: Persistent Storage - context.sharedStorage for pluginconfig with profiles?
@@ -29,7 +28,7 @@ function main() : void {
  */
 registerPlugin({
   name: 'Tileman',
-  version: '0.1.0',
+  version: '1.0.0',
   authors: ['Isoitiro'],
   type: 'remote',
   licence: 'GNU GPLv3',
