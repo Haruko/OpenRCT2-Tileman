@@ -46,9 +46,9 @@ export class ToolbarWindow extends BaseWindow {
 
     return window({
       title: this.windowTitle,
-      width: 222,
+      width: 211,
       height: 'auto',
-      padding: 1,
+      padding: { top: 0, right: 1, bottom: 1, left: 1 },
       content: [
         vertical({
           spacing: 2,
@@ -78,7 +78,7 @@ export class ToolbarWindow extends BaseWindow {
 
     const toolSizeSpinner : FlexUIWidget = spinner({
       width: 62,
-      padding: 5,
+      padding: [5, 1],
       value: ToolManager.getToolSizeStore(),
       minimum: Plugin.get('minToolSize'),
       maximum: Plugin.get('maxToolSize'),
@@ -96,7 +96,7 @@ export class ToolbarWindow extends BaseWindow {
 
     return horizontal({
       spacing: 0,
-      padding: [0, 3],
+      padding: [0, 0],
       content: [
         toolSizeSpinner,
         buyToolButton.widget,
@@ -260,12 +260,14 @@ export class ToolbarWindow extends BaseWindow {
     });
     
     return box({
+      padding: { top: 0, right: 1, bottom: 1, left: 1 },
       content: vertical({
         spacing: 0,
+        padding: { top: 0, right: 1, bottom: 2, left: 0 },
         content: [
+          expToNextTileProgressBar.widget,
           availableTilesLabel,
           unlockedTilesLabel,
-          expToNextTileProgressBar.widget
         ],
       }),
     });

@@ -38,7 +38,6 @@ export class StatsWindow extends BaseWindow {
       title: this.windowTitle,
       width: 175,
       height: 'auto',
-      padding: 1,
       content: [
         vertical({
           spacing: 2,
