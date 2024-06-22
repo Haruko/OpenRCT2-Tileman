@@ -32,7 +32,9 @@ class TilemanPlayer extends DataStore<PlayerData> {
    * @param isNewPark True if this is a new park
    */
   public initialize(isNewPark : boolean) : void {
-
+    if (!isNewPark) {
+      this.loadData();
+    }
   }
 
 

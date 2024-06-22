@@ -9,7 +9,7 @@ import { ToggleButton } from '../elements/ToggleButton';
 import { UIManager } from '../UIManager';
 import { Plugin } from '@src/Plugin';
 import { Player } from '@src/Player';
-import { availableTilesStore, totalExpStore } from '@src/stores';
+import { availableTilesStore, totalXpStore } from '@src/stores';
 import { IWindow } from './IWindow';
 import { ToolManager } from '@src/tools/ToolManager';
 import { ToolID } from '@src/tools/types/enums';
@@ -236,15 +236,15 @@ export class ToolbarWindow extends BaseWindow {
       ],
     });
     
-    // Exp to next tile progress bar
-    const expToNextTilePercent : Store<number> = compute<number, number, number>(totalExpStore, Plugin.get('tileXpCost'),
-      (totalExp : number, tileXpCost : number) : number => {
-        const expSinceLastTile : number = totalExp % tileXpCost;
-        return expSinceLastTile / tileXpCost;
+    // Xp to next tile progress bar
+    const xpToNextTilePercent : Store<number> = compute<number, number, number>(totalXpStore, Plugin.get('tileXpCost'),
+      (totalXp : number, tileXpCost : number) : number => {
+        const xpSinceLastTile : number = totalXp % tileXpCost;
+        return xpSinceLastTile / tileXpCost;
       }
     );
 
-    const expToNextTileProgressBar : ProgressBar = new ProgressBar(ElementID.EXP_NEXT_PROGRESSBAR, {
+    const xpToNextTileProgressBar : ProgressBar = new ProgressBar(ElementID.EXP_NEXT_PROGRESSBAR, {
       width: '1w',
       height: 16,
       background: Colour.Grey,
@@ -256,7 +256,7 @@ export class ToolbarWindow extends BaseWindow {
         }),
         vertical: 'center'
       },
-      percentFilled: expToNextTilePercent
+      percentFilled: xpToNextTilePercent
     });
     
     return box({
@@ -265,7 +265,7 @@ export class ToolbarWindow extends BaseWindow {
         spacing: 0,
         padding: { top: 0, right: 1, bottom: 2, left: 0 },
         content: [
-          expToNextTileProgressBar.widget,
+          xpToNextTileProgressBar.widget,
           availableTilesLabel,
           unlockedTilesLabel,
         ],
@@ -298,21 +298,21 @@ export class ToolbarWindow extends BaseWindow {
         );
         break;
       } case ElementID.EXP_TO_NEXT_TILE: {
-        newStore = compute<number, number, string>(totalExpStore, Plugin.get('tileXpCost'),
-          (totalExp : number, tileXpCost : number) : string => {
-              const expToNextTile : number = tileXpCost - (totalExp % tileXpCost);
-              return `{WHITE}${context.formatString('{COMMA16}', expToNextTile)}`;
+        newStore = compute<number, number, string>(totalXpStore, Plugin.get('tileXpCost'),
+          (totalXp : number, tileXpCost : number) : string => {
+              const xpToNextTile : number = tileXpCost - (totalXp % tileXpCost);
+              return `{WHITE}${context.formatString('{COMMA16}', xpToNextTile)}`;
           }
         );
         break;
       } case ElementID.EXP_NEXT_PROGRESSBAR: {
-        newStore = compute<number, number, string>(totalExpStore, Plugin.get('tileXpCost'),
-          (totalExp : number, tileXpCost : number) : string => {
+        newStore = compute<number, number, string>(totalXpStore, Plugin.get('tileXpCost'),
+          (totalXp : number, tileXpCost : number) : string => {
             if (tileXpCost === 0) {
               return `  {RED}I want to get off Mr. Bone's Wild Ride!`;
             } else {
-              const expToNextTile : number = tileXpCost - (totalExp % tileXpCost);
-              return `  {WHITE}${context.formatString('{COMMA16}', expToNextTile)} {BLACK}xp to next`;
+              const xpToNextTile : number = tileXpCost - (totalXp % tileXpCost);
+              return `  {WHITE}${context.formatString('{COMMA16}', xpToNextTile)} {BLACK}xp to next`;
             }
           }
         );

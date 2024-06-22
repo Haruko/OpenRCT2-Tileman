@@ -8,7 +8,7 @@ import { FlexUIWidget } from '../types/types';
 import { DoubleClickButton } from '../elements/DoubleClickButton';
 import { Park } from '@src/Park';
 import { Plugin, PluginData } from '@src/Plugin';
-import { facilityExpStore, parkAdmissionsExpStore, rideExpStore, stallExpStore, tilesEarnedStore, totalExpStore } from '@src/stores';
+import { facilityXpStore, parkAdmissionsXpStore, rideXpStore, stallXpStore, tilesEarnedStore, totalXpStore } from '@src/stores';
 import { AlignedLabel } from '../elements/AlignedLabel';
 import { IWindow } from './IWindow';
 import { UIManager } from '../UIManager';
@@ -114,7 +114,7 @@ export class ConfigWindow extends BaseWindow {
       ]
     });
 
-    const totalExpRow : FlexUIWidget = horizontal({
+    const totalXpRow : FlexUIWidget = horizontal({
       spacing: 0,
       content: [
         label({
@@ -131,7 +131,7 @@ export class ConfigWindow extends BaseWindow {
           },
         }).widget,
         new AlignedLabel(ElementID.NONE, {
-          text: compute<number, string>(totalExpStore, (totalExp : number) : string => context.formatString('{COMMA16} {BLACK}xp', totalExp)),
+          text: compute<number, string>(totalXpStore, (totalXp : number) : string => context.formatString('{COMMA16} {BLACK}xp', totalXp)),
           width: '25%',
           height: 14,
           padding: { right: 1 },
@@ -158,7 +158,7 @@ export class ConfigWindow extends BaseWindow {
         ticksPerUpdateRow,
         startingTilesRow,
         tileXpCostRow,
-        totalExpRow,
+        totalXpRow,
         parkAdmissionXpRow,
         rideAdmissionXpRow,
         stallBuyXpRow,
@@ -221,11 +221,11 @@ export class ConfigWindow extends BaseWindow {
     });
 
     // Set exp totals for relevant rows
-    let expLabelText : Bindable<string>;
+    let xpLabelText : Bindable<string>;
 
     switch (id) {
       case ElementID.EXP_PER_TILE: {
-        expLabelText = compute<number, string>(tilesEarnedStore,
+        xpLabelText = compute<number, string>(tilesEarnedStore,
           (tilesEarned : number) : string => {
             if (tilesEarned === Infinity) {
               return '{RED}rosebud;!;!;!;!;!;!...';
@@ -236,41 +236,41 @@ export class ConfigWindow extends BaseWindow {
         );
         break;
       } case ElementID.EXP_PER_PARK_ADMISSION: {
-        expLabelText = compute<number, string>(parkAdmissionsExpStore,
-          (exp : number) : string => {
-            return context.formatString('{COMMA16} {BLACK}xp', exp);
+        xpLabelText = compute<number, string>(parkAdmissionsXpStore,
+          (xp : number) : string => {
+            return context.formatString('{COMMA16} {BLACK}xp', xp);
           }
         );
         break;
       } case ElementID.EXP_PER_RIDE_ADMISSION: {
-        expLabelText = compute<number, string>(rideExpStore,
-          (exp : number) : string => {
-            return context.formatString('{COMMA16} {BLACK}xp', exp);
+        xpLabelText = compute<number, string>(rideXpStore,
+          (xp : number) : string => {
+            return context.formatString('{COMMA16} {BLACK}xp', xp);
           }
         );
         break;
       } case ElementID.EXP_PER_STALL_ADMISSION: {
-        expLabelText = compute<number, string>(stallExpStore,
-          (exp : number) : string => {
-            return context.formatString('{COMMA16} {BLACK}xp', exp);
+        xpLabelText = compute<number, string>(stallXpStore,
+          (xp : number) : string => {
+            return context.formatString('{COMMA16} {BLACK}xp', xp);
           }
         );
         break;
       } case ElementID.EXP_PER_FACILITY_ADMISSION: {
-        expLabelText = compute<number, string>(facilityExpStore,
-          (exp : number) : string => {
-            return context.formatString('{COMMA16} {BLACK}xp', exp);
+        xpLabelText = compute<number, string>(facilityXpStore,
+          (xp : number) : string => {
+            return context.formatString('{COMMA16} {BLACK}xp', xp);
           }
         );
         break;
       } default: {
-        expLabelText = '';
+        xpLabelText = '';
         break;
       }
     }
 
     const totalLabel : AlignedLabel = new AlignedLabel(id, {
-        text: expLabelText,
+        text: xpLabelText,
         width: '25%',
         height: 14,
         padding: { right: 1 },
