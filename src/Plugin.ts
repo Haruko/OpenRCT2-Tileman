@@ -33,8 +33,8 @@ export type PluginData = {
   expPerTile : WritableStore<number>, // Exp cost per tile
   minTiles : WritableStore<number>, // 1 path + 1 stall minimum
 
+  // Guest actions
   expPerParkAdmission : WritableStore<number>,
-
   rideExpPerCustomer : WritableStore<number>,
   stallExpPerCustomer : WritableStore<number>,
   facilityExpPerCustomer : WritableStore<number>,
@@ -61,14 +61,14 @@ class TilemanPlugin extends DataStore<PluginData> {
        */
       ticksPerUpdate: store<number>(40), // Ticks per update of data
   
-      expPerTile: store<number>(10), // Exp cost per tile
+      expPerTile: store<number>(1000), // Exp cost per tile
       minTiles: store<number>(2), // 1 path + 1 stall minimum
-  
+
+      // Guest actions
       expPerParkAdmission: store<number>(1),
-  
       rideExpPerCustomer: store<number>(1),
-      stallExpPerCustomer: store<number>(1),
-      facilityExpPerCustomer: store<number>(1),
+      stallExpPerCustomer: store<number>(2),
+      facilityExpPerCustomer: store<number>(4),
     });
   }
 
