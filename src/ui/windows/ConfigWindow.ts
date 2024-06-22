@@ -145,24 +145,24 @@ export class ConfigWindow extends BaseWindow {
 
 
     const ticksPerUpdateRow : FlexUIWidget = this._createConfigRow(ElementID.TICKS_PER_UPDATE, 'ticksPerUpdate', 'Game ticks per update');
-    const minTilesRow : FlexUIWidget = this._createConfigRow(ElementID.MIN_TILES, 'minTiles', 'Starting tiles');
-    const expPerTileRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_TILE, 'expPerTile', 'Tile XP cost');
-    const expPerParkAdmissionRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_PARK_ADMISSION, 'expPerParkAdmission', 'XP per park admission');
-    const rideExpPerCustomerRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_RIDE_ADMISSION, 'rideExpPerCustomer', 'XP per ride admission');
-    const stallExpPerCustomerRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_STALL_ADMISSION, 'stallExpPerCustomer', 'XP per stall admission');
-    const facilityExpPerCustomerRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_FACILITY_ADMISSION, 'facilityExpPerCustomer', 'XP per facility admission');
+    const startingTilesRow : FlexUIWidget = this._createConfigRow(ElementID.MIN_TILES, 'startingTiles', 'Starting tiles');
+    const tileXpCostRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_TILE, 'tileXpCost', 'Tile XP cost');
+    const parkAdmissionXpRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_PARK_ADMISSION, 'parkAdmissionXp', 'XP per park admission');
+    const rideAdmissionXpRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_RIDE_ADMISSION, 'rideAdmissionXp', 'XP per ride admission');
+    const stallBuyXpRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_STALL_ADMISSION, 'stallBuyXp', 'XP per stall admission');
+    const facilityUseXpRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_FACILITY_ADMISSION, 'facilityUseXp', 'XP per facility admission');
 
     return vertical({
       content: [
         headerRow,
         ticksPerUpdateRow,
-        minTilesRow,
-        expPerTileRow,
+        startingTilesRow,
+        tileXpCostRow,
         totalExpRow,
-        expPerParkAdmissionRow,
-        rideExpPerCustomerRow,
-        stallExpPerCustomerRow,
-        facilityExpPerCustomerRow,
+        parkAdmissionXpRow,
+        rideAdmissionXpRow,
+        stallBuyXpRow,
+        facilityUseXpRow,
       ],
     });
   }

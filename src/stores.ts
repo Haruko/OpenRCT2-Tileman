@@ -15,7 +15,7 @@ import { RideData } from './types/types';
  */
 export const parkAdmissionsExpStore : Store<number> = compute<number, number, number>(
   Park.get('parkAdmissions'),
-  Plugin.get('expPerParkAdmission'),
+  Plugin.get('parkAdmissionXp'),
   (parkAdmissions : number, expPerAdmission : number) : number => {
     return parkAdmissions * expPerAdmission;
   }
@@ -39,7 +39,7 @@ function getExpByType(rideMap : Record<string, RideData>, demolishedRides : Ride
 export const rideExpStore : Store<number> = compute<Record<string, RideData>, RideData[], number, number>(
   Park.get('rideMap'),
   Park.get('demolishedRides'),
-  Plugin.get('rideExpPerCustomer'),
+  Plugin.get('rideAdmissionXp'),
   (rideMap : Record<string, RideData>, demolishedRides : RideData[], expPerCustomer : number) : number => {
     return getExpByType(rideMap, demolishedRides, 'ride', expPerCustomer);
   }
@@ -51,7 +51,7 @@ export const rideExpStore : Store<number> = compute<Record<string, RideData>, Ri
 export const stallExpStore : Store<number> = compute<Record<string, RideData>, RideData[], number, number>(
   Park.get('rideMap'),
   Park.get('demolishedRides'),
-  Plugin.get('stallExpPerCustomer'),
+  Plugin.get('stallBuyXp'),
   (rideMap : Record<string, RideData>, demolishedRides : RideData[], expPerCustomer : number) : number => {
     return getExpByType(rideMap, demolishedRides, 'stall', expPerCustomer);
   }
@@ -63,7 +63,7 @@ export const stallExpStore : Store<number> = compute<Record<string, RideData>, R
 export const facilityExpStore : Store<number> = compute<Record<string, RideData>, RideData[], number, number>(
   Park.get('rideMap'),
   Park.get('demolishedRides'),
-  Plugin.get('facilityExpPerCustomer'),
+  Plugin.get('facilityUseXp'),
   (rideMap : Record<string, RideData>, demolishedRides : RideData[], expPerCustomer : number) : number => {
     return getExpByType(rideMap, demolishedRides, 'facility', expPerCustomer);
   }
@@ -87,12 +87,12 @@ export const totalExpStore : Store<number> = compute<number, number, number, num
  */
 export const tilesEarnedStore : Store<number> = compute<number, number, number>(
   totalExpStore,
-  Plugin.get('expPerTile'),
-  (totalExp : number, expPerTile : number) : number => {
-    if (expPerTile === 0) {
+  Plugin.get('tileXpCost'),
+  (totalExp : number, tileXpCost : number) : number => {
+    if (tileXpCost === 0) {
       return Infinity;
     } else {
-      return Math.floor(totalExp / expPerTile);
+      return Math.floor(totalExp / tileXpCost);
     }
   }
 );
@@ -103,8 +103,8 @@ export const tilesEarnedStore : Store<number> = compute<number, number, number>(
 export const availableTilesStore : Store<number> = compute<number, number, number, number>(
   tilesEarnedStore,
   Player.get('tilesUsed'),
-  Plugin.get('minTiles'),
-  (tilesEarned : number, tilesUsed : number, minTiles : number) : number => {
-    return tilesEarned + minTiles - tilesUsed;
+  Plugin.get('startingTiles'),
+  (tilesEarned : number, tilesUsed : number, startingTiles : number) : number => {
+    return tilesEarned + startingTiles - tilesUsed;
   }
 );

@@ -237,10 +237,10 @@ export class ToolbarWindow extends BaseWindow {
     });
     
     // Exp to next tile progress bar
-    const expToNextTilePercent : Store<number> = compute<number, number, number>(totalExpStore, Plugin.get('expPerTile'),
-      (totalExp : number, expPerTile : number) : number => {
-        const expSinceLastTile : number = totalExp % expPerTile;
-        return expSinceLastTile / expPerTile;
+    const expToNextTilePercent : Store<number> = compute<number, number, number>(totalExpStore, Plugin.get('tileXpCost'),
+      (totalExp : number, tileXpCost : number) : number => {
+        const expSinceLastTile : number = totalExp % tileXpCost;
+        return expSinceLastTile / tileXpCost;
       }
     );
 
@@ -251,8 +251,8 @@ export class ToolbarWindow extends BaseWindow {
       foreground: Colour.LightBlue,
       text: this._createStatsLabelStore(ElementID.EXP_NEXT_PROGRESSBAR),
       textAlignment: {
-        horizontal: compute<number, HorizontalAlignment>(Plugin.get('expPerTile'), (expPerTile : number) : HorizontalAlignment => {
-          return expPerTile === 0 ? 'center' : 'left';
+        horizontal: compute<number, HorizontalAlignment>(Plugin.get('tileXpCost'), (tileXpCost : number) : HorizontalAlignment => {
+          return tileXpCost === 0 ? 'center' : 'left';
         }),
         vertical: 'center'
       },
@@ -298,20 +298,20 @@ export class ToolbarWindow extends BaseWindow {
         );
         break;
       } case ElementID.EXP_TO_NEXT_TILE: {
-        newStore = compute<number, number, string>(totalExpStore, Plugin.get('expPerTile'),
-          (totalExp : number, expPerTile : number) : string => {
-              const expToNextTile : number = expPerTile - (totalExp % expPerTile);
+        newStore = compute<number, number, string>(totalExpStore, Plugin.get('tileXpCost'),
+          (totalExp : number, tileXpCost : number) : string => {
+              const expToNextTile : number = tileXpCost - (totalExp % tileXpCost);
               return `{WHITE}${context.formatString('{COMMA16}', expToNextTile)}`;
           }
         );
         break;
       } case ElementID.EXP_NEXT_PROGRESSBAR: {
-        newStore = compute<number, number, string>(totalExpStore, Plugin.get('expPerTile'),
-          (totalExp : number, expPerTile : number) : string => {
-            if (expPerTile === 0) {
+        newStore = compute<number, number, string>(totalExpStore, Plugin.get('tileXpCost'),
+          (totalExp : number, tileXpCost : number) : string => {
+            if (tileXpCost === 0) {
               return `  {RED}I want to get off Mr. Bone's Wild Ride!`;
             } else {
-              const expToNextTile : number = expPerTile - (totalExp % expPerTile);
+              const expToNextTile : number = tileXpCost - (totalExp % tileXpCost);
               return `  {WHITE}${context.formatString('{COMMA16}', expToNextTile)} {BLACK}xp to next`;
             }
           }
