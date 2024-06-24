@@ -184,6 +184,7 @@ export class ToolbarWindow extends BaseWindow {
           width: 24,
           height: 24,
           onChange: (pressed : boolean) => this.onStatsChange(pressed),
+          disabled: true,
         });
 
         this.registerElement(ElementID.OPEN_STATS_BUTTON, newElement);
