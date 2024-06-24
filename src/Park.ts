@@ -1,9 +1,9 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { ArrayStore, WritableStore, arrayStore, read, store } from 'openrct2-flexui';
+import { ArrayStore, WritableStore, arrayStore, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
 import { GameCommand, GameCommandFlag, RideLifecycleFlags } from './types/enums';
-import { DataStoreID, RideData, Storeless } from './types/types';
+import { DataStoreID, RideData } from './types/types';
 import { objectStore } from './flexui-extension/createObjectStore';
 import { ObjectStore } from './flexui-extension/ObjectStore';
 import { DataStoreManager } from './DataStoreManager';
@@ -111,34 +111,6 @@ class TilemanPark extends DataStore<ParkData> {
    * Data Handling
    * **********
    */
-
-  /**
-   * Loads data from the persistent park-specific storage
-   */
-  public loadData() : void {
-    let savedData : Storeless<ParkData> = this.getStoredData();
-
-    if (typeof savedData !== 'undefined') {
-      Object.keys(this.data).forEach((key : string) : void => {
-        const savedValue : any = savedData[key as keyof ParkData];
-        const valueStore : WritableStore<any> = this.data[key as keyof ParkData];
-
-        valueStore.set(savedValue);
-      });
-    }
-  }
-
-  /**
-   * Stores data into the persistent park-specific storage
-   */
-  public override storeData() : void {
-    const savedData : Storeless<ParkData> = this.getStoredData();
-
-    Object.keys(this.data).forEach((key : string) : void => {
-      const valueStore : WritableStore<any> = this.data[key as keyof ParkData];
-      savedData[key as keyof ParkData] = read(valueStore);
-    });
-  }
 
   /**
    * Collects metric data used for experience calculations

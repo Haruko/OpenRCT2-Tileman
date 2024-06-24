@@ -1,9 +1,9 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { isStore, read } from 'openrct2-flexui';
+import { isStore, isWritableStore, read } from 'openrct2-flexui';
 import { Storeless } from './types/types';
 
-export abstract class DataStore<DataStoreType> {
+export abstract class DataStore<DataStoreType extends Record<string, any>> {
   private _namespace : string;
 
   protected data : DataStoreType;
@@ -13,7 +13,7 @@ export abstract class DataStore<DataStoreType> {
     this._namespace = namespace;
     this.data = data;
     this._dataDefaults = {} as DataStoreType;
-    this._carefulCopy(data, this._dataDefaults) as DataStoreType;
+    this._carefulCopy(data, this._dataDefaults);
   }
 
   /**
@@ -81,7 +81,6 @@ export abstract class DataStore<DataStoreType> {
 
     if (typeof savedData === 'undefined') {
       const newData = {};
-      this._carefulCopy(this._dataDefaults, newData);
 
       context.getParkStorage().set(this._namespace, newData);
       return newData as Storeless<DataStoreType>;
@@ -93,10 +92,32 @@ export abstract class DataStore<DataStoreType> {
   /**
    * Loads data from the persistent park-specific storage
    */
-  public abstract loadData() : void;
+  public loadData() : void {
+    const savedData : Storeless<DataStoreType> = this.getStoredData();
+
+    for (const key in this.data) {
+      const savedValue : any = savedData[key];
+
+      // Filter to only things that are Stores.
+      // Otherwise we can't release updates that change these properties.
+      if (isWritableStore(this.data[key])) {
+        this.data[key].set(savedValue);
+      }
+    }
+  }
 
   /**
    * Stores data into the persistent park-specific storage
    */
-  public abstract storeData() : void;
+  public storeData() : void {
+    const savedData : Storeless<DataStoreType> = this.getStoredData();
+
+    for (const key in this.data) {
+      // Filter to only things that are Stores.
+      // Otherwise we can't release updates that change these properties.
+      if (isStore(this.data[key])) {
+        savedData[key] = read(this.data[key]);
+      }
+    }
+  }
 }

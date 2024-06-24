@@ -1,8 +1,7 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { Store, WritableStore, read, store } from 'openrct2-flexui';
+import { WritableStore, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
-import { Storeless } from './types/types';
 
 
 
@@ -12,7 +11,7 @@ import { Storeless } from './types/types';
  * **********
  */
 
-export type PluginData = {
+export type PluginData = Record<string, any> & {
   /**
    * Static data
    */
@@ -118,56 +117,6 @@ class TilemanPlugin extends DataStore<PluginData> {
     if (!isNewPark) {
       this.loadData();
     }
-  }
-
-
-
-  /**
-   * **********
-   * Data Handling
-   * **********
-   */
-
-  /**
-   * Loads data from the persistent park-specific storage
-   */
-  public loadData() : void {
-    const savedData : Storeless<PluginData> = this.getStoredData();
-
-    Object.keys(this.data).filter((key : string) : boolean => {
-      return [
-        'pluginName',
-        'doubleClickLength',
-        'minToolSize',
-        'maxToolSize',
-      ].indexOf(key) === -1;
-    }).forEach((key : string) : void => {
-      const savedValue : any = savedData[key as keyof PluginData];
-      const valueStore : WritableStore<any> = this.data[key as keyof PluginData] as WritableStore<any>;
-
-      valueStore.set(savedValue);
-    });
-  }
-
-  /**
-   * Stores data into the persistent park-specific storage
-   */
-  public override storeData() : void {
-    const savedData : Storeless<PluginData> = this.getStoredData();
-
-    type MutableData = Omit<typeof savedData, 'pluginName' | 'doubleClickLength' | 'minToolSize' | 'maxToolSize'>;
-
-    Object.keys(this.data).forEach((key : string) : void => {
-      if ([
-        'pluginName',
-        'doubleClickLength',
-        'minToolSize',
-        'maxToolSize',
-      ].indexOf(key) === -1) {
-        const valueStore : Store<any> = this.data[key as keyof PluginData] as Store<any>;
-        savedData[key as keyof MutableData] = read(valueStore);
-      }
-    });
   }
 
 
