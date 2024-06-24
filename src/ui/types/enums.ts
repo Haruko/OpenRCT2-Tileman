@@ -28,12 +28,36 @@ export enum ElementID {
   // ConfigWindow
     // Config Tab
     TICKS_PER_UPDATE,
-    EXP_PER_TILE,
     MIN_TILES,
+    EXP_PER_TILE,
+
+    // Player actions
+    EXP_PER_BALLOON_POPPED,
+    EXP_PER_BANNER_PLACED,
+    EXP_PER_MARKETING_CAMPAIGN,
+
+    // Guest actions
     EXP_PER_PARK_ADMISSION,
     EXP_PER_RIDE_ADMISSION,
     EXP_PER_STALL_ADMISSION,
     EXP_PER_FACILITY_ADMISSION,
+    
+    // Staff actions
+      // Handyman
+      EXP_PER_LAWN_MOWED,
+      EXP_PER_GARDEN_WATERED,
+      EXP_PER_TRASH_SWEPT,
+      EXP_PER_TRASH_CAN_EMPTIED,
+      
+      // Mechanic
+      EXP_PER_RIDE_INSPECTED,
+      EXP_PER_RIDE_FIXED,
+      
+      // Security
+      EXP_PER_VANDAL_STOPPED,
+    
+    // Park data
+    EXP_PER_PARK_AWARD,
 
     CONFIG_REVERT,
     CONFIG_DEFAULTS,

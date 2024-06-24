@@ -19,9 +19,9 @@ import { RideData } from './types/types';
  */
 export const balloonsPoppedXpStore : Store<number> = compute<number, number, number>(
   Park.get('balloonsPopped'),
-  Plugin.get('balloonsPoppedXp'),
-  (balloonsPopped : number, balloonsPoppedXp : number) : number => {
-    return balloonsPopped * balloonsPoppedXp;
+  Plugin.get('balloonsPoppedXpValue'),
+  (balloonsPopped : number, balloonsPoppedXpValue : number) : number => {
+    return balloonsPopped * balloonsPoppedXpValue;
   }
 );
 
@@ -30,9 +30,9 @@ export const balloonsPoppedXpStore : Store<number> = compute<number, number, num
  */
 export const bannersPlacedXpStore : Store<number> = compute<number, number, number>(
   Park.get('bannersPlaced'),
-  Plugin.get('bannersPlacedXp'),
-  (bannersPlaced : number, bannersPlacedXp : number) : number => {
-    return bannersPlaced * bannersPlacedXp;
+  Plugin.get('bannersPlacedXpValue'),
+  (bannersPlaced : number, bannersPlacedXpValue : number) : number => {
+    return bannersPlaced * bannersPlacedXpValue;
   }
 );
 
@@ -41,9 +41,9 @@ export const bannersPlacedXpStore : Store<number> = compute<number, number, numb
  */
 export const marketingCampaignsRunXpStore : Store<number> = compute<number, number, number>(
   Park.get('marketingCampaignsRun'),
-  Plugin.get('marketingCampaignsRunXp'),
-  (marketingCampaignsRun : number, marketingCampaignsRunXp : number) : number => {
-    return marketingCampaignsRun * marketingCampaignsRunXp;
+  Plugin.get('marketingCampaignsRunXpValue'),
+  (marketingCampaignsRun : number, marketingCampaignsRunXpValue : number) : number => {
+    return marketingCampaignsRun * marketingCampaignsRunXpValue;
   }
 );
 
@@ -69,13 +69,13 @@ export const totalPlayerXpStore : Store<number> = compute<number, number, number
  */
 export const parkAdmissionsXpStore : Store<number> = compute<number, number, number>(
   Park.get('parkAdmissions'),
-  Plugin.get('parkAdmissionXp'),
-  (parkAdmissions : number, parkAdmissionXp : number) : number => {
-    return parkAdmissions * parkAdmissionXp;
+  Plugin.get('parkAdmissionXpValue'),
+  (parkAdmissions : number, parkAdmissionXpValue : number) : number => {
+    return parkAdmissions * parkAdmissionXpValue;
   }
 );
 
-function getGuestCountByType(rideMap : Record<string, RideData>, demolishedRides : RideData[], classification : RideClassification) : number {
+function getGuestCountByRideType(rideMap : Record<string, RideData>, demolishedRides : RideData[], classification : RideClassification) : number {
   const activeRideData : RideData[] = Object.keys(rideMap)
     .map((value : string) : RideData => rideMap[+value]);
   const allRideData = [...activeRideData, ...demolishedRides];
@@ -93,9 +93,9 @@ function getGuestCountByType(rideMap : Record<string, RideData>, demolishedRides
 export const rideXpStore : Store<number> = compute<Record<string, RideData>, RideData[], number, number>(
   Park.get('rideMap'),
   Park.get('demolishedRides'),
-  Plugin.get('rideAdmissionXp'),
-  (rideMap : Record<string, RideData>, demolishedRides : RideData[], rideAdmissionXp : number) : number => {
-    return getGuestCountByType(rideMap, demolishedRides, 'ride') * rideAdmissionXp;
+  Plugin.get('rideAdmissionXpValue'),
+  (rideMap : Record<string, RideData>, demolishedRides : RideData[], rideAdmissionXpValue : number) : number => {
+    return getGuestCountByRideType(rideMap, demolishedRides, 'ride') * rideAdmissionXpValue;
   }
 );
 
@@ -105,9 +105,9 @@ export const rideXpStore : Store<number> = compute<Record<string, RideData>, Rid
 export const stallXpStore : Store<number> = compute<Record<string, RideData>, RideData[], number, number>(
   Park.get('rideMap'),
   Park.get('demolishedRides'),
-  Plugin.get('stallBuyXp'),
-  (rideMap : Record<string, RideData>, demolishedRides : RideData[], stallBuyXp : number) : number => {
-    return getGuestCountByType(rideMap, demolishedRides, 'stall') * stallBuyXp;
+  Plugin.get('stallBuyXpValue'),
+  (rideMap : Record<string, RideData>, demolishedRides : RideData[], stallBuyXpValue : number) : number => {
+    return getGuestCountByRideType(rideMap, demolishedRides, 'stall') * stallBuyXpValue;
   }
 );
 
@@ -117,9 +117,9 @@ export const stallXpStore : Store<number> = compute<Record<string, RideData>, Ri
 export const facilityXpStore : Store<number> = compute<Record<string, RideData>, RideData[], number, number>(
   Park.get('rideMap'),
   Park.get('demolishedRides'),
-  Plugin.get('facilityUseXp'),
-  (rideMap : Record<string, RideData>, demolishedRides : RideData[], facilityUseXp : number) : number => {
-    return getGuestCountByType(rideMap, demolishedRides, 'facility') * facilityUseXp;
+  Plugin.get('facilityUseXpValue'),
+  (rideMap : Record<string, RideData>, demolishedRides : RideData[], facilityUseXpValue : number) : number => {
+    return getGuestCountByRideType(rideMap, demolishedRides, 'facility') * facilityUseXpValue;
   }
 );
 
@@ -150,9 +150,9 @@ export const totalGuestXpStore : Store<number> = compute<number, number, number,
  */
 export const lawnsMownXpStore : Store<number> = compute<number, number, number>(
   Park.get('lawnsMown'),
-  Plugin.get('lawnsMownXp'),
-  (lawnsMown : number, lawnsMownXp : number) : number => {
-    return lawnsMown * lawnsMownXp;
+  Plugin.get('lawnsMownXpValue'),
+  (lawnsMown : number, lawnsMownXpValue : number) : number => {
+    return lawnsMown * lawnsMownXpValue;
   }
 );
 
@@ -161,9 +161,9 @@ export const lawnsMownXpStore : Store<number> = compute<number, number, number>(
  */
 export const gardensWateredXpStore : Store<number> = compute<number, number, number>(
   Park.get('gardensWatered'),
-  Plugin.get('gardensWateredXp'),
-  (gardensWatered : number, gardensWateredXp : number) : number => {
-    return gardensWatered * gardensWateredXp;
+  Plugin.get('gardensWateredXpValue'),
+  (gardensWatered : number, gardensWateredXpValue : number) : number => {
+    return gardensWatered * gardensWateredXpValue;
   }
 );
 
@@ -172,9 +172,9 @@ export const gardensWateredXpStore : Store<number> = compute<number, number, num
  */
 export const trashSweptXpStore : Store<number> = compute<number, number, number>(
   Park.get('trashSwept'),
-  Plugin.get('trashSweptXp'),
-  (trashSwept : number, trashSweptXp : number) : number => {
-    return trashSwept * trashSweptXp;
+  Plugin.get('trashSweptXpValue'),
+  (trashSwept : number, trashSweptXpValue : number) : number => {
+    return trashSwept * trashSweptXpValue;
   }
 );
 
@@ -183,9 +183,9 @@ export const trashSweptXpStore : Store<number> = compute<number, number, number>
  */
 export const trashCansEmptiedXpStore : Store<number> = compute<number, number, number>(
   Park.get('trashCansEmptied'),
-  Plugin.get('trashCansEmptiedXp'),
-  (trashCansEmptied : number, trashCansEmptiedXp : number) : number => {
-    return trashCansEmptied * trashCansEmptiedXp;
+  Plugin.get('trashCansEmptiedXpValue'),
+  (trashCansEmptied : number, trashCansEmptiedXpValue : number) : number => {
+    return trashCansEmptied * trashCansEmptiedXpValue;
   }
 );
 
@@ -206,9 +206,9 @@ export const totalHandymenXpStore : Store<number> = compute<number, number, numb
  */
 export const ridesInspectedXpStore : Store<number> = compute<number, number, number>(
   Park.get('ridesInspected'),
-  Plugin.get('ridesInspectedXp'),
-  (ridesInspected : number, ridesInspectedXp : number) : number => {
-    return ridesInspected * ridesInspectedXp;
+  Plugin.get('ridesInspectedXpValue'),
+  (ridesInspected : number, ridesInspectedXpValue : number) : number => {
+    return ridesInspected * ridesInspectedXpValue;
   }
 );
 
@@ -217,9 +217,9 @@ export const ridesInspectedXpStore : Store<number> = compute<number, number, num
  */
 export const ridesFixedXpStore : Store<number> = compute<number, number, number>(
   Park.get('ridesFixed'),
-  Plugin.get('ridesFixedXp'),
-  (ridesFixed : number, ridesFixedXp : number) : number => {
-    return ridesFixed * ridesFixedXp;
+  Plugin.get('ridesFixedXpValue'),
+  (ridesFixed : number, ridesFixedXpValue : number) : number => {
+    return ridesFixed * ridesFixedXpValue;
   }
 );
 
@@ -238,16 +238,16 @@ export const totalMechanicXpStore : Store<number> = compute<number, number, numb
  */
 export const vandalsStoppedXpStore : Store<number> = compute<number, number, number>(
   Park.get('vandalsStopped'),
-  Plugin.get('vandalsStoppedXp'),
-  (vandalsStopped : number, vandalsStoppedXp : number) : number => {
-    return vandalsStopped * vandalsStoppedXp;
+  Plugin.get('vandalsStoppedXpValue'),
+  (vandalsStopped : number, vandalsStoppedXpValue : number) : number => {
+    return vandalsStopped * vandalsStoppedXpValue;
   }
 );
 
 export const totalSecurityXpStore : Store<number> = compute<number, number>(
   vandalsStoppedXpStore,
-  (vandalsStoppedXpStore : number) : number => {
-    return vandalsStoppedXpStore;
+  (vandalsStoppedXp : number) : number => {
+    return vandalsStoppedXp;
   }
 );
 
@@ -275,9 +275,9 @@ export const totalStaffXpStore : Store<number> = compute<number, number, number,
  */
 export const parkAwardsXpStore : Store<number> = compute<number, number, number>(
   Park.get('parkAwards'),
-  Plugin.get('parkAwardsXp'),
-  (parkAwards : number, parkAwardsXp : number) : number => {
-    return parkAwards * parkAwardsXp;
+  Plugin.get('parkAwardsXpValue'),
+  (parkAwards : number, parkAwardsXpValue : number) : number => {
+    return parkAwards * parkAwardsXpValue;
   }
 );
 

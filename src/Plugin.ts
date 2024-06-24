@@ -34,29 +34,29 @@ export type PluginData = {
   startingTiles : WritableStore<number>, // 1 path + 1 stall minimum
 
   // Player actions
-  balloonsPoppedXp : WritableStore<number>,
-  bannersPlacedXp : WritableStore<number>,
-  marketingCampaignsRunXp : WritableStore<number>,
+  balloonsPoppedXpValue : WritableStore<number>,
+  bannersPlacedXpValue : WritableStore<number>,
+  marketingCampaignsRunXpValue : WritableStore<number>,
 
   // Guest actions
-  parkAdmissionXp : WritableStore<number>,
-  rideAdmissionXp : WritableStore<number>,
-  stallBuyXp : WritableStore<number>,
-  facilityUseXp : WritableStore<number>,
+  parkAdmissionXpValue : WritableStore<number>,
+  rideAdmissionXpValue : WritableStore<number>,
+  stallBuyXpValue : WritableStore<number>,
+  facilityUseXpValue : WritableStore<number>,
 
   // Staff actions
-  lawnsMownXp : WritableStore<number>,
-  gardensWateredXp : WritableStore<number>,
-  trashSweptXp : WritableStore<number>,
-  trashCansEmptiedXp : WritableStore<number>,
+  lawnsMownXpValue : WritableStore<number>,
+  gardensWateredXpValue : WritableStore<number>,
+  trashSweptXpValue : WritableStore<number>,
+  trashCansEmptiedXpValue : WritableStore<number>,
 
-  ridesInspectedXp : WritableStore<number>,
-  ridesFixedXp : WritableStore<number>,
+  ridesInspectedXpValue : WritableStore<number>,
+  ridesFixedXpValue : WritableStore<number>,
 
-  vandalsStoppedXp : WritableStore<number>,
+  vandalsStoppedXpValue : WritableStore<number>,
 
   // Park data
-  parkAwardsXp : WritableStore<number>,
+  parkAwardsXpValue : WritableStore<number>,
 };
 
 
@@ -80,33 +80,33 @@ class TilemanPlugin extends DataStore<PluginData> {
        */
       ticksPerUpdate: store<number>(40), // Ticks per update of data
   
-      tileXpCost: store<number>(1000), // Exp cost per tile
+      tileXpCost: store<number>(100), // Exp cost per tile
       startingTiles: store<number>(2), // 1 path + 1 stall minimum
 
       // Player actions
-      balloonsPoppedXp : store<number>(10),
-      bannersPlacedXp : store<number>(25),
-      marketingCampaignsRunXp : store<number>(50),
+      balloonsPoppedXpValue : store<number>(10),
+      bannersPlacedXpValue : store<number>(25),
+      marketingCampaignsRunXpValue : store<number>(50),
     
       // Guest actions
-      parkAdmissionXp: store<number>(1),
-      rideAdmissionXp: store<number>(1),
-      stallBuyXp: store<number>(2),
-      facilityUseXp: store<number>(4),
+      parkAdmissionXpValue: store<number>(1),
+      rideAdmissionXpValue: store<number>(1),
+      stallBuyXpValue: store<number>(2),
+      facilityUseXpValue: store<number>(4),
     
       // Staff actions
-      lawnsMownXp : store<number>(1),
-      gardensWateredXp : store<number>(1),
-      trashSweptXp : store<number>(1),
-      trashCansEmptiedXp : store<number>(2),
+      lawnsMownXpValue : store<number>(1),
+      gardensWateredXpValue : store<number>(1),
+      trashSweptXpValue : store<number>(1),
+      trashCansEmptiedXpValue : store<number>(2),
     
-      ridesInspectedXp : store<number>(2),
-      ridesFixedXp : store<number>(5),
+      ridesInspectedXpValue : store<number>(2),
+      ridesFixedXpValue : store<number>(5),
     
-      vandalsStoppedXp : store<number>(1),
+      vandalsStoppedXpValue : store<number>(1),
     
       // Park data
-      parkAwardsXp : store<number>(25),
+      parkAwardsXpValue : store<number>(25),
     });
   }
 
@@ -140,29 +140,29 @@ class TilemanPlugin extends DataStore<PluginData> {
     this.data.startingTiles.set(savedData.startingTiles);
 
     // Player actions
-    this.data.balloonsPoppedXp.set(savedData.balloonsPoppedXp);
-    this.data.bannersPlacedXp.set(savedData.bannersPlacedXp);
-    this.data.marketingCampaignsRunXp.set(savedData.marketingCampaignsRunXp);
+    this.data.balloonsPoppedXpValue.set(savedData.balloonsPoppedXpValue);
+    this.data.bannersPlacedXpValue.set(savedData.bannersPlacedXpValue);
+    this.data.marketingCampaignsRunXpValue.set(savedData.marketingCampaignsRunXpValue);
 
     // Guest actions
-    this.data.parkAdmissionXp.set(savedData.parkAdmissionXp);
-    this.data.rideAdmissionXp.set(savedData.rideAdmissionXp);
-    this.data.stallBuyXp.set(savedData.stallBuyXp);
-    this.data.facilityUseXp.set(savedData.facilityUseXp);
+    this.data.parkAdmissionXpValue.set(savedData.parkAdmissionXpValue);
+    this.data.rideAdmissionXpValue.set(savedData.rideAdmissionXpValue);
+    this.data.stallBuyXpValue.set(savedData.stallBuyXpValue);
+    this.data.facilityUseXpValue.set(savedData.facilityUseXpValue);
     
     // Staff actions
-    this.data.lawnsMownXp.set(savedData.lawnsMownXp);
-    this.data.gardensWateredXp.set(savedData.gardensWateredXp);
-    this.data.trashSweptXp.set(savedData.trashSweptXp);
-    this.data.trashCansEmptiedXp.set(savedData.trashCansEmptiedXp);
+    this.data.lawnsMownXpValue.set(savedData.lawnsMownXpValue);
+    this.data.gardensWateredXpValue.set(savedData.gardensWateredXpValue);
+    this.data.trashSweptXpValue.set(savedData.trashSweptXpValue);
+    this.data.trashCansEmptiedXpValue.set(savedData.trashCansEmptiedXpValue);
 
-    this.data.ridesInspectedXp.set(savedData.ridesInspectedXp);
-    this.data.ridesFixedXp.set(savedData.ridesFixedXp);
+    this.data.ridesInspectedXpValue.set(savedData.ridesInspectedXpValue);
+    this.data.ridesFixedXpValue.set(savedData.ridesFixedXpValue);
 
-    this.data.vandalsStoppedXp.set(savedData.vandalsStoppedXp);
+    this.data.vandalsStoppedXpValue.set(savedData.vandalsStoppedXpValue);
 
     // Park data
-    this.data.parkAwardsXp.set(savedData.parkAwardsXp);
+    this.data.parkAwardsXpValue.set(savedData.parkAwardsXpValue);
   }
 
   /**
@@ -177,29 +177,29 @@ class TilemanPlugin extends DataStore<PluginData> {
     savedData.startingTiles = read(this.data.startingTiles);
 
     // Player actions
-    savedData.balloonsPoppedXp = read(savedData.balloonsPoppedXp);
-    savedData.bannersPlacedXp = read(savedData.bannersPlacedXp);
-    savedData.marketingCampaignsRunXp = read(savedData.marketingCampaignsRunXp);
+    savedData.balloonsPoppedXpValue = read(savedData.balloonsPoppedXpValue);
+    savedData.bannersPlacedXpValue = read(savedData.bannersPlacedXpValue);
+    savedData.marketingCampaignsRunXpValue = read(savedData.marketingCampaignsRunXpValue);
 
     // Guest actions
-    savedData.parkAdmissionXp = read(this.data.parkAdmissionXp);
-    savedData.rideAdmissionXp = read(this.data.rideAdmissionXp);
-    savedData.stallBuyXp = read(this.data.stallBuyXp);
-    savedData.facilityUseXp = read(this.data.facilityUseXp);
+    savedData.parkAdmissionXpValue = read(this.data.parkAdmissionXpValue);
+    savedData.rideAdmissionXpValue = read(this.data.rideAdmissionXpValue);
+    savedData.stallBuyXpValue = read(this.data.stallBuyXpValue);
+    savedData.facilityUseXpValue = read(this.data.facilityUseXpValue);
     
     // Staff actions
-    savedData.lawnsMownXp = read(this.data.lawnsMownXp);
-    savedData.gardensWateredXp = read(this.data.gardensWateredXp);
-    savedData.trashSweptXp = read(this.data.trashSweptXp);
-    savedData.trashCansEmptiedXp = read(this.data.trashCansEmptiedXp);
+    savedData.lawnsMownXpValue = read(this.data.lawnsMownXpValue);
+    savedData.gardensWateredXpValue = read(this.data.gardensWateredXpValue);
+    savedData.trashSweptXpValue = read(this.data.trashSweptXpValue);
+    savedData.trashCansEmptiedXpValue = read(this.data.trashCansEmptiedXpValue);
 
-    savedData.ridesInspectedXp = read(this.data.ridesInspectedXp);
-    savedData.ridesFixedXp = read(this.data.ridesFixedXp);
+    savedData.ridesInspectedXpValue = read(this.data.ridesInspectedXpValue);
+    savedData.ridesFixedXpValue = read(this.data.ridesFixedXpValue);
 
-    savedData.vandalsStoppedXp = read(this.data.vandalsStoppedXp);
+    savedData.vandalsStoppedXpValue = read(this.data.vandalsStoppedXpValue);
     
     // Park data
-    savedData.parkAwardsXp = read(this.data.parkAwardsXp);
+    savedData.parkAwardsXpValue = read(this.data.parkAwardsXpValue);
   }
 
 

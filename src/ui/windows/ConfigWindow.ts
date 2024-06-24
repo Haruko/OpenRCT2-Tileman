@@ -1,6 +1,6 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { Bindable, TabCreator, WindowTemplate, WritableStore, button, compute, horizontal, isWritableStore, label, read, store, tab, tabwindow, textbox, vertical, widget } from 'openrct2-flexui';
+import { Store, TabCreator, WindowTemplate, WritableStore, button, compute, horizontal, isWritableStore, label, read, store, tab, tabwindow, textbox, vertical, widget } from 'openrct2-flexui';
 import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
 import { BaseWindow } from './BaseWindow';
 import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
@@ -8,14 +8,14 @@ import { FlexUIWidget } from '../types/types';
 import { DoubleClickButton } from '../elements/DoubleClickButton';
 import { Park } from '@src/Park';
 import { Plugin, PluginData } from '@src/Plugin';
-import { facilityXpStore, parkAdmissionsXpStore, rideXpStore, stallXpStore, tilesEarnedStore, totalXpStore } from '@src/stores';
+import { availableTilesStore, balloonsPoppedXpStore, bannersPlacedXpStore, facilityXpStore, marketingCampaignsRunXpStore, parkAdmissionsXpStore, parkAwardsXpStore, rideXpStore, stallXpStore, totalXpStore } from '@src/stores';
 import { AlignedLabel } from '../elements/AlignedLabel';
 import { IWindow } from './IWindow';
 import { UIManager } from '../UIManager';
 import { ToggleButton } from '../elements/ToggleButton';
 
 
-
+//TODO : Add new stuff
 
 
 export class ConfigWindow extends BaseWindow {
@@ -48,7 +48,7 @@ export class ConfigWindow extends BaseWindow {
     return tabwindow({
       title: this.windowTitle,
       width: 380,
-      height: 'auto',
+      height: 320,
       padding: { top: 3, right: 6, bottom: 0, left: 6 },
       startingTab: 0,
       tabs: [
@@ -89,15 +89,60 @@ export class ConfigWindow extends BaseWindow {
    * Makes the list of config option controls for the config tab of the config window
    */
   private _buildConfigSettingPanel() : FlexUIWidget {
-    const headerRow : FlexUIWidget = horizontal({
+    const shortLineSpacer : FlexUIWidget = horizontal({
+      spacing: 0,
+      content: [
+        new AlignedLabel(ElementID.NONE, {
+          text: 'E E E E E',
+          width: '50%',
+          height: 3,
+          textAlignment: {
+            vertical: 'top',
+            horizontal: 'left',
+          },
+        }).widget,
+        new AlignedLabel(ElementID.NONE, {
+          text: 'E E E E E',
+          width: '25%',
+          height: 3,
+          textAlignment: {
+            vertical: 'top',
+            horizontal: 'center',
+          },
+        }).widget,
+        new AlignedLabel(ElementID.NONE, {
+          text: 'E E E E E',
+          width: '25%',
+          height: 3,
+          textAlignment: {
+            vertical: 'top',
+            horizontal: 'right',
+          },
+        }).widget,
+      ]
+    });
+
+    const invisibleSpacer : FlexUIWidget = new AlignedLabel(ElementID.NONE, {
+      text: '',
+      height: 3,
+      textAlignment: {
+        vertical: 'top',
+        horizontal: 'left',
+      },
+    }).widget;
+
+
+
+    // ---XP settings---
+    const xpHeaderRow : FlexUIWidget = horizontal({
       spacing: 0,
       content: [
         label({
-          text: '{BABYBLUE}Config Setting',
+          text: '{BABYBLUE}XP Source',
           width: '50%',
         }),
         label({
-          text: '{BABYBLUE}Value',
+          text: '{BABYBLUE}XP Value',
           alignment: 'centred',
           width: '25%',
         }),
@@ -114,6 +159,76 @@ export class ConfigWindow extends BaseWindow {
       ]
     });
 
+    // Player actions
+    const playerActionXpRows : FlexUIWidget[] = [
+      this._createConfigRow(ElementID.EXP_PER_BALLOON_POPPED, 'balloonsPoppedXpValue',
+        'Balloon popped', 'How much XP earned per balloon popped.',
+        this._createTotalLabelStore(ElementID.EXP_PER_BALLOON_POPPED, balloonsPoppedXpStore)),
+      this._createConfigRow(ElementID.EXP_PER_BANNER_PLACED, 'bannersPlacedXpValue',
+        'Banner placed', 'How much XP earned per banner placed.',
+        this._createTotalLabelStore(ElementID.EXP_PER_BANNER_PLACED, bannersPlacedXpStore)),
+    ];
+
+    // Guest actions
+    const guestActionXpRows : FlexUIWidget[] = [
+      this._createConfigRow(ElementID.EXP_PER_PARK_ADMISSION, 'parkAdmissionXpValue',
+        'Park admission', 'How much XP earned per park admission.',
+        this._createTotalLabelStore(ElementID.EXP_PER_PARK_ADMISSION, parkAdmissionsXpStore)),
+      this._createConfigRow(ElementID.EXP_PER_RIDE_ADMISSION, 'rideAdmissionXpValue',
+        'Ride admission', 'How much XP earned per ride admission.',
+        this._createTotalLabelStore(ElementID.EXP_PER_RIDE_ADMISSION, rideXpStore)),
+      this._createConfigRow(ElementID.EXP_PER_STALL_ADMISSION, 'stallBuyXpValue',
+        'Stall purchase', 'How much XP gained per stall purchase.',
+        this._createTotalLabelStore(ElementID.EXP_PER_STALL_ADMISSION, stallXpStore)),
+      this._createConfigRow(ElementID.EXP_PER_FACILITY_ADMISSION, 'facilityUseXpValue',
+        'Facility usage', 'How much XP gained per facility usage. Includes: Toilets, Information Kiosk, Cash Machine, and First Aid.',
+        this._createTotalLabelStore(ElementID.EXP_PER_FACILITY_ADMISSION, facilityXpStore)),
+    ];
+    
+    // Staff actions
+    const staffActionXpRows : FlexUIWidget[] = [
+      // // Handyman
+      // this._createConfigRow(ElementID.EXP_PER_LAWN_MOWED, 'lawnsMownXpValue',
+      //   'Lawn mowed', 'How much XP earned per lawn tile mowed by handymen.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_LAWN_MOWED, lawnsMownXpStore)),
+      // this._createConfigRow(ElementID.EXP_PER_GARDEN_WATERED, 'gardensWateredXpValue',
+      //   'Garden watered', 'How much XP earned per garden watered by handymen.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_GARDEN_WATERED, gardensWateredXpStore)),
+      // this._createConfigRow(ElementID.EXP_PER_TRASH_SWEPT, 'trashSweptXpValue',
+      //   'Trash swept', 'How much XP earned per piece of trash swept up by handymen.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_TRASH_SWEPT, trashSweptXpStore)),
+      // this._createConfigRow(ElementID.EXP_PER_TRASH_CAN_EMPTIED, 'trashCansEmptiedXpValue',
+      //   'Trash can emptied', 'How much XP earned per trash can emptied by handymen.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_TRASH_CAN_EMPTIED, trashCansEmptiedXpStore)),
+      // spacer,
+  
+      // // Mechanic
+      // this._createConfigRow(ElementID.EXP_PER_RIDE_INSPECTED, 'ridesInspectedXpValue',
+      //   'Ride inspected', 'How much XP earned per ride inspected by mechanics.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_RIDE_INSPECTED, ridesInspectedXpStore)),
+      // this._createConfigRow(ElementID.EXP_PER_RIDE_FIXED, 'ridesFixedXpValue',
+      //   'Ride fixed', 'How much XP earned per ride fixed by mechanics.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_RIDE_FIXED, ridesFixedXpStore)),
+      // spacer,
+      
+      // // Security
+      // this._createConfigRow(ElementID.EXP_PER_VANDAL_STOPPED, 'vandalsStoppedXpValue',
+      //   'Vandal stopped', 'How much XP earned per vandal stopped by security.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_VANDAL_STOPPED, vandalsStoppedXpStore)),
+      // shortLineSpacer,
+    ];
+
+    // Park data
+    const parkDataXpRows : FlexUIWidget[] = [
+      // this._createConfigRow(ElementID.EXP_PER_PARK_AWARD, 'parkAwardsXpValue',
+      //   'Park award', 'How much XP earned per park award earned. This is historical. If you lose an award, it will still count.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD, parkAwardsXpStore)),
+      // this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN, 'marketingCampaignsRunXpValue',
+      //   context.formatString('Marketing campaign (per {CURRENCY})', 500),
+      //   context.formatString('How much XP earned per marketing campaign run. {CURRENCY} is 4x and {CURRENCY} is 7x', 2000, 3500),
+      //   this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN, marketingCampaignsRunXpStore)),
+    ];
+
     const totalXpRow : FlexUIWidget = horizontal({
       spacing: 0,
       content: [
@@ -122,7 +237,7 @@ export class ConfigWindow extends BaseWindow {
           width: '50%',
         }),
         new AlignedLabel(ElementID.NONE, {
-          text: '{BLACK}Total XP',
+          text: '{BLACK}Total XP Earned',
           width: '25%',
           height: 14,
           textAlignment: {
@@ -143,28 +258,67 @@ export class ConfigWindow extends BaseWindow {
       ]
     });
 
+    const xpRows : FlexUIWidget[] = [
+      xpHeaderRow,
+      ...playerActionXpRows,
+      shortLineSpacer,
+      ...guestActionXpRows,
+      // shortLineSpacer,
+      ...staffActionXpRows,
+      // shortLineSpacer,
+      ...parkDataXpRows,
+      totalXpRow,
+    ];
 
-    const ticksPerUpdateRow : FlexUIWidget = this._createConfigRow(ElementID.TICKS_PER_UPDATE, 'ticksPerUpdate', 'Game ticks per update');
-    const startingTilesRow : FlexUIWidget = this._createConfigRow(ElementID.MIN_TILES, 'startingTiles', 'Starting tiles');
-    const tileXpCostRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_TILE, 'tileXpCost', 'Tile XP cost');
-    const parkAdmissionXpRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_PARK_ADMISSION, 'parkAdmissionXp', 'XP per park admission');
-    const rideAdmissionXpRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_RIDE_ADMISSION, 'rideAdmissionXp', 'XP per ride admission');
-    const stallBuyXpRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_STALL_ADMISSION, 'stallBuyXp', 'XP per stall admission');
-    const facilityUseXpRow : FlexUIWidget = this._createConfigRow(ElementID.EXP_PER_FACILITY_ADMISSION, 'facilityUseXp', 'XP per facility admission');
+
+
+    // ---Other settings---
+    const otherRows : FlexUIWidget[] = [
+      this._createConfigRow(ElementID.EXP_PER_TILE, 'tileXpCost',
+        'Tile XP cost', 'How much XP each tile costs.',
+        this._createTotalLabelStore(ElementID.EXP_PER_TILE, availableTilesStore)),
+      this._createConfigRow(ElementID.MIN_TILES, 'startingTiles',
+        'Starting tiles', 'How many free tiles you start with.'),
+      shortLineSpacer,
+      
+      this._createConfigRow(ElementID.TICKS_PER_UPDATE, 'ticksPerUpdate',
+        'Game ticks per update', 'How frequently the plugin updates statistics.'),
+    ];
 
     return vertical({
       content: [
-        headerRow,
-        ticksPerUpdateRow,
-        startingTilesRow,
-        tileXpCostRow,
-        totalXpRow,
-        parkAdmissionXpRow,
-        rideAdmissionXpRow,
-        stallBuyXpRow,
-        facilityUseXpRow,
+        ...xpRows,
+        invisibleSpacer,
+        ...otherRows,
       ],
     });
+  }
+
+  /**
+   * Creates a label store for totals in a row
+   * @param id ID for element we're making a label store for
+   * @param valueStore A store that gives how much total should be displayed
+   */
+  private _createTotalLabelStore(id : ElementID, valueStore : Store<number>) : Store<string> {
+    switch (id) {
+      case ElementID.EXP_PER_TILE: {
+        return compute<number, string>(valueStore,
+          (tilesEarned : number) : string => {
+            if (tilesEarned === Infinity) {
+              return '{RED}rosebud;!;!;!;!;!...';
+            } else {
+              return context.formatString('{COMMA16} {BLACK}tiles', tilesEarned);
+            }
+          }
+        );
+      } default: {
+        return compute<number, string>(valueStore,
+          (value : number) : string => {
+            return context.formatString('{COMMA16} {BLACK}xp', value);
+          }
+        );
+      }
+    }
   }
   
   /**
@@ -172,9 +326,11 @@ export class ConfigWindow extends BaseWindow {
    * @param id ElementID of row to make
    * @param key Key for Plugin.get()
    * @param labelText String to show in the label
+   * @param tooltip Tooltip for hovering over
+   * @param totalLabelText A Store<string> to compute the total XP label
    * @returns The row
    */
-  private _createConfigRow(id : ElementID, key : keyof PluginData, labelText : string) : FlexUIWidget {
+  private _createConfigRow(id : ElementID, key : keyof PluginData, labelText : string, tooltip : string, totalLabelText? : Store<string>) : FlexUIWidget {
     const pluginStore = Plugin.get(key);
 
     // Make the textbox
@@ -187,6 +343,7 @@ export class ConfigWindow extends BaseWindow {
       width: '25%',
       padding: 0,
       text: { twoway : textStore },
+      tooltip: tooltip,
       maxLength: 9,
       onChange: (text : string) : void => {
         // Filter out non-numbers and remove leading zeroes
@@ -207,7 +364,7 @@ export class ConfigWindow extends BaseWindow {
     this.registerElement(id, newTextbox);
 
     // Make the labels
-    const newLabel : FlexUIWidget = label({
+    const rowLabel : FlexUIWidget = label({
       text: compute<number, string, string>(pluginStore, textStore, (pluginValue : number, textboxValue : string) : string => {
         const isChanged : boolean = pluginValue !== Number(textboxValue);
 
@@ -217,60 +374,12 @@ export class ConfigWindow extends BaseWindow {
           return labelText;
         }
       }),
+      tooltip: tooltip,
       width: '50%',
     });
 
-    // Set exp totals for relevant rows
-    let xpLabelText : Bindable<string>;
-
-    switch (id) {
-      case ElementID.EXP_PER_TILE: {
-        xpLabelText = compute<number, string>(tilesEarnedStore,
-          (tilesEarned : number) : string => {
-            if (tilesEarned === Infinity) {
-              return '{RED}rosebud;!;!;!;!;!;!...';
-            } else {
-              return context.formatString('{COMMA16} {BLACK}tiles', tilesEarned);
-            }
-          }
-        );
-        break;
-      } case ElementID.EXP_PER_PARK_ADMISSION: {
-        xpLabelText = compute<number, string>(parkAdmissionsXpStore,
-          (xp : number) : string => {
-            return context.formatString('{COMMA16} {BLACK}xp', xp);
-          }
-        );
-        break;
-      } case ElementID.EXP_PER_RIDE_ADMISSION: {
-        xpLabelText = compute<number, string>(rideXpStore,
-          (xp : number) : string => {
-            return context.formatString('{COMMA16} {BLACK}xp', xp);
-          }
-        );
-        break;
-      } case ElementID.EXP_PER_STALL_ADMISSION: {
-        xpLabelText = compute<number, string>(stallXpStore,
-          (xp : number) : string => {
-            return context.formatString('{COMMA16} {BLACK}xp', xp);
-          }
-        );
-        break;
-      } case ElementID.EXP_PER_FACILITY_ADMISSION: {
-        xpLabelText = compute<number, string>(facilityXpStore,
-          (xp : number) : string => {
-            return context.formatString('{COMMA16} {BLACK}xp', xp);
-          }
-        );
-        break;
-      } default: {
-        xpLabelText = '';
-        break;
-      }
-    }
-
     const totalLabel : AlignedLabel = new AlignedLabel(id, {
-        text: xpLabelText,
+        text: totalLabelText ?? '',
         width: '25%',
         height: 14,
         padding: { right: 1 },
@@ -283,7 +392,7 @@ export class ConfigWindow extends BaseWindow {
     return horizontal({
       spacing: 0,
       content: [
-        newLabel,
+        rowLabel,
         newTextbox,
         totalLabel.widget,
       ]
