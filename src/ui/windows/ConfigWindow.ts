@@ -162,10 +162,10 @@ export class ConfigWindow extends BaseWindow {
     // Player actions
     const playerActionXpRows : FlexUIWidget[] = [
       this._createConfigRow(ElementID.EXP_PER_BALLOON_POPPED, 'balloonsPoppedXpValue',
-        'Balloon popped', 'How much XP earned per balloon popped.',
+        'Balloon popped', 'How much XP earned per balloon popped...\nYou monster...',
         this._createTotalLabelStore(ElementID.EXP_PER_BALLOON_POPPED, balloonsPoppedXpStore)),
       this._createConfigRow(ElementID.EXP_PER_BANNER_PLACED, 'bannersPlacedXpValue',
-        'Banner placed', 'How much XP earned per banner placed.',
+        'Banner placed', 'How much XP earned per banner placed.\nYes, it\'s deducted when you delete it...',
         this._createTotalLabelStore(ElementID.EXP_PER_BANNER_PLACED, bannersPlacedXpStore)),
     ];
 
@@ -181,7 +181,7 @@ export class ConfigWindow extends BaseWindow {
         'Stall purchase', 'How much XP gained per stall purchase.',
         this._createTotalLabelStore(ElementID.EXP_PER_STALL_ADMISSION, stallXpStore)),
       this._createConfigRow(ElementID.EXP_PER_FACILITY_ADMISSION, 'facilityUseXpValue',
-        'Facility usage', 'How much XP gained per facility usage. Includes: Toilets, Information Kiosk, Cash Machine, and First Aid.',
+        'Facility usage', 'How much XP gained per facility usage.\nIncludes: Toilets, Information Kiosk, Cash Machine, and First Aid.',
         this._createTotalLabelStore(ElementID.EXP_PER_FACILITY_ADMISSION, facilityXpStore)),
     ];
     
@@ -221,11 +221,11 @@ export class ConfigWindow extends BaseWindow {
     // Park data
     const parkDataXpRows : FlexUIWidget[] = [
       // this._createConfigRow(ElementID.EXP_PER_PARK_AWARD, 'parkAwardsXpValue',
-      //   'Park award', 'How much XP earned per park award earned. This is historical. If you lose an award, it will still count.',
+      //   'Park award', 'How much XP earned per park award earned.\nThis is historical. If you lose an award, it will still count.',
       //   this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD, parkAwardsXpStore)),
       // this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN, 'marketingCampaignsRunXpValue',
       //   context.formatString('Marketing campaign (per {CURRENCY})', 500),
-      //   context.formatString('How much XP earned per marketing campaign run. {CURRENCY} is 4x and {CURRENCY} is 7x', 2000, 3500),
+      //   context.formatString('How much XP earned per marketing campaign run per week.\n{CURRENCY} is 4 times and {CURRENCY} is 7 times this value.', 2000, 3500),
       //   this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN, marketingCampaignsRunXpStore)),
     ];
 
@@ -282,7 +282,7 @@ export class ConfigWindow extends BaseWindow {
       shortLineSpacer,
       
       this._createConfigRow(ElementID.TICKS_PER_UPDATE, 'ticksPerUpdate',
-        'Game ticks per update', 'How frequently the plugin updates statistics.'),
+        'Game ticks per update', 'How frequently the plugin updates statistics.\nIncrease this if large parks start to lag.'),
     ];
 
     return vertical({

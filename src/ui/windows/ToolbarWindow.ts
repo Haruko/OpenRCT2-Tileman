@@ -180,7 +180,7 @@ export class ToolbarWindow extends BaseWindow {
       } case ElementID.OPEN_STATS_BUTTON: {
         newElement = new ToggleButton(ElementID.OPEN_STATS_BUTTON, {
           image: Sprites.GRAPH,
-          tooltip: 'Open detailed statistics window',
+          tooltip: 'Open detailed statistics window\n(Coming soon!)',
           width: 24,
           height: 24,
           onChange: (pressed : boolean) => this.onStatsChange(pressed),
