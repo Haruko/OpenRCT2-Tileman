@@ -1,12 +1,12 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
 import { WritableStore } from 'openrct2-flexui';
-import { Player } from './Player';
 import { availableTilesStore } from './stores';
 import { LandOwnershipAction } from './tools/types/enums';
 import { CoordsXY, isInRange } from './types/CoordsXY';
 import { MapRange, clampRange, getRangeSize, isMapRange, rangesIntersect } from './types/MapRange';
 import { EntranceType, GameActionResultErrorCodes, GameCommandFlag, LandOwnership, LandRightsResult } from './types/enums';
+import { Park } from './Park';
 
 
 
@@ -89,7 +89,7 @@ class TilemanMap {
         const numSpent : number = numSet - numFree;
         
         // Pay tiles
-        const tilesUsed : WritableStore<number> = Player.get('tilesUsed');
+        const tilesUsed : WritableStore<number> = Park.get('tilesUsed');
         tilesUsed.set(tilesUsed.get() + numSpent);
       } else {
         ui.showError(`Can't buy land...`, `Not enough tiles available!`);
@@ -120,7 +120,7 @@ class TilemanMap {
         const numSpent : number = numSet - numFree;
         
         // Pay tiles
-        const tilesUsed : WritableStore<number> = Player.get('tilesUsed');
+        const tilesUsed : WritableStore<number> = Park.get('tilesUsed');
         tilesUsed.set(tilesUsed.get() + numSpent);
       } else {
         ui.showError(`Can't buy rights...`, `Not enough tiles available!`);
@@ -145,7 +145,7 @@ class TilemanMap {
     if (coords.length > 0) {
       const { numSet } : LandRightsResult = await this.setLandOwnership(coords, LandOwnership.UNOWNED);
 
-      const tilesUsed : WritableStore<number> = Player.get('tilesUsed');
+      const tilesUsed : WritableStore<number> = Park.get('tilesUsed');
       tilesUsed.set(tilesUsed.get() - numSet);
     }
   }

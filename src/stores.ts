@@ -1,7 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
 import { Store, compute } from 'openrct2-flexui';
-import { Player } from './Player';
 import { Plugin } from './Plugin';
 import { Park } from './Park';
 import { RideData } from './types/types';
@@ -331,7 +330,7 @@ export const tilesEarnedStore : Store<number> = compute<number, number, number>(
  */
 export const availableTilesStore : Store<number> = compute<number, number, number, number>(
   tilesEarnedStore,
-  Player.get('tilesUsed'),
+  Park.get('tilesUsed'),
   Plugin.get('startingTiles'),
   (tilesEarned : number, tilesUsed : number, startingTiles : number) : number => {
     return tilesEarned + startingTiles - tilesUsed;

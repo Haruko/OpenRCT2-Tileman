@@ -8,13 +8,13 @@ import { FlexUIWidget, HorizontalAlignment } from '../types/types';
 import { ToggleButton } from '../elements/ToggleButton';
 import { UIManager } from '../UIManager';
 import { Plugin } from '@src/Plugin';
-import { Player } from '@src/Player';
 import { availableTilesStore, totalXpStore } from '@src/stores';
 import { IWindow } from './IWindow';
 import { ToolManager } from '@src/tools/ToolManager';
 import { ToolID } from '@src/tools/types/enums';
 import { ProgressBar } from '../elements/ProgressBar';
 import { AlignedLabel } from '../elements/AlignedLabel';
+import { Park } from '@src/Park';
 
 
 
@@ -292,7 +292,7 @@ export class ToolbarWindow extends BaseWindow {
         );
         break;
       } case ElementID.UNLOCKED_TILES: {
-        newStore = compute<number, string>(Player.get('tilesUsed'),
+        newStore = compute<number, string>(Park.get('tilesUsed'),
           (tilesUsed : number) : string => {
             return `{WHITE}${tilesUsed}`;
           }

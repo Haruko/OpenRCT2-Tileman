@@ -17,6 +17,9 @@ import { DataStoreManager } from './DataStoreManager';
  */
 
 export type ParkData = {
+  // Tiles used by player
+  tilesUsed : WritableStore<number>,
+
   // Player actions
   balloonsPopped : WritableStore<number>,
   bannersPlaced : WritableStore<number>,
@@ -47,6 +50,9 @@ export type ParkData = {
 class TilemanPark extends DataStore<ParkData> {
   constructor() {
     super('park', {
+      // Tiles used by player
+      tilesUsed : store<number>(0),
+      
       // Player actions
       balloonsPopped : store<number>(0),
       bannersPlaced : store<number>(0),
@@ -114,13 +120,17 @@ class TilemanPark extends DataStore<ParkData> {
     let savedData : Storeless<ParkData> = this.getStoredData();
 
     if (typeof savedData !== 'undefined') {
-      // Guest actions
-      this.data.parkAdmissions.set(savedData.parkAdmissions);
+      this.data.tilesUsed.set(savedData.tilesUsed);
 
       // Player actions
       this.data.balloonsPopped.set(savedData.balloonsPopped);
       this.data.bannersPlaced.set(savedData.bannersPlaced);
       this.data.marketingCampaignsRun.set(savedData.marketingCampaignsRun);
+
+      // Guest actions
+      this.data.parkAdmissions.set(savedData.parkAdmissions);
+      this.data.rideMap.set(savedData.rideMap);
+      this.data.demolishedRides.set(savedData.demolishedRides);
 
       // Staff actions
       this.data.lawnsMown.set(savedData.lawnsMown);
@@ -134,8 +144,6 @@ class TilemanPark extends DataStore<ParkData> {
       this.data.vandalsStopped.set(savedData.vandalsStopped);
 
       // Park data
-      this.data.rideMap.set(savedData.rideMap);
-      this.data.demolishedRides.set(savedData.demolishedRides);
       this.data.parkAwards.set(savedData.parkAwards);
     }
   }
@@ -146,13 +154,17 @@ class TilemanPark extends DataStore<ParkData> {
   public override storeData() : void {
     const savedData : Storeless<ParkData> = this.getStoredData();
 
-    // Guest actions
-    savedData.parkAdmissions = read(this.data.parkAdmissions);
+    savedData.tilesUsed = read(this.data.tilesUsed);
 
     // Player actions
     savedData.balloonsPopped = read(this.data.balloonsPopped);
     savedData.bannersPlaced = read(this.data.bannersPlaced);
     savedData.marketingCampaignsRun = read(this.data.marketingCampaignsRun);
+
+    // Guest actions
+    savedData.parkAdmissions = read(this.data.parkAdmissions);
+    savedData.rideMap = read(this.data.rideMap);
+    savedData.demolishedRides = read(this.data.demolishedRides);
 
     // Staff actions
     savedData.lawnsMown = read(this.data.lawnsMown);
@@ -166,8 +178,6 @@ class TilemanPark extends DataStore<ParkData> {
     savedData.vandalsStopped = read(this.data.vandalsStopped);
 
     // Park data
-    savedData.rideMap = read(this.data.rideMap);
-    savedData.demolishedRides = read(this.data.demolishedRides);
     savedData.parkAwards = read(this.data.parkAwards);
   }
 

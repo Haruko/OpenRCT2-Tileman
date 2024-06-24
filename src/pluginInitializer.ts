@@ -3,7 +3,6 @@
 import { DataStoreManager } from './DataStoreManager';
 import { Map } from './Map';
 import { Park } from './Park';
-import { Player } from './Player';
 import { Plugin } from './Plugin';
 import { initializeTools } from './tools/toolInitializer';
 import { DataStoreID } from './types/types';
@@ -18,7 +17,6 @@ const isNewPark : boolean = Object.keys(context.getParkStorage().getAll()).lengt
  */
 export async function initialize() : Promise<void> {
   DataStoreManager.registerInstance(DataStoreID.PLUGIN, Plugin);
-  DataStoreManager.registerInstance(DataStoreID.PLAYER, Player);
   DataStoreManager.registerInstance(DataStoreID.PARK, Park);
 
   DataStoreManager.initializeAll(isNewPark);
