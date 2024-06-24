@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { WritableStore, read, store } from 'openrct2-flexui';
+import { Store, WritableStore, read, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
 import { Storeless } from './types/types';
 
@@ -134,35 +134,19 @@ class TilemanPlugin extends DataStore<PluginData> {
   public loadData() : void {
     const savedData : Storeless<PluginData> = this.getStoredData();
 
-    this.data.ticksPerUpdate.set(savedData.ticksPerUpdate);
+    Object.keys(this.data).filter((key : string) : boolean => {
+      return [
+        'pluginName',
+        'doubleClickLength',
+        'minToolSize',
+        'maxToolSize',
+      ].indexOf(key) === -1;
+    }).forEach((key : string) : void => {
+      const savedValue : any = savedData[key as keyof PluginData];
+      const valueStore : WritableStore<any> = this.data[key as keyof PluginData] as WritableStore<any>;
 
-    this.data.tileXpCost.set(savedData.tileXpCost);
-    this.data.startingTiles.set(savedData.startingTiles);
-
-    // Player actions
-    this.data.balloonsPoppedXpValue.set(savedData.balloonsPoppedXpValue);
-    this.data.bannersPlacedXpValue.set(savedData.bannersPlacedXpValue);
-    this.data.marketingCampaignsRunXpValue.set(savedData.marketingCampaignsRunXpValue);
-
-    // Guest actions
-    this.data.parkAdmissionXpValue.set(savedData.parkAdmissionXpValue);
-    this.data.rideAdmissionXpValue.set(savedData.rideAdmissionXpValue);
-    this.data.stallBuyXpValue.set(savedData.stallBuyXpValue);
-    this.data.facilityUseXpValue.set(savedData.facilityUseXpValue);
-    
-    // Staff actions
-    this.data.lawnsMownXpValue.set(savedData.lawnsMownXpValue);
-    this.data.gardensWateredXpValue.set(savedData.gardensWateredXpValue);
-    this.data.trashSweptXpValue.set(savedData.trashSweptXpValue);
-    this.data.trashCansEmptiedXpValue.set(savedData.trashCansEmptiedXpValue);
-
-    this.data.ridesInspectedXpValue.set(savedData.ridesInspectedXpValue);
-    this.data.ridesFixedXpValue.set(savedData.ridesFixedXpValue);
-
-    this.data.vandalsStoppedXpValue.set(savedData.vandalsStoppedXpValue);
-
-    // Park data
-    this.data.parkAwardsXpValue.set(savedData.parkAwardsXpValue);
+      valueStore.set(savedValue);
+    });
   }
 
   /**
@@ -171,35 +155,19 @@ class TilemanPlugin extends DataStore<PluginData> {
   public override storeData() : void {
     const savedData : Storeless<PluginData> = this.getStoredData();
 
-    savedData.ticksPerUpdate = read(this.data.ticksPerUpdate);
+    type MutableData = Omit<typeof savedData, 'pluginName' | 'doubleClickLength' | 'minToolSize' | 'maxToolSize'>;
 
-    savedData.tileXpCost = read(this.data.tileXpCost);
-    savedData.startingTiles = read(this.data.startingTiles);
-
-    // Player actions
-    savedData.balloonsPoppedXpValue = read(savedData.balloonsPoppedXpValue);
-    savedData.bannersPlacedXpValue = read(savedData.bannersPlacedXpValue);
-    savedData.marketingCampaignsRunXpValue = read(savedData.marketingCampaignsRunXpValue);
-
-    // Guest actions
-    savedData.parkAdmissionXpValue = read(this.data.parkAdmissionXpValue);
-    savedData.rideAdmissionXpValue = read(this.data.rideAdmissionXpValue);
-    savedData.stallBuyXpValue = read(this.data.stallBuyXpValue);
-    savedData.facilityUseXpValue = read(this.data.facilityUseXpValue);
-    
-    // Staff actions
-    savedData.lawnsMownXpValue = read(this.data.lawnsMownXpValue);
-    savedData.gardensWateredXpValue = read(this.data.gardensWateredXpValue);
-    savedData.trashSweptXpValue = read(this.data.trashSweptXpValue);
-    savedData.trashCansEmptiedXpValue = read(this.data.trashCansEmptiedXpValue);
-
-    savedData.ridesInspectedXpValue = read(this.data.ridesInspectedXpValue);
-    savedData.ridesFixedXpValue = read(this.data.ridesFixedXpValue);
-
-    savedData.vandalsStoppedXpValue = read(this.data.vandalsStoppedXpValue);
-    
-    // Park data
-    savedData.parkAwardsXpValue = read(this.data.parkAwardsXpValue);
+    Object.keys(this.data).forEach((key : string) : void => {
+      if ([
+        'pluginName',
+        'doubleClickLength',
+        'minToolSize',
+        'maxToolSize',
+      ].indexOf(key) === -1) {
+        const valueStore : Store<any> = this.data[key as keyof PluginData] as Store<any>;
+        savedData[key as keyof MutableData] = read(valueStore);
+      }
+    });
   }
 
 

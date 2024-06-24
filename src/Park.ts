@@ -90,8 +90,7 @@ class TilemanPark extends DataStore<ParkData> {
     }
 
     // Subscribe to events
-    const PluginDataStore : DataStore<any> | undefined = DataStoreManager.getInstance(DataStoreID.PLUGIN);
-    context.subscribe('interval.tick', () => this._onTick(PluginDataStore?.get('ticksPerUpdate').get()));
+    context.subscribe('interval.tick', () => this._onTick(DataStoreManager.getInstance(DataStoreID.PLUGIN)?.get('ticksPerUpdate').get()));
     context.subscribe('map.save', () => DataStoreManager.storeAllData());
     context.subscribe('action.execute', (e : GameActionEventArgs) => this._onActionExecute(e));
 
@@ -120,31 +119,12 @@ class TilemanPark extends DataStore<ParkData> {
     let savedData : Storeless<ParkData> = this.getStoredData();
 
     if (typeof savedData !== 'undefined') {
-      this.data.tilesUsed.set(savedData.tilesUsed);
+      Object.keys(this.data).forEach((key : string) : void => {
+        const savedValue : any = savedData[key as keyof ParkData];
+        const valueStore : WritableStore<any> = this.data[key as keyof ParkData];
 
-      // Player actions
-      this.data.balloonsPopped.set(savedData.balloonsPopped);
-      this.data.bannersPlaced.set(savedData.bannersPlaced);
-      this.data.marketingCampaignsRun.set(savedData.marketingCampaignsRun);
-
-      // Guest actions
-      this.data.parkAdmissions.set(savedData.parkAdmissions);
-      this.data.rideMap.set(savedData.rideMap);
-      this.data.demolishedRides.set(savedData.demolishedRides);
-
-      // Staff actions
-      this.data.lawnsMown.set(savedData.lawnsMown);
-      this.data.gardensWatered.set(savedData.gardensWatered);
-      this.data.trashSwept.set(savedData.trashSwept);
-      this.data.trashCansEmptied.set(savedData.trashCansEmptied);
-
-      this.data.ridesInspected.set(savedData.ridesInspected);
-      this.data.ridesFixed.set(savedData.ridesFixed);
-
-      this.data.vandalsStopped.set(savedData.vandalsStopped);
-
-      // Park data
-      this.data.parkAwards.set(savedData.parkAwards);
+        valueStore.set(savedValue);
+      });
     }
   }
 
@@ -154,31 +134,10 @@ class TilemanPark extends DataStore<ParkData> {
   public override storeData() : void {
     const savedData : Storeless<ParkData> = this.getStoredData();
 
-    savedData.tilesUsed = read(this.data.tilesUsed);
-
-    // Player actions
-    savedData.balloonsPopped = read(this.data.balloonsPopped);
-    savedData.bannersPlaced = read(this.data.bannersPlaced);
-    savedData.marketingCampaignsRun = read(this.data.marketingCampaignsRun);
-
-    // Guest actions
-    savedData.parkAdmissions = read(this.data.parkAdmissions);
-    savedData.rideMap = read(this.data.rideMap);
-    savedData.demolishedRides = read(this.data.demolishedRides);
-
-    // Staff actions
-    savedData.lawnsMown = read(this.data.lawnsMown);
-    savedData.gardensWatered = read(this.data.gardensWatered);
-    savedData.trashSwept = read(this.data.trashSwept);
-    savedData.trashCansEmptied = read(this.data.trashCansEmptied);
-
-    savedData.ridesInspected = read(this.data.ridesInspected);
-    savedData.ridesFixed = read(this.data.ridesFixed);
-
-    savedData.vandalsStopped = read(this.data.vandalsStopped);
-
-    // Park data
-    savedData.parkAwards = read(this.data.parkAwards);
+    Object.keys(this.data).forEach((key : string) : void => {
+      const valueStore : WritableStore<any> = this.data[key as keyof ParkData];
+      savedData[key as keyof ParkData] = read(valueStore);
+    });
   }
 
   /**
@@ -243,13 +202,9 @@ class TilemanPark extends DataStore<ParkData> {
       vandalsStopped: 0,
     } as StaffStats);
 
-    this.data.lawnsMown.set(totals.lawnsMown);
-    this.data.gardensWatered.set(totals.gardensWatered);
-    this.data.trashSwept.set(totals.trashSwept);
-    this.data.trashCansEmptied.set(totals.trashCansEmptied);
-    this.data.ridesInspected.set(totals.ridesInspected);
-    this.data.ridesFixed.set(totals.ridesFixed);
-    this.data.vandalsStopped.set(totals.vandalsStopped);
+    Object.keys(totals).forEach((key : string) : void => {
+      (this.data[key as keyof ParkData] as WritableStore<number>).set(totals[key as keyof StaffStats]);
+    });
   }
 
   /**
