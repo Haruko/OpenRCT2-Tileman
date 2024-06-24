@@ -15,8 +15,6 @@ import { UIManager } from '../UIManager';
 import { ToggleButton } from '../elements/ToggleButton';
 
 
-//TODO : Add new stuff
-
 
 export class ConfigWindow extends BaseWindow {
   private readonly _debugButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
@@ -574,11 +572,9 @@ export class ConfigWindow extends BaseWindow {
    protected override onOpen() : void {
     super.onOpen();
 
-    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
-    if (typeof toolbarWindow !== 'undefined') {
-      const openConfigButton : ToggleButton = toolbarWindow.getChildElement(ElementID.OPEN_CONFIG_BUTTON) as ToggleButton;
-      openConfigButton.press();
-    }
+    const toolbarWindow : IWindow | undefined = UIManager.getInstance(WindowID.TOOLBAR);
+    const openConfigButton : ToggleButton = toolbarWindow?.getChildElement(ElementID.OPEN_CONFIG_BUTTON) as ToggleButton;
+    openConfigButton?.press();
   }
 
   /**
@@ -594,11 +590,9 @@ export class ConfigWindow extends BaseWindow {
   protected override onClose() : void {
     super.onClose();
 
-    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
-    if (typeof toolbarWindow !== 'undefined') {
-      const openConfigButton : ToggleButton = toolbarWindow.getChildElement(ElementID.OPEN_CONFIG_BUTTON) as ToggleButton;
-      openConfigButton.depress();
-    }
+    const toolbarWindow : IWindow | undefined = UIManager.getInstance(WindowID.TOOLBAR);
+    const openConfigButton : ToggleButton = toolbarWindow?.getChildElement(ElementID.OPEN_CONFIG_BUTTON) as ToggleButton;
+    openConfigButton?.depress();
   }
 
   /**

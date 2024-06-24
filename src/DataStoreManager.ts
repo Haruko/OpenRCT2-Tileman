@@ -12,7 +12,7 @@ class TilemanDataStoreManager extends Manager<DataStoreID, DataStore<any>> {
     Object.keys(DataStoreID)
       .filter((key : string) : boolean => isNaN(Number(key)))
       .forEach((key : string) : void => {
-        this.getInstance(DataStoreID[key as keyof typeof DataStoreID]).initialize(isNewPark);
+        this.getInstance(DataStoreID[key as keyof typeof DataStoreID])?.initialize(isNewPark);
       });
   }
 
@@ -23,7 +23,7 @@ class TilemanDataStoreManager extends Manager<DataStoreID, DataStore<any>> {
     Object.keys(DataStoreID)
       .filter((key : string) : boolean => isNaN(Number(key)))
       .forEach((key : string) : void => {
-        this.getInstance(DataStoreID[key as keyof typeof DataStoreID]).loadData();
+        this.getInstance(DataStoreID[key as keyof typeof DataStoreID])?.loadData();
       });
   }
 
@@ -34,7 +34,7 @@ class TilemanDataStoreManager extends Manager<DataStoreID, DataStore<any>> {
     Object.keys(DataStoreID)
       .filter((key : string) : boolean => isNaN(Number(key)))
       .forEach((key : string) : void => {
-        this.getInstance(DataStoreID[key as keyof typeof DataStoreID]).storeData();
+        this.getInstance(DataStoreID[key as keyof typeof DataStoreID])?.storeData();
       });
   }
 }

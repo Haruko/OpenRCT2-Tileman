@@ -127,8 +127,6 @@ export class ToggleButton extends BaseElement<InternalParams> {
       this.buttonGroup?.depressOthers(this.id, true);
     }
 
-    if (typeof this.callback !== 'undefined') {
-      this.callback(isPressed);
-    }
+    this.callback?.(isPressed);
   }
 }

@@ -90,8 +90,8 @@ class TilemanPark extends DataStore<ParkData> {
     }
 
     // Subscribe to events
-    const PluginDataStore : DataStore<any> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
-    context.subscribe('interval.tick', () => this._onTick(PluginDataStore.get('ticksPerUpdate').get()));
+    const PluginDataStore : DataStore<any> | undefined = DataStoreManager.getInstance(DataStoreID.PLUGIN);
+    context.subscribe('interval.tick', () => this._onTick(PluginDataStore?.get('ticksPerUpdate').get()));
     context.subscribe('map.save', () => DataStoreManager.storeAllData());
     context.subscribe('action.execute', (e : GameActionEventArgs) => this._onActionExecute(e));
 
@@ -339,7 +339,6 @@ class TilemanPark extends DataStore<ParkData> {
     const rideData : RideData | undefined = this.data.rideMap.getValue(rideId);
   
     if(typeof rideData !== 'undefined') {
-      console.log('!== undefined')
       this.data.demolishedRides.push(rideData);
       this.data.rideMap.set(rideId, undefined);
 

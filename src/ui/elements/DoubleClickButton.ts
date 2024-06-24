@@ -32,7 +32,7 @@ export class DoubleClickButton extends ToggleButton {
    */
   override onChange(isPressed? : boolean) : void {
     if (this.isPressed() && typeof this.clickTimeout === 'undefined') {
-      const doubleClickLength : number = DataStoreManager.getInstance(DataStoreID.PLUGIN).get('doubleClickLength');
+      const doubleClickLength : number = DataStoreManager.getInstance(DataStoreID.PLUGIN)?.get('doubleClickLength') ?? 1000;
 
       this.clickTimeout = context.setTimeout(() => {
         if (typeof this.clickTimeout === 'number') {
@@ -50,9 +50,7 @@ export class DoubleClickButton extends ToggleButton {
       this.clickTimeout = undefined;
 
       // Always pass true since a double click determines that a button was clicked
-      if (typeof this.callback !== 'undefined') {
-        this.callback(true);
-      }
+      this.callback?.(true);
     }
   }
 

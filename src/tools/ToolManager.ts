@@ -62,7 +62,7 @@ class TilemanToolManager extends Manager<ToolID, ITool> {
     }
 
     this._activeToolId = toolId;
-    this.getInstance(toolId).activate();
+    this.getInstance(toolId)?.activate();
   }
 
   /**
@@ -70,7 +70,7 @@ class TilemanToolManager extends Manager<ToolID, ITool> {
    */
   public cancelTool() : void {
     if (this._activeToolId !== null) {
-      this.getInstance(this._activeToolId).cancel();
+      this.getInstance(this._activeToolId)?.cancel();
       this._activeToolId = null;
     }
   }

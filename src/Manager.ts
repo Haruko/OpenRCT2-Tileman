@@ -23,7 +23,7 @@ export class Manager<IDType extends string | number | symbol, InstanceType> {
    * @param id 
    * @returns The requested instance if it exists, otherwise null
    */
-  public getInstance(id : IDType) : InstanceType {
+  public getInstance(id : IDType) : InstanceType | undefined {
     return this._instances[id];
   }
 }

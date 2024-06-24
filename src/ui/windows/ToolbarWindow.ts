@@ -403,14 +403,12 @@ export class ToolbarWindow extends BaseWindow {
    * @param isPressed true if the button is pressed
    */
   private onConfigChange(isPressed : boolean) : void {
-    const configWindow : IWindow = UIManager.getInstance(WindowID.CONFIG);
+    const configWindow : IWindow | undefined = UIManager.getInstance(WindowID.CONFIG);
     
-    if (typeof configWindow !== 'undefined') {
-      if (isPressed) {
-        configWindow.open();
-      } else {
-        configWindow.close();
-      }
+    if (isPressed) {
+      configWindow?.open();
+    } else {
+      configWindow?.close();
     }
   }
 
@@ -419,14 +417,12 @@ export class ToolbarWindow extends BaseWindow {
    * @param isPressed true if the button is pressed
    */
   private onStatsChange(isPressed : boolean) : void {
-    const statsWindow : IWindow = UIManager.getInstance(WindowID.STATS);
+    const statsWindow : IWindow | undefined = UIManager.getInstance(WindowID.STATS);
     
-    if (typeof statsWindow !== 'undefined') {
-      if (isPressed) {
-        statsWindow.open();
-      } else {
-        statsWindow.close();
-      }
+    if (isPressed) {
+      statsWindow?.open();
+    } else {
+      statsWindow?.close();
     }
   }
   

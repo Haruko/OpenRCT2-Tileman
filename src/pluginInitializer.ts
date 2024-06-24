@@ -26,7 +26,7 @@ export async function initialize() : Promise<void> {
   initializeTools();
 
   if (__environment === 'development') {
-    UIManager.getInstance(WindowID.CONFIG).open();
-    UIManager.getInstance(WindowID.STATS).open();
+    UIManager.getInstance(WindowID.CONFIG)?.open();
+    UIManager.getInstance(WindowID.STATS)?.open();
   }
 }
