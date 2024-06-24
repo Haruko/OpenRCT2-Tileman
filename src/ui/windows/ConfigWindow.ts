@@ -8,7 +8,7 @@ import { FlexUIWidget } from '../types/types';
 import { DoubleClickButton } from '../elements/DoubleClickButton';
 import { Park } from '@src/Park';
 import { Plugin, PluginData } from '@src/Plugin';
-import { availableTilesStore, balloonsPoppedXpStore, bannersPlacedXpStore, facilityXpStore, marketingCampaignsRunXpStore, parkAdmissionsXpStore, parkAwardsXpStore, rideXpStore, stallXpStore, totalXpStore } from '@src/stores';
+import { availableTilesStore, balloonsPoppedXpStore, bannersPlacedXpStore, facilityXpStore, parkAdmissionsXpStore, rideXpStore, stallXpStore, totalXpStore } from '@src/stores';
 import { AlignedLabel } from '../elements/AlignedLabel';
 import { IWindow } from './IWindow';
 import { UIManager } from '../UIManager';
