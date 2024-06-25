@@ -3,7 +3,7 @@
 import { ElementID } from '@src/ui/types/enums';
 import { BaseTool } from './BaseTool';
 import { ToolID } from '../types/enums';
-import { Map } from '@src/Map';
+import { Park } from '@src/Park';
 
 class TilemanSellTool extends BaseTool {
   constructor() {
@@ -22,7 +22,7 @@ class TilemanSellTool extends BaseTool {
    * Applies the current tool to an area
    * @param area Area to apply the tool to
    */
-  protected applyTool = (area : MapRange) => Map.rangeSell(area);
+  protected applyTool = (area : MapRange) => Park.rangeSell(area);
 }
 
 export const SellTool : TilemanSellTool = new TilemanSellTool();

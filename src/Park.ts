@@ -1,374 +1,399 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { ArrayStore, WritableStore, arrayStore, store } from 'openrct2-flexui';
-import { DataStore } from './DataStore';
-import { GameCommand, GameCommandFlag, RideLifecycleFlags } from './types/enums';
-import { DataStoreID, RideData } from './types/types';
-import { objectStore } from './flexui-extension/createObjectStore';
-import { ObjectStore } from './flexui-extension/ObjectStore';
+import { WritableStore } from 'openrct2-flexui';
+import { availableTilesStore } from './stores';
+import { LandOwnershipAction } from './tools/types/enums';
+import { CoordsXY, isInRange } from './types/CoordsXY';
+import { MapRange, clampRange, getRangeSize, isMapRange, rangesIntersect } from './types/MapRange';
+import { DataStoreID, EntranceType, GameActionResultErrorCodes, GameCommandFlag, LandOwnership, LandRightsResult } from './types/enums';
 import { DataStoreManager } from './DataStoreManager';
+import { DataStore } from './DataStore';
+import { MetricData } from './types/types';
 
 
 
-/**
- * **********
- * Type Definitions
- * **********
- */
 
-export type ParkData = {
-  // Tiles used by player
-  tilesUsed : WritableStore<number>,
 
-  // Player actions
-  balloonsPopped : WritableStore<number>,
-  bannersPlaced : WritableStore<number>,
-  marketingCampaignsRun : WritableStore<number>,
-
-  // Guest actions
-  parkAdmissions : WritableStore<number>,
-  rideMap : ObjectStore<RideData>,
-  demolishedRides : ArrayStore<RideData>,
-
-  // Staff actions
-  lawnsMown : WritableStore<number>,
-  gardensWatered : WritableStore<number>,
-  trashSwept : WritableStore<number>,
-  trashCansEmptied : WritableStore<number>,
-
-  ridesInspected : WritableStore<number>,
-  ridesFixed : WritableStore<number>,
-
-  vandalsStopped : WritableStore<number>,
-
-  // Park data
-  parkAwards : WritableStore<number>,
+type ValidTilesResult = {
+  coords : CoordsXY[],
+  numFree : number, // Number of tiles that won't incur tile costs
 };
 
 
-
-class TilemanPark extends DataStore<ParkData> {
-  constructor() {
-    super('park', {
-      // Tiles used by player
-      tilesUsed : store<number>(0),
-      
-      // Player actions
-      balloonsPopped : store<number>(0),
-      bannersPlaced : store<number>(0),
-      marketingCampaignsRun : store<number>(0),
-
-      // Guest actions
-      parkAdmissions : store<number>(0),
-      rideMap : objectStore<RideData>({}),
-      demolishedRides : arrayStore<RideData>([]),
-
-      // Staff actions
-      lawnsMown : store<number>(0),
-      gardensWatered : store<number>(0),
-      trashSwept : store<number>(0),
-      trashCansEmptied : store<number>(0),
-
-      ridesInspected : store<number>(0),
-      ridesFixed : store<number>(0),
-
-      vandalsStopped : store<number>(0),
-
-      // Park data
-      parkAwards : store<number>(0),
-    });
-    
-  }
+class TilemanPark {
+  private _playableArea? : MapRange;
 
   /**
-   * Initialize this DataStore
+   * Initialize the park
    * @param isNewPark True if this is a new park
    */
-  public initialize(isNewPark : boolean) : void {
-    if (!isNewPark) {
-      this.loadData();
-    }
-
-    // Subscribe to events
-    context.subscribe('interval.tick', () => this._onTick(DataStoreManager.getInstance(DataStoreID.PLUGIN)?.get('ticksPerUpdate').get()));
-    context.subscribe('map.save', () => DataStoreManager.storeAllData());
-    context.subscribe('action.execute', (e : GameActionEventArgs) => this._onActionExecute(e));
-
-    if (isNewPark) {
-      this.deleteRides();
-      this.deleteGuests();
-      this.fireStaff();
-      
-      this.loadDefaults();
-      DataStoreManager.storeAllData();
+  public async initialize(isNewPark : boolean) : Promise<void> {
+    if(isNewPark) {
+      await Park.setLandOwnership(Park.getPlayableArea(), LandOwnership.UNOWNED);
     }
   }
 
+
+
+  /**
+   * **********
+   * Map Bounds
+   * **********
+   */
+
+  /**
+   * Get the play area bounds for the current map
+   * @returns MapRange representing map edges
+   */
+  public getPlayableArea() : MapRange {
+    if (typeof this._playableArea === 'undefined') {
+      // left/top edge is <1, 1> / <32, 32>
+      const leftTop = CoordsXY(64, 64);
   
+      // bottom/right edge is <x-2, y-2> / <32(x-2), 32(y-2)>
+      // Map size is 2 tiles too big
+      const rightBottom = CoordsXY((map.size.x - 3) * 32, (map.size.y - 3) * 32);
+
+      this._playableArea = MapRange(leftTop, rightBottom);
+    }
+
+    return this._playableArea;
+  }
+
+
 
   /**
    * **********
-   * Data Handling
+   * Land Management
    * **********
    */
 
   /**
-   * Collects metric data used for experience calculations
+   * Attempts to buy the tiles in the area
+   * @param area Range to buy
    */
-  public collectMetrics() : void {
-    this.collectGuestMetrics();
-    this.collectStaffMetrics();
-    this.collectRideMetrics();
-    this.collectParkAwardMetrics();
+  public async rangeBuy(area : MapRange) : Promise<void> {
+    const playableArea : MapRange = Park.getPlayableArea();
 
-    DataStoreManager.storeAllData();
-  }
+    if (!rangesIntersect(area, playableArea)) {
+      ui.showError(`Can't buy land...`, `Outside of playable area!`);
+      return;
+    }
+    
+    const { coords, numFree } : ValidTilesResult = this._getValidTiles(area, LandOwnershipAction.BUY);
+    
+    if (coords.length > 0) {
+      const numCosting : number = coords.length - numFree;
 
-  /**
-   * Collect guest action data
-   */
-  public collectGuestMetrics() : void {
-    this.data.parkAdmissions.set(park.totalAdmissions);
-  }
-
-  /**
-   * Collect staff action data
-   */
-  public collectStaffMetrics() : void {
-    type StaffStats = {
-      lawnsMown : number
-      gardensWatered : number
-      trashSwept : number
-      trashCansEmptied : number
-
-      ridesInspected : number
-      ridesFixed : number
-
-      vandalsStopped : number
-    };
-
-    const totals : StaffStats = map.getAllEntities('staff').reduce<StaffStats>((totals : StaffStats, current : Staff) : StaffStats => {
-      switch (current.staffType) {
-        case 'handyman': {
-          // TODO: When this data is exposed in the API
-          break;
-        } case 'mechanic': {
-          // TODO: When this data is exposed in the API
-          break;
-        } case 'security': {
-          // TODO: When this data is exposed in the API
-          break;
-        }
+      // Check if player can afford them
+      if (numCosting <= availableTilesStore.get()) {
+        const { numSet } : LandRightsResult = await this.setLandOwnership(coords, LandOwnership.OWNED);
+        const numSpent : number = numSet - numFree;
+        
+        // Pay tiles
+        const Metrics : DataStore<MetricData> = DataStoreManager.getInstance(DataStoreID.METRICS);
+        const tilesUsed : WritableStore<number> = Metrics.get('tilesUsed');
+        tilesUsed.set(tilesUsed.get() + numSpent);
+      } else {
+        ui.showError(`Can't buy land...`, `Not enough tiles available!`);
       }
-
-      return totals;
-    }, {
-      lawnsMown: 0,
-      gardensWatered: 0,
-      trashSwept: 0,
-      trashCansEmptied: 0,
-
-      ridesInspected: 0,
-      ridesFixed: 0,
-
-      vandalsStopped: 0,
-    } as StaffStats);
-
-    Object.keys(totals).forEach((key : string) : void => {
-      (this.data[key as keyof ParkData] as WritableStore<number>).set(totals[key as keyof StaffStats]);
-    });
+    }
   }
 
   /**
-   * Collect ride data
+   * Attempts to buy construction rights on the tiles in the area
+   * @param area Range to buy
    */
-  public collectRideMetrics() : void {
-    // Collect data from each active ride/stall/facility
-    const rideMap : ObjectStore<RideData> = this.data.rideMap;
-    map.rides.forEach((ride : Ride) : void => {
-      if (ride.lifecycleFlags & RideLifecycleFlags.RIDE_LIFECYCLE_EVER_BEEN_OPENED) {
-        // Only record rides that have opened
-        const rideData : RideData = {
-          name: ride.name,
-          classification: ride.classification,
-          type: ride.type,
-          age: ride.age,
-          value: ride.value,
-          totalCustomers: ride.totalCustomers,
-          totalProfit: ride.totalProfit,
-          lifecycleFlags: ride.lifecycleFlags
-        };
+  public async rangeBuyRights(area : MapRange) : Promise<void> {
+    const playableArea : MapRange = Park.getPlayableArea();
 
-        rideMap.set(ride.id, rideData);
+    if (!rangesIntersect(area, playableArea)) {
+      ui.showError(`Can't buy rights...`, `Outside of playable area!`);
+      return;
+    }
+    
+    const { coords, numFree } : ValidTilesResult = this._getValidTiles(area, LandOwnershipAction.RIGHTS);
+    
+    if (coords.length > 0) {
+      const numCosting : number = coords.length - numFree;
+
+      // Check if player can afford them
+      if (numCosting <= availableTilesStore.get()) {
+        const { numSet } : LandRightsResult = await this.setLandOwnership(coords, LandOwnership.CONSTRUCTION_RIGHTS_OWNED);
+        const numSpent : number = numSet - numFree;
+        
+        // Pay tiles
+        const Metrics : DataStore<MetricData> = DataStoreManager.getInstance(DataStoreID.METRICS);
+        const tilesUsed : WritableStore<number> = Metrics.get('tilesUsed');
+        tilesUsed.set(tilesUsed.get() + numSpent);
+      } else {
+        ui.showError(`Can't buy rights...`, `Not enough tiles available!`);
       }
-    });
+    }
   }
 
   /**
-   * Collect park award data
+   * Attempts to sell the tiles in the area
+   * @param area Range to buy
    */
-  public collectParkAwardMetrics() : void {
-    // parkAwards
-    // TODO: Implement
+  public async rangeSell(area : MapRange) : Promise<void> {
+    const playableArea : MapRange = Park.getPlayableArea();
+
+    if (!rangesIntersect(area, playableArea)) {
+      ui.showError(`Can't sell land...`, `Outside of playable area!`);
+      return;
+    }
+    
+    const { coords } : ValidTilesResult = this._getValidTiles(area, LandOwnershipAction.SELL);
+    
+    if (coords.length > 0) {
+      const { numSet } : LandRightsResult = await this.setLandOwnership(coords, LandOwnership.UNOWNED);
+
+      const Metrics : DataStore<MetricData> = DataStoreManager.getInstance(DataStoreID.METRICS);
+      const tilesUsed : WritableStore<number> = Metrics.get('tilesUsed');
+      tilesUsed.set(tilesUsed.get() - numSet);
+    }
   }
 
-
-
   /**
-   * **********
-   * Event Handling
-   * **********
+   * Gets an array of valid tile coordinates and a number of free-cost tiles for the given action
+   * @param area Area to check
+   * @param action Action to check
+   * @returns ValidTilesResult with an array of valid tile coordinates and a count of how many tiles will be free to change ownership of
    */
+  private _getValidTiles(area : MapRange, action : LandOwnershipAction) : ValidTilesResult {
+    // Array of CoordsXY that are valid for this action
+    const coords : CoordsXY[] = [];
+    // Number of tiles that will not incur a cost if buying
+    let numFree : number = 0;
 
-  /**
-   * Handles action.execute event
-   * @param e Event data
-   */
-  private _onActionExecute(e : GameActionEventArgs) : void {
-    if (!e.isClientOnly) {
-      switch (e.type) {
-        case GameCommand.DemolishRide: {
-          this._onRideDemolished(e);
-          break;
-        } case GameCommand.BalloonPress: {
-          this._onBalloonPressed(e);
-          break;
-        } case GameCommand.PlaceBanner: {
-          this._onBannerPlaced(e);
-          break;
-        } case GameCommand.RemoveBanner: {
-          this._onBannerRemoved(e);
-          break;
-        } case GameCommand.StartMarketingCampaign: {
-          this._onMarketingCampaignStarted(e);
-          break;
+    const clampedArea : MapRange = clampRange(area, Park.getPlayableArea());
+    for (let x = clampedArea.leftTop.x; x <= clampedArea.rightBottom.x; x += 32) {
+      for (let y = clampedArea.leftTop.y; y <= clampedArea.rightBottom.y; y += 32) {
+        const tile : Tile = map.getTile(x / 32, y / 32);
+        
+        if (this.isValidTileAction(tile, action)) {
+          coords.push(CoordsXY(x, y));
+
+          const surface : SurfaceElement = tile.getElement<SurfaceElement>(0);
+
+          // If either buying land or rights and the ownership is already the existing type, make sure to give it for free
+          if ((action === LandOwnershipAction.RIGHTS && surface.ownership === LandOwnership.OWNED)
+            || (action === LandOwnershipAction.BUY && surface.ownership === LandOwnership.CONSTRUCTION_RIGHTS_OWNED)) {
+            ++numFree;
+          }
         }
       }
     }
-  }
 
-  /**
-   * Handles interval.tick event
-   * @param ticksPerUpdate Number of ticks per update as defined in the Plugin data
-   */
-  private _onTick(ticksPerUpdate : number) : void {
-    if (date.ticksElapsed % ticksPerUpdate === 0) {
-      this.collectMetrics();
-    }
-  }
-
-  /**
-   * Moves ride from rideMap to demolishedRides
-   * @param e Event data
-   */
-  private _onRideDemolished(e : GameActionEventArgs) : void {
-    const rideId : number = (e.args as { ride : number }).ride;
-    const rideData : RideData | undefined = this.data.rideMap.getValue(rideId);
-  
-    if(typeof rideData !== 'undefined') {
-      this.data.demolishedRides.push(rideData);
-      this.data.rideMap.set(rideId, undefined);
-
-      // Only store data of this data store because it doesn't change exp calculation
-      this.storeData();
-    }
-  }
-
-  /**
-   * Record balloon popped
-   * @param e Event data
-   */
-  private _onBalloonPressed(e : GameActionEventArgs) : void {
-    this.data.balloonsPopped.set(this.data.balloonsPopped.get() + 1);
-  }
-
-  /**
-   * Record banner placed
-   * @param e Event data
-   */
-  private _onBannerPlaced(e : GameActionEventArgs) : void {
-    this.data.bannersPlaced.set(this.data.bannersPlaced.get() + 1);
-  }
-
-  /**
-   * Record banner removed
-   * @param e Event data
-   */
-  private _onBannerRemoved(e : GameActionEventArgs) : void {
-    this.data.bannersPlaced.set(Math.max(0, this.data.bannersPlaced.get() - 1));
-  }
-
-  /**
-   * Record marketing campaign started
-   * @param e Event data
-   */
-  private _onMarketingCampaignStarted(e : GameActionEventArgs) : void {
-    this.data.marketingCampaignsRun.set(this.data.marketingCampaignsRun.get() + 1);
-  }
-  
-
-
-  /**
-   * **********
-   * Other
-   * **********
-   */
-
-  /**
-   * Fires all staff
-   */
-  public fireStaff() : void {
-    const staffList : Staff[] = map.getAllEntities('staff');
-  
-    staffList.forEach((staff : Staff) : void => {
-      // Removing a mechanic that is currently fixing a ride doesn't break anything
-      staff.remove();
-    });
+    return {
+      coords,
+      numFree
+    } as ValidTilesResult;
   }
   
   /**
-   * Deletes all guests
+   * Sets tile ownership for an array of coordinates
+   * @overload
+   * @param coords Array of CoordsXY of tiles to set ownership for
+   * @param ownership LandOwnership enum value
+   * @returns number of tiles successfully set, -1 if the tiles are entirely outside of map boundaries
    */
-  public deleteGuests() : void {
-    const guestList : Guest[] = map.getAllEntities('guest');
+  public async setLandOwnership(coords : CoordsXY[], ownership : LandOwnership) : Promise<LandRightsResult>;
   
-    let guestsOnRide = false;
+  /**
+   * Sets tile ownership in a region
+   * @overload
+   * @param range Defaults and clamps to <mapEdges.leftTop.x, mapEdges.leftTop.y> - <mapEdges.rightBottom.x, mapEdges.rightBottom.y>
+   * @param ownership LandOwnership enum value
+   * @returns number of tiles successfully set, -1 if the tiles are entirely outside of map boundaries
+   */
+  public async setLandOwnership(range : MapRange, ownership : LandOwnership) : Promise<LandRightsResult>;
   
-    guestList.forEach((guest : Guest) : void => {
-      try {
-        guest.remove();
-      } catch (error) {
-        guestsOnRide = true;
+  /**
+   * Sets tile ownership in a region
+   * @overload
+   * @param rangeOrCoords Either map range or list of coordinates as explained in other overloads
+   * @param ownership LandOwnership enum value
+   * @returns number of tiles successfully set, -1 if the tiles are entirely outside of map boundaries
+   */
+  public async setLandOwnership(rangeOrCoords : MapRange | CoordsXY[], ownership : LandOwnership) : Promise<LandRightsResult> {
+    const playableArea : MapRange = this.getPlayableArea();
+
+    if (isMapRange(rangeOrCoords)) {
+      const range : MapRange = rangeOrCoords as MapRange;
+  
+      if (!rangesIntersect(range, this.getPlayableArea())) {
+        return Promise.resolve({ numSet: 0, numFailed: getRangeSize(range) });
       }
-    });
   
-    if (guestsOnRide) {
-      ui.showError("Couldn't delete all guests...", "Delete rides before trying again!")
-    }
-  }
+      const clampedRange : MapRange = clampRange(range, playableArea);
   
-  /**
-   * Deletes all rides
-   */
-  public deleteRides() : void {
-    const rideList : Ride[] = map.rides;
+      // Turn on sandbox mode to fix NotInEditorMode error
+      cheats.sandboxMode = true;
   
-    let promiseChain = Promise.resolve();
-  
-    rideList.forEach((ride : Ride) : void => {
-      // Deleting a ride with people on it ejects them to the queue 
-      promiseChain = promiseChain.then(() : void => {
-        context.executeAction('ridedemolish', {
+      const result = await new Promise<LandRightsResult>((resolve : Function, reject : Function) : void => {
+        context.executeAction('landsetrights', {
+          x1: clampedRange.leftTop.x,
+          y1: clampedRange.leftTop.y,
+          x2: clampedRange.rightBottom.x,
+          y2: clampedRange.rightBottom.y,
+          setting: 4, // Set ownership
+          ownership: ownership,
           flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY
                 | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
-                | GameCommandFlag.GAME_COMMAND_FLAG_NO_SPEND,
-          ride: ride.id,
-          modifyType: 0 // 0: demolish, 1: renew
-        }, (result : GameActionResult) => {
-  
+                | GameCommandFlag.GAME_COMMAND_FLAG_NO_SPEND
+        }, (result : GameActionResult) : void => {
+          if (typeof result.error !== 'undefined' && result.error !== GameActionResultErrorCodes.Ok) {
+            reject(result.error);
+          } else {
+            // Assume lack of an error is a success
+            resolve({ numSet: getRangeSize(range), numFailed: 0 });
+          }
         });
+      }).catch((reason : GameActionResultErrorCodes) : LandRightsResult => {
+        // Assume that nothing was done if there was an error, otherwise we need to figure out how to undo
+        console.log('setLandOwnership error', GameActionResultErrorCodes[reason]);
+  
+        return { numSet: 0, numFailed: getRangeSize(range) };
       });
-    });
+  
+      cheats.sandboxMode = false;
+      return result;
+    } else {
+      const coords : CoordsXY[] = rangeOrCoords as CoordsXY[];
+  
+      // Turn on sandbox mode to fix NotInEditorMode error
+      cheats.sandboxMode = true;
+  
+      const promises : Promise<GameActionResultErrorCodes>[] = [];
+      coords.forEach((value : CoordsXY) : void => {
+        const setRightsPromise = new Promise<GameActionResultErrorCodes>((resolve : Function, reject : Function) : void => {
+          if (!isInRange(value, playableArea)) {
+            resolve(GameActionResultErrorCodes.InvalidParameters);
+          }
+          
+          context.executeAction('landsetrights', {
+            x1: value.x,
+            y1: value.y,
+            x2: value.x,
+            y2: value.y,
+            setting: 4, // Set ownership
+            ownership: ownership,
+            flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY
+                  | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
+                  | GameCommandFlag.GAME_COMMAND_FLAG_NO_SPEND
+          }, (result : GameActionResult) => {
+            if (typeof result.error !== 'undefined' && result.error !== GameActionResultErrorCodes.Ok) {
+              resolve(result.error);
+            } else {
+              // Assume lack of an error is a success
+              resolve(GameActionResultErrorCodes.Ok);
+            }
+          });
+        });
+  
+        promises.push(setRightsPromise);
+      });
+  
+      const results : GameActionResultErrorCodes[] = await Promise.all(promises);
+      
+      let numSet : number = 0;
+      let numFailed : number = 0;
+      results.forEach((result : GameActionResultErrorCodes) : void => {
+        if (result === GameActionResultErrorCodes.Ok) {
+          ++numSet;
+        } else {
+          ++numFailed;
+        }
+      });
+  
+      cheats.sandboxMode = false;
+      return { numSet, numFailed };
+    }
+  }
+
+  /**
+   * Checks if a tile can have a certain LandOwnershipAction acted on it
+   * @param tile Tile to check
+   * @param action LandOwnershipAction to check
+   * @returns True if it's a valid action
+   */
+  private isValidTileAction(tile : Tile, action : LandOwnershipAction) : boolean {
+    // Iterate over elements to see land ownership and what is here
+    for(let i = 0; i < tile.numElements; ++i) {
+      const element : TileElement = tile.getElement(i);
+
+      switch (action) {
+        case LandOwnershipAction.SELL: {
+          switch (element.type) {
+            case 'surface': {
+              // Land is unowned
+              if (element.ownership === LandOwnership.UNOWNED) {
+                return false;
+              }
+
+              break;
+            } case 'entrance': {
+              // It's a ride entrance/exit
+              if (element.object === EntranceType.ENTRANCE_TYPE_RIDE_ENTRANCE
+                || element.object === EntranceType.ENTRANCE_TYPE_RIDE_EXIT) {
+                  return false;
+              }
+
+              break;
+            } case 'track': {
+              // It's either a track piece or the entire ride depending on type
+              return false;
+            }
+          }
+
+          break;
+        } case LandOwnershipAction.BUY: {
+          switch (element.type) {
+            case 'surface': {
+              // Land is not unowned and ownership type matches buyType
+              if (element.ownership === LandOwnership.OWNED) {
+                return false;
+              }
+
+              break;
+            } case 'entrance': {
+              // It's the park entrance
+              if (element.object === EntranceType.ENTRANCE_TYPE_PARK_ENTRANCE) {
+                return false;
+              }
+
+              break;
+            }
+          }
+
+          break;
+        } case LandOwnershipAction.RIGHTS: {
+          switch (element.type) {
+            case 'surface': {
+              // Land is not unowned and ownership type matches buyType
+              if (element.ownership === LandOwnership.CONSTRUCTION_RIGHTS_OWNED) {
+                return false;
+              }
+
+              break;
+            } case 'entrance': {
+              // It's the park entrance
+              if (element.object === EntranceType.ENTRANCE_TYPE_PARK_ENTRANCE) {
+                return false;
+              }
+
+              break;
+            }
+          }
+
+          break;
+        }
+      }
+    }
+
+    return true;
   }
 }
 

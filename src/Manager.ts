@@ -11,6 +11,7 @@ export class Manager<IDType extends string | number | symbol, InstanceType> {
    */
   public registerInstance(id : IDType, instance : InstanceType) : boolean {
     if (typeof this._instances[id] === 'undefined') {
+      console.log('register', id)
       this._instances[id] = instance;
       return true;
     } else {
@@ -19,11 +20,11 @@ export class Manager<IDType extends string | number | symbol, InstanceType> {
   }
 
   /**
-   * 
-   * @param id 
-   * @returns The requested instance if it exists, otherwise null
+   * Gets an instance
+   * @param id ID of the instance to retrieve
+   * @returns The requested instance if it exists
    */
-  public getInstance(id : IDType) : InstanceType | undefined {
+  public getInstance(id : IDType) : InstanceType {
     return this._instances[id];
   }
 }

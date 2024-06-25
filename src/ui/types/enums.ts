@@ -56,8 +56,8 @@ export enum ElementID {
       // Security
       EXP_PER_VANDAL_STOPPED,
     
-    // Park data
-    EXP_PER_PARK_AWARD,
+      // Park data
+      EXP_PER_PARK_AWARD,
 
     CONFIG_REVERT,
     CONFIG_DEFAULTS,

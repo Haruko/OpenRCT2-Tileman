@@ -70,9 +70,9 @@ export class StatsWindow extends BaseWindow {
   protected override onOpen() : void {
     super.onOpen();
 
-    const toolbarWindow : IWindow | undefined = UIManager.getInstance(WindowID.TOOLBAR);
-    const openStatsButton : ToggleButton = toolbarWindow?.getChildElement(ElementID.OPEN_STATS_BUTTON) as ToggleButton;
-    openStatsButton?.press();
+    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
+    const openStatsButton : ToggleButton = toolbarWindow.getChildElement(ElementID.OPEN_STATS_BUTTON) as ToggleButton;
+    openStatsButton.press();
   }
 
   /**
@@ -88,8 +88,8 @@ export class StatsWindow extends BaseWindow {
   protected override onClose() : void {
     super.onClose();
     
-    const toolbarWindow : IWindow | undefined = UIManager.getInstance(WindowID.TOOLBAR);
-    const openStatsButton : ToggleButton = toolbarWindow?.getChildElement(ElementID.OPEN_STATS_BUTTON) as ToggleButton;
-    openStatsButton?.depress();
+    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
+    const openStatsButton : ToggleButton = toolbarWindow.getChildElement(ElementID.OPEN_STATS_BUTTON) as ToggleButton;
+    openStatsButton.depress();
   }
 }

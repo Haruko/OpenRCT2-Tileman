@@ -5,7 +5,7 @@ import { ToggleButton } from './ToggleButton';
 import { ElementID } from '../types/enums';
 import { StatefulButtonGroup } from './StatefulButtonGroup';
 import { DataStoreManager } from '@src/DataStoreManager';
-import { DataStoreID } from '@src/types/types';
+import { DataStoreID } from '@src/types/enums';
 
 
 
@@ -32,7 +32,7 @@ export class DoubleClickButton extends ToggleButton {
    */
   override onChange(isPressed? : boolean) : void {
     if (this.isPressed() && typeof this.clickTimeout === 'undefined') {
-      const doubleClickLength : number = DataStoreManager.getInstance(DataStoreID.PLUGIN)?.get('doubleClickLength') ?? 1000;
+      const doubleClickLength : number = DataStoreManager.getInstance(DataStoreID.PLUGIN).get('doubleClickLength');
 
       this.clickTimeout = context.setTimeout(() => {
         if (typeof this.clickTimeout === 'number') {

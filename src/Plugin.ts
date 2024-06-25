@@ -1,62 +1,8 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { WritableStore, store } from 'openrct2-flexui';
+import { store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
-
-
-
-/**
- * **********
- * Type Definitions
- * **********
- */
-
-export type PluginData = Record<string, any> & {
-  /**
-   * Static data
-   */
-  readonly pluginName: 'Tileman',
-
-  readonly doubleClickLength : number,
-  
-  // Tools
-  readonly minToolSize : number,
-  readonly maxToolSize : number,
-
-  /**
-   * User definable
-   */
-
-  ticksPerUpdate : WritableStore<number>, // Ticks per update of data
-
-  tileXpCost : WritableStore<number>, // Exp cost per tile
-  startingTiles : WritableStore<number>, // 1 path + 1 stall minimum
-
-  // Player actions
-  balloonsPoppedXpValue : WritableStore<number>,
-  bannersPlacedXpValue : WritableStore<number>,
-  marketingCampaignsRunXpValue : WritableStore<number>,
-
-  // Guest actions
-  parkAdmissionXpValue : WritableStore<number>,
-  rideAdmissionXpValue : WritableStore<number>,
-  stallBuyXpValue : WritableStore<number>,
-  facilityUseXpValue : WritableStore<number>,
-
-  // Staff actions
-  lawnsMownXpValue : WritableStore<number>,
-  gardensWateredXpValue : WritableStore<number>,
-  trashSweptXpValue : WritableStore<number>,
-  trashCansEmptiedXpValue : WritableStore<number>,
-
-  ridesInspectedXpValue : WritableStore<number>,
-  ridesFixedXpValue : WritableStore<number>,
-
-  vandalsStoppedXpValue : WritableStore<number>,
-
-  // Park data
-  parkAwardsXpValue : WritableStore<number>,
-};
+import { PluginData } from './types/types';
 
 
 

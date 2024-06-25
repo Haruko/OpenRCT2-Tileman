@@ -9,6 +9,15 @@
  */
 
 /**
+ * IDs for the data stores
+ */
+
+export enum DataStoreID {
+  PLUGIN,
+  METRICS
+};
+
+/**
  * From openrct2/Game.h
  */
 export enum GameCommand {

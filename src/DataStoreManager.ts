@@ -2,7 +2,7 @@
 
 import { DataStore } from './DataStore';
 import { Manager } from './Manager';
-import { DataStoreID } from './types/types';
+import { DataStoreID } from './types/enums';
 
 class TilemanDataStoreManager extends Manager<DataStoreID, DataStore<any>> {
   /**

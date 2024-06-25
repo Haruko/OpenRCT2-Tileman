@@ -3,14 +3,23 @@
 import { Manager } from '@src/Manager';
 import { ToolID } from './types/enums';
 import { ITool } from './tools/ITool';
-import { Store, WritableStore, store } from 'openrct2-flexui';
-import { Plugin } from '@src/Plugin';
+import { WritableStore, store } from 'openrct2-flexui';
+import { DataStore } from '@src/DataStore';
+import { DataStoreManager } from '@src/DataStoreManager';
+import { DataStoreID } from '@src/types/enums';
+import { PluginData } from '@src/types/types';
 
 
 
 class TilemanToolManager extends Manager<ToolID, ITool> {
   private _activeToolId : ToolID | null = null;
-  private readonly _toolSize : WritableStore<number> = store<number>(Plugin.get('minToolSize'));
+  private _toolSize! : WritableStore<number>;
+
+
+
+  constructor() {
+    super();
+  }
 
 
 
@@ -24,7 +33,11 @@ class TilemanToolManager extends Manager<ToolID, ITool> {
     * Exposes the tool size store for UI elements
     * @returns The tool size store
     */
-  public getToolSizeStore() : Store<number> {
+  public getToolSizeStore() : WritableStore<number> {
+    if (typeof this._toolSize === 'undefined') {
+      this._toolSize = store<number>(DataStoreManager.getInstance(DataStoreID.PLUGIN).get('minToolSize'))
+    }
+
     return this._toolSize;
   }
 
@@ -33,7 +46,7 @@ class TilemanToolManager extends Manager<ToolID, ITool> {
     * @returns Current tool size
     */
   public getToolSize() : number {
-    return this._toolSize.get();
+    return this.getToolSizeStore().get();
   }
 
   /**
@@ -41,7 +54,8 @@ class TilemanToolManager extends Manager<ToolID, ITool> {
     * @param size New size, will be clamped to valid min-max range
     */
   public setToolSize(size : number) : void {
-    this._toolSize.set(Math.max(Plugin.get('minToolSize'), Math.min(Plugin.get('maxToolSize'), size)));
+    const Plugin : DataStore<PluginData> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
+    this.getToolSizeStore().set(Math.max(Plugin.get('minToolSize'), Math.min(Plugin.get('maxToolSize'), size)));
   }
 
 
@@ -62,7 +76,7 @@ class TilemanToolManager extends Manager<ToolID, ITool> {
     }
 
     this._activeToolId = toolId;
-    this.getInstance(toolId)?.activate();
+    this.getInstance(toolId).activate();
   }
 
   /**
@@ -70,7 +84,7 @@ class TilemanToolManager extends Manager<ToolID, ITool> {
    */
   public cancelTool() : void {
     if (this._activeToolId !== null) {
-      this.getInstance(this._activeToolId)?.cancel();
+      this.getInstance(this._activeToolId).cancel();
       this._activeToolId = null;
     }
   }

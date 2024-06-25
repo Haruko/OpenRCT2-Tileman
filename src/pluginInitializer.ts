@@ -1,11 +1,11 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
 import { DataStoreManager } from './DataStoreManager';
-import { Map } from './Map';
 import { Park } from './Park';
+import { Metrics } from './Metrics';
 import { Plugin } from './Plugin';
 import { initializeTools } from './tools/toolInitializer';
-import { DataStoreID } from './types/types';
+import { DataStoreID } from './types/enums';
 import { UIManager } from './ui/UIManager';
 import { WindowID } from './ui/types/enums';
 import { initializeUI } from './ui/uiInitializer';
@@ -15,18 +15,18 @@ const isNewPark : boolean = Object.keys(context.getParkStorage().getAll()).lengt
 /**
  * Initializes everything
  */
-export async function initialize() : Promise<void> {
+export function initialize() : void {
   DataStoreManager.registerInstance(DataStoreID.PLUGIN, Plugin);
-  DataStoreManager.registerInstance(DataStoreID.PARK, Park);
-
+  DataStoreManager.registerInstance(DataStoreID.METRICS, Metrics);
+  
   DataStoreManager.initializeAll(isNewPark);
-  await Map.initialize(isNewPark);
-
-  initializeUI();
-  initializeTools();
-
-  if (__environment === 'development') {
-    UIManager.getInstance(WindowID.CONFIG)?.open();
-    UIManager.getInstance(WindowID.STATS)?.open();
-  }
+  Park.initialize(isNewPark).then(() : void => {
+    initializeUI();
+    initializeTools();
+  
+    if (__environment === 'development') {
+      UIManager.getInstance(WindowID.CONFIG).open();
+      UIManager.getInstance(WindowID.STATS).open();
+    }
+  });
 }

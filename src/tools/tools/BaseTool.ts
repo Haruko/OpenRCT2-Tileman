@@ -142,9 +142,9 @@ export abstract class BaseTool implements ITool {
    */
   protected _onToolFinish() : void {
     // Depress the tool's button
-    const toolbarWindow : IWindow | undefined = UIManager.getInstance(WindowID.TOOLBAR);
-    const button : ToggleButton = toolbarWindow?.getChildElement(this._buttonId) as ToggleButton;
-    button?.depress();
+    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
+    const button : ToggleButton = toolbarWindow.getChildElement(this._buttonId) as ToggleButton;
+    button.depress();
 
     // Restore view rights button to previous state
     UIManager.restoreRightsVisibility()

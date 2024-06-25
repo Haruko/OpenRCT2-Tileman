@@ -7,14 +7,16 @@ import { BaseWindow } from './BaseWindow';
 import { FlexUIWidget, HorizontalAlignment } from '../types/types';
 import { ToggleButton } from '../elements/ToggleButton';
 import { UIManager } from '../UIManager';
-import { Plugin } from '@src/Plugin';
 import { availableTilesStore, totalXpStore } from '@src/stores';
 import { IWindow } from './IWindow';
 import { ToolManager } from '@src/tools/ToolManager';
 import { ToolID } from '@src/tools/types/enums';
 import { ProgressBar } from '../elements/ProgressBar';
 import { AlignedLabel } from '../elements/AlignedLabel';
-import { Park } from '@src/Park';
+import { DataStoreManager } from '@src/DataStoreManager';
+import { DataStoreID } from '@src/types/enums';
+import { DataStore } from '@src/DataStore';
+import { PluginData } from '@src/types/types';
 
 
 
@@ -75,6 +77,8 @@ export class ToolbarWindow extends BaseWindow {
     const viewRightsButton : ToggleButton = this._createToolbarButton(ElementID.VIEW_RIGHTS_BUTTON);
     const openStatsButton : ToggleButton = this._createToolbarButton(ElementID.OPEN_STATS_BUTTON);
     const openConfigButton : ToggleButton = this._createToolbarButton(ElementID.OPEN_CONFIG_BUTTON);
+
+    const Plugin : DataStore<PluginData> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
 
     const toolSizeSpinner : FlexUIWidget = spinner({
       width: 62,
@@ -199,6 +203,8 @@ export class ToolbarWindow extends BaseWindow {
    * Builds panel to display statistics
    */
   private _buildToolbarStatsPanel() : FlexUIWidget {
+    const Plugin : DataStore<PluginData> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
+
     // Available tiles label
     const availableTilesLabel : FlexUIWidget = horizontal({
       spacing: 0,
@@ -275,6 +281,9 @@ export class ToolbarWindow extends BaseWindow {
   }
 
   private _createStatsLabelStore(id : ElementID) : Store<string> {
+    const Plugin : DataStore<PluginData> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
+    const Metrics : DataStore<PluginData> = DataStoreManager.getInstance(DataStoreID.METRICS);
+    
     let newStore! : Store<string>;
 
     switch (id) {
@@ -292,7 +301,7 @@ export class ToolbarWindow extends BaseWindow {
         );
         break;
       } case ElementID.UNLOCKED_TILES: {
-        newStore = compute<number, string>(Park.get('tilesUsed'),
+        newStore = compute<number, string>(Metrics.get('tilesUsed'),
           (tilesUsed : number) : string => {
             return `{WHITE}${tilesUsed}`;
           }
@@ -403,7 +412,7 @@ export class ToolbarWindow extends BaseWindow {
    * @param isPressed true if the button is pressed
    */
   private onConfigChange(isPressed : boolean) : void {
-    const configWindow : IWindow | undefined = UIManager.getInstance(WindowID.CONFIG);
+    const configWindow : IWindow = UIManager.getInstance(WindowID.CONFIG);
     
     if (isPressed) {
       configWindow?.open();
@@ -417,7 +426,7 @@ export class ToolbarWindow extends BaseWindow {
    * @param isPressed true if the button is pressed
    */
   private onStatsChange(isPressed : boolean) : void {
-    const statsWindow : IWindow | undefined = UIManager.getInstance(WindowID.STATS);
+    const statsWindow : IWindow = UIManager.getInstance(WindowID.STATS);
     
     if (isPressed) {
       statsWindow?.open();

@@ -2,7 +2,7 @@
 
 import { Store, compute } from 'openrct2-flexui';
 import { Plugin } from './Plugin';
-import { Park } from './Park';
+import { Metrics } from './Metrics';
 import { RideData } from './types/types';
 
 
@@ -17,7 +17,7 @@ import { RideData } from './types/types';
  * Computed total experience from the player popping balloons
  */
 export const balloonsPoppedXpStore : Store<number> = compute<number, number, number>(
-  Park.get('balloonsPopped'),
+  Metrics.get('balloonsPopped'),
   Plugin.get('balloonsPoppedXpValue'),
   (balloonsPopped : number, balloonsPoppedXpValue : number) : number => {
     return balloonsPopped * balloonsPoppedXpValue;
@@ -28,7 +28,7 @@ export const balloonsPoppedXpStore : Store<number> = compute<number, number, num
  * Computed total experience from the player placing signs
  */
 export const bannersPlacedXpStore : Store<number> = compute<number, number, number>(
-  Park.get('bannersPlaced'),
+  Metrics.get('bannersPlaced'),
   Plugin.get('bannersPlacedXpValue'),
   (bannersPlaced : number, bannersPlacedXpValue : number) : number => {
     return bannersPlaced * bannersPlacedXpValue;
@@ -39,7 +39,7 @@ export const bannersPlacedXpStore : Store<number> = compute<number, number, numb
  * Computed total experience from the player running marketing campaigns
  */
 export const marketingCampaignsRunXpStore : Store<number> = compute<number, number, number>(
-  Park.get('marketingCampaignsRun'),
+  Metrics.get('marketingCampaignsRun'),
   Plugin.get('marketingCampaignsRunXpValue'),
   (marketingCampaignsRun : number, marketingCampaignsRunXpValue : number) : number => {
     return marketingCampaignsRun * marketingCampaignsRunXpValue;
@@ -67,7 +67,7 @@ export const totalPlayerXpStore : Store<number> = compute<number, number, number
  * Computed total experience from park admissions
  */
 export const parkAdmissionsXpStore : Store<number> = compute<number, number, number>(
-  Park.get('parkAdmissions'),
+  Metrics.get('parkAdmissions'),
   Plugin.get('parkAdmissionXpValue'),
   (parkAdmissions : number, parkAdmissionXpValue : number) : number => {
     return parkAdmissions * parkAdmissionXpValue;
@@ -90,8 +90,8 @@ function getGuestCountByRideType(rideMap : Record<string, RideData>, demolishedR
  * Computed total experience from rides
  */
 export const rideXpStore : Store<number> = compute<Record<string, RideData>, RideData[], number, number>(
-  Park.get('rideMap'),
-  Park.get('demolishedRides'),
+  Metrics.get('rideMap'),
+  Metrics.get('demolishedRides'),
   Plugin.get('rideAdmissionXpValue'),
   (rideMap : Record<string, RideData>, demolishedRides : RideData[], rideAdmissionXpValue : number) : number => {
     return getGuestCountByRideType(rideMap, demolishedRides, 'ride') * rideAdmissionXpValue;
@@ -102,8 +102,8 @@ export const rideXpStore : Store<number> = compute<Record<string, RideData>, Rid
  * Computed total experience from stalls
  */
 export const stallXpStore : Store<number> = compute<Record<string, RideData>, RideData[], number, number>(
-  Park.get('rideMap'),
-  Park.get('demolishedRides'),
+  Metrics.get('rideMap'),
+  Metrics.get('demolishedRides'),
   Plugin.get('stallBuyXpValue'),
   (rideMap : Record<string, RideData>, demolishedRides : RideData[], stallBuyXpValue : number) : number => {
     return getGuestCountByRideType(rideMap, demolishedRides, 'stall') * stallBuyXpValue;
@@ -114,8 +114,8 @@ export const stallXpStore : Store<number> = compute<Record<string, RideData>, Ri
  * Computed total experience from facilities
  */
 export const facilityXpStore : Store<number> = compute<Record<string, RideData>, RideData[], number, number>(
-  Park.get('rideMap'),
-  Park.get('demolishedRides'),
+  Metrics.get('rideMap'),
+  Metrics.get('demolishedRides'),
   Plugin.get('facilityUseXpValue'),
   (rideMap : Record<string, RideData>, demolishedRides : RideData[], facilityUseXpValue : number) : number => {
     return getGuestCountByRideType(rideMap, demolishedRides, 'facility') * facilityUseXpValue;
@@ -148,7 +148,7 @@ export const totalGuestXpStore : Store<number> = compute<number, number, number,
  * Computed total experience from handymen mowing lawns
  */
 export const lawnsMownXpStore : Store<number> = compute<number, number, number>(
-  Park.get('lawnsMown'),
+  Metrics.get('lawnsMown'),
   Plugin.get('lawnsMownXpValue'),
   (lawnsMown : number, lawnsMownXpValue : number) : number => {
     return lawnsMown * lawnsMownXpValue;
@@ -159,7 +159,7 @@ export const lawnsMownXpStore : Store<number> = compute<number, number, number>(
  * Computed total experience from handymen watering gardens
  */
 export const gardensWateredXpStore : Store<number> = compute<number, number, number>(
-  Park.get('gardensWatered'),
+  Metrics.get('gardensWatered'),
   Plugin.get('gardensWateredXpValue'),
   (gardensWatered : number, gardensWateredXpValue : number) : number => {
     return gardensWatered * gardensWateredXpValue;
@@ -170,7 +170,7 @@ export const gardensWateredXpStore : Store<number> = compute<number, number, num
  * Computed total experience from handymen sweeping trash
  */
 export const trashSweptXpStore : Store<number> = compute<number, number, number>(
-  Park.get('trashSwept'),
+  Metrics.get('trashSwept'),
   Plugin.get('trashSweptXpValue'),
   (trashSwept : number, trashSweptXpValue : number) : number => {
     return trashSwept * trashSweptXpValue;
@@ -181,7 +181,7 @@ export const trashSweptXpStore : Store<number> = compute<number, number, number>
  * Computed total experience from handymen emptying trash cans
  */
 export const trashCansEmptiedXpStore : Store<number> = compute<number, number, number>(
-  Park.get('trashCansEmptied'),
+  Metrics.get('trashCansEmptied'),
   Plugin.get('trashCansEmptiedXpValue'),
   (trashCansEmptied : number, trashCansEmptiedXpValue : number) : number => {
     return trashCansEmptied * trashCansEmptiedXpValue;
@@ -204,7 +204,7 @@ export const totalHandymenXpStore : Store<number> = compute<number, number, numb
  * Computed total experience from mechanics inspecting rides
  */
 export const ridesInspectedXpStore : Store<number> = compute<number, number, number>(
-  Park.get('ridesInspected'),
+  Metrics.get('ridesInspected'),
   Plugin.get('ridesInspectedXpValue'),
   (ridesInspected : number, ridesInspectedXpValue : number) : number => {
     return ridesInspected * ridesInspectedXpValue;
@@ -215,7 +215,7 @@ export const ridesInspectedXpStore : Store<number> = compute<number, number, num
  * Computed total experience from mechanics fixing rides
  */
 export const ridesFixedXpStore : Store<number> = compute<number, number, number>(
-  Park.get('ridesFixed'),
+  Metrics.get('ridesFixed'),
   Plugin.get('ridesFixedXpValue'),
   (ridesFixed : number, ridesFixedXpValue : number) : number => {
     return ridesFixed * ridesFixedXpValue;
@@ -236,7 +236,7 @@ export const totalMechanicXpStore : Store<number> = compute<number, number, numb
  * Computed total experience from mechanics fixing rides
  */
 export const vandalsStoppedXpStore : Store<number> = compute<number, number, number>(
-  Park.get('vandalsStopped'),
+  Metrics.get('vandalsStopped'),
   Plugin.get('vandalsStoppedXpValue'),
   (vandalsStopped : number, vandalsStoppedXpValue : number) : number => {
     return vandalsStopped * vandalsStoppedXpValue;
@@ -273,7 +273,7 @@ export const totalStaffXpStore : Store<number> = compute<number, number, number,
  * Computed total experience from park awards
  */
 export const parkAwardsXpStore : Store<number> = compute<number, number, number>(
-  Park.get('parkAwards'),
+  Metrics.get('parkAwards'),
   Plugin.get('parkAwardsXpValue'),
   (parkAwards : number, parkAwardsXpValue : number) : number => {
     return parkAwards * parkAwardsXpValue;
@@ -330,7 +330,7 @@ export const tilesEarnedStore : Store<number> = compute<number, number, number>(
  */
 export const availableTilesStore : Store<number> = compute<number, number, number, number>(
   tilesEarnedStore,
-  Park.get('tilesUsed'),
+  Metrics.get('tilesUsed'),
   Plugin.get('startingTiles'),
   (tilesEarned : number, tilesUsed : number, startingTiles : number) : number => {
     return tilesEarned + startingTiles - tilesUsed;
