@@ -17,6 +17,9 @@ Requires OpenRCT2 v0.4.4
 3. If updating from a previous version, delete the existing Tileman JS file.
 4. Place the plugin's JS file into the directory and start the game!
 
+## Configuration
+If you want to change any of the XP values or costs, there is a config button on the toolbar and in the Map button dropdown.
+
 ## Acknowledgements
 Referenced code:
  - [Basssiiie for OpenRCT2-FlexUI](https://openrct2plugins.org/plugin/MDEwOlJlcG9zaXRvcnkzOTY0Mzk1OTM=/OpenRCT2-FlexUI)
