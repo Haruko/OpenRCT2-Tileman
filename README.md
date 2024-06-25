@@ -12,8 +12,8 @@ Requires OpenRCT2 v0.4.4
 
 1. Download the latest version of the plugin from the [Releases](https://github.com/Haruko/OpenRCT2-Tileman/releases/latest) page.
 2. Navigate to the `OpenRCT2/plugin` directory by either:
-* Clicking the red toolbox in the main manu and clicking "`Open custom content folder`", then navigating to the `plugins` directory.
-* Going directly to `C:\Users\<username>\Documents\OpenRCT2\plugin\` on Windows or equivalent directory on other OSes.
+   * Clicking the red toolbox in the main manu and clicking "`Open custom content folder`", then navigating to the `plugins` directory.
+   * Going directly to `C:\Users\<username>\Documents\OpenRCT2\plugin\` on Windows or equivalent directory on other OSes.
 3. If updating from a previous version, delete the existing Tileman JS file.
 4. Place the plugin's JS file into the directory and start the game!
 
