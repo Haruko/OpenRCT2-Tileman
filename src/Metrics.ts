@@ -2,12 +2,13 @@
 
 import { WritableStore, arrayStore, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
-import { GameCommand, GameCommandFlag, RideLifecycleFlags } from './types/enums';
+import { GameCommand, RideLifecycleFlags } from './types/enums';
 import { MetricData, RideData } from './types/types';
 import { DataStoreID } from './types/enums';
 import { objectStore } from './flexui-extension/createObjectStore';
 import { ObjectStore } from './flexui-extension/ObjectStore';
 import { DataStoreManager } from './DataStoreManager';
+import { Park } from './Park';
 
 
 
@@ -54,17 +55,20 @@ class TilemanMetrics extends DataStore<MetricData> {
     }
 
     // Subscribe to events
-    context.subscribe('interval.tick', () => this._onTick(DataStoreManager.getInstance(DataStoreID.PLUGIN).get('ticksPerUpdate').get()));
-    context.subscribe('map.save', () => DataStoreManager.storeAllData());
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    context.subscribe('interval.tick', () => this._onTick(dsManager.getInstance(DataStoreID.PLUGIN).get('ticksPerUpdate').get()));
+    context.subscribe('map.save', () => dsManager.storeAllData());
     context.subscribe('action.execute', (e : GameActionEventArgs) => this._onActionExecute(e));
 
     if (isNewPark) {
-      this.deleteRides();
-      this.deleteGuests();
-      this.fireStaff();
+      Park.deleteRides();
+      Park.deleteGuests();
+      Park.fireStaff();
       
       this.loadDefaults();
-      DataStoreManager.storeAllData();
+
+      const dsManager : DataStoreManager = DataStoreManager.instance();
+      dsManager.storeAllData();
     }
   }
 
@@ -85,7 +89,8 @@ class TilemanMetrics extends DataStore<MetricData> {
     this.collectRideMetrics();
     this.collectParkAwardMetrics();
 
-    DataStoreManager.storeAllData();
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    dsManager.storeAllData();
   }
 
   /**
@@ -268,71 +273,6 @@ class TilemanMetrics extends DataStore<MetricData> {
    */
   private _onMarketingCampaignStarted(e : GameActionEventArgs) : void {
     this.data.marketingCampaignsRun.set(this.data.marketingCampaignsRun.get() + 1);
-  }
-  
-
-
-  /**
-   * **********
-   * Other
-   * **********
-   */
-
-  /**
-   * Fires all staff
-   */
-  public fireStaff() : void {
-    const staffList : Staff[] = map.getAllEntities('staff');
-  
-    staffList.forEach((staff : Staff) : void => {
-      // Removing a mechanic that is currently fixing a ride doesn't break anything
-      staff.remove();
-    });
-  }
-  
-  /**
-   * Deletes all guests
-   */
-  public deleteGuests() : void {
-    const guestList : Guest[] = map.getAllEntities('guest');
-  
-    let guestsOnRide = false;
-  
-    guestList.forEach((guest : Guest) : void => {
-      try {
-        guest.remove();
-      } catch (error) {
-        guestsOnRide = true;
-      }
-    });
-  
-    if (guestsOnRide) {
-      ui.showError("Couldn't delete all guests...", "Delete rides before trying again!")
-    }
-  }
-  
-  /**
-   * Deletes all rides
-   */
-  public deleteRides() : void {
-    const rideList : Ride[] = map.rides;
-  
-    let promiseChain = Promise.resolve();
-  
-    rideList.forEach((ride : Ride) : void => {
-      // Deleting a ride with people on it ejects them to the queue 
-      promiseChain = promiseChain.then(() : void => {
-        context.executeAction('ridedemolish', {
-          flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY
-                | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
-                | GameCommandFlag.GAME_COMMAND_FLAG_NO_SPEND,
-          ride: ride.id,
-          modifyType: 0 // 0: demolish, 1: renew
-        }, (result : GameActionResult) => {
-  
-        });
-      });
-    });
   }
 }
 

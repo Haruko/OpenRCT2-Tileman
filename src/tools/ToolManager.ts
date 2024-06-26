@@ -5,21 +5,15 @@ import { ToolID } from './types/enums';
 import { ITool } from './tools/ITool';
 import { WritableStore, store } from 'openrct2-flexui';
 import { DataStore } from '@src/DataStore';
-import { DataStoreManager } from '@src/DataStoreManager';
 import { DataStoreID } from '@src/types/enums';
 import { PluginData } from '@src/types/types';
+import { DataStoreManager } from '@src/DataStoreManager';
 
 
 
-class TilemanToolManager extends Manager<ToolID, ITool> {
+export class ToolManager extends Manager<ToolID, ITool> {
   private _activeToolId : ToolID | null = null;
   private _toolSize! : WritableStore<number>;
-
-
-
-  constructor() {
-    super();
-  }
 
 
 
@@ -35,7 +29,8 @@ class TilemanToolManager extends Manager<ToolID, ITool> {
     */
   public getToolSizeStore() : WritableStore<number> {
     if (typeof this._toolSize === 'undefined') {
-      this._toolSize = store<number>(DataStoreManager.getInstance(DataStoreID.PLUGIN).get('minToolSize'))
+      const dsManager : DataStoreManager = DataStoreManager.instance();
+      this._toolSize = store<number>(dsManager.getInstance(DataStoreID.PLUGIN).get('minToolSize'))
     }
 
     return this._toolSize;
@@ -54,8 +49,9 @@ class TilemanToolManager extends Manager<ToolID, ITool> {
     * @param size New size, will be clamped to valid min-max range
     */
   public setToolSize(size : number) : void {
-    const Plugin : DataStore<PluginData> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
-    this.getToolSizeStore().set(Math.max(Plugin.get('minToolSize'), Math.min(Plugin.get('maxToolSize'), size)));
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
+    this.getToolSizeStore().set(Math.max(plugin.get('minToolSize'), Math.min(plugin.get('maxToolSize'), size)));
   }
 
 
@@ -89,5 +85,3 @@ class TilemanToolManager extends Manager<ToolID, ITool> {
     }
   }
 }
-
-export const ToolManager : TilemanToolManager = new TilemanToolManager();

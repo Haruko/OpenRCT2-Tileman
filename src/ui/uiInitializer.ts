@@ -11,13 +11,14 @@ export function initializeUI() : void {
   const statsWindow : StatsWindow = new StatsWindow();
   const configWindow : ConfigWindow = new ConfigWindow();
 
-  UIManager.registerInstance(WindowID.TOOLBAR, toolbarWindow);
-  UIManager.registerInstance(WindowID.STATS, statsWindow);
-  UIManager.registerInstance(WindowID.CONFIG, configWindow);
+  const uiManager : UIManager = UIManager.instance();
+  uiManager.registerInstance(WindowID.TOOLBAR, toolbarWindow);
+  uiManager.registerInstance(WindowID.STATS, statsWindow);
+  uiManager.registerInstance(WindowID.CONFIG, configWindow);
 
-  ui.registerMenuItem('Tileman Toolbar', () => UIManager.getInstance(WindowID.TOOLBAR).open());
-  ui.registerMenuItem('Tileman Statistics', () => UIManager.getInstance(WindowID.STATS).open());
-  ui.registerMenuItem('Tileman Config', () => UIManager.getInstance(WindowID.CONFIG).open());
+  ui.registerMenuItem('Tileman Toolbar', () => uiManager.getInstance(WindowID.TOOLBAR).open());
+  ui.registerMenuItem('Tileman Statistics', () => uiManager.getInstance(WindowID.STATS).open());
+  ui.registerMenuItem('Tileman Config', () => uiManager.getInstance(WindowID.CONFIG).open());
 
   toolbarWindow.open();
 }

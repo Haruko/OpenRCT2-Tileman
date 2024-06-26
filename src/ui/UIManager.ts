@@ -9,9 +9,7 @@ import { isMapRange } from '@src/types/MapRange';
 
 
 
-
-
-class TilemanUIManager extends Manager<WindowID, IWindow> {
+export class UIManager extends Manager<WindowID, IWindow> {
   private _cachedRightsVisibility : boolean = false;
 
 
@@ -33,13 +31,15 @@ class TilemanUIManager extends Manager<WindowID, IWindow> {
       ui.mainViewport.visibilityFlags = ui.mainViewport.visibilityFlags & ~ViewportFlags.ConstructionRights;
     }
 
-    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
+    const uiManager : UIManager = UIManager.instance();
+    const toolbarWindow : IWindow = uiManager.getInstance(WindowID.TOOLBAR);
     const viewRightsButton : ToggleButton = toolbarWindow.getChildElement(ElementID.VIEW_RIGHTS_BUTTON) as ToggleButton;
     viewRightsButton.set(visible, true);
   }
 
   public cacheRightsVisibility() : void {
-    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
+    const uiManager : UIManager = UIManager.instance();
+    const toolbarWindow : IWindow = uiManager.getInstance(WindowID.TOOLBAR);
     const viewRightsButton : ToggleButton = toolbarWindow.getChildElement(ElementID.VIEW_RIGHTS_BUTTON) as ToggleButton;
     this._cachedRightsVisibility = viewRightsButton.isPressed();
   }
@@ -87,5 +87,3 @@ class TilemanUIManager extends Manager<WindowID, IWindow> {
     ui.tileSelection.tiles = [];
   }
 };
-
-export const UIManager : TilemanUIManager = new TilemanUIManager();

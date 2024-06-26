@@ -6,11 +6,9 @@ import { LandOwnershipAction } from './tools/types/enums';
 import { CoordsXY, isInRange } from './types/CoordsXY';
 import { MapRange, clampRange, getRangeSize, isMapRange, rangesIntersect } from './types/MapRange';
 import { DataStoreID, EntranceType, GameActionResultErrorCodes, GameCommandFlag, LandOwnership, LandRightsResult } from './types/enums';
-import { DataStoreManager } from './DataStoreManager';
 import { DataStore } from './DataStore';
 import { MetricData } from './types/types';
-
-
+import { DataStoreManager } from './DataStoreManager';
 
 
 
@@ -91,8 +89,9 @@ class TilemanPark {
         const numSpent : number = numSet - numFree;
         
         // Pay tiles
-        const Metrics : DataStore<MetricData> = DataStoreManager.getInstance(DataStoreID.METRICS);
-        const tilesUsed : WritableStore<number> = Metrics.get('tilesUsed');
+        const dsManager : DataStoreManager = DataStoreManager.instance();
+        const metrics : DataStore<MetricData> = dsManager.getInstance(DataStoreID.METRICS);
+        const tilesUsed : WritableStore<number> = metrics.get('tilesUsed');
         tilesUsed.set(tilesUsed.get() + numSpent);
       } else {
         ui.showError(`Can't buy land...`, `Not enough tiles available!`);
@@ -123,8 +122,9 @@ class TilemanPark {
         const numSpent : number = numSet - numFree;
         
         // Pay tiles
-        const Metrics : DataStore<MetricData> = DataStoreManager.getInstance(DataStoreID.METRICS);
-        const tilesUsed : WritableStore<number> = Metrics.get('tilesUsed');
+        const dsManager : DataStoreManager = DataStoreManager.instance();
+        const metrics : DataStore<MetricData> = dsManager.getInstance(DataStoreID.METRICS);
+        const tilesUsed : WritableStore<number> = metrics.get('tilesUsed');
         tilesUsed.set(tilesUsed.get() + numSpent);
       } else {
         ui.showError(`Can't buy rights...`, `Not enough tiles available!`);
@@ -149,8 +149,9 @@ class TilemanPark {
     if (coords.length > 0) {
       const { numSet } : LandRightsResult = await this.setLandOwnership(coords, LandOwnership.UNOWNED);
 
-      const Metrics : DataStore<MetricData> = DataStoreManager.getInstance(DataStoreID.METRICS);
-      const tilesUsed : WritableStore<number> = Metrics.get('tilesUsed');
+      const dsManager : DataStoreManager = DataStoreManager.instance();
+      const metrics : DataStore<MetricData> = dsManager.getInstance(DataStoreID.METRICS);
+      const tilesUsed : WritableStore<number> = metrics.get('tilesUsed');
       tilesUsed.set(tilesUsed.get() - numSet);
     }
   }
@@ -394,6 +395,71 @@ class TilemanPark {
     }
 
     return true;
+  }
+
+
+  
+  /**
+   * **********
+   * Other
+   * **********
+   */
+
+  /**
+   * Fires all staff
+   */
+  public fireStaff() : void {
+    const staffList : Staff[] = map.getAllEntities('staff');
+  
+    staffList.forEach((staff : Staff) : void => {
+      // Removing a mechanic that is currently fixing a ride doesn't break anything
+      staff.remove();
+    });
+  }
+  
+  /**
+   * Deletes all guests
+   */
+  public deleteGuests() : void {
+    const guestList : Guest[] = map.getAllEntities('guest');
+  
+    let guestsOnRide = false;
+  
+    guestList.forEach((guest : Guest) : void => {
+      try {
+        guest.remove();
+      } catch (error) {
+        guestsOnRide = true;
+      }
+    });
+  
+    if (guestsOnRide) {
+      ui.showError("Couldn't delete all guests...", "Delete rides before trying again!")
+    }
+  }
+  
+  /**
+   * Deletes all rides
+   */
+  public deleteRides() : void {
+    const rideList : Ride[] = map.rides;
+  
+    let promiseChain = Promise.resolve();
+  
+    rideList.forEach((ride : Ride) : void => {
+      // Deleting a ride with people on it ejects them to the queue 
+      promiseChain = promiseChain.then(() : void => {
+        context.executeAction('ridedemolish', {
+          flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY
+                | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
+                | GameCommandFlag.GAME_COMMAND_FLAG_NO_SPEND,
+          ride: ride.id,
+          modifyType: 0 // 0: demolish, 1: renew
+        }, (result : GameActionResult) => {
+  
+        });
+      });
+    });
   }
 }
 

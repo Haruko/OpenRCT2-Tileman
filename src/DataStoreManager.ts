@@ -4,7 +4,7 @@ import { DataStore } from './DataStore';
 import { Manager } from './Manager';
 import { DataStoreID } from './types/enums';
 
-class TilemanDataStoreManager extends Manager<DataStoreID, DataStore<any>> {
+export class DataStoreManager extends Manager<DataStoreID, DataStore<any>> {
   /**
    * Runs initialize on all data stores
    */
@@ -38,5 +38,3 @@ class TilemanDataStoreManager extends Manager<DataStoreID, DataStore<any>> {
       });
   }
 }
-
-export const DataStoreManager : TilemanDataStoreManager = new TilemanDataStoreManager();

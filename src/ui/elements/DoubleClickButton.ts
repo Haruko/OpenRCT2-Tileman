@@ -4,8 +4,8 @@ import { FlexiblePosition, ToggleParams } from 'openrct2-flexui';
 import { ToggleButton } from './ToggleButton';
 import { ElementID } from '../types/enums';
 import { StatefulButtonGroup } from './StatefulButtonGroup';
-import { DataStoreManager } from '@src/DataStoreManager';
 import { DataStoreID } from '@src/types/enums';
+import { DataStoreManager } from '@src/DataStoreManager';
 
 
 
@@ -32,7 +32,8 @@ export class DoubleClickButton extends ToggleButton {
    */
   override onChange(isPressed? : boolean) : void {
     if (this.isPressed() && typeof this.clickTimeout === 'undefined') {
-      const doubleClickLength : number = DataStoreManager.getInstance(DataStoreID.PLUGIN).get('doubleClickLength');
+      const dsManager : DataStoreManager = DataStoreManager.instance();
+      const doubleClickLength : number = dsManager.getInstance(DataStoreID.PLUGIN).get('doubleClickLength');
 
       this.clickTimeout = context.setTimeout(() => {
         if (typeof this.clickTimeout === 'number') {

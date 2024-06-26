@@ -13,10 +13,10 @@ import { ToolManager } from '@src/tools/ToolManager';
 import { ToolID } from '@src/tools/types/enums';
 import { ProgressBar } from '../elements/ProgressBar';
 import { AlignedLabel } from '../elements/AlignedLabel';
-import { DataStoreManager } from '@src/DataStoreManager';
 import { DataStoreID } from '@src/types/enums';
 import { DataStore } from '@src/DataStore';
 import { PluginData } from '@src/types/types';
+import { DataStoreManager } from '@src/DataStoreManager';
 
 
 
@@ -78,18 +78,20 @@ export class ToolbarWindow extends BaseWindow {
     const openStatsButton : ToggleButton = this._createToolbarButton(ElementID.OPEN_STATS_BUTTON);
     const openConfigButton : ToggleButton = this._createToolbarButton(ElementID.OPEN_CONFIG_BUTTON);
 
-    const Plugin : DataStore<PluginData> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
+    const toolManager : ToolManager = ToolManager.instance();
 
     const toolSizeSpinner : FlexUIWidget = spinner({
       width: 62,
       padding: [5, 1],
-      value: ToolManager.getToolSizeStore(),
-      minimum: Plugin.get('minToolSize'),
-      maximum: Plugin.get('maxToolSize'),
+      value: toolManager.getToolSizeStore(),
+      minimum: plugin.get('minToolSize'),
+      maximum: plugin.get('maxToolSize'),
       step: 1,
       wrapMode: 'clamp',
       onChange: (value : number, adjustment : number) : void => {
-        ToolManager.setToolSize(value);
+        toolManager.setToolSize(value);
       },
       format: (value: number) : string => {
         return `${value}x${value}`;
@@ -203,7 +205,8 @@ export class ToolbarWindow extends BaseWindow {
    * Builds panel to display statistics
    */
   private _buildToolbarStatsPanel() : FlexUIWidget {
-    const Plugin : DataStore<PluginData> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
 
     // Available tiles label
     const availableTilesLabel : FlexUIWidget = horizontal({
@@ -244,7 +247,7 @@ export class ToolbarWindow extends BaseWindow {
     });
     
     // Xp to next tile progress bar
-    const xpToNextTilePercent : Store<number> = compute<number, number, number>(totalXpStore, Plugin.get('tileXpCost'),
+    const xpToNextTilePercent : Store<number> = compute<number, number, number>(totalXpStore, plugin.get('tileXpCost'),
       (totalXp : number, tileXpCost : number) : number => {
         const xpSinceLastTile : number = totalXp % tileXpCost;
         return xpSinceLastTile / tileXpCost;
@@ -258,7 +261,7 @@ export class ToolbarWindow extends BaseWindow {
       foreground: Colour.LightBlue,
       text: this._createStatsLabelStore(ElementID.EXP_NEXT_PROGRESSBAR),
       textAlignment: {
-        horizontal: compute<number, HorizontalAlignment>(Plugin.get('tileXpCost'), (tileXpCost : number) : HorizontalAlignment => {
+        horizontal: compute<number, HorizontalAlignment>(plugin.get('tileXpCost'), (tileXpCost : number) : HorizontalAlignment => {
           return tileXpCost === 0 ? 'center' : 'left';
         }),
         vertical: 'center'
@@ -281,8 +284,9 @@ export class ToolbarWindow extends BaseWindow {
   }
 
   private _createStatsLabelStore(id : ElementID) : Store<string> {
-    const Plugin : DataStore<PluginData> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
-    const Metrics : DataStore<PluginData> = DataStoreManager.getInstance(DataStoreID.METRICS);
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
+    const metrics : DataStore<PluginData> = dsManager.getInstance(DataStoreID.METRICS);
     
     let newStore! : Store<string>;
 
@@ -301,14 +305,14 @@ export class ToolbarWindow extends BaseWindow {
         );
         break;
       } case ElementID.UNLOCKED_TILES: {
-        newStore = compute<number, string>(Metrics.get('tilesUsed'),
+        newStore = compute<number, string>(metrics.get('tilesUsed'),
           (tilesUsed : number) : string => {
             return `{WHITE}${tilesUsed}`;
           }
         );
         break;
       } case ElementID.EXP_TO_NEXT_TILE: {
-        newStore = compute<number, number, string>(totalXpStore, Plugin.get('tileXpCost'),
+        newStore = compute<number, number, string>(totalXpStore, plugin.get('tileXpCost'),
           (totalXp : number, tileXpCost : number) : string => {
               const xpToNextTile : number = tileXpCost - (totalXp % tileXpCost);
               return `{WHITE}${context.formatString('{COMMA16}', xpToNextTile)}`;
@@ -316,7 +320,7 @@ export class ToolbarWindow extends BaseWindow {
         );
         break;
       } case ElementID.EXP_NEXT_PROGRESSBAR: {
-        newStore = compute<number, number, string>(totalXpStore, Plugin.get('tileXpCost'),
+        newStore = compute<number, number, string>(totalXpStore, plugin.get('tileXpCost'),
           (totalXp : number, tileXpCost : number) : string => {
             if (tileXpCost === 0) {
               return `  {RED}I want to get off Mr. Bone's Wild Ride!`;
@@ -368,10 +372,11 @@ export class ToolbarWindow extends BaseWindow {
    * @param isPressed true if the button is pressed
    */
   private onBuyToolChange(isPressed : boolean) : void {
+    const toolManager : ToolManager = ToolManager.instance();
     if (isPressed) {
-      ToolManager.setActiveTool(ToolID.BUY);
+      toolManager.setActiveTool(ToolID.BUY);
     } else {
-      ToolManager.cancelTool();
+      toolManager.cancelTool();
     }
   }
 
@@ -380,10 +385,11 @@ export class ToolbarWindow extends BaseWindow {
    * @param isPressed true if the button is pressed
    */
   private onRightsToolChange(isPressed : boolean) : void {
+    const toolManager : ToolManager = ToolManager.instance();
     if (isPressed) {
-      ToolManager.setActiveTool(ToolID.RIGHTS);
+      toolManager.setActiveTool(ToolID.RIGHTS);
     } else {
-      ToolManager.cancelTool();
+      toolManager.cancelTool();
     }
   }
 
@@ -392,10 +398,11 @@ export class ToolbarWindow extends BaseWindow {
    * @param isPressed true if the button is pressed
    */
   private onSellToolChange(isPressed : boolean) : void {
+    const toolManager : ToolManager = ToolManager.instance();
     if (isPressed) {
-      ToolManager.setActiveTool(ToolID.SELL);
+      toolManager.setActiveTool(ToolID.SELL);
     } else {
-      ToolManager.cancelTool();
+      toolManager.cancelTool();
     }
   }
 
@@ -404,7 +411,8 @@ export class ToolbarWindow extends BaseWindow {
    * @param isPressed true if the button is pressed
    */
   private onViewRightsChange(isPressed : boolean) : void {
-    UIManager.setRightsVisibility(isPressed);
+    const uiManager : UIManager = UIManager.instance();
+    uiManager.setRightsVisibility(isPressed);
   }
 
   /**
@@ -412,7 +420,8 @@ export class ToolbarWindow extends BaseWindow {
    * @param isPressed true if the button is pressed
    */
   private onConfigChange(isPressed : boolean) : void {
-    const configWindow : IWindow = UIManager.getInstance(WindowID.CONFIG);
+    const uiManager : UIManager = UIManager.instance();
+    const configWindow : IWindow = uiManager.getInstance(WindowID.CONFIG);
     
     if (isPressed) {
       configWindow?.open();
@@ -426,7 +435,8 @@ export class ToolbarWindow extends BaseWindow {
    * @param isPressed true if the button is pressed
    */
   private onStatsChange(isPressed : boolean) : void {
-    const statsWindow : IWindow = UIManager.getInstance(WindowID.STATS);
+    const uiManager : UIManager = UIManager.instance();
+    const statsWindow : IWindow = uiManager.getInstance(WindowID.STATS);
     
     if (isPressed) {
       statsWindow?.open();

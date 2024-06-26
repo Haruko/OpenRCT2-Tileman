@@ -1,7 +1,27 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
 export class Manager<IDType extends string | number | symbol, InstanceType> {
+  private static _instance : Manager<any, any>;
   private readonly _instances : Record<IDType, InstanceType> = {} as Record<IDType, InstanceType>;
+
+  
+
+  /**
+   * Prevent Managers from being constructed, only access through Manager.instance();
+   */
+  protected constructor() {}
+
+  /**
+   * Gets the singleton instance of this Manager. Respects derived classes.
+   * @returns Singleton instance
+   */
+  public static instance<T extends Manager<any, any>>() : T {
+    if (typeof this._instance === 'undefined') {
+      this._instance = new this();
+    }
+
+    return this._instance as T;
+  }
 
   /**
    * Registers an instance if it doesn't already exist
@@ -11,7 +31,6 @@ export class Manager<IDType extends string | number | symbol, InstanceType> {
    */
   public registerInstance(id : IDType, instance : InstanceType) : boolean {
     if (typeof this._instances[id] === 'undefined') {
-      console.log('register', id)
       this._instances[id] = instance;
       return true;
     } else {

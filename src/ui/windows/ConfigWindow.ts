@@ -6,16 +6,16 @@ import { BaseWindow } from './BaseWindow';
 import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
 import { FlexUIWidget } from '../types/types';
 import { DoubleClickButton } from '../elements/DoubleClickButton';
-import { Metrics } from '@src/Metrics';
 import { availableTilesStore, balloonsPoppedXpStore, bannersPlacedXpStore, facilityXpStore, parkAdmissionsXpStore, rideXpStore, stallXpStore, totalXpStore } from '@src/stores';
 import { AlignedLabel } from '../elements/AlignedLabel';
 import { IWindow } from './IWindow';
 import { UIManager } from '../UIManager';
 import { ToggleButton } from '../elements/ToggleButton';
 import { PluginData } from '@src/types/types';
-import { DataStoreManager } from '@src/DataStoreManager';
 import { DataStoreID } from '@src/types/enums';
 import { DataStore } from '@src/DataStore';
+import { DataStoreManager } from '@src/DataStoreManager';
+import { Park } from '@src/Park';
 
 
 
@@ -332,7 +332,8 @@ export class ConfigWindow extends BaseWindow {
    * @returns The row
    */
   private _createConfigRow(id : ElementID, key : keyof PluginData, labelText : string, tooltip : string, totalLabelText? : Store<string>) : FlexUIWidget {
-    const pluginStore = DataStoreManager.getInstance(DataStoreID.PLUGIN).get(key);
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const pluginStore = dsManager.getInstance(DataStoreID.PLUGIN).get(key);
 
     // Make the textbox
     const defaultValue : string = read(pluginStore) + '';
@@ -575,7 +576,8 @@ export class ConfigWindow extends BaseWindow {
    protected override onOpen() : void {
     super.onOpen();
 
-    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
+    const uiManager : UIManager = UIManager.instance();
+    const toolbarWindow : IWindow = uiManager.getInstance(WindowID.TOOLBAR);
     const openConfigButton : ToggleButton = toolbarWindow.getChildElement(ElementID.OPEN_CONFIG_BUTTON) as ToggleButton;
     openConfigButton.press();
   }
@@ -592,8 +594,9 @@ export class ConfigWindow extends BaseWindow {
    */
   protected override onClose() : void {
     super.onClose();
+    const uiManager : UIManager = UIManager.instance();
 
-    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
+    const toolbarWindow : IWindow = uiManager.getInstance(WindowID.TOOLBAR);
     const openConfigButton : ToggleButton = toolbarWindow.getChildElement(ElementID.OPEN_CONFIG_BUTTON) as ToggleButton;
     openConfigButton.depress();
   }
@@ -603,7 +606,7 @@ export class ConfigWindow extends BaseWindow {
    * @param isPressed whether the button is pressed or not
    */
   private onFireStaffChange(isPressed : boolean) : void {
-    Metrics.fireStaff();
+    Park.fireStaff();
   }
 
   /**
@@ -611,7 +614,7 @@ export class ConfigWindow extends BaseWindow {
    * @param isPressed whether the button is pressed or not
    */
   private onDeleteGuestsChange(isPressed : boolean) : void {
-    Metrics.deleteGuests();
+    Park.deleteGuests();
   }
 
   /**
@@ -619,36 +622,38 @@ export class ConfigWindow extends BaseWindow {
    * @param isPressed whether the button is pressed or not
    */
   private onDeleteRidesChange(isPressed : boolean) : void {
-    Metrics.deleteRides();
+    Park.deleteRides();
   }
 
   /**
    * Handles clicks on config defaults button
    */
   private onDefaultsButtonClick() : void {
-    const Plugin : DataStore<PluginData> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
     // Reset Plugin values to defaults
-    Plugin.loadDefaults();
+    plugin.loadDefaults();
 
     // Set all settings back to default values
     (Object.keys(this._settingsStores) as (keyof PluginData)[]).forEach((key : keyof PluginData) : void => {
-        this._settingsStores[key]!.set(read(Plugin.get(key)) + '')
+        this._settingsStores[key]!.set(read(plugin.get(key)) + '')
       });
     
     // Store data after
-    Plugin.storeData();
+    plugin.storeData();
   }
 
   /**
    * Handles clicks on config revert button
    */
   private onRevertButtonClick() : void {
-    const Plugin : DataStore<PluginData> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
     const keys : (keyof PluginData)[] = Object.keys(this._settingsStores);
 
     // Set all settings back to Plugin.get() value
     keys.forEach((key : keyof PluginData) : void => {
-      this._settingsStores[key]?.set(read(Plugin.get(key)) + '')
+      this._settingsStores[key]?.set(read(plugin.get(key)) + '')
     });
   }
 
@@ -656,22 +661,23 @@ export class ConfigWindow extends BaseWindow {
    * Handles clicks on config save button
    */
   private onSaveButtonClick() : void {
-    const Plugin : DataStore<PluginData> = DataStoreManager.getInstance(DataStoreID.PLUGIN);
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
     const keys : (keyof PluginData)[] = Object.keys(this._settingsStores);
     
     // Save all settings with Plugin.set
     keys.forEach((key : keyof PluginData) : void => {
       const fieldValue : number = Number(read(this._settingsStores[key]));
-      const value : any = Plugin.get(key);
+      const value : any = plugin.get(key);
 
       if (isWritableStore(value)) {
         value.set(fieldValue);
       } else {
-        Plugin.set(key, fieldValue)
+        plugin.set(key, fieldValue)
       }
     });
     
     // Store data after
-    Plugin.storeData();
+    plugin.storeData();
   }
 }

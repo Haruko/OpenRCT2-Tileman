@@ -76,8 +76,9 @@ export abstract class BaseTool implements ITool {
    * Handles onStart
    */
   protected _onToolStart() : void {
-    UIManager.cacheRightsVisibility();
-    UIManager.setRightsVisibility(true);
+    const uiManager : UIManager = UIManager.instance();
+    uiManager.cacheRightsVisibility();
+    uiManager.setRightsVisibility(true);
 
     this._isActive = true;
   }
@@ -110,7 +111,8 @@ export abstract class BaseTool implements ITool {
       const area = this.getToolArea(coords);
 
       // Set the selection grid
-      UIManager.setSelectionArea(area);
+      const uiManager : UIManager = UIManager.instance();
+      uiManager.setSelectionArea(area);
   
       if (e.isDown && (coords.x !== this._coordsLastUsed.x || coords.y !== this._coordsLastUsed.y)) {
         const area = this.getToolArea(coords);
@@ -123,7 +125,8 @@ export abstract class BaseTool implements ITool {
       }
     } else {
       // Clear the selection grid
-      UIManager.clearSelectionArea();
+      const uiManager : UIManager = UIManager.instance();
+      uiManager.clearSelectionArea();
 
       // Clear the cached coords
       this._coordsLastUsed = CoordsXY(0, 0);
@@ -142,17 +145,19 @@ export abstract class BaseTool implements ITool {
    */
   protected _onToolFinish() : void {
     // Depress the tool's button
-    const toolbarWindow : IWindow = UIManager.getInstance(WindowID.TOOLBAR);
+    const uiManager : UIManager = UIManager.instance();
+    const toolbarWindow : IWindow = uiManager.getInstance(WindowID.TOOLBAR);
     const button : ToggleButton = toolbarWindow.getChildElement(this._buttonId) as ToggleButton;
     button.depress();
 
     // Restore view rights button to previous state
-    UIManager.restoreRightsVisibility()
+    uiManager.restoreRightsVisibility()
 
     // Clear the selection grid
-    UIManager.clearSelectionArea();
+    uiManager.clearSelectionArea();
 
-    ToolManager.cancelTool();
+    const toolManager : ToolManager = ToolManager.instance();
+    toolManager.cancelTool();
   }
 
 
@@ -169,7 +174,8 @@ export abstract class BaseTool implements ITool {
    * @returns MapRange for the affected area
    */
   protected getToolArea(center : CoordsXY) : MapRange {
-    const halfSize : number = ((ToolManager.getToolSize() - 1) / 2);
+    const toolManager : ToolManager = ToolManager.instance();
+    const halfSize : number = ((toolManager.getToolSize() - 1) / 2);
 
     const left : number = Math.floor((center.x / 32) - halfSize) * 32;
     const top : number = Math.floor((center.y / 32) - halfSize) * 32;
