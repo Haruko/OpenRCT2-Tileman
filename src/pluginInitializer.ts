@@ -18,11 +18,13 @@ const isNewPark : boolean = Object.keys(context.getParkStorage().getAll()).lengt
 export function initialize() : void {
   const dataStoreManager : DataStoreManager = DataStoreManager.instance();
 
-  dataStoreManager.registerInstance(DataStoreID.PLUGIN, Plugin);
-  dataStoreManager.registerInstance(DataStoreID.METRICS, Metrics);
+  dataStoreManager.registerInstance(DataStoreID.PLUGIN, Plugin.instance());
+  dataStoreManager.registerInstance(DataStoreID.METRICS, Metrics.instance());
   
   dataStoreManager.initializeAll(isNewPark);
-  Park.initialize(isNewPark).then(() : void => {
+  
+  const tilemanPark : Park = Park.instance();
+  tilemanPark.initialize(isNewPark).then(() : void => {
     initializeUI();
     initializeTools();
   

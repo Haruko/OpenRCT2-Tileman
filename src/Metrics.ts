@@ -12,8 +12,8 @@ import { Park } from './Park';
 
 
 
-class TilemanMetrics extends DataStore<MetricData> {
-  constructor() {
+export class Metrics extends DataStore<MetricData> {
+  protected constructor() {
     super('metrics', {
       // Tiles used by player
       tilesUsed : store<number>(0),
@@ -61,9 +61,10 @@ class TilemanMetrics extends DataStore<MetricData> {
     context.subscribe('action.execute', (e : GameActionEventArgs) => this._onActionExecute(e));
 
     if (isNewPark) {
-      Park.deleteRides();
-      Park.deleteGuests();
-      Park.fireStaff();
+      const tilemanPark : Park = Park.instance();
+      tilemanPark.deleteRides();
+      tilemanPark.deleteGuests();
+      tilemanPark.fireStaff();
       
       this.loadDefaults();
 
@@ -275,5 +276,3 @@ class TilemanMetrics extends DataStore<MetricData> {
     this.data.marketingCampaignsRun.set(this.data.marketingCampaignsRun.get() + 1);
   }
 }
-
-export const Metrics : TilemanMetrics = new TilemanMetrics();

@@ -23,7 +23,7 @@ export class ConfigWindow extends BaseWindow {
   private readonly _debugButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
   private readonly _settingsStores : Partial<Record<keyof PluginData, WritableStore<string>>> = {};
   
-  constructor() {
+  protected constructor() {
     super(WindowID.CONFIG, 'Tileman Config');
 
     this.template = this._buildWindowTemplate();
@@ -606,7 +606,8 @@ export class ConfigWindow extends BaseWindow {
    * @param isPressed whether the button is pressed or not
    */
   private onFireStaffChange(isPressed : boolean) : void {
-    Park.fireStaff();
+    const tilemanPark : Park = Park.instance();
+    tilemanPark.fireStaff();
   }
 
   /**
@@ -614,7 +615,8 @@ export class ConfigWindow extends BaseWindow {
    * @param isPressed whether the button is pressed or not
    */
   private onDeleteGuestsChange(isPressed : boolean) : void {
-    Park.deleteGuests();
+    const tilemanPark : Park = Park.instance();
+    tilemanPark.deleteGuests();
   }
 
   /**
@@ -622,7 +624,8 @@ export class ConfigWindow extends BaseWindow {
    * @param isPressed whether the button is pressed or not
    */
   private onDeleteRidesChange(isPressed : boolean) : void {
-    Park.deleteRides();
+    const tilemanPark : Park = Park.instance();
+    tilemanPark.deleteRides();
   }
 
   /**

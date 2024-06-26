@@ -25,7 +25,7 @@ import { DataStoreManager } from '@src/DataStoreManager';
 export class ToolbarWindow extends BaseWindow {
   private readonly _toolButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
 
-  constructor() {
+  protected constructor() {
     super(WindowID.TOOLBAR, 'Tileman');
     this.template = this._buildWindowTemplate();
   }

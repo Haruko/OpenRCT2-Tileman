@@ -1,5 +1,3 @@
-/// <reference path='../lib/openrct2.d.ts' />
-
 import { DataStore } from './DataStore';
 import { Manager } from './Manager';
 import { DataStoreID } from './types/enums';

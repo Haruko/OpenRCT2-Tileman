@@ -9,6 +9,7 @@ import { DataStoreID, EntranceType, GameActionResultErrorCodes, GameCommandFlag,
 import { DataStore } from './DataStore';
 import { MetricData } from './types/types';
 import { DataStoreManager } from './DataStoreManager';
+import { Singleton } from './Singleton';
 
 
 
@@ -18,7 +19,7 @@ type ValidTilesResult = {
 };
 
 
-class TilemanPark {
+export class Park extends Singleton {
   private _playableArea? : MapRange;
 
   /**
@@ -27,7 +28,7 @@ class TilemanPark {
    */
   public async initialize(isNewPark : boolean) : Promise<void> {
     if(isNewPark) {
-      await Park.setLandOwnership(Park.getPlayableArea(), LandOwnership.UNOWNED);
+      await this.setLandOwnership(this.getPlayableArea(), LandOwnership.UNOWNED);
     }
   }
 
@@ -71,7 +72,7 @@ class TilemanPark {
    * @param area Range to buy
    */
   public async rangeBuy(area : MapRange) : Promise<void> {
-    const playableArea : MapRange = Park.getPlayableArea();
+    const playableArea : MapRange = this.getPlayableArea();
 
     if (!rangesIntersect(area, playableArea)) {
       ui.showError(`Can't buy land...`, `Outside of playable area!`);
@@ -104,7 +105,7 @@ class TilemanPark {
    * @param area Range to buy
    */
   public async rangeBuyRights(area : MapRange) : Promise<void> {
-    const playableArea : MapRange = Park.getPlayableArea();
+    const playableArea : MapRange = this.getPlayableArea();
 
     if (!rangesIntersect(area, playableArea)) {
       ui.showError(`Can't buy rights...`, `Outside of playable area!`);
@@ -137,7 +138,7 @@ class TilemanPark {
    * @param area Range to buy
    */
   public async rangeSell(area : MapRange) : Promise<void> {
-    const playableArea : MapRange = Park.getPlayableArea();
+    const playableArea : MapRange = this.getPlayableArea();
 
     if (!rangesIntersect(area, playableArea)) {
       ui.showError(`Can't sell land...`, `Outside of playable area!`);
@@ -168,7 +169,7 @@ class TilemanPark {
     // Number of tiles that will not incur a cost if buying
     let numFree : number = 0;
 
-    const clampedArea : MapRange = clampRange(area, Park.getPlayableArea());
+    const clampedArea : MapRange = clampRange(area, this.getPlayableArea());
     for (let x = clampedArea.leftTop.x; x <= clampedArea.rightBottom.x; x += 32) {
       for (let y = clampedArea.leftTop.y; y <= clampedArea.rightBottom.y; y += 32) {
         const tile : Tile = map.getTile(x / 32, y / 32);
@@ -462,5 +463,3 @@ class TilemanPark {
     });
   }
 }
-
-export const Park : TilemanPark = new TilemanPark();

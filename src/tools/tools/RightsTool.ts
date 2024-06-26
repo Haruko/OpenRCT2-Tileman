@@ -5,8 +5,8 @@ import { BaseTool } from './BaseTool';
 import { ToolID } from '../types/enums';
 import { Park } from '@src/Park';
 
-class TilemanRightsTool extends BaseTool {
-  constructor() {
+export class RightsTool extends BaseTool {
+  protected constructor() {
     super(ToolID.BUY, ElementID.RIGHTS_TOOL);
   }
 
@@ -22,7 +22,8 @@ class TilemanRightsTool extends BaseTool {
    * Applies the current tool to an area
    * @param area Area to apply the tool to
    */
-  protected applyTool = (area : MapRange) => Park.rangeBuyRights(area);
+  protected applyTool = (area : MapRange) => {
+    const tilemanPark : Park = Park.instance();
+    tilemanPark.rangeBuyRights(area);
+  }
 }
-
-export const RightsTool : TilemanRightsTool = new TilemanRightsTool();

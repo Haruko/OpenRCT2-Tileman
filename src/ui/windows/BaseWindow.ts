@@ -4,6 +4,7 @@ import { WindowTemplate } from 'openrct2-flexui';
 import { IWindow } from './IWindow';
 import { ElementID, WindowID } from '../types/enums';
 import { UIElement } from '../types/types';
+import { Singleton } from '@src/Singleton';
 
 
 
@@ -15,14 +16,16 @@ import { UIElement } from '../types/types';
  * **********
  */
 
-export abstract class BaseWindow implements IWindow {
+export abstract class BaseWindow extends Singleton implements IWindow {
   readonly id : WindowID;
   readonly windowTitle : string;
   protected template! : WindowTemplate;
 
   private readonly _uiElementMap : Partial<Record<ElementID, UIElement>> = {};
 
-  constructor(id : WindowID, windowTitle : string) {
+  protected constructor(id : WindowID, windowTitle : string) {
+    super();
+
     this.id = id;
     this.windowTitle = windowTitle;
   }

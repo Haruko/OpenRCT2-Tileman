@@ -12,7 +12,7 @@ import { ToggleButton } from '../elements/ToggleButton';
 
 
 export class StatsWindow extends BaseWindow {
-  constructor() {
+  protected constructor() {
     super(WindowID.STATS, 'Tileman Statistics');
 
     this.template = this._buildWindowTemplate();

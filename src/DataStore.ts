@@ -1,15 +1,16 @@
-/// <reference path='../lib/openrct2.d.ts' />
-
 import { isStore, isWritableStore, read } from 'openrct2-flexui';
 import { Storeless } from './types/types';
+import { Singleton } from './Singleton';
 
-export abstract class DataStore<DataStoreType extends Record<string, any>> {
+export abstract class DataStore<DataStoreType extends Record<string, any>> extends Singleton{
   private _namespace : string;
 
   protected data : DataStoreType;
   private _dataDefaults : DataStoreType;
 
   protected constructor(namespace : string, data : DataStoreType) {
+    super();
+    
     this._namespace = namespace;
     this.data = data;
     this._dataDefaults = {} as DataStoreType;

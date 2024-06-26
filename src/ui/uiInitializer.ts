@@ -7,14 +7,12 @@ import { StatsWindow } from './windows/StatsWindow';
 import { ToolbarWindow } from './windows/ToolbarWindow';
 
 export function initializeUI() : void {
-  const toolbarWindow : ToolbarWindow = new ToolbarWindow();
-  const statsWindow : StatsWindow = new StatsWindow();
-  const configWindow : ConfigWindow = new ConfigWindow();
-
   const uiManager : UIManager = UIManager.instance();
+  const toolbarWindow : ToolbarWindow = ToolbarWindow.instance();
+
   uiManager.registerInstance(WindowID.TOOLBAR, toolbarWindow);
-  uiManager.registerInstance(WindowID.STATS, statsWindow);
-  uiManager.registerInstance(WindowID.CONFIG, configWindow);
+  uiManager.registerInstance(WindowID.STATS, StatsWindow.instance());
+  uiManager.registerInstance(WindowID.CONFIG, ConfigWindow.instance());
 
   ui.registerMenuItem('Tileman Toolbar', () => uiManager.getInstance(WindowID.TOOLBAR).open());
   ui.registerMenuItem('Tileman Statistics', () => uiManager.getInstance(WindowID.STATS).open());

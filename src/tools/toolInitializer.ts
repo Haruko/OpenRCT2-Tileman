@@ -8,7 +8,7 @@ import { ToolID } from './types/enums';
 
 export function initializeTools() : void {
   const toolManager : ToolManager = ToolManager.instance();
-  toolManager.registerInstance(ToolID.BUY, BuyTool);
-  toolManager.registerInstance(ToolID.RIGHTS, RightsTool);
-  toolManager.registerInstance(ToolID.SELL, SellTool);
+  toolManager.registerInstance(ToolID.BUY, BuyTool.instance());
+  toolManager.registerInstance(ToolID.RIGHTS, RightsTool.instance());
+  toolManager.registerInstance(ToolID.SELL, SellTool.instance());
 }

@@ -9,17 +9,20 @@ import { ToggleButton } from '@src/ui/elements/ToggleButton';
 import { CoordsXY } from '@src/types/CoordsXY';
 import { ToolManager } from '../ToolManager';
 import { MapRange } from '@src/types/MapRange';
+import { Singleton } from '@src/Singleton';
 
 
 
-export abstract class BaseTool implements ITool {
+export abstract class BaseTool extends Singleton implements ITool {
   private _id : ToolID;
   private _buttonId : ElementID;
   private _isActive : boolean = false;
 
   private _coordsLastUsed : CoordsXY = CoordsXY(0, 0);
 
-  constructor(id : ToolID, buttonId : ElementID) {
+  protected constructor(id : ToolID, buttonId : ElementID) {
+    super();
+    
     this._id = id;
     this._buttonId = buttonId;
   }

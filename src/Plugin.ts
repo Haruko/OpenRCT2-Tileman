@@ -6,8 +6,8 @@ import { PluginData } from './types/types';
 
 
 
-class TilemanPlugin extends DataStore<PluginData> {
-  constructor() {
+export class Plugin extends DataStore<PluginData> {
+  protected constructor() {
     super('plugin', {
       /**
        * Static data
@@ -81,5 +81,3 @@ class TilemanPlugin extends DataStore<PluginData> {
     return typeof ui !== 'undefined' && context.mode === 'normal';
   }
 }
-
-export const Plugin : TilemanPlugin = new TilemanPlugin();
