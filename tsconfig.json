@@ -18,12 +18,12 @@
     "noEmit": true,
     "baseUrl": "./src",
     "paths": {
-      "@src/*": ["./*"],
-      "@flexui-ext/*": ["./flexui-extension/*"],
-      "@polyfills/*": ["./polyfills/*"],
-      "@tools/*": ["./tools/*"],
-      "@typedefs/*": ["./types/*"],
-      "@ui/*": ["./ui/*"]
+      "@src/*": ["./remote/*"],
+      "@flexui-ext/*": ["./remote/flexui-extension/*"],
+      "@polyfills/*": ["./remote/polyfills/*"],
+      "@tools/*": ["./remote/tools/*"],
+      "@typedefs/*": ["./remote/types/*"],
+      "@ui/*": ["./remote/ui/*"]
     }
   },
   "include": [

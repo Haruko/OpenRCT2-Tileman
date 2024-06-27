@@ -12,7 +12,7 @@ import { homedir } from 'os';
 import npmPackage from './package.json' assert { type: 'json' };
 
 export default {
-  input: './src/index.ts',
+  input: path.resolve('./src/remote/index.ts'),
   output: [{
     format: 'iife',
     file: `./build/openrct2-tileman-${npmPackage.version}-develop.js`,
@@ -22,7 +22,7 @@ export default {
   }],
   plugins: [
     inject({
-      Promise: [path.resolve('src/polyfills/promisePolyfill.ts'), 'PromisePolyfill'],
+      Promise: [path.resolve('src/remote/polyfills/promisePolyfill.ts'), 'PromisePolyfill'],
     }),
     resolve(),
     replace({
