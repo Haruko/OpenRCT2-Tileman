@@ -9,7 +9,7 @@ import { UIManager } from './ui/UIManager';
 import { WindowID } from './ui/types/enums';
 import { initializeUI } from './ui/uiInitializer';
 import { DataStoreManager } from './DataStoreManager';
-import { Stores } from './newStores';
+import { Stores } from './Stores';
 
 const isNewPark : boolean = Object.keys(context.getParkStorage().getAll()).length === 0;
 
