@@ -28,6 +28,10 @@ export class Park extends Singleton {
    */
   public async initialize(isNewPark : boolean) : Promise<void> {
     if(isNewPark) {
+      this.deleteRides();
+      this.deleteGuests();
+      this.fireStaff();
+
       await this.setLandOwnership(this.getPlayableArea(), LandOwnership.UNOWNED);
     }
   }

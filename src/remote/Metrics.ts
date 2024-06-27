@@ -8,7 +8,6 @@ import { DataStoreID } from './types/enums';
 import { objectStore } from '@flexui-ext/createObjectStore';
 import { ObjectStore } from '@flexui-ext/ObjectStore';
 import { DataStoreManager } from './DataStoreManager';
-import { Park } from './Park';
 
 
 
@@ -61,15 +60,7 @@ export class Metrics extends DataStore<MetricData> {
     context.subscribe('action.execute', (e : GameActionEventArgs) => this._onActionExecute(e));
 
     if (isNewPark) {
-      const tilemanPark : Park = Park.instance();
-      tilemanPark.deleteRides();
-      tilemanPark.deleteGuests();
-      tilemanPark.fireStaff();
-      
       this.loadDefaults();
-
-      const dsManager : DataStoreManager = DataStoreManager.instance();
-      dsManager.storeAllData();
     }
   }
 

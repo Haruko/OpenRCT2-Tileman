@@ -22,16 +22,21 @@ export function initialize() : void {
   dataStoreManager.registerInstance(DataStoreID.METRICS, Metrics.instance());
   
   dataStoreManager.initializeAll(isNewPark);
+
+  if (isNewPark) {
+    dataStoreManager.storeAllData();
+  }
   
   const tilemanPark : Park = Park.instance();
-  tilemanPark.initialize(isNewPark).then(() : void => {
-    initializeUI();
-    initializeTools();
-  
-    if (__environment === 'development') {
-      const uiManager : UIManager = UIManager.instance();
-      uiManager.getInstance(WindowID.CONFIG).open();
-      uiManager.getInstance(WindowID.STATS).open();
-    }
-  });
+  tilemanPark.initialize(isNewPark)
+    .then(() : void => {
+      initializeUI();
+      initializeTools();
+    
+      if (__environment === 'development') {
+        const uiManager : UIManager = UIManager.instance();
+        uiManager.getInstance(WindowID.CONFIG).open();
+        uiManager.getInstance(WindowID.STATS).open();
+      }
+    });
 }
