@@ -12,7 +12,7 @@ import { homedir } from 'os';
 import npmPackage from './package.json' assert { type: 'json' };
 
 export default {
-  input: path.resolve('./src/remote/index.ts'),
+  input: path.resolve('./src/index.ts'),
   output: [{
     format: 'iife',
     file: `./build/openrct2-tileman-${npmPackage.version}-develop.js`,

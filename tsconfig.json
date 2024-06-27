@@ -18,10 +18,10 @@
     "noEmit": true,
     "baseUrl": "./src",
     "paths": {
-      "@src/*": ["./remote/*"],
-      "@tools/*": ["./remote/tools/*"],
-      "@typedefs/*": ["./remote/types/*"],
-      "@ui/*": ["./remote/ui/*"],
+      "@src/*": ["./*"],
+      "@tools/*": ["./tools/*"],
+      "@typedefs/*": ["./types/*"],
+      "@ui/*": ["./ui/*"],
 
       "@flexui-ext/*": ["./common/flexui-extension/*"],
       "@polyfills/*": ["./common/polyfills/*"],
