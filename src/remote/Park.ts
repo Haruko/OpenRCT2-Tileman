@@ -1,13 +1,12 @@
 /// <reference path='../../lib/openrct2.d.ts' />
 
 import { WritableStore } from 'openrct2-flexui';
-import { availableTilesStore } from './stores';
 import { LandOwnershipAction } from './tools/types/enums';
 import { CoordsXY, isInRange } from './types/CoordsXY';
 import { MapRange, clampRange, getRangeSize, isMapRange, rangesIntersect } from './types/MapRange';
 import { DataStoreID, EntranceType, GameActionResultErrorCodes, GameCommandFlag, LandOwnership, LandRightsResult } from './types/enums';
 import { DataStore } from './DataStore';
-import { MetricData } from './types/types';
+import { MetricData, StoresData } from './types/types';
 import { DataStoreManager } from './DataStoreManager';
 import { Singleton } from './Singleton';
 
@@ -89,7 +88,8 @@ export class Park extends Singleton {
       const numCosting : number = coords.length - numFree;
 
       // Check if player can afford them
-      if (numCosting <= availableTilesStore.get()) {
+      const stores : DataStore<StoresData> = DataStoreManager.instance<DataStoreManager>().getInstance(DataStoreID.STORES);
+      if (numCosting <= stores.get('availableTilesStore').get()) {
         const { numSet } : LandRightsResult = await this.setLandOwnership(coords, LandOwnership.OWNED);
         const numSpent : number = numSet - numFree;
         
@@ -122,7 +122,8 @@ export class Park extends Singleton {
       const numCosting : number = coords.length - numFree;
 
       // Check if player can afford them
-      if (numCosting <= availableTilesStore.get()) {
+      const stores : DataStore<StoresData> = DataStoreManager.instance<DataStoreManager>().getInstance(DataStoreID.STORES);
+      if (numCosting <= stores.get('availableTilesStore').get()) {
         const { numSet } : LandRightsResult = await this.setLandOwnership(coords, LandOwnership.CONSTRUCTION_RIGHTS_OWNED);
         const numSpent : number = numSet - numFree;
         

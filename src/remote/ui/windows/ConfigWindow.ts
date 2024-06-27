@@ -6,12 +6,11 @@ import { BaseWindow } from './BaseWindow';
 import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
 import { FlexUIWidget } from '../types/types';
 import { DoubleClickButton } from '../elements/DoubleClickButton';
-import { availableTilesStore, balloonsPoppedXpStore, bannersPlacedXpStore, facilityXpStore, parkAdmissionsXpStore, rideXpStore, stallXpStore, totalXpStore } from '@src/stores';
 import { AlignedLabel } from '../elements/AlignedLabel';
 import { IWindow } from './IWindow';
 import { UIManager } from '../UIManager';
 import { ToggleButton } from '../elements/ToggleButton';
-import { PluginData } from '@src/types/types';
+import { PluginData, StoresData } from '@src/types/types';
 import { DataStoreID } from '@src/types/enums';
 import { DataStore } from '@src/DataStore';
 import { DataStoreManager } from '@src/DataStoreManager';
@@ -90,6 +89,8 @@ export class ConfigWindow extends BaseWindow {
    * Makes the list of config option controls for the config tab of the config window
    */
   private _buildConfigSettingPanel() : FlexUIWidget {
+    const stores : DataStore<StoresData> = DataStoreManager.instance<DataStoreManager>().getInstance(DataStoreID.STORES);
+    
     const shortLineSpacer : FlexUIWidget = horizontal({
       spacing: 0,
       content: [
@@ -164,26 +165,26 @@ export class ConfigWindow extends BaseWindow {
     const playerActionXpRows : FlexUIWidget[] = [
       this._createConfigRow(ElementID.EXP_PER_BALLOON_POPPED, 'balloonsPoppedXpValue',
         'Balloon popped', 'How much XP earned per balloon popped...\nYou monster...',
-        this._createTotalLabelStore(ElementID.EXP_PER_BALLOON_POPPED, balloonsPoppedXpStore)),
+        this._createTotalLabelStore(ElementID.EXP_PER_BALLOON_POPPED, stores.get('balloonsPoppedXpStore'))),
       this._createConfigRow(ElementID.EXP_PER_BANNER_PLACED, 'bannersPlacedXpValue',
         'Banner placed', 'How much XP earned per banner placed.\nYes, it\'s deducted when you delete it...',
-        this._createTotalLabelStore(ElementID.EXP_PER_BANNER_PLACED, bannersPlacedXpStore)),
+        this._createTotalLabelStore(ElementID.EXP_PER_BANNER_PLACED, stores.get('bannersPlacedXpStore'))),
     ];
 
     // Guest actions
     const guestActionXpRows : FlexUIWidget[] = [
       this._createConfigRow(ElementID.EXP_PER_PARK_ADMISSION, 'parkAdmissionXpValue',
         'Park admission', 'How much XP earned per park admission.',
-        this._createTotalLabelStore(ElementID.EXP_PER_PARK_ADMISSION, parkAdmissionsXpStore)),
+        this._createTotalLabelStore(ElementID.EXP_PER_PARK_ADMISSION, stores.get('parkAdmissionsXpStore'))),
       this._createConfigRow(ElementID.EXP_PER_RIDE_ADMISSION, 'rideAdmissionXpValue',
         'Ride admission', 'How much XP earned per ride admission.',
-        this._createTotalLabelStore(ElementID.EXP_PER_RIDE_ADMISSION, rideXpStore)),
+        this._createTotalLabelStore(ElementID.EXP_PER_RIDE_ADMISSION, stores.get('rideXpStore'))),
       this._createConfigRow(ElementID.EXP_PER_STALL_ADMISSION, 'stallBuyXpValue',
         'Stall purchase', 'How much XP gained per stall purchase.',
-        this._createTotalLabelStore(ElementID.EXP_PER_STALL_ADMISSION, stallXpStore)),
+        this._createTotalLabelStore(ElementID.EXP_PER_STALL_ADMISSION, stores.get('stallXpStore'))),
       this._createConfigRow(ElementID.EXP_PER_FACILITY_ADMISSION, 'facilityUseXpValue',
         'Facility usage', 'How much XP gained per facility usage.\nIncludes: Toilets, Information Kiosk, Cash Machine, and First Aid.',
-        this._createTotalLabelStore(ElementID.EXP_PER_FACILITY_ADMISSION, facilityXpStore)),
+        this._createTotalLabelStore(ElementID.EXP_PER_FACILITY_ADMISSION, stores.get('facilityXpStore'))),
     ];
     
     // Staff actions
@@ -247,7 +248,7 @@ export class ConfigWindow extends BaseWindow {
           },
         }).widget,
         new AlignedLabel(ElementID.NONE, {
-          text: compute<number, string>(totalXpStore, (totalXp : number) : string => context.formatString('{COMMA16} {BLACK}xp', totalXp)),
+          text: compute<number, string>(stores.get('totalXpStore'), (totalXp : number) : string => context.formatString('{COMMA16} {BLACK}xp', totalXp)),
           width: '25%',
           height: 14,
           padding: { right: 1 },
@@ -277,7 +278,7 @@ export class ConfigWindow extends BaseWindow {
     const otherRows : FlexUIWidget[] = [
       this._createConfigRow(ElementID.EXP_PER_TILE, 'tileXpCost',
         'Tile XP cost', 'How much XP each tile costs.',
-        this._createTotalLabelStore(ElementID.EXP_PER_TILE, availableTilesStore)),
+        this._createTotalLabelStore(ElementID.EXP_PER_TILE, stores.get('availableTilesStore'))),
       this._createConfigRow(ElementID.MIN_TILES, 'startingTiles',
         'Starting tiles', 'How many free tiles you start with.'),
       shortLineSpacer,

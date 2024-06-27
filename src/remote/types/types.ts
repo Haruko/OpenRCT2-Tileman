@@ -61,7 +61,6 @@ export type PluginData = DataStoreData & {
   parkAwardsXpValue : WritableStore<number>,
 };
 
-
 export type MetricData = DataStoreData & {
   // Tiles used by player
   tilesUsed : WritableStore<number>,
@@ -90,6 +89,48 @@ export type MetricData = DataStoreData & {
   // Park data
   parkAwards : WritableStore<number>,
 };
+
+export type StoresData = DataStoreData & {
+  // Player actions
+  balloonsPoppedXpStore: Store<number> | null,
+  bannersPlacedXpStore: Store<number> | null,
+  marketingCampaignsRunXpStore: Store<number> | null,
+  totalPlayerXpStore: Store<number> | null,
+  
+  // Guest actions
+  parkAdmissionsXpStore: Store<number> | null,
+  rideXpStore: Store<number> | null,
+  stallXpStore: Store<number> | null,
+  facilityXpStore: Store<number> | null,
+  totalGuestXpStore: Store<number> | null,
+  
+  // Staff actions
+  lawnsMownXpStore: Store<number> | null,
+  gardensWateredXpStore: Store<number> | null,
+  trashSweptXpStore: Store<number> | null,
+  trashCansEmptiedXpStore: Store<number> | null,
+  totalHandymenXpStore: Store<number> | null,
+  
+  ridesInspectedXpStore: Store<number> | null,
+  ridesFixedXpStore: Store<number> | null,
+  totalMechanicXpStore: Store<number> | null,
+  
+  vandalsStoppedXpStore: Store<number> | null,
+  totalSecurityXpStore: Store<number> | null,
+  
+  totalStaffXpStore: Store<number> | null,
+  
+  // Park data
+  parkAwardsXpStore: Store<number> | null,
+  totalParkDataXpStore: Store<number> | null,
+  
+  // Other
+  totalXpStore: Store<number> | null,
+  tilesEarnedStore: Store<number> | null,
+  availableTilesStore: Store<number> | null,
+};
+
+
 
 /**
  * Ride data for plugin storage

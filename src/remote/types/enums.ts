@@ -14,7 +14,8 @@
 
 export enum DataStoreID {
   PLUGIN = 'plugin',
-  METRICS = 'metrics'
+  METRICS = 'metrics',
+  STORES = 'stores',
 };
 
 /**

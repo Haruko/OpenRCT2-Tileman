@@ -7,7 +7,6 @@ import { BaseWindow } from './BaseWindow';
 import { FlexUIWidget, HorizontalAlignment } from '../types/types';
 import { ToggleButton } from '../elements/ToggleButton';
 import { UIManager } from '../UIManager';
-import { availableTilesStore, totalXpStore } from '@src/stores';
 import { IWindow } from './IWindow';
 import { ToolManager } from '@src/tools/ToolManager';
 import { ToolID } from '@src/tools/types/enums';
@@ -15,7 +14,7 @@ import { ProgressBar } from '../elements/ProgressBar';
 import { AlignedLabel } from '../elements/AlignedLabel';
 import { DataStoreID } from '@src/types/enums';
 import { DataStore } from '@src/DataStore';
-import { PluginData } from '@src/types/types';
+import { PluginData, StoresData } from '@src/types/types';
 import { DataStoreManager } from '@src/DataStoreManager';
 
 
@@ -207,6 +206,7 @@ export class ToolbarWindow extends BaseWindow {
   private _buildToolbarStatsPanel() : FlexUIWidget {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
+    const stores : DataStore<StoresData> = dsManager.getInstance(DataStoreID.STORES);
 
     // Available tiles label
     const availableTilesLabel : FlexUIWidget = horizontal({
@@ -247,7 +247,7 @@ export class ToolbarWindow extends BaseWindow {
     });
     
     // Xp to next tile progress bar
-    const xpToNextTilePercent : Store<number> = compute<number, number, number>(totalXpStore, plugin.get('tileXpCost'),
+    const xpToNextTilePercent : Store<number> = compute<number, number, number>(stores.get('totalXpStore'), plugin.get('tileXpCost'),
       (totalXp : number, tileXpCost : number) : number => {
         const xpSinceLastTile : number = totalXp % tileXpCost;
         return xpSinceLastTile / tileXpCost;
@@ -287,12 +287,13 @@ export class ToolbarWindow extends BaseWindow {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
     const metrics : DataStore<PluginData> = dsManager.getInstance(DataStoreID.METRICS);
+    const stores : DataStore<StoresData> = dsManager.getInstance(DataStoreID.STORES);
     
     let newStore! : Store<string>;
 
     switch (id) {
       case ElementID.AVAILABLE_TILES: {
-        newStore = compute<number, string>(availableTilesStore,
+        newStore = compute<number, string>(stores.get('availableTilesStore'),
           (availableTiles : number) : string => {
             if (availableTiles === Infinity) {
               return '{GREEN}Yes';
@@ -312,7 +313,7 @@ export class ToolbarWindow extends BaseWindow {
         );
         break;
       } case ElementID.EXP_TO_NEXT_TILE: {
-        newStore = compute<number, number, string>(totalXpStore, plugin.get('tileXpCost'),
+        newStore = compute<number, number, string>(stores.get('totalXpStore'), plugin.get('tileXpCost'),
           (totalXp : number, tileXpCost : number) : string => {
               const xpToNextTile : number = tileXpCost - (totalXp % tileXpCost);
               return `{WHITE}${context.formatString('{COMMA16}', xpToNextTile)}`;
@@ -320,7 +321,7 @@ export class ToolbarWindow extends BaseWindow {
         );
         break;
       } case ElementID.EXP_NEXT_PROGRESSBAR: {
-        newStore = compute<number, number, string>(totalXpStore, plugin.get('tileXpCost'),
+        newStore = compute<number, number, string>(stores.get('totalXpStore'), plugin.get('tileXpCost'),
           (totalXp : number, tileXpCost : number) : string => {
             if (tileXpCost === 0) {
               return `  {RED}I want to get off Mr. Bone's Wild Ride!`;

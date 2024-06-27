@@ -2,13 +2,13 @@ import { isStore, isWritableStore, read } from 'openrct2-flexui';
 import { Storeless } from './types/types';
 import { Singleton } from './Singleton';
 
-export abstract class DataStore<DataStoreType extends Record<string, any>> extends Singleton{
-  private _namespace : string;
+export abstract class DataStore<DataStoreType extends Record<string, any>> extends Singleton {
+  private _namespace : string | null;
 
   protected data : DataStoreType;
   private _dataDefaults : DataStoreType;
 
-  protected constructor(namespace : string, data : DataStoreType) {
+  protected constructor(namespace : string | null, data : DataStoreType) {
     super();
     
     this._namespace = namespace;
@@ -77,16 +77,20 @@ export abstract class DataStore<DataStoreType extends Record<string, any>> exten
   /**
    * Loads data from the persistent park-specific storage
    */
-  public getStoredData() : Storeless<DataStoreType> {
-    const savedData = context.getParkStorage().getAll()[this._namespace];
+  public getStoredData() : Storeless<DataStoreType> | null {
+    if (this._namespace !== null) {
+      const savedData = context.getParkStorage().getAll()[this._namespace];
 
-    if (typeof savedData === 'undefined') {
-      const newData = {};
+      if (typeof savedData === 'undefined') {
+        const newData = {};
 
-      context.getParkStorage().set(this._namespace, newData);
-      return newData as Storeless<DataStoreType>;
+        context.getParkStorage().set(this._namespace, newData);
+        return newData as Storeless<DataStoreType>;
+      } else {
+        return savedData as Storeless<DataStoreType>;
+      }
     } else {
-      return savedData as Storeless<DataStoreType>;
+      return null;
     }
   }
 
@@ -94,15 +98,17 @@ export abstract class DataStore<DataStoreType extends Record<string, any>> exten
    * Loads data from the persistent park-specific storage
    */
   public loadData() : void {
-    const savedData : Storeless<DataStoreType> = this.getStoredData();
+    const savedData : Storeless<DataStoreType> | null = this.getStoredData();
 
-    for (const key in this.data) {
-      const savedValue : any = savedData[key];
+    if (savedData !== null) {
+      for (const key in this.data) {
+        const savedValue : any = savedData[key];
 
-      // Filter to only things that are Stores.
-      // Otherwise we can't release updates that change these properties.
-      if (isWritableStore(this.data[key])) {
-        this.data[key].set(savedValue);
+        // Filter to only things that are Stores.
+        // Otherwise we can't release updates that change these properties.
+        if (isWritableStore(this.data[key])) {
+          this.data[key].set(savedValue);
+        }
       }
     }
   }
@@ -111,13 +117,15 @@ export abstract class DataStore<DataStoreType extends Record<string, any>> exten
    * Stores data into the persistent park-specific storage
    */
   public storeData() : void {
-    const savedData : Storeless<DataStoreType> = this.getStoredData();
+    const savedData : Storeless<DataStoreType> | null = this.getStoredData();
 
-    for (const key in this.data) {
-      // Filter to only things that are Stores.
-      // Otherwise we can't release updates that change these properties.
-      if (isStore(this.data[key])) {
-        savedData[key] = read(this.data[key]);
+    if (savedData !== null) {
+      for (const key in this.data) {
+        // Filter to only things that are Stores.
+        // Otherwise we can't release updates that change these properties.
+        if (isStore(this.data[key])) {
+          savedData[key] = read(this.data[key]);
+        }
       }
     }
   }

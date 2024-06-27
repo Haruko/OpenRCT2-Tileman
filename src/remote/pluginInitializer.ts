@@ -9,6 +9,7 @@ import { UIManager } from './ui/UIManager';
 import { WindowID } from './ui/types/enums';
 import { initializeUI } from './ui/uiInitializer';
 import { DataStoreManager } from './DataStoreManager';
+import { Stores } from './newStores';
 
 const isNewPark : boolean = Object.keys(context.getParkStorage().getAll()).length === 0;
 
@@ -20,6 +21,7 @@ export function initialize() : void {
 
   dataStoreManager.registerInstance(DataStoreID.PLUGIN, Plugin.instance());
   dataStoreManager.registerInstance(DataStoreID.METRICS, Metrics.instance());
+  dataStoreManager.registerInstance(DataStoreID.STORES, Stores.instance());
   
   dataStoreManager.initializeAll(isNewPark);
 
