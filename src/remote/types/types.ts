@@ -1,6 +1,6 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { ObjectStore } from '@src/flexui-extension/ObjectStore';
+import { ObjectStore } from '@flexui-ext/ObjectStore';
 import { ArrayStore, Store, WritableStore } from 'openrct2-flexui';
 
 

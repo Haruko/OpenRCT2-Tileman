@@ -5,8 +5,8 @@ import { DataStore } from './DataStore';
 import { GameCommand, RideLifecycleFlags } from './types/enums';
 import { MetricData, RideData } from './types/types';
 import { DataStoreID } from './types/enums';
-import { objectStore } from './flexui-extension/createObjectStore';
-import { ObjectStore } from './flexui-extension/ObjectStore';
+import { objectStore } from '@flexui-ext/createObjectStore';
+import { ObjectStore } from '@flexui-ext/ObjectStore';
 import { DataStoreManager } from './DataStoreManager';
 import { Park } from './Park';
 

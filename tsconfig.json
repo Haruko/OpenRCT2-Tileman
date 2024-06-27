@@ -19,11 +19,12 @@
     "baseUrl": "./src",
     "paths": {
       "@src/*": ["./remote/*"],
-      "@flexui-ext/*": ["./remote/flexui-extension/*"],
-      "@polyfills/*": ["./remote/polyfills/*"],
       "@tools/*": ["./remote/tools/*"],
       "@typedefs/*": ["./remote/types/*"],
-      "@ui/*": ["./remote/ui/*"]
+      "@ui/*": ["./remote/ui/*"],
+
+      "@flexui-ext/*": ["./common/flexui-extension/*"],
+      "@polyfills/*": ["./common/polyfills/*"],
     }
   },
   "include": [
