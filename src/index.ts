@@ -45,7 +45,7 @@ parkAwardsXp : WritableStore<number>,
 * New startup process.
 * All paths within the park are now cleared on initialization.
 * Guest clearing is limited to within the park.
-* 
+* Made toolbar smaller by removing config and stats buttons. These are both accessible from the map dropdown menu.
 
 
 

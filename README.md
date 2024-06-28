@@ -18,7 +18,7 @@ Requires OpenRCT2 v0.4.4
 4. Place the plugin's JS file into the directory and start the game!
 
 ## Configuration
-If you want to change any of the XP values or costs, there is a config button on the toolbar and in the Map button dropdown.
+If you want to change any of the XP values or costs, use the config option in the Map button dropdown.
 
 ## Acknowledgements
 Referenced code:
