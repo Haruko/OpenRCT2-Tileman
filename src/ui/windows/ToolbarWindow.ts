@@ -7,7 +7,6 @@ import { BaseWindow } from './BaseWindow';
 import { FlexUIWidget, HorizontalAlignment } from '../types/types';
 import { ToggleButton } from '../elements/ToggleButton';
 import { UIManager } from '../UIManager';
-import { IWindow } from './IWindow';
 import { ToolManager } from '@src/tools/ToolManager';
 import { ToolID } from '@src/tools/types/enums';
 import { ProgressBar } from '../elements/ProgressBar';
