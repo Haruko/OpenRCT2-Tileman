@@ -485,6 +485,7 @@ export class ConfigWindow extends BaseWindow {
     const fireStaffButton : DoubleClickButton = this._createDebugButton(ElementID.FIRE_STAFF_BUTTON);
     const deleteGuestsButton : DoubleClickButton = this._createDebugButton(ElementID.DELETE_GUESTS_BUTTON);
     const deleteRidesButton : DoubleClickButton = this._createDebugButton(ElementID.DELETE_RIDES_BUTTON);
+    const clearPathsButton : DoubleClickButton = this._createDebugButton(ElementID.CLEAR_PATHS_BUTTON);
 
     const instructionLabel = label({
       text: '{WHITE}Double click to use buttons',
@@ -503,6 +504,13 @@ export class ConfigWindow extends BaseWindow {
             fireStaffButton.widget,
             deleteGuestsButton.widget,
             deleteRidesButton.widget,
+          ]
+        }),
+        horizontal({
+          spacing: 3,
+          padding: 0,
+          content: [
+            clearPathsButton.widget,
           ]
         }),
         instructionLabel
@@ -534,7 +542,7 @@ export class ConfigWindow extends BaseWindow {
       } case ElementID.DELETE_GUESTS_BUTTON: {
         newElement = new DoubleClickButton(ElementID.DELETE_GUESTS_BUTTON, {
           text: 'Delete Guests',
-          tooltip: 'Deletes the guests from the park',
+          tooltip: 'Deletes the guests inside the park',
           width: '33%',
           height: 14,
           onChange: this.onDeleteGuestsChange.bind(this)
@@ -547,6 +555,18 @@ export class ConfigWindow extends BaseWindow {
         newElement = new DoubleClickButton(ElementID.DELETE_RIDES_BUTTON, {
           text: 'Delete Rides',
           tooltip: 'Deletes all rides from the park and removes their stats from exp calculation',
+          width: '33%',
+          height: 14,
+          onChange: this.onDeleteRidesChange.bind(this)
+        }, this._debugButtonGroup);
+
+        this._debugButtonGroup.addButton(newElement);
+        this.registerElement(ElementID.DELETE_RIDES_BUTTON, newElement);
+        break;
+      } case ElementID.CLEAR_PATHS_BUTTON: {
+        newElement = new DoubleClickButton(ElementID.DELETE_RIDES_BUTTON, {
+          text: 'Delete Paths',
+          tooltip: 'Deletes all paths inside the park',
           width: '33%',
           height: 14,
           onChange: this.onDeleteRidesChange.bind(this)

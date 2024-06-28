@@ -68,7 +68,7 @@ export enum ElementID {
     FIRE_STAFF_BUTTON,
     DELETE_GUESTS_BUTTON,
     DELETE_RIDES_BUTTON,
-    CLEAR_PARK_BUTTON,
+    CLEAR_PATHS_BUTTON,
 };
 
 // From openrct2/sprites.h
