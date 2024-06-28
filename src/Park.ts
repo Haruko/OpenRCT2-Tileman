@@ -26,11 +26,8 @@ export class Park extends Singleton {
    * Only ever called if this is a classic park being made into a tileman park
    */
   public async initialize() : Promise<void> {
-    this.deleteRides();
-    this.deleteGuests();
-    this.fireStaff();
+    await this.clearPark();
 
-    this.clearPaths();
     await this.setLandOwnership(this.getPlayableArea(), LandOwnership.UNOWNED);
   }
 
@@ -178,7 +175,7 @@ export class Park extends Singleton {
       for (let y = clampedArea.leftTop.y; y <= clampedArea.rightBottom.y; y += 32) {
         const tile : Tile = map.getTile(x / 32, y / 32);
         
-        if (this.isValidTileAction(tile, action)) {
+        if (this._isValidTileAction(tile, action)) {
           coords.push(CoordsXY(x, y));
 
           const surface : SurfaceElement = this.getElementOfType(tile, 'surface') as SurfaceElement;
@@ -325,7 +322,7 @@ export class Park extends Singleton {
    * @param action LandOwnershipAction to check
    * @returns True if it's a valid action
    */
-  private isValidTileAction(tile : Tile, action : LandOwnershipAction) : boolean {
+  private _isValidTileAction(tile : Tile, action : LandOwnershipAction) : boolean {
     // Iterate over elements to see land ownership and what is here
     for(let i = 0; i < tile.numElements; ++i) {
       const element : TileElement = tile.getElement(i);
@@ -490,14 +487,13 @@ export class Park extends Singleton {
   /**
    * Deletes all rides
    */
-  public deleteRides() : void {
+  public async deleteRides() : Promise<void> {
     const rideList : Ride[] = map.rides;
   
-    let promiseChain = Promise.resolve();
-  
-    rideList.forEach((ride : Ride) : void => {
+    let promises : Promise<void>[] = [];
+    rideList.forEach((ride : Ride, index : number) : void => {
       // Deleting a ride with people on it ejects them to the queue 
-      promiseChain = promiseChain.then(() : void => {
+      promises.push(new Promise<void>((resolve, reject) : void => {
         context.executeAction('ridedemolish', {
           flags: GameCommandFlag.GAME_COMMAND_FLAG_APPLY
                 | GameCommandFlag.GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED
@@ -505,16 +501,22 @@ export class Park extends Singleton {
           ride: ride.id,
           modifyType: 0 // 0: demolish, 1: renew
         }, (result : GameActionResult) => {
-  
+          resolve();
         });
-      });
+      }));
     });
+
+    return Promise.all(promises).then();
   }
 
   /**
    * Clears all paths inside the park
    */
-  public clearPaths() : void {
+  public async clearPark() : Promise<void> {
+    // Delete rides first, otherwise there will be a bunch of crashes
+    // We delete track later for maps like LL's Volcania with abandoned rides
+    await this.deleteRides();
+
     ui.tileSelection.tiles = [];
 
     const playableArea : MapRange = this.getPlayableArea();
@@ -531,14 +533,18 @@ export class Park extends Singleton {
         const surface : SurfaceElement = this.getElementOfType(tile, 'surface') as SurfaceElement;
 
         if (surface.hasOwnership) {
-          for (let i = tile.numElements - 1; i > 0; --i) {
+          for (let i = tile.numElements - 1; i >= 0; --i) {
             const element : TileElement = tile.elements[i];
-            if (element.type === 'footpath') {
+            if (element.type === 'footpath' || element.type === 'track' || element.type === 'entrance') {
               tile.removeElement(i);
             }
           }
         }
       }
     }
+
+    // Clear the guests and staff after rides are all deleted so they can also be deleted
+    this.deleteGuests();
+    this.fireStaff();
   }
 }
