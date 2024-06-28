@@ -418,7 +418,7 @@ export class Park extends Singleton {
   public getElementOfType(coords : CoordsXY, type : TileElementType) : TileElement;
 
   /**
-   * Gets the SurfaceElement at the given coords
+   * Gets the SurfaceElement at the given coords or Tile
    * @param coords The coords
    * @param type Type of element to get
    * @returns The SurfaceElement
@@ -443,6 +443,42 @@ export class Park extends Singleton {
     }
 
     return element;
+  }
+
+  /**
+   * Deletes the TileElement at the given Tile
+   * @param tile The Tile
+   * @param type Array of types to delete
+   */
+  public deleteElementsOfType(tile : Tile, types : TileElementType[]) : void;
+
+  /**
+   * Deletes the SurfaceElement at the given coords
+   * @param coords The coords
+   * @param type Array of types to delete
+   */
+  public deleteElementsOfType(coords : CoordsXY, types : TileElementType[]) : void;
+
+  /**
+   * Deletes the SurfaceElement at the given coords or Tile
+   * @param coords The coords
+   * @param type Array of types to delete
+   */
+  public deleteElementsOfType(coordsOrTile : CoordsXY | Tile, types : TileElementType[]) : void {
+    let tile : Tile;
+
+    if (isCoordsXY(coordsOrTile)) {
+      tile = map.getTile(coordsOrTile.x, coordsOrTile.y);
+    } else {
+      tile = coordsOrTile;
+    }
+
+    // Not sure if surface is always at index 0
+    for (let i = 0; i < tile.numElements; ++i) {
+      if (types.indexOf(tile.elements[i].type) > -1) {
+        tile.removeElement(i);
+      }
+    }
   }
     
 
