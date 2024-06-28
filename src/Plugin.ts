@@ -24,6 +24,7 @@ export class Plugin extends DataStore<PluginData> {
        * User definable
        */
       ticksPerUpdate: store<number>(40), // Ticks per update of data
+      keepToolbarOpen: store<boolean>(true),
   
       tileXpCost: store<number>(100), // Exp cost per tile
       startingTiles: store<number>(2), // 1 path + 1 stall minimum

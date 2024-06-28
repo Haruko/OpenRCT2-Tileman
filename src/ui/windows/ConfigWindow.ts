@@ -1,6 +1,6 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
-import { Store, TabCreator, WindowTemplate, WritableStore, button, compute, horizontal, isWritableStore, label, read, store, tab, tabwindow, textbox, vertical, widget } from 'openrct2-flexui';
+import { Store, TabCreator, WindowTemplate, WritableStore, button, checkbox, compute, horizontal, label, read, store, tab, tabwindow, textbox, vertical, widget } from 'openrct2-flexui';
 import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
 import { BaseWindow } from './BaseWindow';
 import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
@@ -20,7 +20,7 @@ import { Park } from '@src/Park';
 
 export class ConfigWindow extends BaseWindow {
   private readonly _debugButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
-  private readonly _settingsStores : Partial<Record<keyof PluginData, WritableStore<string>>> = {};
+  private readonly _settingsStores : Partial<Record<keyof PluginData, WritableStore<any>>> = {};
   
   protected constructor() {
     super(WindowID.CONFIG, 'Tileman Config');
@@ -71,6 +71,7 @@ export class ConfigWindow extends BaseWindow {
         vertical({
           content: [
             this._buildConfigSettingPanel(),
+            this._buildConfigOtherPanel(),
             this._buildConfigButtonPanel(),
             widget({
               type: 'label',
@@ -83,6 +84,59 @@ export class ConfigWindow extends BaseWindow {
         }),
       ]
     });
+  }
+
+  /**
+   * Makes a panel of other settings that are not in the big list
+   */
+  private _buildConfigOtherPanel() : FlexUIWidget {
+    const keepToolbarOpenCheckbox : FlexUIWidget = this._createConfigCheckbox(ElementID.KEEP_TOOLBAR_OPEN);
+
+    return horizontal({
+      spacing: 3,
+      padding: 0,
+      content: [
+        keepToolbarOpenCheckbox,
+      ],
+    });
+  }
+
+  /**
+   * Creates a checkbox for the config panel
+   */
+  private _createConfigCheckbox(id : ElementID) : FlexUIWidget {
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
+
+    let element! : FlexUIWidget;
+
+    switch (id) {
+      case ElementID.KEEP_TOOLBAR_OPEN: {
+        const keepToolbarOpenStore : WritableStore<boolean> = store(plugin.get('keepToolbarOpen').get());
+        const text = 'Keep toolbar open';
+
+        element = checkbox({
+          isChecked: { twoway: keepToolbarOpenStore },
+          tooltip: 'Uncheck this box to let the toolbar be closed.',
+          text: compute<boolean, boolean, string>(plugin.get('keepToolbarOpen'), keepToolbarOpenStore,
+            (pluginValue : boolean, checkboxValue : boolean) : string => {
+              const isChanged : boolean = pluginValue !== checkboxValue;
+      
+              if (isChanged) {
+                return `{TOPAZ}* ${text} *`;
+              } else {
+                return text;
+              }
+            }),
+        });
+
+        this._settingsStores['keepToolbarOpen'] = keepToolbarOpenStore;
+        this.registerElement(ElementID.KEEP_TOOLBAR_OPEN, element);
+        break;
+      }
+    }
+
+    return element;
   }
 
   /**

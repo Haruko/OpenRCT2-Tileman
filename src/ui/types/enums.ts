@@ -60,6 +60,8 @@ export enum ElementID {
       // Park data
       EXP_PER_PARK_AWARD,
 
+    KEEP_TOOLBAR_OPEN,
+
     CONFIG_REVERT,
     CONFIG_DEFAULTS,
     CONFIG_SAVE,

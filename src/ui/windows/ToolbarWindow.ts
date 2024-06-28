@@ -283,6 +283,11 @@ export class ToolbarWindow extends BaseWindow {
     });
   }
 
+  /**
+   * Create Stores for statistics labels
+   * @param id ElementID of element to create Dtore for
+   * @returns the Store
+   */
   private _createStatsLabelStore(id : ElementID) : Store<string> {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
@@ -365,7 +370,12 @@ export class ToolbarWindow extends BaseWindow {
    */
   protected override onClose() : void {
     super.onClose();
-    this.open();
+
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
+    if (plugin.get('keepToolbarOpen').get()) {
+      this.open();
+    }
   }
 
   /**
