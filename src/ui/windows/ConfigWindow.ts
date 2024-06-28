@@ -655,13 +655,23 @@ export class ConfigWindow extends BaseWindow {
   private onDefaultsButtonClick() : void {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
+    const keys : (keyof PluginData)[] = Object.keys(this._settingsStores);
+
     // Reset Plugin values to defaults
     plugin.loadDefaults();
 
     // Set all settings back to default values
-    (Object.keys(this._settingsStores) as (keyof PluginData)[]).forEach((key : keyof PluginData) : void => {
-        this._settingsStores[key]!.set(read(plugin.get(key)) + '')
-      });
+    keys.forEach((key : keyof PluginData) : void => {
+      const pluginStore : WritableStore<any> = plugin.get(key);
+      const pluginValue : any = pluginStore.get();
+
+      const fieldStore : WritableStore<any> = <WritableStore<any>>this._settingsStores[key];
+      if (typeof pluginValue === 'number') {
+        fieldStore.set(pluginValue + '');
+      } else {
+        fieldStore.set(pluginValue);
+      }
+    });
     
     // Store data after
     plugin.storeData();
@@ -677,7 +687,15 @@ export class ConfigWindow extends BaseWindow {
 
     // Set all settings back to Plugin.get() value
     keys.forEach((key : keyof PluginData) : void => {
-      this._settingsStores[key]?.set(read(plugin.get(key)) + '')
+      const pluginStore : WritableStore<any> = plugin.get(key);
+      const pluginValue : any = pluginStore.get();
+
+      const fieldStore : WritableStore<any> = <WritableStore<any>>this._settingsStores[key];
+      if (typeof pluginValue === 'number') {
+        fieldStore.set(pluginValue + '');
+      } else {
+        fieldStore.set(pluginValue);
+      }
     });
   }
 
@@ -691,13 +709,14 @@ export class ConfigWindow extends BaseWindow {
     
     // Save all settings with Plugin.set
     keys.forEach((key : keyof PluginData) : void => {
-      const fieldValue : number = Number(read(this._settingsStores[key]));
-      const value : any = plugin.get(key);
+      const pluginStore : WritableStore<any> = plugin.get(key);
+      const pluginValue : any = pluginStore.get();
 
-      if (isWritableStore(value)) {
-        value.set(fieldValue);
+      const fieldValue : any = read(this._settingsStores[key]);
+      if (typeof pluginValue === 'number') {
+        pluginStore.set(Number(fieldValue));
       } else {
-        plugin.set(key, fieldValue)
+        pluginStore.set(fieldValue);
       }
     });
     
