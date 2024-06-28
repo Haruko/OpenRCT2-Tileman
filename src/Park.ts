@@ -472,10 +472,12 @@ export class Park extends Singleton {
     let guestsOnRide = false;
   
     guestList.forEach((guest : Guest) : void => {
-      try {
-        guest.remove();
-      } catch (error) {
-        guestsOnRide = true;
+      if(guest.isInPark) {
+        try {
+          guest.remove();
+        } catch (error) {
+          guestsOnRide = true;
+        }
       }
     });
   
