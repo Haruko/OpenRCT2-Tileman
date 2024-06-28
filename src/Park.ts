@@ -550,19 +550,33 @@ export class Park extends Singleton {
       }));
     });
 
-    return Promise.all(promises).then();
+    return Promise.all(promises).then(() : void => {
+      // Clear orphaned track pieces tile by tile (for LL's Volcania for instance)
+      const playableArea : MapRange = this.getPlayableArea();
+
+      const minX : number = playableArea.leftTop.x / 32;
+      const minY : number = playableArea.leftTop.y / 32;
+
+      const maxX : number = playableArea.rightBottom.x / 32;
+      const maxY : number = playableArea.rightBottom.y / 32;
+
+      for(let x = minX; x < maxX; x += 1) {
+        for(let y = minY; y < maxY; y += 1) {
+          const tile : Tile = map.getTile(x, y);
+          const surface : SurfaceElement = this.getElementOfType(tile, 'surface') as SurfaceElement;
+
+          if (surface.hasOwnership) {
+            this.deleteElementsOfType(tile, ['track', 'entrance']);
+          }
+        }
+      }
+    });
   }
 
   /**
-   * Clears all paths inside the park
+   * Deletes all paths inside the park
    */
-  public async clearPark() : Promise<void> {
-    // Delete rides first, otherwise there will be a bunch of crashes
-    // We delete track later for maps like LL's Volcania with abandoned rides
-    await this.deleteRides();
-
-    ui.tileSelection.tiles = [];
-
+  public deletePaths() : void {
     const playableArea : MapRange = this.getPlayableArea();
 
     const minX : number = playableArea.leftTop.x / 32;
@@ -577,15 +591,21 @@ export class Park extends Singleton {
         const surface : SurfaceElement = this.getElementOfType(tile, 'surface') as SurfaceElement;
 
         if (surface.hasOwnership) {
-          for (let i = tile.numElements - 1; i >= 0; --i) {
-            const element : TileElement = tile.elements[i];
-            if (element.type === 'footpath' || element.type === 'track' || element.type === 'entrance') {
-              tile.removeElement(i);
-            }
-          }
+          this.deleteElementsOfType(tile, ['footpath']);
         }
       }
     }
+  }
+
+  /**
+   * Clears all rides, paths, staff, and guests from park
+   */
+  public async clearPark() : Promise<void> {
+    // Delete rides first, otherwise there will be a bunch of crashes
+    // We delete track later for maps like LL's Volcania with abandoned rides
+    await this.deleteRides();
+
+    this.deletePaths();
 
     // Clear the guests and staff after rides are all deleted so they can also be deleted
     this.deleteGuests();
