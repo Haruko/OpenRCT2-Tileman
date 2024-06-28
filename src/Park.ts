@@ -181,7 +181,7 @@ export class Park extends Singleton {
         if (this.isValidTileAction(tile, action)) {
           coords.push(CoordsXY(x, y));
 
-          const surface : SurfaceElement = tile.getElement<SurfaceElement>(0);
+          const surface : SurfaceElement = this.getElementOfType(tile, 'surface') as SurfaceElement;
 
           // If either buying land or rights and the ownership is already the existing type, make sure to give it for free
           if ((action === LandOwnershipAction.RIGHTS && surface.ownership === LandOwnership.OWNED)
@@ -408,7 +408,7 @@ export class Park extends Singleton {
    * @param type Type of element to get
    * @returns The SurfaceElement
    */
-  public getElementOfType<T>(tile : Tile, type : T) : TileElement;
+  public getElementOfType(tile : Tile, type : TileElementType) : TileElement;
 
   /**
    * Gets the SurfaceElement at the given coords
@@ -416,7 +416,7 @@ export class Park extends Singleton {
    * @param type Type of element to get
    * @returns The SurfaceElement
    */
-  public getElementOfType<T>(coords : CoordsXY, type : T) : TileElement;
+  public getElementOfType(coords : CoordsXY, type : TileElementType) : TileElement;
 
   /**
    * Gets the SurfaceElement at the given coords
@@ -424,7 +424,7 @@ export class Park extends Singleton {
    * @param type Type of element to get
    * @returns The SurfaceElement
    */
-  public getElementOfType<T>(coordsOrTile : CoordsXY | Tile, type : T) : TileElement | undefined {
+  public getElementOfType(coordsOrTile : CoordsXY | Tile, type : TileElementType) : TileElement | undefined {
     let tile : Tile;
 
     if (isCoordsXY(coordsOrTile)) {
@@ -438,7 +438,7 @@ export class Park extends Singleton {
     // Not sure if surface is always at index 0
     for (let i = 0; i < tile.numElements; ++i) {
       if (tile.elements[i].type === type) {
-        element = tile.elements[i] as TileElement;
+        element = tile.elements[i];
         break;
       }
     }
