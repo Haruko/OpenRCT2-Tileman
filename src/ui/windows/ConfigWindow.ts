@@ -7,9 +7,6 @@ import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
 import { FlexUIWidget } from '../types/types';
 import { DoubleClickButton } from '../elements/DoubleClickButton';
 import { AlignedLabel } from '../elements/AlignedLabel';
-import { IWindow } from './IWindow';
-import { UIManager } from '../UIManager';
-import { ToggleButton } from '../elements/ToggleButton';
 import { PluginData, StoresData } from '@src/types/types';
 import { DataStoreID } from '@src/types/enums';
 import { DataStore } from '@src/DataStore';
@@ -650,11 +647,6 @@ export class ConfigWindow extends BaseWindow {
    */
    protected override onOpen() : void {
     super.onOpen();
-
-    const uiManager : UIManager = UIManager.instance();
-    const toolbarWindow : IWindow = uiManager.getInstance(WindowID.TOOLBAR);
-    const openConfigButton : ToggleButton = toolbarWindow.getChildElement(ElementID.OPEN_CONFIG_BUTTON) as ToggleButton;
-    openConfigButton.press();
   }
 
   /**
@@ -669,11 +661,6 @@ export class ConfigWindow extends BaseWindow {
    */
   protected override onClose() : void {
     super.onClose();
-    const uiManager : UIManager = UIManager.instance();
-
-    const toolbarWindow : IWindow = uiManager.getInstance(WindowID.TOOLBAR);
-    const openConfigButton : ToggleButton = toolbarWindow.getChildElement(ElementID.OPEN_CONFIG_BUTTON) as ToggleButton;
-    openConfigButton.depress();
   }
 
   /**

@@ -47,7 +47,7 @@ export class ToolbarWindow extends BaseWindow {
 
     return window({
       title: this.windowTitle,
-      width: 211,
+      width: 163,
       height: 'auto',
       padding: { top: 0, right: 1, bottom: 1, left: 1 },
       content: [
@@ -74,8 +74,6 @@ export class ToolbarWindow extends BaseWindow {
     const rightsToolButton : ToggleButton = this._createToolbarButton(ElementID.RIGHTS_TOOL);
     const sellToolButton : ToggleButton = this._createToolbarButton(ElementID.SELL_TOOL);
     const viewRightsButton : ToggleButton = this._createToolbarButton(ElementID.VIEW_RIGHTS_BUTTON);
-    const openStatsButton : ToggleButton = this._createToolbarButton(ElementID.OPEN_STATS_BUTTON);
-    const openConfigButton : ToggleButton = this._createToolbarButton(ElementID.OPEN_CONFIG_BUTTON);
 
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
@@ -108,8 +106,6 @@ export class ToolbarWindow extends BaseWindow {
         rightsToolButton.widget,
         sellToolButton.widget,
         viewRightsButton.widget,
-        openStatsButton.widget,
-        openConfigButton.widget
       ]
     });
   }
@@ -170,29 +166,6 @@ export class ToolbarWindow extends BaseWindow {
 
         this._toolButtonGroup.addButton(newElement);
         this.registerElement(ElementID.VIEW_RIGHTS_BUTTON, newElement);
-        break;
-      } case ElementID.OPEN_CONFIG_BUTTON: {
-        newElement = new ToggleButton(ElementID.OPEN_CONFIG_BUTTON, {
-          image: Sprites.FLOPPY,
-          tooltip: 'Open configuration window',
-          width: 24,
-          height: 24,
-          onChange: (pressed : boolean) => this.onConfigChange(pressed),
-        });
-
-        this.registerElement(ElementID.OPEN_CONFIG_BUTTON, newElement);
-        break;
-      } case ElementID.OPEN_STATS_BUTTON: {
-        newElement = new ToggleButton(ElementID.OPEN_STATS_BUTTON, {
-          image: Sprites.GRAPH,
-          tooltip: 'Open detailed statistics window\n(Coming soon!)',
-          width: 24,
-          height: 24,
-          onChange: (pressed : boolean) => this.onStatsChange(pressed),
-          disabled: true,
-        });
-
-        this.registerElement(ElementID.OPEN_STATS_BUTTON, newElement);
         break;
       }
     }
@@ -424,36 +397,6 @@ export class ToolbarWindow extends BaseWindow {
   private onViewRightsChange(isPressed : boolean) : void {
     const uiManager : UIManager = UIManager.instance();
     uiManager.setRightsVisibility(isPressed);
-  }
-
-  /**
-   * Handle onChange for configuration window button
-   * @param isPressed true if the button is pressed
-   */
-  private onConfigChange(isPressed : boolean) : void {
-    const uiManager : UIManager = UIManager.instance();
-    const configWindow : IWindow = uiManager.getInstance(WindowID.CONFIG);
-    
-    if (isPressed) {
-      configWindow?.open();
-    } else {
-      configWindow?.close();
-    }
-  }
-
-  /**
-   * Handle onChange for statistics window button
-   * @param isPressed true if the button is pressed
-   */
-  private onStatsChange(isPressed : boolean) : void {
-    const uiManager : UIManager = UIManager.instance();
-    const statsWindow : IWindow = uiManager.getInstance(WindowID.STATS);
-    
-    if (isPressed) {
-      statsWindow?.open();
-    } else {
-      statsWindow?.close();
-    }
   }
   
 

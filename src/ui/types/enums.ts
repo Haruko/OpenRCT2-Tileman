@@ -16,8 +16,6 @@ export enum ElementID {
     RIGHTS_TOOL,
     SELL_TOOL,
     VIEW_RIGHTS_BUTTON,
-    OPEN_CONFIG_BUTTON,
-    OPEN_STATS_BUTTON,
     TOOL_SIZE_SPINNER,
 
     // Info Elements
