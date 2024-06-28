@@ -71,21 +71,21 @@ function PromisePolyfill<T>(executor : (resolve : (value : T) => void, reject : 
   }
 }
 
-PromisePolyfill.resolve = (value : T) : PromisePolyfill<T> => {
+PromisePolyfill.resolve = (value? : T) : PromisePolyfill<T> => {
   return new PromisePolyfill((resolve, _) => {
     resolve(value);
   });
 }
 
-PromisePolyfill.reject = (reason : any) : PromisePolyfill<T> => {
+PromisePolyfill.reject = (reason? : T) : PromisePolyfill<T> => {
   return new PromisePolyfill((_, reject) => {
     reject(reason);
   });
 }
 
-PromisePolyfill.all = (promises : Promise[]) : PromisePolyfill<T[]> => {
+PromisePolyfill.all = (promises : PromisePolyfill[]) : PromisePolyfill<T[]> => {
   if (promises.length === 0) {
-    return Promise.resolve();
+    return PromisePolyfill.resolve();
   }
 
   const fulfilledPromises = [];
