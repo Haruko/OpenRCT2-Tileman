@@ -28,6 +28,8 @@ export class Park extends Singleton {
   public async initialize() : Promise<void> {
     await this.clearPark();
 
+    park.setFlag('open', false);
+
     await this.setLandOwnership(this.getPlayableArea(), LandOwnership.UNOWNED);
   }
 
@@ -472,9 +474,13 @@ export class Park extends Singleton {
     let guestsOnRide = false;
   
     guestList.forEach((guest : Guest) : void => {
-      if(guest.isInPark) {
+      const tile : Tile = map.getTile(guest.x / 32, guest.y / 32);
+      const isInEntrance : boolean = tile.elements.filter((element : TileElement) : boolean => element.type === 'entrance').length === 1;
+
+      if (guest.isInPark || isInEntrance) {
         try {
           guest.remove();
+          
         } catch (error) {
           guestsOnRide = true;
         }
@@ -482,7 +488,7 @@ export class Park extends Singleton {
     });
   
     if (guestsOnRide) {
-      ui.showError("Couldn't delete all guests...", "Delete rides before trying again!")
+      ui.showError('Couldn\'t delete all guests...', 'Delete rides before trying again!');
     }
   }
   
