@@ -42,6 +42,10 @@ parkAwardsXp : WritableStore<number>,
   - Banners placed
 * Added tooltips to config window and cleaned it up a bit.
 * Disabled statistics window button until it's implemented.
+* New startup process.
+* All paths within the park are now cleared on initialization.
+* Guest clearing is limited to within the park.
+* 
 
 
 
@@ -59,10 +63,6 @@ parkAwardsXp : WritableStore<number>,
 
 // HIGH PRIORITY
   // Things that came up in Marcel's stream
-    //TODO: Startup - Way to turn off the plugin in the main menu
-    //TODO: Startup - Have it delete all paths inside the park before selling all the land on a new park
-    //TODO: Config Window - Checkbox "Keep toolbar open"
-    //TODO: Config Window - Checkbox "Show config button on toolbar"
     //TODO: Scale XP cost so they're easier at the start and harder later on
     //TODO: Don't allow buying or selling land with guests on it
 
@@ -70,8 +70,6 @@ parkAwardsXp : WritableStore<number>,
   //TODO: XP Source - Implement park awards
   //TODO: XP Source - Crashes
   //TODO: XP Source - Drowning staff/guest
-
-  //TODO: See if there's a way to check if you're loading a save vs starting a scenario (map.change(d)?)
 
   //TODO: XP BALANCING:
     // Mining:
