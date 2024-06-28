@@ -19,9 +19,8 @@ export abstract class DataStore<DataStoreType extends Record<string, any>> exten
 
   /**
    * Initialize this DataStore
-   * @param isNewPark True if this is a new park
    */
-  public abstract initialize(isNewPark : boolean) : void;
+  public abstract initialize() : void;
 
   /**
    * Resets this.data to the provided defaults

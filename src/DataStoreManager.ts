@@ -6,11 +6,11 @@ export class DataStoreManager extends Manager<DataStoreID, DataStore<any>> {
   /**
    * Runs initialize on all data stores
    */
-  public initializeAll(isNewPark : boolean) : void {
+  public initializeAll() : void {
     Object.keys(DataStoreID)
       .filter((key : string) : boolean => isNaN(Number(key)))
       .forEach((key : string) : void => {
-        this.getInstance(DataStoreID[key as keyof typeof DataStoreID])?.initialize(isNewPark);
+        this.getInstance(DataStoreID[key as keyof typeof DataStoreID])?.initialize();
       });
   }
 

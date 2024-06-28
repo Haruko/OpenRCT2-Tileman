@@ -57,12 +57,10 @@ export class Plugin extends DataStore<PluginData> {
 
   /**
    * Initialize this DataStore
-   * @param isNewPark True if this is a new park
+   * @param isTilemanPark True if this is a tileman park
    */
-  public initialize(isNewPark : boolean) : void {
-    if (!isNewPark) {
-      this.loadData();
-    }
+  public initialize() : void {
+
   }
 
 

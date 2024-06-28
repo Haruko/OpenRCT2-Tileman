@@ -1,7 +1,8 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
 import { Plugin } from './Plugin';
-import { initialize } from './pluginInitializer';
+import { loadPark } from './pluginInitializer';
+import { StartupWindow } from './ui/windows/StartupWindow';
 
 
 /*
@@ -123,7 +124,15 @@ function main() : void {
   if (plugin.isValidRunConfig()) {
     console.log(`Initializing Tileman Plugin in ${__environment} mode...`);
 
-    initialize();
+    const tilemanEnabled : boolean | undefined = context.getParkStorage().get('tilemanEnabled');
+    if (typeof tilemanEnabled === 'boolean') {
+      // User was already asked and the mode was set to true or false, load it
+      loadPark(tilemanEnabled);
+    } else {
+      // Undefined, so ask the user if they want to play tileman mode
+      const startupWindow : StartupWindow = StartupWindow.instance();
+      startupWindow.open();
+    }
   }
 }
 

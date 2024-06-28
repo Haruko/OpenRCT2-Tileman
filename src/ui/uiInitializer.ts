@@ -6,6 +6,8 @@ import { ConfigWindow } from './windows/ConfigWindow';
 import { StatsWindow } from './windows/StatsWindow';
 import { ToolbarWindow } from './windows/ToolbarWindow';
 
+
+
 export function initializeUI() : void {
   const uiManager : UIManager = UIManager.instance();
   const toolbarWindow : ToolbarWindow = ToolbarWindow.instance();

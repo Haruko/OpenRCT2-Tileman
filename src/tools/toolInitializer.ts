@@ -6,6 +6,8 @@ import { RightsTool } from './tools/RightsTool';
 import { SellTool } from './tools/SellTool';
 import { ToolID } from './types/enums';
 
+
+
 export function initializeTools() : void {
   const toolManager : ToolManager = ToolManager.instance();
   toolManager.registerInstance(ToolID.BUY, BuyTool.instance());

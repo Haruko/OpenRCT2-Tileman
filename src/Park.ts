@@ -23,16 +23,14 @@ export class Park extends Singleton {
 
   /**
    * Initialize the park
-   * @param isNewPark True if this is a new park
+   * Only ever called if this is a classic park being made into a tileman park
    */
-  public async initialize(isNewPark : boolean) : Promise<void> {
-    if(isNewPark) {
-      this.deleteRides();
-      this.deleteGuests();
-      this.fireStaff();
+  public async initialize() : Promise<void> {
+    this.deleteRides();
+    this.deleteGuests();
+    this.fireStaff();
 
-      await this.setLandOwnership(this.getPlayableArea(), LandOwnership.UNOWNED);
-    }
+    await this.setLandOwnership(this.getPlayableArea(), LandOwnership.UNOWNED);
   }
 
 

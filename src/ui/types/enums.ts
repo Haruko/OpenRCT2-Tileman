@@ -1,6 +1,7 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
 export enum WindowID {
+  STARTUP = 'startup',
   TOOLBAR = 'toolbar',
   CONFIG = 'config',
   STATS = 'stats',

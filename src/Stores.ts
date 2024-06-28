@@ -51,9 +51,8 @@ export class Stores extends DataStore<StoresData> {
 
   /**
    * Initialize this DataStore
-   * @param isNewPark True if this is a new park
    */
-  public initialize(isNewPark : boolean) : void {
+  public initialize() : void {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
     const metrics : DataStore<MetricData> = dsManager.getInstance(DataStoreID.METRICS);

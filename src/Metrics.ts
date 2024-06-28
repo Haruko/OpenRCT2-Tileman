@@ -46,22 +46,14 @@ export class Metrics extends DataStore<MetricData> {
 
   /**
    * Initialize this DataStore
-   * @param isNewPark True if this is a new park
+   * @param isTilemanPark True if this is a tileman park
    */
-  public initialize(isNewPark : boolean) : void {
-    if (!isNewPark) {
-      this.loadData();
-    }
-
+  public initialize() : void {
     // Subscribe to events
     const dsManager : DataStoreManager = DataStoreManager.instance();
     context.subscribe('interval.tick', () => this._onTick(dsManager.getInstance(DataStoreID.PLUGIN).get('ticksPerUpdate').get()));
     context.subscribe('map.save', () => dsManager.storeAllData());
     context.subscribe('action.execute', (e : GameActionEventArgs) => this._onActionExecute(e));
-
-    if (isNewPark) {
-      this.loadDefaults();
-    }
   }
 
   
