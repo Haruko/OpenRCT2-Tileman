@@ -2,7 +2,7 @@
 
 import { WritableStore } from 'openrct2-flexui';
 import { LandOwnershipAction } from './tools/types/enums';
-import { CoordsXY, isInRange } from './types/CoordsXY';
+import { CoordsXY, isCoordsXY, isInRange } from './types/CoordsXY';
 import { MapRange, clampRange, getRangeSize, isMapRange, rangesIntersect } from './types/MapRange';
 import { DataStoreID, EntranceType, GameActionResultErrorCodes, GameCommandFlag, LandOwnership, LandRightsResult } from './types/enums';
 import { DataStore } from './DataStore';
@@ -30,6 +30,7 @@ export class Park extends Singleton {
     this.deleteGuests();
     this.fireStaff();
 
+    this.clearPaths();
     await this.setLandOwnership(this.getPlayableArea(), LandOwnership.UNOWNED);
   }
 
@@ -401,6 +402,50 @@ export class Park extends Singleton {
     return true;
   }
 
+  /**
+   * Gets the TileElement at the given Tile
+   * @param tile The Tile
+   * @param type Type of element to get
+   * @returns The SurfaceElement
+   */
+  public getElementOfType<T>(tile : Tile, type : T) : TileElement;
+
+  /**
+   * Gets the SurfaceElement at the given coords
+   * @param coords The coords
+   * @param type Type of element to get
+   * @returns The SurfaceElement
+   */
+  public getElementOfType<T>(coords : CoordsXY, type : T) : TileElement;
+
+  /**
+   * Gets the SurfaceElement at the given coords
+   * @param coords The coords
+   * @param type Type of element to get
+   * @returns The SurfaceElement
+   */
+  public getElementOfType<T>(coordsOrTile : CoordsXY | Tile, type : T) : TileElement | undefined {
+    let tile : Tile;
+
+    if (isCoordsXY(coordsOrTile)) {
+      tile = map.getTile(coordsOrTile.x, coordsOrTile.y);
+    } else {
+      tile = coordsOrTile;
+    }
+
+    let element : TileElement | undefined;
+
+    // Not sure if surface is always at index 0
+    for (let i = 0; i < tile.numElements; ++i) {
+      if (tile.elements[i].type === type) {
+        element = tile.elements[i] as TileElement;
+        break;
+      }
+    }
+
+    return element;
+  }
+    
 
   
   /**
@@ -464,5 +509,36 @@ export class Park extends Singleton {
         });
       });
     });
+  }
+
+  /**
+   * Clears all paths inside the park
+   */
+  public clearPaths() : void {
+    ui.tileSelection.tiles = [];
+
+    const playableArea : MapRange = this.getPlayableArea();
+
+    const minX : number = playableArea.leftTop.x / 32;
+    const minY : number = playableArea.leftTop.y / 32;
+
+    const maxX : number = playableArea.rightBottom.x / 32;
+    const maxY : number = playableArea.rightBottom.y / 32;
+
+    for(let x = minX; x < maxX; x += 1) {
+      for(let y = minY; y < maxY; y += 1) {
+        const tile : Tile = map.getTile(x, y);
+        const surface : SurfaceElement = this.getElementOfType(tile, 'surface') as SurfaceElement;
+
+        if (surface.hasOwnership) {
+          for (let i = tile.numElements - 1; i > 0; --i) {
+            const element : TileElement = tile.elements[i];
+            if (element.type === 'footpath') {
+              tile.removeElement(i);
+            }
+          }
+        }
+      }
+    }
   }
 }
