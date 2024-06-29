@@ -515,7 +515,7 @@ export class Park extends Singleton {
     }
 
     // Not sure if surface is always at index 0
-    for (let i = 0; i < tile.numElements; ++i) {
+    for (let i = tile.numElements - 1; i >= 0; --i) {
       if (types.indexOf(tile.elements[i].type) > -1) {
         tile.removeElement(i);
       }
