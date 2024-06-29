@@ -23,7 +23,7 @@ export default {
   }],
   plugins: [
     inject({
-      Promise: [path.resolve('src/polyfills/promisePolyfill.ts'), 'PromisePolyfill'],
+      Promise: [path.resolve('src/common/polyfills/promisePolyfill.ts'), 'PromisePolyfill'],
     }),
     resolve(),
     replace({
