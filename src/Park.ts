@@ -389,6 +389,7 @@ export class Park extends Singleton {
               break;
             } case 'footpath': {
               // Land has a path on it
+              // This prevents players from buying path between the park entrance and the guest spawns
               return false;
             }
           }
