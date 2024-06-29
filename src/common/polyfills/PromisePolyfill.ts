@@ -1,7 +1,7 @@
 // (resolve, reject) => void
 // Is a function that takes resolve and reject functions from the constructor
 export type Executor<T> = (
-  resolve : (value? : T | PromiseLike<T>) => void,
+  resolve : (value? : T | PromisePolyfill<T>) => void,
   reject : (reason? : any) => void
 ) => void;
 
@@ -20,10 +20,9 @@ export class AggregateError extends Error {
 export class PromisePolyfill<T> {
   // Current state of this promise
   private state: 'pending' | 'fulfilled' | 'rejected' = 'pending';
-  // 
-  private value : T | null = null;
-  // 
-  private reason : any = null;
+  private value : T | undefined;
+  private reason : any;
+
   // List of all callbacks put on this promise for fulfillment
   private onFulfilledCallbacks : Array<(value? : T) => void> = [];
   // List of all callbacks put on this promise for rejection
@@ -34,7 +33,7 @@ export class PromisePolyfill<T> {
    * @param executor (resolve, reject) => void
    */
   constructor(executor : Executor<T>) {
-    const resolve = (value? : T | PromiseLike<T>) : void => {
+    const resolve = (value? : T | PromisePolyfill<T>) : void => {
       if (this.state === 'pending') {
         this.state = 'fulfilled';
         this.value = value as T;
@@ -67,64 +66,89 @@ export class PromisePolyfill<T> {
    * @returns New promise
    */
   public then<TResolve = T, TReject = never>(
-    onFulfilled?: (value? : T) => TResolve | PromiseLike<TResolve>,
-    onRejected?: (reason? : any) => TReject | PromiseLike<TReject>
+    onFulfilled?: ((value? : T) => TResolve | PromisePolyfill<TResolve>) | undefined,
+    onRejected?: ((reason? : any) => TReject | PromisePolyfill<TReject>) | undefined
   ) : PromisePolyfill<TResolve | TReject> {
     return new PromisePolyfill<TResolve | TReject>((resolve, reject) : void => {
       switch (this.state) {
         case 'pending': {
           // Add callbacks to the two lists
-
-          if (onFulfilled) {
-            this.onFulfilledCallbacks.push((value? : T) : void => {
-              try {
-                const result : TResolve | PromiseLike<TResolve> = onFulfilled(value);
-                resolve(result);
-              } catch (error) {
-                reject(error);
+          this.onFulfilledCallbacks.push((value? : T) : void => {
+            try {
+              if (typeof onFulfilled === 'function') {
+                const result : TResolve | PromisePolyfill<TResolve> = onFulfilled(value);
+                if (result instanceof PromisePolyfill) {
+                  // Let the returned promise take care of resolving/rejecting
+                  result.then(resolve, reject);
+                } else {
+                  // Resolve with the returned value
+                  resolve(result);
+                }
+              } else {
+                resolve(value as TResolve);
               }
-            });
-          }
+            } catch (error) {
+              reject(error);
+            }
+          });
           
-          if (onRejected) {
-            this.onRejectedCallbacks.push((value? : T) : void => {
-              try {
-                const result : TReject | PromiseLike<TReject> = onRejected(value);
-                resolve(result);
-              } catch (error) {
-                reject(error);
+          this.onRejectedCallbacks.push((value? : T) : void => {
+            try {
+              if (typeof onRejected === 'function') {
+                const result : TReject | PromisePolyfill<TReject> = onRejected(value);
+
+                if (result instanceof PromisePolyfill) {
+                  // Let the returned promise take care of resolving/rejecting
+                  result.then(resolve, reject);
+                } else {
+                  // Resolve with the returned value
+                  resolve(result);
+                }
+              } else {
+                resolve(value as TResolve);
               }
-            });
-          }
+            } catch (error) {
+              reject(error);
+            }
+          });
 
           break;
         } case 'fulfilled': {
           // Already fulfilled, so just immediately call the callback
           try {
-            let result : TResolve | PromiseLike<TResolve>;
-            if (onFulfilled) {
-              result = onFulfilled(this.value!);
+            if (typeof onFulfilled === 'function') {
+              const result : TResolve | PromisePolyfill<TResolve> = onFulfilled(this.value);
+              if (result instanceof PromisePolyfill) {
+                // Let the returned promise take care of resolving/rejecting
+                result.then(resolve, reject);
+              } else {
+                // Resolve with the returned value
+                resolve(result);
+              }
             } else {
-              result = this.value as unknown as TResolve;
+              resolve(this.value as TResolve);
             }
-
-            resolve(result);
           } catch (error) {
             reject(error);
           }
 
           break;
         } case 'rejected': {
-          // Already rejected, so just immediately call the callback
+          // Already rejected
           try {
-            let result : TReject | PromiseLike<TReject>;
-            if (onRejected) {
-              result = onRejected(this.reason);
+            if (typeof onRejected === 'function') {
+              const reason : TReject | PromisePolyfill<TReject> = onRejected(this.reason);
+              if (reason instanceof PromisePolyfill) {
+                // Let the returned promise take care of resolving/rejecting
+                reason.then(resolve, reject);
+              } else {
+                // Resolve with the returned value
+                resolve(reason);
+              }
             } else {
-              result = this.value as unknown as TReject;
+              // Double it and give it to the next person
+              reject(this.reason as TReject);
             }
-            
-            resolve(result);
           } catch (error) {
             reject(error);
           }
@@ -132,7 +156,7 @@ export class PromisePolyfill<T> {
           break;
         }
       }
-    });
+    })
   }
 
   /**
@@ -141,7 +165,7 @@ export class PromisePolyfill<T> {
    * @returns Result of then(undefined, onRejected)
    */
   public catch<TReject = never>(
-    onRejected? : (reason? : any) => TReject | PromiseLike<TReject>
+    onRejected? : (reason? : any) => TReject | PromisePolyfill<TReject>
   ) : PromisePolyfill<T | TReject> {
     return this.then(undefined, onRejected);
   }
@@ -151,7 +175,7 @@ export class PromisePolyfill<T> {
    * @param value Value to resolve with
    * @returns New promise that resolves
    */
-  public static resolve<T>(value? : T | PromiseLike<T>) : PromisePolyfill<T> {
+  public static resolve<T>(value? : T | PromisePolyfill<T>) : PromisePolyfill<T> {
     if (value instanceof PromisePolyfill) {
       return value;
     } else {
@@ -189,32 +213,6 @@ export class PromisePolyfill<T> {
             resolve(results);
           }
         }).catch(reject);
-      });
-    });
-  }
-
-  /**
-   * Waits for any promise to resolve or all to reject
-   * @param promises Array of promises to wait for
-   * @returns New promise that returns the result of the first promise that resolves
-   */
-  public static any<T>(promises : (T | PromisePolyfill<T>)[]) : PromisePolyfill<T> {
-    return new PromisePolyfill<T>((resolve, reject) : void => {
-      const errors : any[] = [];
-      let rejected : number = 0;
-
-      promises.forEach((promise : T | PromisePolyfill<T>, index : number) : void =>{
-        // Resolve on the first completion
-        PromisePolyfill.resolve(promise).then(resolve)
-          .catch((reason? : any) : void => {
-            // Collect all rejections and, if they all reject, return the errors
-            errors[index] = reason;
-            ++rejected;
-
-            if (rejected === promises.length) {
-              reject(new AggregateError(errors, 'All Promises rejected'));
-            }
-          });
       });
     });
   }
