@@ -126,7 +126,7 @@ parkAwardsXp : WritableStore<number>,
 
 
 
-function main() : void {
+async function main() : Promise<void> {
   const plugin : Plugin = Plugin.instance();
   if (plugin.isValidRunConfig()) {
     console.log(`Initializing Tileman Plugin in ${__environment} mode...`);
@@ -137,6 +137,15 @@ function main() : void {
       loadPark(tilemanEnabled);
     } else {
       // Undefined, so ask the user if they want to play tileman mode
+
+      if (!context.paused) {
+        await new Promise<void>((resolve, reject) : void => {
+          context.executeAction('pausetoggle', {}, (result : GameActionResult) : void => {
+            resolve();
+          });
+        })
+      }
+
       const startupWindow : StartupWindow = StartupWindow.instance();
       startupWindow.open();
     }
