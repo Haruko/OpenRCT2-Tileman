@@ -325,6 +325,14 @@ export class Park extends Singleton {
    * @returns True if it's a valid action
    */
   private _isValidTileAction(tile : Tile, action : LandOwnershipAction) : boolean {
+    // Don't allow selling if there are guests on the tile
+    if (action === LandOwnershipAction.SELL) {
+      const entities : Guest[] = map.getAllEntitiesOnTile('guest', CoordsXY(tile.x * 32, tile.y * 32));
+      if (entities.length > 0) {
+        return false;
+      }
+    }
+
     // Iterate over elements to see land ownership and what is here
     for(let i = 0; i < tile.numElements; ++i) {
       const element : TileElement = tile.getElement(i);
@@ -350,6 +358,15 @@ export class Park extends Singleton {
             } case 'track': {
               // It's either a track piece or the entire ride depending on type
               return false;
+            } case 'footpath': {
+              // Land has a path on it
+              const surface : SurfaceElement = <SurfaceElement>this.getElementOfType(tile, 'surface');
+              if (surface.ownership === LandOwnership.OWNED) {
+                // Don't allow selling land with a path on it unless it's construction rights owned
+                return false;
+              }
+
+              break;
             }
           }
 
@@ -370,6 +387,9 @@ export class Park extends Singleton {
               }
 
               break;
+            } case 'footpath': {
+              // Land has a path on it
+              return false;
             }
           }
 
@@ -389,6 +409,16 @@ export class Park extends Singleton {
                 return false;
               }
 
+              break;
+            } case 'footpath': {
+              // Land has a path on it
+              const surface : SurfaceElement = <SurfaceElement>this.getElementOfType(tile, 'surface');
+              if (surface.ownership === LandOwnership.OWNED) {
+                // Don't allow buying rights on land with a path on it if it's owned
+                // This would make a park fence there and would potentially soft loft
+                return false;
+              }
+              
               break;
             }
           }
