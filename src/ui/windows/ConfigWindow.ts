@@ -639,16 +639,16 @@ export class ConfigWindow extends BaseWindow {
         this.registerElement(ElementID.DELETE_RIDES_BUTTON, newElement);
         break;
       } case ElementID.CLEAR_PATHS_BUTTON: {
-        newElement = new DoubleClickButton(ElementID.DELETE_RIDES_BUTTON, {
+        newElement = new DoubleClickButton(ElementID.CLEAR_PATHS_BUTTON, {
           text: 'Delete Paths',
           tooltip: 'Deletes all paths inside the park',
           width: '33%',
           height: 14,
-          onChange: this.onDeleteRidesChange.bind(this)
+          onChange: this.onClearPathsChange.bind(this)
         }, this._debugButtonGroup);
 
         this._debugButtonGroup.addButton(newElement);
-        this.registerElement(ElementID.DELETE_RIDES_BUTTON, newElement);
+        this.registerElement(ElementID.CLEAR_PATHS_BUTTON, newElement);
         break;
       }
     }
@@ -669,7 +669,7 @@ export class ConfigWindow extends BaseWindow {
   /**
    * Handles onOpen event
    */
-   protected override onOpen() : void {
+  protected override onOpen() : void {
     super.onOpen();
   }
 
@@ -692,8 +692,7 @@ export class ConfigWindow extends BaseWindow {
    * @param isPressed whether the button is pressed or not
    */
   private onFireStaffChange(isPressed : boolean) : void {
-    const tilemanPark : Park = Park.instance();
-    tilemanPark.fireStaff();
+    Park.instance<Park>().fireStaff();
   }
 
   /**
@@ -701,8 +700,7 @@ export class ConfigWindow extends BaseWindow {
    * @param isPressed whether the button is pressed or not
    */
   private onDeleteGuestsChange(isPressed : boolean) : void {
-    const tilemanPark : Park = Park.instance();
-    tilemanPark.deleteGuests();
+    Park.instance<Park>().deleteGuests();
   }
 
   /**
@@ -710,8 +708,15 @@ export class ConfigWindow extends BaseWindow {
    * @param isPressed whether the button is pressed or not
    */
   private onDeleteRidesChange(isPressed : boolean) : void {
-    const tilemanPark : Park = Park.instance();
-    tilemanPark.deleteRides();
+    Park.instance<Park>().deleteRides();
+  }
+
+  /**
+   * Handles clicks on clear paths button
+   * @param isPressed whether the button is pressed or not
+   */
+  private onClearPathsChange(isPressed : boolean) : void {
+    Park.instance<Park>().clearPaths();
   }
 
   /**

@@ -617,7 +617,7 @@ export class Park extends Singleton {
   /**
    * Deletes all paths inside the park
    */
-  public deletePaths() : void {
+  public clearPaths() : void {
     const playableArea : MapRange = this.getPlayableArea();
 
     const minX : number = playableArea.leftTop.x / 32;
@@ -646,7 +646,7 @@ export class Park extends Singleton {
     // We delete track later for maps like LL's Volcania with abandoned rides
     await this.deleteRides();
 
-    this.deletePaths();
+    this.clearPaths();
 
     // Clear the guests and staff after rides are all deleted so they can also be deleted
     this.deleteGuests();
