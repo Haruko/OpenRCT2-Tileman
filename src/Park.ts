@@ -633,6 +633,12 @@ export class Park extends Singleton {
 
         if (surface.hasOwnership) {
           this.deleteElementsOfType(tile, ['footpath']);
+
+          // Clean litter
+          const litterList : Litter[] = map.getAllEntitiesOnTile('litter', CoordsXY(x * 32, y * 32));
+          litterList.forEach((litter : Litter) : void => {
+            litter.remove();
+          })
         }
       }
     }
