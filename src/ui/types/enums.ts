@@ -26,10 +26,6 @@ export enum ElementID {
 
   // ConfigWindow
     // Config Tab
-    TICKS_PER_UPDATE,
-    MIN_TILES,
-    EXP_PER_TILE,
-
     // Player actions
     EXP_PER_BALLOON_POPPED,
     EXP_PER_BANNER_PLACED,
@@ -58,7 +54,12 @@ export enum ElementID {
       // Park data
       EXP_PER_PARK_AWARD,
 
+      EXP_PER_TILE,
+      MIN_TILES,
+      TICKS_PER_UPDATE,
+
     KEEP_TOOLBAR_OPEN,
+    BYPASS_PATH_RESTRICTIONS,
 
     CONFIG_REVERT,
     CONFIG_DEFAULTS,

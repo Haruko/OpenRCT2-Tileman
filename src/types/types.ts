@@ -32,6 +32,7 @@ export type PluginData = DataStoreData & {
 
   ticksPerUpdate : WritableStore<number>, // Ticks per update of data
   keepToolbarOpen: WritableStore<boolean>,
+  bypassPathRestrictions: WritableStore<boolean>,
 
   tileXpCost : WritableStore<number>, // Exp cost per tile
   startingTiles : WritableStore<number>, // 1 path + 1 stall minimum

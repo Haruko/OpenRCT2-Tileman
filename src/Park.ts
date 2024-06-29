@@ -6,7 +6,7 @@ import { CoordsXY, isCoordsXY, isInRange } from './types/CoordsXY';
 import { MapRange, clampRange, getRangeSize, isMapRange, rangesIntersect } from './types/MapRange';
 import { DataStoreID, EntranceType, GameActionResultErrorCodes, GameCommandFlag, LandOwnership, LandRightsResult } from './types/enums';
 import { DataStore } from './DataStore';
-import { MetricData, StoresData } from './types/types';
+import { MetricData, PluginData, StoresData } from './types/types';
 import { DataStoreManager } from './DataStoreManager';
 import { Singleton } from './Singleton';
 
@@ -325,6 +325,10 @@ export class Park extends Singleton {
    * @returns True if it's a valid action
    */
   private _isValidTileAction(tile : Tile, action : LandOwnershipAction) : boolean {
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
+    const bypassPathRestrictions : boolean = plugin.get('bypassPathRestrictions').get();
+
     // Don't allow selling if there are guests on the tile
     if (action === LandOwnershipAction.SELL) {
       const entities : Guest[] = map.getAllEntitiesOnTile('guest', CoordsXY(tile.x * 32, tile.y * 32));
@@ -360,10 +364,12 @@ export class Park extends Singleton {
               return false;
             } case 'footpath': {
               // Land has a path on it
-              const surface : SurfaceElement = <SurfaceElement>this.getElementOfType(tile, 'surface');
-              if (surface.ownership === LandOwnership.OWNED) {
-                // Don't allow selling land with a path on it unless it's construction rights owned
-                return false;
+              if (!bypassPathRestrictions) {
+                const surface : SurfaceElement = <SurfaceElement>this.getElementOfType(tile, 'surface');
+                if (surface.ownership === LandOwnership.OWNED) {
+                  // Don't allow selling land with a path on it unless it's construction rights owned
+                  return false;
+                }
               }
 
               break;
@@ -389,8 +395,10 @@ export class Park extends Singleton {
               break;
             } case 'footpath': {
               // Land has a path on it
-              // This prevents players from buying path between the park entrance and the guest spawns
-              return false;
+              if (!bypassPathRestrictions) {
+                // This prevents players from buying path between the park entrance and the guest spawns
+                return false;
+              }
             }
           }
 
@@ -413,11 +421,13 @@ export class Park extends Singleton {
               break;
             } case 'footpath': {
               // Land has a path on it
-              const surface : SurfaceElement = <SurfaceElement>this.getElementOfType(tile, 'surface');
-              if (surface.ownership === LandOwnership.OWNED) {
-                // Don't allow buying rights on land with a path on it if it's owned
-                // This would make a park fence there and would potentially soft loft
-                return false;
+              if (!bypassPathRestrictions) {
+                const surface : SurfaceElement = <SurfaceElement>this.getElementOfType(tile, 'surface');
+                if (surface.ownership === LandOwnership.OWNED) {
+                  // Don't allow buying rights on land with a path on it if it's owned
+                  // This would make a park fence there and would potentially soft loft
+                  return false;
+                }
               }
               
               break;

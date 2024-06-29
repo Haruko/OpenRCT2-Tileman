@@ -88,12 +88,14 @@ export class ConfigWindow extends BaseWindow {
    */
   private _buildConfigOtherPanel() : FlexUIWidget {
     const keepToolbarOpenCheckbox : FlexUIWidget = this._createConfigCheckbox(ElementID.KEEP_TOOLBAR_OPEN);
+    const bypassPathRestrictionCheckbox : FlexUIWidget = this._createConfigCheckbox(ElementID.BYPASS_PATH_RESTRICTIONS);
 
     return horizontal({
       spacing: 3,
       padding: 0,
       content: [
         keepToolbarOpenCheckbox,
+        bypassPathRestrictionCheckbox,
       ],
     });
   }
@@ -109,13 +111,13 @@ export class ConfigWindow extends BaseWindow {
 
     switch (id) {
       case ElementID.KEEP_TOOLBAR_OPEN: {
-        const keepToolbarOpenStore : WritableStore<boolean> = store(plugin.get('keepToolbarOpen').get());
+        const checkboxStore : WritableStore<boolean> = store(plugin.get('keepToolbarOpen').get());
         const text = 'Keep toolbar open';
 
         element = checkbox({
-          isChecked: { twoway: keepToolbarOpenStore },
+          isChecked: { twoway: checkboxStore },
           tooltip: 'Uncheck this box to let the toolbar be closed.',
-          text: compute<boolean, boolean, string>(plugin.get('keepToolbarOpen'), keepToolbarOpenStore,
+          text: compute<boolean, boolean, string>(plugin.get('keepToolbarOpen'), checkboxStore,
             (pluginValue : boolean, checkboxValue : boolean) : string => {
               const isChanged : boolean = pluginValue !== checkboxValue;
       
@@ -127,8 +129,30 @@ export class ConfigWindow extends BaseWindow {
             }),
         });
 
-        this._settingsStores['keepToolbarOpen'] = keepToolbarOpenStore;
+        this._settingsStores['keepToolbarOpen'] = checkboxStore;
         this.registerElement(ElementID.KEEP_TOOLBAR_OPEN, element);
+        break;
+      } case ElementID.BYPASS_PATH_RESTRICTIONS: {
+        const checkboxStore : WritableStore<boolean> = store(plugin.get('bypassPathRestrictions').get());
+        const text = 'Bypass path restrictions';
+
+        element = checkbox({
+          isChecked: { twoway: checkboxStore },
+          tooltip: 'Check this to bypass the restrictions on buying and sell land with paths on it.\n{RED}BE CAREFUL!',
+          text: compute<boolean, boolean, string>(plugin.get('bypassPathRestrictions'), checkboxStore,
+            (pluginValue : boolean, checkboxValue : boolean) : string => {
+              const isChanged : boolean = pluginValue !== checkboxValue;
+      
+              if (isChanged) {
+                return `{TOPAZ}* ${text} *`;
+              } else {
+                return text;
+              }
+            }),
+        });
+
+        this._settingsStores['bypassPathRestrictions'] = checkboxStore;
+        this.registerElement(ElementID.BYPASS_PATH_RESTRICTIONS, element);
         break;
       }
     }
