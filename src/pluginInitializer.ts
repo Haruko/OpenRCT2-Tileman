@@ -81,6 +81,7 @@ export function initialize() : void {
   dataStoreManager.registerInstance(DataStoreID.STORES, Stores.instance());
   
   dataStoreManager.initializeAll();
+  dataStoreManager.loadAllData();
   
   initializeUI();
   initializeTools();

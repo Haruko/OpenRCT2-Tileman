@@ -65,6 +65,20 @@ export class Stores extends DataStore<StoresData> {
   }
 
   /**
+   * Loads data from the persistent park-specific storage
+   */
+  public override loadData() : void {
+    // Do nothing
+  }
+
+  /**
+   * Stores data into the persistent park-specific storage
+   */
+  public override storeData() : void {
+    // Do nothing
+  }
+
+  /**
    * Initialize the player action stores
    * @param plugin Copy of Plugin
    * @param metrics Copy of Metrics

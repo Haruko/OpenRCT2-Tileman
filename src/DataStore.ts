@@ -76,14 +76,15 @@ export abstract class DataStore<DataStoreType extends Record<string, any>> exten
   /**
    * Loads data from the persistent park-specific storage
    */
-  public getStoredData() : Storeless<DataStoreType> | null {
-    if (this._namespace !== null) {
+  private getStoredData() : Storeless<DataStoreType> | null {
+    if (this._namespace) {
       const savedData = context.getParkStorage().getAll()[this._namespace];
 
       if (typeof savedData === 'undefined') {
         const newData = {};
-
         context.getParkStorage().set(this._namespace, newData);
+        this.storeData();
+
         return newData as Storeless<DataStoreType>;
       } else {
         return savedData as Storeless<DataStoreType>;
