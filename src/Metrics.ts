@@ -274,6 +274,7 @@ export class Metrics extends DataStore<MetricData> {
    */
   private _onTick(ticksPerUpdate : number) : void {
     if (date.ticksElapsed % ticksPerUpdate === 0) {
+      this._killDrowningAndRecord();
       this.collectMetrics(ticksPerUpdate);
     }
   }
@@ -333,5 +334,23 @@ export class Metrics extends DataStore<MetricData> {
    */
   private _onVehicleCrashed(e : VehicleCrashArgs) : void {
     this.data.vehicleCrashes.set(this.getValue('vehicleCrashes') + 1);
+  }
+
+
+
+  /**
+   * **********
+   * Other
+   * **********
+   */
+  
+  /**
+   * Calls Park.killDrowning and records the results
+   */
+  private _killDrowningAndRecord() : void {
+    const { numStaff, numGuests } = Park.instance<Park>().killDrowning();
+
+    this.get('staffDrowned').set(this.getValue('staffDrowned') + numStaff);
+    this.get('guestsDrowned').set(this.getValue('guestsDrowned') + numGuests);
   }
 }
