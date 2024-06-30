@@ -24,7 +24,7 @@ export class ToolbarWindow extends BaseWindow {
   private readonly _toolButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
 
   protected constructor() {
-    super(WindowID.TOOLBAR, 'Tileman');
+    super(WindowID.TOOLBAR, 'Tileman', 163, undefined);
     this.template = this._buildWindowTemplate();
   }
 
@@ -46,9 +46,9 @@ export class ToolbarWindow extends BaseWindow {
 
     return window({
       title: this.windowTitle,
-      width: 163,
+      padding: { top: 0, rest: 1 },
+      width: this.getContentWidth()!,
       height: 'auto',
-      padding: { top: 0, right: 1, bottom: 1, left: 1 },
       content: [
         vertical({
           spacing: 2,
@@ -79,8 +79,8 @@ export class ToolbarWindow extends BaseWindow {
     const toolManager : ToolManager = ToolManager.instance();
 
     const toolSizeSpinner : FlexUIWidget = spinner({
+      padding: { top: 5, bottom: 5, rest: 1},
       width: 62,
-      padding: [5, 1],
       value: toolManager.getToolSizeStore(),
       minimum: plugin.get('minToolSize'),
       maximum: plugin.get('maxToolSize'),
@@ -98,7 +98,7 @@ export class ToolbarWindow extends BaseWindow {
 
     return horizontal({
       spacing: 0,
-      padding: [0, 0],
+      padding: 0,
       content: [
         toolSizeSpinner,
         buyToolButton.widget,
@@ -120,10 +120,11 @@ export class ToolbarWindow extends BaseWindow {
     switch (id) {
       case ElementID.BUY_TOOL: {
         newElement = new ToggleButton(ElementID.BUY_TOOL, {
-          image: Sprites.BUY_LAND_RIGHTS,
-          tooltip: 'Buy land rights',
+          padding: 0,
           width: 24,
           height: 24,
+          image: Sprites.BUY_LAND_RIGHTS,
+          tooltip: 'Buy land rights',
           onChange: (pressed : boolean) => this.onBuyToolChange(pressed),
         }, this._toolButtonGroup);
 
@@ -132,10 +133,11 @@ export class ToolbarWindow extends BaseWindow {
         break;
       } case ElementID.RIGHTS_TOOL: {
         newElement = new ToggleButton(ElementID.RIGHTS_TOOL, {
-          image: Sprites.BUY_CONSTRUCTION_RIGHTS,
-          tooltip: 'Buy construction rights',
+          padding: 0,
           width: 24,
           height: 24,
+          image: Sprites.BUY_CONSTRUCTION_RIGHTS,
+          tooltip: 'Buy construction rights',
           onChange: (pressed : boolean) => this.onRightsToolChange(pressed),
         }, this._toolButtonGroup);
 
@@ -144,10 +146,11 @@ export class ToolbarWindow extends BaseWindow {
         break;
       } case ElementID.SELL_TOOL: {
         newElement = new ToggleButton(ElementID.SELL_TOOL, {
-          image: Sprites.FINANCE,
-          tooltip: 'Sell land and construction rights',
+          padding: 0,
           width: 24,
           height: 24,
+          image: Sprites.FINANCE,
+          tooltip: 'Sell land and construction rights',
           onChange: (pressed : boolean) => this.onSellToolChange(pressed),
         }, this._toolButtonGroup);
 
@@ -156,10 +159,11 @@ export class ToolbarWindow extends BaseWindow {
         break;
       } case ElementID.VIEW_RIGHTS_BUTTON: {
         newElement = new ToggleButton(ElementID.VIEW_RIGHTS_BUTTON, {
-          image: Sprites.SEARCH,
-          tooltip: 'Show owned construction rights',
+          padding: 0,
           width: 24,
           height: 24,
+          image: Sprites.SEARCH,
+          tooltip: 'Show owned construction rights',
           onChange: (pressed : boolean) => this.onViewRightsChange(pressed),
         });
 
@@ -181,59 +185,45 @@ export class ToolbarWindow extends BaseWindow {
     const stores : DataStore<StoresData> = dsManager.getInstance(DataStoreID.STORES);
 
     // Available tiles label
-    const availableTilesLabel : FlexUIWidget = horizontal({
+    const availableTilesRow : FlexUIWidget = horizontal({
       spacing: 0,
+      padding: 0,
       content: [
         new AlignedLabel(ElementID.NONE, {
-          text: '{BLACK}Available Tiles : ',
           width: 90,
-          height: 14,
-          textAlignment: {
-            horizontal: 'right',
-          },
+          textAlignment: { horizontal: 'right', vertical: 'center' },
+          text: '{BLACK}Available Tiles : ',
         }).widget,
         new AlignedLabel(ElementID.NONE, {
+          textAlignment: { horizontal: 'left', vertical: 'center' },
           text: this._createStatsLabelStore(ElementID.AVAILABLE_TILES),
-          height: 14,
         }).widget,
       ],
     });
     
     // Unlocked tiles label
-    const unlockedTilesLabel : FlexUIWidget = horizontal({
+    const spentTilesRow : FlexUIWidget = horizontal({
       spacing: 0,
+      padding: 0,
       content: [
         new AlignedLabel(ElementID.NONE, {
-          text: '{BLACK}Tiles Spent : ',
           width: 90,
-          height: 14,
-          textAlignment: {
-            horizontal: 'right',
-          },
+          textAlignment: { horizontal: 'right', vertical: 'center' },
+          text: '{BLACK}Tiles Spent : ',
         }).widget,
         new AlignedLabel(ElementID.NONE, {
+          textAlignment: { horizontal: 'left', vertical: 'center' },
           text: this._createStatsLabelStore(ElementID.UNLOCKED_TILES),
-          height: 14,
         }).widget,
       ],
     });
     
     // Xp to next tile progress bar
-    const xpToNextTilePercent : Store<number> = compute<number, number, number>(
-      stores.get('totalXpStore'),
-      plugin.get('tileXpCost'),
-      (totalXp : number, tileXpCost : number) : number => {
-        const xpSinceLastTile : number = totalXp % tileXpCost;
-        return xpSinceLastTile / tileXpCost;
-      }
-    );
-
     const xpToNextTileProgressBar : ProgressBar = new ProgressBar(ElementID.EXP_NEXT_PROGRESSBAR, {
-      width: '1w',
+      padding: 0,
       height: 16,
       background: Colour.Grey,
       foreground: Colour.LightBlue,
-      text: this._createStatsLabelStore(ElementID.EXP_NEXT_PROGRESSBAR),
       textAlignment: {
         horizontal: compute<number, HorizontalAlignment>(
           plugin.get('tileXpCost'),
@@ -243,18 +233,25 @@ export class ToolbarWindow extends BaseWindow {
         ),
         vertical: 'center'
       },
-      percentFilled: xpToNextTilePercent
+      text: this._createStatsLabelStore(ElementID.EXP_NEXT_PROGRESSBAR),
+      percentFilled: compute<number, number, number>(
+        stores.get('totalXpStore'),
+        plugin.get('tileXpCost'),
+        (totalXp : number, tileXpCost : number) : number => {
+          const xpSinceLastTile : number = totalXp % tileXpCost;
+          return xpSinceLastTile / tileXpCost;
+      }),
     });
     
     return box({
-      padding: { top: 0, right: 1, bottom: 1, left: 1 },
+      padding: { top: 0, rest: 1 },
       content: vertical({
         spacing: 0,
-        padding: { top: 0, right: 1, bottom: 2, left: 0 },
+        padding: { right: 1, bottom: 2, rest: 0 },
         content: [
           xpToNextTileProgressBar.widget,
-          availableTilesLabel,
-          unlockedTilesLabel,
+          availableTilesRow,
+          spentTilesRow,
         ],
       }),
     });
