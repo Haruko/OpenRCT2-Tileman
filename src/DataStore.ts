@@ -107,8 +107,8 @@ export abstract class DataStore<DataStoreType extends Record<string, any>> exten
 
         // Filter to only things that are Stores.
         // Otherwise we can't release updates that change these properties.
-        if (isWritableStore(destValue) && typeof destValue.get() === savedValue) {
-          this.data[key].set(savedValue);
+        if (isWritableStore(destValue) && typeof destValue.get() === typeof savedValue) {
+          destValue.set(savedValue);
         }
       }
     }
@@ -122,10 +122,11 @@ export abstract class DataStore<DataStoreType extends Record<string, any>> exten
 
     if (savedData !== null) {
       for (const key in this.data) {
+        const srcValue : any = this.data[key];
         // Filter to only things that are Stores.
         // Otherwise we can't release updates that change these properties.
-        if (isStore(this.data[key])) {
-          savedData[key] = read(this.data[key]);
+        if (isStore(srcValue)) {
+          savedData[key] = read(srcValue) as any;
         }
       }
     }
