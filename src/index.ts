@@ -46,7 +46,7 @@ parkAwardsXp : WritableStore<number>,
   * Paths - Rights - No longer allowed to switch between owned and construction rights owned. Construction rights CAN be bought on land that is unowned. (Can be bypassed in config)
   * Paths - Selling - No longer allowed to sell tiles with paths on them.
 * New startup process:
-  * Added popup window on load to ask if you want to play tileman or not.
+  * Added popup window on load and now pause the game to ask if you want to play tileman or not.
   * All paths within the park are now cleared.
   * Guest clearing is limited to within the park.
 * Toolbar Window:
@@ -54,6 +54,7 @@ parkAwardsXp : WritableStore<number>,
 * Config Window:
   * Added tooltips to config window and cleaned it up a bit.
   * Added bypass for path restrictions in config.
+  * Added button to delete all owned paths (and clean up litter on them)
 
 
 
@@ -74,9 +75,9 @@ parkAwardsXp : WritableStore<number>,
   // Things that came up in Marcel's stream
     //TODO: Scale XP cost so they're easier at the start and harder later on
 
-  //TODO: Pause on startup
-  //TODO: XP Source - Implement marketing (per $50, per week)
   //TODO: XP Source - Implement park awards
+  
+  //TODO: XP Source - Implement marketing (per $50, per week)
   //TODO: XP Source - Crashes
   //TODO: XP Source - Drowning staff/guest
 
