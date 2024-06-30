@@ -89,7 +89,9 @@ export class ConfigTab extends BaseTab {
    * Makes the list of config option controls for the config tab of the config window
    */
   private _buildConfigSettingPanel() : FlexUIWidget {
-    const stores : DataStore<StoresData> = DataStoreManager.instance<DataStoreManager>().getInstance(DataStoreID.STORES);
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const stores : DataStore<StoresData> = dsManager.getInstance(DataStoreID.STORES);
+    const plugin : DataStore<MetricData> = dsManager.getInstance(DataStoreID.PLUGIN);
 
     const spacerString : string = new Array(4 + 1).join('-   ').concat('-');
     
@@ -175,7 +177,8 @@ export class ConfigTab extends BaseTab {
         'bannersPlacedXpValue',
         'Banner placed',
         'How much XP earned per banner placed.\nYes, it\'s deducted when you delete it...',
-        this._createTotalLabelStore(ElementID.EXP_PER_BANNER_PLACED, stores.get('bannersPlacedXpStore'))
+        this._createTotalLabelStore(ElementID.EXP_PER_BANNER_PLACED, stores.get('bannersPlacedXpStore')),
+        'bannersPlaced'
       ),
     ];
 
@@ -187,28 +190,50 @@ export class ConfigTab extends BaseTab {
         'parkAdmissionXpValue',
         'Park admission',
         'How much XP earned per park admission.',
-        this._createTotalLabelStore(ElementID.EXP_PER_PARK_ADMISSION, stores.get('parkAdmissionsXpStore'))
+        this._createTotalLabelStore(ElementID.EXP_PER_PARK_ADMISSION, stores.get('parkAdmissionsXpStore')),
+        'parkAdmissions'
       ),
       
       this._createConfigRow(ElementID.EXP_PER_RIDE_ADMISSION,
         'rideAdmissionXpValue',
         'Ride admission',
         'How much XP earned per ride admission.',
-        this._createTotalLabelStore(ElementID.EXP_PER_RIDE_ADMISSION, stores.get('rideXpStore'))
+        this._createTotalLabelStore(ElementID.EXP_PER_RIDE_ADMISSION, stores.get('rideXpStore')),
+        compute<number, number, number>(
+          plugin.get('rideAdmissionXpValue'),
+          stores.get('rideXpStore'),
+          (rideAdmissionXpValue : number, rideXp : number) : number => {
+            return rideXp / rideAdmissionXpValue;
+          }
+        )
       ),
 
       this._createConfigRow(ElementID.EXP_PER_STALL_ADMISSION,
         'stallBuyXpValue',
         'Stall purchase',
         'How much XP gained per stall purchase.',
-        this._createTotalLabelStore(ElementID.EXP_PER_STALL_ADMISSION, stores.get('stallXpStore'))
+        this._createTotalLabelStore(ElementID.EXP_PER_STALL_ADMISSION, stores.get('stallXpStore')),
+        compute<number, number, number>(
+          plugin.get('stallBuyXpValue'),
+          stores.get('stallXpStore'),
+          (stallBuyXpValue : number, stallXp : number) : number => {
+            return stallXp / stallBuyXpValue;
+          }
+        )
       ),
 
       this._createConfigRow(ElementID.EXP_PER_FACILITY_ADMISSION,
         'facilityUseXpValue',
         'Facility usage',
         'How much XP gained per facility usage.\nIncludes: Toilets, Information Kiosk, Cash Machine, and First Aid.',
-        this._createTotalLabelStore(ElementID.EXP_PER_FACILITY_ADMISSION, stores.get('facilityXpStore'))
+        this._createTotalLabelStore(ElementID.EXP_PER_FACILITY_ADMISSION, stores.get('facilityXpStore')),
+        compute<number, number, number>(
+          plugin.get('facilityUseXpValue'),
+          stores.get('facilityXpStore'),
+          (facilityUseXpValue : number, facilityXp : number) : number => {
+            return facilityXp / facilityUseXpValue;
+          }
+        )
       ),
     ];
     
@@ -281,14 +306,16 @@ export class ConfigTab extends BaseTab {
         'parkAwardsPositiveXpValue',
         'Park award - {GREEN}Positive',
         'How much XP earned per positive park award earned.',
-        this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_POSITIVE, stores.get('parkAwardsPositiveXpStore'))
+        this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_POSITIVE, stores.get('parkAwardsPositiveXpStore')),
+        'parkAwardsPositive'
       ),
       
       this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_NEGATIVE,
         'parkAwardsNegativeXpValue',
         'Park award - {RED}Negative',
         'How much XP earned per negative park award earned.',
-        this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_NEGATIVE, stores.get('parkAwardsNegativeXpStore'))
+        this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_NEGATIVE, stores.get('parkAwardsNegativeXpStore')),
+        'parkAwardsNegative'
       ),
 
       // Disasters
@@ -296,21 +323,24 @@ export class ConfigTab extends BaseTab {
         'guestsDrownedXpValue',
         'Guest drowned',
         'How much XP earned for each drowned guest.',
-        this._createTotalLabelStore(ElementID.EXP_PER_GUEST_DROWNED, stores.get('guestsDrownedXpStore'))
+        this._createTotalLabelStore(ElementID.EXP_PER_GUEST_DROWNED, stores.get('guestsDrownedXpStore')),
+        'guestsDrowned'
       ),
       
       this._createConfigRow(ElementID.EXP_PER_STAFF_DROWNED,
         'staffDrownedXpValue',
         'Staff drowned',
         'How much XP earned for each drowned staff.',
-        this._createTotalLabelStore(ElementID.EXP_PER_STAFF_DROWNED, stores.get('staffDrownedXpStore'))
+        this._createTotalLabelStore(ElementID.EXP_PER_STAFF_DROWNED, stores.get('staffDrownedXpStore')),
+        'staffDrowned'
       ),
 
       this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH,
         'vehicleCrashesXpValue',
         'Vehicle crash {BABYBLUE}(per car)',
         'How much XP earned for vehicle crashes.\nA vehicle with 5 cars gives 5 crashes.',
-        this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore'))
+        this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore')),
+        'vehicleCrashes'
       ),
 
       // Other
