@@ -100,12 +100,6 @@ export class DebugTab extends BaseTab {
       padding: 0,
       width: '50%',
       content: [
-        label({
-          padding: { bottom: 5, rest: 0 },
-          alignment: 'centred',
-          text: 'Double click',
-          disabled: true,
-        }),
         horizontal({
           spacing: 5,
           padding: 0,
@@ -140,7 +134,7 @@ export class DebugTab extends BaseTab {
           padding: 0,
           width: '50%',
           height: 14,
-          tooltip: 'Fires all staff',
+          tooltip: 'Double click to fire all staff',
           text: 'Fire Staff',
           onChange: this.onFireStaffChange.bind(this)
         }, this._debugButtonGroup);
@@ -153,7 +147,7 @@ export class DebugTab extends BaseTab {
           padding: 0,
           width: '50%',
           height: 14,
-          tooltip: 'Deletes the guests inside the park',
+          tooltip: 'Double click to delete the guests inside the park',
           text: 'Delete Guests',
           onChange: this.onDeleteGuestsChange.bind(this)
         }, this._debugButtonGroup);
@@ -166,7 +160,7 @@ export class DebugTab extends BaseTab {
           padding: { top: 5, rest: 0 },
           width: '50%',
           height: 14,
-          tooltip: 'Deletes all rides from the park and removes their stats from exp calculation',
+          tooltip: 'Double click to delete all rides from the park and remove their stats from XP calculation',
           text: 'Delete Rides',
           onChange: this.onDeleteRidesChange.bind(this)
         }, this._debugButtonGroup);
@@ -179,7 +173,7 @@ export class DebugTab extends BaseTab {
           padding: { top: 5, rest: 0 },
           width: '50%',
           height: 14,
-          tooltip: 'Deletes all paths inside the park',
+          tooltip: 'Double click to delete all paths inside the park',
           text: 'Delete Paths',
           onChange: this.onClearPathsChange.bind(this)
         }, this._debugButtonGroup);

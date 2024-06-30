@@ -52,9 +52,11 @@ marketingCampaignsRunXp : WritableStore<number>,
   * Made toolbar smaller by removing config and stats buttons. These are both accessible from the map dropdown menu.
 * Config Window:
   * Made it look nicer.
+  * Added count of instances for each XP source.
   * Added tooltips to config window and cleaned it up a bit.
   * Added bypass for path restrictions in config.
-  * Added button to delete all owned paths (and clean up litter on them)
+  * Added button to delete all owned paths (and clean up litter on them).
+  * Added tooltips to buttons in config and debug tabs to tell people to double click.
 
 
 

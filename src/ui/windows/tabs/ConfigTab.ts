@@ -653,24 +653,19 @@ export class ConfigTab extends BaseTab {
       padding: 0,
       width: '25%',
       height: 14,
-      onChange: this.onDefaultsButtonClick.bind(this),
+      tooltip: 'Double click to reset settings to defaults',
       text: 'Defaults',
+      onChange: this.onDefaultsButtonClick.bind(this),
     });
     this.registerElement(ElementID.CONFIG_DEFAULTS, defaultsButton);
 
-    const doubleClickLabel : FlexUIWidget = label({
-      padding: 0,
-      width: '25%',
-      text: '<- 2x click',
-      disabled: true,
-    });
-
     const revertButton : DoubleClickButton = new DoubleClickButton(ElementID.NONE, {
-      padding: 0,
+      padding: { right: '25%', rest: 0 },
       width: '25%',
       height: 14,
-      onChange: this.onRevertButtonClick.bind(this),
+      tooltip: 'Double click to revert to previously used settings',
       text: 'Revert',
+      onChange: this.onRevertButtonClick.bind(this),
     });
     this.registerElement(ElementID.CONFIG_REVERT, revertButton);
 
@@ -678,8 +673,9 @@ export class ConfigTab extends BaseTab {
       padding: 0,
       width: '25%',
       height: 14,
-      onClick: this.onSaveButtonClick.bind(this),
+      tooltip: 'Double click to save settings',
       text: 'Save',
+      onClick: this.onSaveButtonClick.bind(this),
     });
     this.registerElement(ElementID.CONFIG_SAVE, saveButton);
 
@@ -689,7 +685,6 @@ export class ConfigTab extends BaseTab {
       content: [
         defaultsButton.widget,
         revertButton.widget,
-        doubleClickLabel,
         saveButton,
       ],
     });
