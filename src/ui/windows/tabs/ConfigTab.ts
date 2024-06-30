@@ -26,6 +26,8 @@ export class ConfigTab extends BaseTab {
 
   constructor(parent : IWindow) {
     super(parent);
+
+    this.template = this._buildTemplate();
   }
   
   /**

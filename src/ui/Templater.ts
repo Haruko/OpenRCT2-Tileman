@@ -6,7 +6,6 @@ export abstract class Templater<T> {
   protected template! : T;
 
   constructor() {
-    this.template = this._buildTemplate();
   }
 
   /**

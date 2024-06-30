@@ -28,6 +28,8 @@ export class DebugTab extends BaseTab {
   
   constructor(parent : IWindow) {
     super(parent);
+
+    this.template = this._buildTemplate();
   }
 
 

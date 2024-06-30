@@ -9,6 +9,7 @@ export abstract class BaseTab extends Templater<TabCreator> {
 
   protected constructor(parent : IWindow) {
     super();
+    
     this.parent = parent;
   }
   
