@@ -21,13 +21,18 @@ export abstract class BaseWindow extends Singleton implements IWindow {
   readonly windowTitle : string;
   protected template! : WindowTemplate;
 
+  protected contentWidth : number | undefined;
+  protected contentHeight : number | undefined;
+
   private readonly _uiElementMap : Partial<Record<ElementID, UIElement>> = {};
 
-  protected constructor(id : WindowID, windowTitle : string) {
+  protected constructor(id : WindowID, windowTitle : string, contentWidth? : number, contentHeight? : number) {
     super();
 
     this.id = id;
     this.windowTitle = windowTitle;
+    this.contentWidth = contentWidth;
+    this.contentHeight = contentHeight;
   }
   
 
@@ -66,6 +71,22 @@ export abstract class BaseWindow extends Singleton implements IWindow {
    */
   public getChildElement(id : ElementID) : UIElement | undefined {
     return this._uiElementMap[id];
+  }
+
+  /**
+   * Gets the content width of this window
+   * @returns Content width of this window
+   */
+  public getContentWidth() : number | undefined {
+    return this.contentWidth;
+  }
+
+  /**
+   * Gets the content height of this window
+   * @returns Content height of this window
+   */
+  public getContentHeight() : number | undefined {
+    return this.contentHeight;
   }
   
   

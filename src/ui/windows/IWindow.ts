@@ -25,5 +25,17 @@ export interface IWindow {
    * @param elementId ElementID to get instance of
    * @returns Button instance
    */
-  getChildElement(elementId : ElementID) : UIElement | undefined ;
+  getChildElement(elementId : ElementID) : UIElement | undefined;
+
+  /**
+   * Gets the content width of this window
+   * @returns Content width of this window
+   */
+  getContentWidth() : number | undefined;
+
+  /**
+   * Gets the content height of this window
+   * @returns Content height of this window
+   */
+  getContentHeight() : number | undefined;
 }
