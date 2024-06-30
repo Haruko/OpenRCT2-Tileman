@@ -409,6 +409,7 @@ export class ConfigTab extends BaseTab {
    * @param labelText String to show in the label
    * @param tooltip Tooltip for hovering over
    * @param totalLabelText A Store<string> or string to compute the total XP label
+   * @param countKeyOrStore Key in Metrics for the number of instances of an XP source OR a Store<number>
    * @returns The row
    */
   private _createConfigRow(
@@ -417,12 +418,12 @@ export class ConfigTab extends BaseTab {
     labelText : string,
     tooltip : string,
     totalLabelText : Store<string> | string,
-    instanceCountKey? : keyof MetricData
+    countKeyOrStore? : keyof MetricData | Store<number>
   ) : FlexUIWidget {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const pluginStore : Store<number> = dsManager.getInstance(DataStoreID.PLUGIN).get(key);
-    const metricsStore : Store<number> | undefined = instanceCountKey ?
-      dsManager.getInstance(DataStoreID.METRICS).get(instanceCountKey) : undefined;
+    const countStore : Store<number> | undefined = isStore(countKeyOrStore) ? countKeyOrStore :
+      countKeyOrStore ? dsManager.getInstance(DataStoreID.METRICS).get(countKeyOrStore) : undefined;
 
     // Make the textbox
     const defaultValue : string = read(pluginStore) + '';
@@ -450,7 +451,7 @@ export class ConfigTab extends BaseTab {
       padding: 0,
       width: this.columnWidths[1],
       textAlignment: { horizontal: 'right', vertical: 'center' },
-      text: metricsStore ? compute<number, string>(metricsStore,
+      text: countStore ? compute<number, string>(countStore,
         (count : number) : string => {
           return context.formatString('{COMMA16} {BLACK}x', count);
         }
