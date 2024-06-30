@@ -41,6 +41,8 @@ export class Stores extends DataStore<StoresData> {
       // Park data
       parkAwardsPositiveXpStore: null,
       parkAwardsNegativeXpStore: null,
+      guestsDrownedXpStore: null,
+      staffDrownedXpStore: null,
       vehicleCrashesXpStore: null,
       totalParkDataXpStore: null,
       

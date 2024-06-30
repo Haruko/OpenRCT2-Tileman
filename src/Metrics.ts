@@ -41,6 +41,9 @@ export class Metrics extends DataStore<MetricData> {
       // Park data
       parkAwardsPositive : store<number>(0),
       parkAwardsNegative : store<number>(0),
+      
+      guestsDrowned : store<number>(0),
+      staffDrowned : store<number>(0),
       vehicleCrashes : store<number>(0),
     });
     

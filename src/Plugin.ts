@@ -55,6 +55,9 @@ export class Plugin extends DataStore<PluginData> {
       // Park data
       parkAwardsPositiveXpValue : store<number>(25),
       parkAwardsNegativeXpValue : store<number>(5),
+
+      guestsDrownedXpValue: store<number>(1),
+      staffDrownedXpValue: store<number>(5),
       vehicleCrashesXpValue : store<number>(10),
     });
   }
