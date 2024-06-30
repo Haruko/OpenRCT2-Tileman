@@ -89,6 +89,6 @@ export function initialize() : void {
   if (__environment === 'development') {
     const uiManager : UIManager = UIManager.instance();
     uiManager.getInstance(WindowID.CONFIG).open();
-    uiManager.getInstance(WindowID.STATS).open();
+    // uiManager.getInstance(WindowID.STATS).open();
   }
 }

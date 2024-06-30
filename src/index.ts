@@ -79,7 +79,6 @@ marketingCampaignsRunXp : WritableStore<number>,
   
   //TODO: XP Source - Implement marketing (per $50, per week)
   //TODO: XP Source - Killing guest/staff (crashes)
-  //TODO: Make sure awards xp works right
 
 
   //TODO: XP BALANCING:
