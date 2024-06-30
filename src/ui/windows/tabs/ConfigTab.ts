@@ -1,4 +1,4 @@
-import { Store, TabCreator, WritableStore, button, checkbox, compute, horizontal, label, read, store, tab, textbox, vertical } from 'openrct2-flexui';
+import { Store, TabCreator, WritableStore, button, checkbox, compute, horizontal, isStore, label, read, store, tab, textbox, vertical } from 'openrct2-flexui';
 import { BaseTab } from './BaseTab';
 import { IWindow } from '../IWindow';
 import { AnimatedSprites, ElementID } from '@src/ui/types/enums';
