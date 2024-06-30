@@ -34,7 +34,7 @@ export class AlignedLabel extends BaseElement<AlignedLabelParams> {
       disabled: this.params.disabled,
       visibility: this.params.visibility,
       width: this.params.width,
-      height: this.params.height,
+      height: this.params.height ?? 14,
       padding: this.params.padding,
       onDraw: this._onDraw.bind(this),
     });
