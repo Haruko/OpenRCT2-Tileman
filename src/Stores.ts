@@ -41,9 +41,13 @@ export class Stores extends DataStore<StoresData> {
       // Park data
       parkAwardsPositiveXpStore: null,
       parkAwardsNegativeXpStore: null,
+      totalAwardsXpStore: null,
+
       guestsDrownedXpStore: null,
       staffDrownedXpStore: null,
       vehicleCrashesXpStore: null,
+      totalDisastersXpStore: null,
+
       totalParkDataXpStore: null,
       
       // Other
@@ -317,11 +321,11 @@ export class Stores extends DataStore<StoresData> {
   }
 
   /**
-   * Initialize the park data stores
+   * Initialize the award stores
    * @param plugin Copy of Plugin
    * @param metrics Copy of Metrics
    */
-  private _initializeParkDataStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
+  private _initializeAwardStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
     // Computed total experience from positive park awards
     this.set('parkAwardsPositiveXpStore', compute<number, number, number>(
       metrics.get('parkAwardsPositive'),
@@ -330,6 +334,7 @@ export class Stores extends DataStore<StoresData> {
         return parkAwardsPositive * parkAwardsPositiveXpValue;
       }
     ));
+
     // Computed total experience from positive park awards
     this.set('parkAwardsNegativeXpStore', compute<number, number, number>(
       metrics.get('parkAwardsNegative'),
@@ -338,7 +343,23 @@ export class Stores extends DataStore<StoresData> {
         return parkAwardsNegative * parkAwardsNegativeXpValue;
       }
     ));
+    
+    // Total
+    this.set('totalAwardsXpStore', compute<number, number, number>(
+      this.get('parkAwardsPositiveXpStore'),
+      this.get('parkAwardsNegativeXpStore'),
+      (parkAwardsPositiveXp : number, parkAwardsNegativeXp : number) : number => {
+        return parkAwardsPositiveXp + parkAwardsNegativeXp;
+      }
+    ));
+  }
 
+  /**
+   * Initialize the disaster stores
+   * @param plugin Copy of Plugin
+   * @param metrics Copy of Metrics
+   */
+  private _initializeDisasterStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
     // Computed total experience from vehicle crashes
     this.set('vehicleCrashesXpStore', compute<number, number, number>(
       metrics.get('vehicleCrashes'),
@@ -347,14 +368,51 @@ export class Stores extends DataStore<StoresData> {
         return vehicleCrashes * vehicleCrashesXpValue;
       }
     ));
+
+    // Computed total experience from drowning guests
+    this.set('guestsDrownedXpStore', compute<number, number, number>(
+      metrics.get('guestsDrowned'),
+      plugin.get('guestsDrownedXpValue'),
+      (guestsDrowned : number, guestsDrownedXpValue : number) : number => {
+        return guestsDrowned * guestsDrownedXpValue;
+      }
+    ));
+    
+    // Computed total experience from drowning staff
+    this.set('staffDrownedXpStore', compute<number, number, number>(
+      metrics.get('staffDrowned'),
+      plugin.get('staffDrownedXpValue'),
+      (staffDrowned : number, staffDrownedXpValue : number) : number => {
+        return staffDrowned * staffDrownedXpValue;
+      }
+    ));
     
     // Total
-    this.set('totalParkDataXpStore', compute<number, number, number, number>(
-      this.get('parkAwardsPositiveXpStore'),
-      this.get('parkAwardsNegativeXpStore'),
+    this.set('totalDisastersXpStore', compute<number, number, number, number>(
       this.get('vehicleCrashesXpStore'),
-      (parkAwardsPositiveXp : number, parkAwardsNegativeXp : number, vehicleCrashesXp : number) : number => {
-        return parkAwardsPositiveXp + parkAwardsNegativeXp + vehicleCrashesXp;
+      this.get('guestsDrownedXpStore'),
+      this.get('staffDrownedXpStore'),
+      (vehicleCrashesXp : number, guestsDrownedXp : number, staffDrownedXp : number) : number => {
+        return vehicleCrashesXp + guestsDrownedXp + staffDrownedXp;
+      }
+    ));
+  }
+
+  /**
+   * Initialize the park data stores
+   * @param plugin Copy of Plugin
+   * @param metrics Copy of Metrics
+   */
+  private _initializeParkDataStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
+    this._initializeAwardStores(plugin, metrics);
+    this._initializeDisasterStores(plugin, metrics);
+    
+    // Total
+    this.set('totalParkDataXpStore', compute<number, number, number>(
+      this.get('totalAwardsXpStore'),
+      this.get('totalDisastersXpStore'),
+      (totalAwardsXp : number, totalDisastersXp : number,) : number => {
+        return totalAwardsXp + totalDisastersXp;
       }
     ));
   }
