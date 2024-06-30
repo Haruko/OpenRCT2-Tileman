@@ -332,7 +332,7 @@ export class ConfigTab extends BaseTab {
     const otherRows : FlexUIWidget[] = [
       this._createConfigRow(ElementID.EXP_PER_TILE, 'tileXpCost',
         'Tile XP cost', 'How much XP each tile costs.',
-        this._createTotalLabelStore(ElementID.EXP_PER_TILE, stores.get('availableTilesStore'))),
+        this._createTotalLabelStore(ElementID.EXP_PER_TILE, stores.get('tilesEarnedStore'))),
       this._createConfigRow(ElementID.MIN_TILES, 'startingTiles',
         'Starting tiles', 'How many free tiles you start with.'),
       shortLineSpacer,
