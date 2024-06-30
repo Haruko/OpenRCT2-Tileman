@@ -52,7 +52,8 @@ export enum ElementID {
       EXP_PER_VANDAL_STOPPED,
     
       // Park data
-      EXP_PER_PARK_AWARD,
+      EXP_PER_PARK_AWARD_POSITIVE,
+      EXP_PER_PARK_AWARD_NEGATIVE,
       EXP_PER_VEHICLE_CRASH,
 
       EXP_PER_TILE,

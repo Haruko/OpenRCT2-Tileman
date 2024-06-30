@@ -328,13 +328,20 @@ export class ConfigTab extends BaseTab {
 
     // Park data
     const parkDataXpRows : FlexUIWidget[] = [
-      // shortLineSpacer,
-      // this._createConfigRow(ElementID.EXP_PER_PARK_AWARD,
-      //   'parkAwardsXpValue',
-      //   'Park award',
-      //   'How much XP earned per park award earned.\nThis is historical. If you lose an award, it will still count.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD, stores.get('parkAwardsXpStore'))
-      // ),
+      shortLineSpacer,
+      this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_POSITIVE,
+        'parkAwardsPositiveXpValue',
+        'Park award - {GREEN}Positive',
+        'How much XP earned per positive park award earned.',
+        this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_POSITIVE, stores.get('parkAwardsPositiveXpStore'))
+      ),
+      
+      this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_NEGATIVE,
+        'parkAwardsNegativeXpValue',
+        'Park award - {RED}Negative',
+        'How much XP earned per negative park award earned.',
+        this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_NEGATIVE, stores.get('parkAwardsNegativeXpStore'))
+      ),
         
       // this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN,
       //   'marketingCampaignsRunXpValue',

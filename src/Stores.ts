@@ -39,7 +39,8 @@ export class Stores extends DataStore<StoresData> {
       totalStaffXpStore: null,
       
       // Park data
-      parkAwardsXpStore: null,
+      parkAwardsPositiveXpStore: null,
+      parkAwardsNegativeXpStore: null,
       vehicleCrashesXpStore: null,
       totalParkDataXpStore: null,
       
@@ -319,12 +320,20 @@ export class Stores extends DataStore<StoresData> {
    * @param metrics Copy of Metrics
    */
   private _initializeParkDataStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
-    // Computed total experience from park awards
-    this.set('parkAwardsXpStore', compute<number, number, number>(
-      metrics.get('parkAwards'),
-      plugin.get('parkAwardsXpValue'),
-      (parkAwards : number, parkAwardsXpValue : number) : number => {
-        return parkAwards * parkAwardsXpValue;
+    // Computed total experience from positive park awards
+    this.set('parkAwardsPositiveXpStore', compute<number, number, number>(
+      metrics.get('parkAwardsPositive'),
+      plugin.get('parkAwardsPositiveXpValue'),
+      (parkAwardsPositive : number, parkAwardsPositiveXpValue : number) : number => {
+        return parkAwardsPositive * parkAwardsPositiveXpValue;
+      }
+    ));
+    // Computed total experience from positive park awards
+    this.set('parkAwardsNegativeXpStore', compute<number, number, number>(
+      metrics.get('parkAwardsNegative'),
+      plugin.get('parkAwardsNegativeXpValue'),
+      (parkAwardsNegative : number, parkAwardsNegativeXpValue : number) : number => {
+        return parkAwardsNegative * parkAwardsNegativeXpValue;
       }
     ));
 
@@ -338,11 +347,12 @@ export class Stores extends DataStore<StoresData> {
     ));
     
     // Total
-    this.set('totalParkDataXpStore', compute<number, number, number>(
-      this.get('parkAwardsXpStore'),
+    this.set('totalParkDataXpStore', compute<number, number, number, number>(
+      this.get('parkAwardsPositiveXpStore'),
+      this.get('parkAwardsNegativeXpStore'),
       this.get('vehicleCrashesXpStore'),
-      (parkAwardsXp : number, vehicleCrashesXp : number) : number => {
-        return parkAwardsXp + vehicleCrashesXp;
+      (parkAwardsPositiveXp : number, parkAwardsNegativeXp : number, vehicleCrashesXp : number) : number => {
+        return parkAwardsPositiveXp + parkAwardsNegativeXp + vehicleCrashesXp;
       }
     ));
   }

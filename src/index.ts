@@ -25,10 +25,6 @@ enum
 // Player actions
 marketingCampaignsRunXp : WritableStore<number>,
 
-// Park data
-parkAwardsXp : WritableStore<number>,
-// Need to check messages and record dates for each award, plus whether it's positive or negative
-
 
 
 
@@ -41,6 +37,7 @@ parkAwardsXp : WritableStore<number>,
   - Balloons popped
   - Banners placed
   - Vehicle crashes (per car)
+  - Park awards (both positive and negative)
 * New restrictions on tile ownership changes:
   * Guests - Selling - No longer allowed to sell tiles with guests on them.
   * Paths - Buying - No longer allowed to buy tiles with paths on them. (Can be bypassed in config)
@@ -75,8 +72,6 @@ parkAwardsXp : WritableStore<number>,
 // HIGH PRIORITY
   // Things that came up in Marcel's stream
     //TODO: Scale XP cost so they're easier at the start and harder later on
-
-  //TODO: XP Source - Implement park awards
   
   //TODO: XP Source - Implement marketing (per $50, per week)
   //TODO: XP Source - Drowning staff/guest

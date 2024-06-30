@@ -39,7 +39,8 @@ export class Metrics extends DataStore<MetricData> {
       vandalsStopped : store<number>(0),
 
       // Park data
-      parkAwards : store<number>(0),
+      parkAwardsPositive : store<number>(0),
+      parkAwardsNegative : store<number>(0),
       vehicleCrashes : store<number>(0),
     });
     
@@ -69,12 +70,13 @@ export class Metrics extends DataStore<MetricData> {
 
   /**
    * Collects metric data used for experience calculations
+   * @param ticksPerUpdate Number of ticks between updates
    */
-  public collectMetrics() : void {
+  public collectMetrics(ticksPerUpdate : number) : void {
     this.collectGuestMetrics();
     this.collectStaffMetrics();
     this.collectRideMetrics();
-    this.collectParkAwardMetrics();
+    this.collectParkAwardMetrics(ticksPerUpdate);
 
     const dsManager : DataStoreManager = DataStoreManager.instance();
     dsManager.storeAllData();
@@ -162,10 +164,73 @@ export class Metrics extends DataStore<MetricData> {
 
   /**
    * Collect park award data
+   * @param ticksPerUpdate Number of ticks between updates
    */
-  public collectParkAwardMetrics() : void {
-    // parkAwards
-    // TODO: Implement
+  public collectParkAwardMetrics(ticksPerUpdate : number) : void {
+    // STR_2831    :{TOPAZ}Your park has received an award for being ‘The most untidy park in the country’!
+    // STR_2836    :{TOPAZ}Your park has received an award for being ‘The worst value park in the country’!
+    // STR_2840    :{TOPAZ}Your park has received an award for being ‘The park with the worst food in the country’!
+    // STR_2842    :{TOPAZ}Your park has received an award for being ‘The most disappointing park in the country’!
+    // STR_2846    :{TOPAZ}Your park has received an award for being ‘The park with the most confusing layout’!
+
+    // STR_2832    :{TOPAZ}Your park has received an award for being ‘The tidiest park in the country’!
+    // STR_2833    :{TOPAZ}Your park has received an award for being ‘The park with the best roller coasters’!
+    // STR_2834    :{TOPAZ}Your park has received an award for being ‘The best value park in the country’!
+    // STR_2835    :{TOPAZ}Your park has received an award for being ‘The most beautiful park in the country’!
+    // STR_2837    :{TOPAZ}Your park has received an award for being ‘The safest park in the country’!
+    // STR_2838    :{TOPAZ}Your park has received an award for being ‘The park with the best staff’!
+    // STR_2839    :{TOPAZ}Your park has received an award for being ‘The park with the best food in the country’!
+    // STR_2841    :{TOPAZ}Your park has received an award for being ‘The park with the best toilet facilities in the country’!
+    // STR_2843    :{TOPAZ}Your park has received an award for being ‘The park with the best water rides in the country’!
+    // STR_2844    :{TOPAZ}Your park has received an award for being ‘The park with the best custom-designed rides’!
+    // STR_2845    :{TOPAZ}Your park has received an award for being ‘The park with the most dazzling choice of colour schemes’!
+    // STR_2847    :{TOPAZ}Your park has received an award for being ‘The park with the best gentle rides’!
+
+    // NEGATIVE, // AwardType::MostUntidy
+    // NEGATIVE, // AwardType::WorstValue
+    // NEGATIVE, // AwardType::WorstFood
+    // NEGATIVE, // AwardType::MostDisappointing
+    // NEGATIVE, // AwardType::MostConfusingLayout
+
+    // POSITIVE, // AwardType::MostTidy
+    // POSITIVE, // AwardType::BestRollerCoasters
+    // POSITIVE, // AwardType::BestValue
+    // POSITIVE, // AwardType::MostBeautiful
+    // POSITIVE, // AwardType::Safest
+    // POSITIVE, // AwardType::BestStaff
+    // POSITIVE, // AwardType::BestFood
+    // POSITIVE, // AwardType::BestToilets
+    // POSITIVE, // AwardType::BestWaterRides
+    // POSITIVE, // AwardType::BestCustomDesignedRides
+    // POSITIVE, // AwardType::MostDazzlingRideColours
+    // POSITIVE, // AwardType::BestGentleRides
+
+    const messages : ParkMessage[] = park.messages;
+
+    const negativeAwards : string[] = [
+      'The most untidy park in the country',
+      'The worst value park in the country',
+      'The park with the worst food in the country',
+      'The most disappointing park in the country',
+      'The park with the most confusing layout',
+    ];
+    
+    const negativeAwardsRegex : RegExp = RegExp(negativeAwards.join('|'));
+
+    messages.filter((message : ParkMessage) : boolean => 
+      message.tickCount <= ticksPerUpdate && message.type === 'award')
+      .forEach((message : ParkMessage) : void => {
+        const isNegative : boolean = negativeAwardsRegex.test(message.text);
+
+        if (isNegative) {
+          this.get('parkAwardsNegative').set(this.get('parkAwardsNegative').get() + 1);
+        } else {
+          this.get('parkAwardsPositive').set(this.get('parkAwardsPositive').get() + 1);
+        }
+        
+
+        console.log(isNegative, this.get('parkAwardsNegative').get(), this.get('parkAwardsPositive').get(), message.text);
+      });
   }
 
 
@@ -209,7 +274,7 @@ export class Metrics extends DataStore<MetricData> {
    */
   private _onTick(ticksPerUpdate : number) : void {
     if (date.ticksElapsed % ticksPerUpdate === 0) {
-      this.collectMetrics();
+      this.collectMetrics(ticksPerUpdate);
     }
   }
 
