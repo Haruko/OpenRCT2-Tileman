@@ -46,24 +46,42 @@ export class DebugTab extends BaseTab {
    */
   protected _buildTemplate() : TabCreator {
     this.debugButtonGroup = new StatefulButtonGroup();
-
-    const buttonPanel = this._buildDebugButtonPanel();
   
     return tab({
+      padding: 0,
       image: AnimatedSprites.WRENCH,
       content: [
         vertical({
-          spacing: 2,
+          spacing: 0,
           padding: 0,
+          width: this.parent.getContentWidth()!,
           content: [
             label({
-              text: '{WHITE}Debug',
-              height: 14,
+              padding: { bottom: 5, rest: 0 },
+              width: this.parent.getContentWidth()!,
               alignment: 'centred',
+              text: 'Debug',
             }),
-            buttonPanel
+            horizontal({
+              spacing: 0,
+              padding: 0,
+              width: this.parent.getContentWidth()!,
+              content: [
+                label({
+                  padding: 0,
+                  width: '25%',
+                  text: '',
+                }),
+                this._buildDebugButtonPanel(),
+                label({
+                  padding: 0,
+                  width: '25%',
+                  text: '',
+                }),
+              ]
+            }),
           ],
-        })
+        }),
       ],
     });
   }
@@ -77,33 +95,34 @@ export class DebugTab extends BaseTab {
     const deleteRidesButton : DoubleClickButton = this._createDebugButton(ElementID.DELETE_RIDES_BUTTON);
     const clearPathsButton : DoubleClickButton = this._createDebugButton(ElementID.CLEAR_PATHS_BUTTON);
 
-    const instructionLabel = label({
-      text: '{WHITE}Double click to use buttons',
-      alignment: 'centred',
-      height: 14
-    });
+    console.log(this.parent.getContentWidth()!)
   
     return vertical({
       spacing: 2,
       padding: 0,
+      width: '50%',
       content: [
         horizontal({
-          spacing: 3,
+          spacing: 5,
           padding: 0,
           content: [
             fireStaffButton.widget,
             deleteGuestsButton.widget,
-            deleteRidesButton.widget,
           ]
         }),
         horizontal({
-          spacing: 3,
+          spacing: 5,
           padding: 0,
           content: [
+            deleteRidesButton.widget,
             clearPathsButton.widget,
           ]
         }),
-        instructionLabel
+        label({
+          padding: { top: 5, rest: 0 },
+          alignment: 'centred',
+          text: 'Double click to use buttons',
+        })
       ]
     });
   }
@@ -119,10 +138,11 @@ export class DebugTab extends BaseTab {
     switch (id) {
       case ElementID.FIRE_STAFF_BUTTON: {
         newElement = new DoubleClickButton(ElementID.FIRE_STAFF_BUTTON, {
-          text: 'Fire Staff',
-          tooltip: 'Fires all staff',
-          width: '33%',
+          padding: 0,
+          width: '50%',
           height: 14,
+          tooltip: 'Fires all staff',
+          text: 'Fire Staff',
           onChange: this.onFireStaffChange.bind(this)
         }, this._debugButtonGroup);
 
@@ -131,10 +151,11 @@ export class DebugTab extends BaseTab {
         break;
       } case ElementID.DELETE_GUESTS_BUTTON: {
         newElement = new DoubleClickButton(ElementID.DELETE_GUESTS_BUTTON, {
-          text: 'Delete Guests',
-          tooltip: 'Deletes the guests inside the park',
-          width: '33%',
+          padding: 0,
+          width: '50%',
           height: 14,
+          tooltip: 'Deletes the guests inside the park',
+          text: 'Delete Guests',
           onChange: this.onDeleteGuestsChange.bind(this)
         }, this._debugButtonGroup);
 
@@ -143,10 +164,11 @@ export class DebugTab extends BaseTab {
         break;
       } case ElementID.DELETE_RIDES_BUTTON: {
         newElement = new DoubleClickButton(ElementID.DELETE_RIDES_BUTTON, {
-          text: 'Delete Rides',
-          tooltip: 'Deletes all rides from the park and removes their stats from exp calculation',
-          width: '33%',
+          padding: { top: 5, rest: 0 },
+          width: '50%',
           height: 14,
+          tooltip: 'Deletes all rides from the park and removes their stats from exp calculation',
+          text: 'Delete Rides',
           onChange: this.onDeleteRidesChange.bind(this)
         }, this._debugButtonGroup);
 
@@ -155,10 +177,11 @@ export class DebugTab extends BaseTab {
         break;
       } case ElementID.CLEAR_PATHS_BUTTON: {
         newElement = new DoubleClickButton(ElementID.CLEAR_PATHS_BUTTON, {
-          text: 'Delete Paths',
-          tooltip: 'Deletes all paths inside the park',
-          width: '33%',
+          padding: { top: 5, rest: 0 },
+          width: '50%',
           height: 14,
+          tooltip: 'Deletes all paths inside the park',
+          text: 'Delete Paths',
           onChange: this.onClearPathsChange.bind(this)
         }, this._debugButtonGroup);
 
