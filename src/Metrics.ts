@@ -51,9 +51,9 @@ export class Metrics extends DataStore<MetricData> {
   public initialize() : void {
     // Subscribe to events
     const dsManager : DataStoreManager = DataStoreManager.instance();
-    context.subscribe('interval.tick', () => this._onTick(dsManager.getInstance(DataStoreID.PLUGIN).get('ticksPerUpdate').get()));
-    context.subscribe('map.save', () => dsManager.storeAllData());
-    context.subscribe('action.execute', (e : GameActionEventArgs) => this._onActionExecute(e));
+    context.subscribe('interval.tick', () : void  => this._onTick(dsManager.getInstance(DataStoreID.PLUGIN).get('ticksPerUpdate').get()));
+    context.subscribe('map.save', () : void  => dsManager.storeAllData());
+    context.subscribe('action.execute', (e : GameActionEventArgs) : void => this._onActionExecute(e));
   }
 
   
