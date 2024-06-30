@@ -94,8 +94,6 @@ export class DebugTab extends BaseTab {
     const deleteGuestsButton : DoubleClickButton = this._createDebugButton(ElementID.DELETE_GUESTS_BUTTON);
     const deleteRidesButton : DoubleClickButton = this._createDebugButton(ElementID.DELETE_RIDES_BUTTON);
     const clearPathsButton : DoubleClickButton = this._createDebugButton(ElementID.CLEAR_PATHS_BUTTON);
-
-    console.log(this.parent.getContentWidth()!)
   
     return vertical({
       spacing: 2,
