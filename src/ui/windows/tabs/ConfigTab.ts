@@ -402,7 +402,7 @@ export class ConfigTab extends BaseTab {
    * @param totalLabelText A Store<string> to compute the total XP label
    * @returns The row
    */
-  private _createConfigRow(id : ElementID, key : keyof PluginData, labelText : string, tooltip : string, totalLabelText? : Store<string>) : FlexUIWidget {
+  private _createConfigRow(id : ElementID, key : keyof PluginData, labelText : string, tooltip : string, totalLabelText? : Store<string> | string) : FlexUIWidget {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const pluginStore = dsManager.getInstance(DataStoreID.PLUGIN).get(key);
 
