@@ -292,7 +292,7 @@ export class ConfigTab extends BaseTab {
       // shortLineSpacer,
       // this._createConfigRow(ElementID.EXP_PER_PARK_AWARD, 'parkAwardsXpValue',
       //   'Park award', 'How much XP earned per park award earned.\nThis is historical. If you lose an award, it will still count.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD, parkAwardsXpStore)),
+      //   this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD, stores.get('parkAwardsXpStore'))),
         
       // this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN, 'marketingCampaignsRunXpValue',
       //   context.formatString('Marketing campaign (per {CURRENCY})', 500),
