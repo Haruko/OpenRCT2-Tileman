@@ -1,22 +1,19 @@
 /// <reference path='../../../lib/openrct2.d.ts' />
 
 import { Store, TabCreator, WindowTemplate, WritableStore, button, checkbox, compute, horizontal, label, read, store, tab, tabwindow, textbox, vertical, widget } from 'openrct2-flexui';
-import { StatefulButtonGroup } from '../elements/StatefulButtonGroup';
 import { BaseWindow } from './BaseWindow';
 import { AnimatedSprites, ElementID, WindowID } from '../types/enums';
 import { FlexUIWidget } from '../types/types';
-import { DoubleClickButton } from '../elements/DoubleClickButton';
 import { AlignedLabel } from '../elements/AlignedLabel';
 import { PluginData, StoresData } from '@src/types/types';
 import { DataStoreID } from '@src/types/enums';
 import { DataStore } from '@src/DataStore';
 import { DataStoreManager } from '@src/DataStoreManager';
-import { Park } from '@src/Park';
+import { DebugTab } from './tabs/DebugTab';
 
 
 
 export class ConfigWindow extends BaseWindow {
-  private readonly _debugButtonGroup : StatefulButtonGroup = new StatefulButtonGroup();
   private readonly _settingsStores : Partial<Record<keyof PluginData, WritableStore<any>>> = {};
   
   protected constructor() {
@@ -37,10 +34,9 @@ export class ConfigWindow extends BaseWindow {
    * Builds the window template for initialization
    * @returns WindowTemplate
    */
-
   protected _buildWindowTemplate() : WindowTemplate {
     const configTab : TabCreator = this._buildConfigTab();
-    const debugTab : TabCreator = this._buildDebugTab();
+    const debugTab : DebugTab = new DebugTab(this);
   
     return tabwindow({
       title: this.windowTitle,
@@ -50,7 +46,7 @@ export class ConfigWindow extends BaseWindow {
       startingTab: 0,
       tabs: [
         configTab,
-        debugTab,
+        debugTab.getTemplate(),
       ],
       onOpen: this.onOpen.bind(this),
       onUpdate: this.onUpdate.bind(this),
@@ -523,141 +519,6 @@ export class ConfigWindow extends BaseWindow {
     });
   }
 
-  /**
-   * Creates element for config options
-   * @returns The element
-   */
-  
-  /**
-   * Builds the debug tab
-   */
-  private _buildDebugTab() : TabCreator {
-    const buttonPanel = this._buildDebugButtonPanel();
-  
-    return tab({
-      image: AnimatedSprites.WRENCH,
-      content: [
-        vertical({
-          spacing: 2,
-          padding: 0,
-          content: [
-            label({
-              text: '{WHITE}Debug',
-              height: 14,
-              alignment: 'centred',
-            }),
-            buttonPanel
-          ]
-        })
-      ]
-    });
-  }
-
-  /**
-   * Builds debug button panel
-   */
-  private _buildDebugButtonPanel() : FlexUIWidget {
-    const fireStaffButton : DoubleClickButton = this._createDebugButton(ElementID.FIRE_STAFF_BUTTON);
-    const deleteGuestsButton : DoubleClickButton = this._createDebugButton(ElementID.DELETE_GUESTS_BUTTON);
-    const deleteRidesButton : DoubleClickButton = this._createDebugButton(ElementID.DELETE_RIDES_BUTTON);
-    const clearPathsButton : DoubleClickButton = this._createDebugButton(ElementID.CLEAR_PATHS_BUTTON);
-
-    const instructionLabel = label({
-      text: '{WHITE}Double click to use buttons',
-      alignment: 'centred',
-      height: 14
-    });
-  
-    return vertical({
-      spacing: 2,
-      padding: 0,
-      content: [
-        horizontal({
-          spacing: 3,
-          padding: 0,
-          content: [
-            fireStaffButton.widget,
-            deleteGuestsButton.widget,
-            deleteRidesButton.widget,
-          ]
-        }),
-        horizontal({
-          spacing: 3,
-          padding: 0,
-          content: [
-            clearPathsButton.widget,
-          ]
-        }),
-        instructionLabel
-      ]
-    });
-  }
-
-  /**
-   * Creates buttons for debug button panel
-   * @param id ElementID of element to make
-   * @returns The element
-   */
-  private _createDebugButton(id : ElementID) : DoubleClickButton {
-    let newElement! : DoubleClickButton;
-
-    switch (id) {
-      case ElementID.FIRE_STAFF_BUTTON: {
-        newElement = new DoubleClickButton(ElementID.FIRE_STAFF_BUTTON, {
-          text: 'Fire Staff',
-          tooltip: 'Fires all staff',
-          width: '33%',
-          height: 14,
-          onChange: this.onFireStaffChange.bind(this)
-        }, this._debugButtonGroup);
-
-        this._debugButtonGroup.addButton(newElement);
-        this.registerElement(ElementID.FIRE_STAFF_BUTTON, newElement);
-        break;
-      } case ElementID.DELETE_GUESTS_BUTTON: {
-        newElement = new DoubleClickButton(ElementID.DELETE_GUESTS_BUTTON, {
-          text: 'Delete Guests',
-          tooltip: 'Deletes the guests inside the park',
-          width: '33%',
-          height: 14,
-          onChange: this.onDeleteGuestsChange.bind(this)
-        }, this._debugButtonGroup);
-
-        this._debugButtonGroup.addButton(newElement);
-        this.registerElement(ElementID.DELETE_GUESTS_BUTTON, newElement);
-        break;
-      } case ElementID.DELETE_RIDES_BUTTON: {
-        newElement = new DoubleClickButton(ElementID.DELETE_RIDES_BUTTON, {
-          text: 'Delete Rides',
-          tooltip: 'Deletes all rides from the park and removes their stats from exp calculation',
-          width: '33%',
-          height: 14,
-          onChange: this.onDeleteRidesChange.bind(this)
-        }, this._debugButtonGroup);
-
-        this._debugButtonGroup.addButton(newElement);
-        this.registerElement(ElementID.DELETE_RIDES_BUTTON, newElement);
-        break;
-      } case ElementID.CLEAR_PATHS_BUTTON: {
-        newElement = new DoubleClickButton(ElementID.CLEAR_PATHS_BUTTON, {
-          text: 'Delete Paths',
-          tooltip: 'Deletes all paths inside the park',
-          width: '33%',
-          height: 14,
-          onChange: this.onClearPathsChange.bind(this)
-        }, this._debugButtonGroup);
-
-        this._debugButtonGroup.addButton(newElement);
-        this.registerElement(ElementID.CLEAR_PATHS_BUTTON, newElement);
-        break;
-      }
-    }
-
-    return newElement;
-  }
-
-
-
 
 
   /**
@@ -685,38 +546,6 @@ export class ConfigWindow extends BaseWindow {
    */
   protected override onClose() : void {
     super.onClose();
-  }
-
-  /**
-   * Handles clicks on fire staff button
-   * @param isPressed whether the button is pressed or not
-   */
-  private onFireStaffChange(isPressed : boolean) : void {
-    Park.instance<Park>().fireStaff();
-  }
-
-  /**
-   * Handles clicks on fire staff button
-   * @param isPressed whether the button is pressed or not
-   */
-  private onDeleteGuestsChange(isPressed : boolean) : void {
-    Park.instance<Park>().deleteGuests();
-  }
-
-  /**
-   * Handles clicks on fire staff button
-   * @param isPressed whether the button is pressed or not
-   */
-  private onDeleteRidesChange(isPressed : boolean) : void {
-    Park.instance<Park>().deleteRides();
-  }
-
-  /**
-   * Handles clicks on clear paths button
-   * @param isPressed whether the button is pressed or not
-   */
-  private onClearPathsChange(isPressed : boolean) : void {
-    Park.instance<Park>().clearPaths();
   }
 
   /**
