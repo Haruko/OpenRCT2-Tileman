@@ -276,6 +276,7 @@ export class ConfigTab extends BaseTab {
     // Park data
     const parkDataXpRows : FlexUIWidget[] = [
       shortLineSpacer,
+      // Awards
       this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_POSITIVE,
         'parkAwardsPositiveXpValue',
         'Park award - {GREEN}Positive',
@@ -289,20 +290,36 @@ export class ConfigTab extends BaseTab {
         'How much XP earned per negative park award earned.',
         this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_NEGATIVE, stores.get('parkAwardsNegativeXpStore'))
       ),
-        
-      // this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN,
-      //   'marketingCampaignsRunXpValue',
-      //   context.formatString('Marketing campaign (per {CURRENCY})', 500),
-      //   context.formatString('How much XP earned per marketing campaign run per week.\n{CURRENCY} is 4 times and {CURRENCY} is 7 times this value.', 2000, 3500),
-      //   this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN, stores.get('marketingCampaignsRunXpStore'))
-      // ),
+
+      // Disasters
+      this._createConfigRow(ElementID.EXP_PER_GUEST_DROWNED,
+        'guestsDrownedXpValue',
+        'Guest drowned',
+        'How much XP earned for each drowned guest.',
+        this._createTotalLabelStore(ElementID.EXP_PER_GUEST_DROWNED, stores.get('guestsDrownedXpStore'))
+      ),
       
+      this._createConfigRow(ElementID.EXP_PER_STAFF_DROWNED,
+        'staffDrownedXpValue',
+        'Staff drowned',
+        'How much XP earned for each drowned staff.',
+        this._createTotalLabelStore(ElementID.EXP_PER_STAFF_DROWNED, stores.get('staffDrownedXpStore'))
+      ),
+
       this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH,
         'vehicleCrashesXpValue',
         'Vehicle crash {BABYBLUE}(per car)',
         'How much XP earned for vehicle crashes.\nA vehicle with 5 cars gives 5 crashes.',
         this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore'))
       ),
+
+      // Other
+      // this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN,
+      //   'marketingCampaignsRunXpValue',
+      //   context.formatString('Marketing campaign (per {CURRENCY})', 500),
+      //   context.formatString('How much XP earned per marketing campaign run per week.\n{CURRENCY} is 4 times and {CURRENCY} is 7 times this value.', 2000, 3500),
+      //   this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN, stores.get('marketingCampaignsRunXpStore'))
+      // ),
     ];
 
     const totalXpRow : FlexUIWidget = horizontal({

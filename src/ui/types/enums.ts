@@ -26,52 +26,62 @@ export enum ElementID {
 
   // ConfigWindow
     // Config Tab
-    // Player actions
-    EXP_PER_BALLOON_POPPED,
-    EXP_PER_BANNER_PLACED,
-    EXP_PER_MARKETING_CAMPAIGN,
+      // Player actions
+      EXP_PER_BALLOON_POPPED,
+      EXP_PER_BANNER_PLACED,
+      EXP_PER_MARKETING_CAMPAIGN,
 
-    // Guest actions
-    EXP_PER_PARK_ADMISSION,
-    EXP_PER_RIDE_ADMISSION,
-    EXP_PER_STALL_ADMISSION,
-    EXP_PER_FACILITY_ADMISSION,
-    
-    // Staff actions
-      // Handyman
-      EXP_PER_LAWN_MOWED,
-      EXP_PER_GARDEN_WATERED,
-      EXP_PER_TRASH_SWEPT,
-      EXP_PER_TRASH_CAN_EMPTIED,
+      // Guest actions
+      EXP_PER_PARK_ADMISSION,
+      EXP_PER_RIDE_ADMISSION,
+      EXP_PER_STALL_ADMISSION,
+      EXP_PER_FACILITY_ADMISSION,
       
-      // Mechanic
-      EXP_PER_RIDE_INSPECTED,
-      EXP_PER_RIDE_FIXED,
+      // Staff actions
+        // Handyman
+        EXP_PER_LAWN_MOWED,
+        EXP_PER_GARDEN_WATERED,
+        EXP_PER_TRASH_SWEPT,
+        EXP_PER_TRASH_CAN_EMPTIED,
+        
+        // Mechanic
+        EXP_PER_RIDE_INSPECTED,
+        EXP_PER_RIDE_FIXED,
+        
+        // Security
+        EXP_PER_VANDAL_STOPPED,
       
-      // Security
-      EXP_PER_VANDAL_STOPPED,
-    
       // Park data
-      EXP_PER_PARK_AWARD_POSITIVE,
-      EXP_PER_PARK_AWARD_NEGATIVE,
-      EXP_PER_VEHICLE_CRASH,
+        // Awards
+        EXP_PER_PARK_AWARD_POSITIVE,
+        EXP_PER_PARK_AWARD_NEGATIVE,
 
+        // Disasters
+        EXP_PER_VEHICLE_CRASH,
+        EXP_PER_GUEST_DROWNED,
+        EXP_PER_STAFF_DROWNED,
+
+        // Other
+
+      // Other
       EXP_PER_TILE,
       MIN_TILES,
       TICKS_PER_UPDATE,
 
-    KEEP_TOOLBAR_OPEN,
-    BYPASS_PATH_RESTRICTIONS,
+      // Checkboxes
+      KEEP_TOOLBAR_OPEN,
+      BYPASS_PATH_RESTRICTIONS,
 
-    CONFIG_REVERT,
-    CONFIG_DEFAULTS,
-    CONFIG_SAVE,
+      // Buttons
+      CONFIG_REVERT,
+      CONFIG_DEFAULTS,
+      CONFIG_SAVE,
 
     // Debug Tab
-    FIRE_STAFF_BUTTON,
-    DELETE_GUESTS_BUTTON,
-    DELETE_RIDES_BUTTON,
-    CLEAR_PATHS_BUTTON,
+      FIRE_STAFF_BUTTON,
+      DELETE_GUESTS_BUTTON,
+      DELETE_RIDES_BUTTON,
+      CLEAR_PATHS_BUTTON,
 };
 
 // From openrct2/sprites.h
