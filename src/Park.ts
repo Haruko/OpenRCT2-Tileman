@@ -658,4 +658,39 @@ export class Park extends Singleton {
     this.deleteGuests();
     this.fireStaff();
   }
+
+  /**
+   * Kills all drowning guests and staff and returns the counts
+   * @returns { numStaff, numGuests } counting how many of each
+   */
+  public killDrowning() : { numStaff : number, numGuests : number } {
+    let numStaff : number = 0;
+    let numGuests : number = 0;
+
+    // Kill staff
+    const staffList : Staff[] = map.getAllEntities('staff');
+    staffList.forEach((staff : Staff) : void => {
+      const tile : Tile = map.getTile(staff.x / 32, staff.y / 32);
+      const surface : SurfaceElement = <SurfaceElement>this.getElementOfType(tile, 'surface');
+      
+      if(surface.waterHeight === staff.z) {
+        ++numStaff;
+        staff.remove();
+      }
+    });
+
+    // Kill guests
+    const guestList : Guest[] = map.getAllEntities('guest');
+    guestList.forEach((guest : Guest) : void => {
+      const tile : Tile = map.getTile(guest.x / 32, guest.y / 32);
+      const surface : SurfaceElement = <SurfaceElement>this.getElementOfType(tile, 'surface');
+      
+      if(surface.waterHeight === guest.z) {
+        ++numGuests;
+        guest.remove();
+      }
+    });
+
+    return { numStaff, numGuests };
+  }
 }
