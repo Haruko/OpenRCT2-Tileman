@@ -38,6 +38,7 @@ marketingCampaignsRunXp : WritableStore<number>,
   - Banners placed
   - Vehicle crashes (per car)
   - Park awards (both positive and negative)
+  - Peeps drowning (both guests and staff)
 * New restrictions on tile ownership changes:
   * Guests - Selling - No longer allowed to sell tiles with guests on them.
   * Paths - Buying - No longer allowed to buy tiles with paths on them. (Can be bypassed in config)
@@ -50,6 +51,7 @@ marketingCampaignsRunXp : WritableStore<number>,
 * Toolbar Window:
   * Made toolbar smaller by removing config and stats buttons. These are both accessible from the map dropdown menu.
 * Config Window:
+  * Made it look nicer.
   * Added tooltips to config window and cleaned it up a bit.
   * Added bypass for path restrictions in config.
   * Added button to delete all owned paths (and clean up litter on them)
@@ -74,7 +76,9 @@ marketingCampaignsRunXp : WritableStore<number>,
     //TODO: Scale XP cost so they're easier at the start and harder later on
   
   //TODO: XP Source - Implement marketing (per $50, per week)
-  //TODO: XP Source - Drowning staff/guest
+  //TODO: XP Source - Killing guest/staff (crashes)
+  //TODO: Make sure awards xp works right
+
 
   //TODO: XP BALANCING:
     // Mining:
@@ -106,6 +110,7 @@ marketingCampaignsRunXp : WritableStore<number>,
     //       42.64 [8] Imp, Cow
 
 // LOW PRIORITY
+  //TODO: Custom spacer widget
   //TODO: Startup Behavior - Don't clear rides (but still clear guests and staff) if Abandoned Park plugin is detected
     // https://openrct2plugins.org/plugin/MDEwOlJlcG9zaXRvcnkzNDM0NTI2NjY=/openrct2-abandonedpark
   //TODO: Config Window - Add reset park data button
