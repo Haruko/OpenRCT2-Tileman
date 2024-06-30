@@ -1,4 +1,4 @@
-import { Store, TabCreator, WritableStore, button, checkbox, compute, horizontal, label, read, store, tab, textbox, vertical, widget } from 'openrct2-flexui';
+import { Store, TabCreator, WritableStore, button, checkbox, compute, horizontal, label, read, store, tab, textbox, vertical } from 'openrct2-flexui';
 import { BaseTab } from './BaseTab';
 import { IWindow } from '../IWindow';
 import { AnimatedSprites, ElementID } from '@src/ui/types/enums';
@@ -6,10 +6,22 @@ import { FlexUIWidget } from '@src/ui/types/types';
 import { AlignedLabel } from '@src/ui/elements/AlignedLabel';
 import { DataStoreManager } from '@src/DataStoreManager';
 import { DataStoreID } from '@src/types/enums';
-import { PluginData, StoresData } from '@src/types/types';
+import { MetricData, PluginData, StoresData } from '@src/types/types';
 import { DataStore } from '@src/DataStore';
+import { DoubleClickButton } from '@src/ui/elements/DoubleClickButton';
 
 export class ConfigTab extends BaseTab {
+  // Base value for ConfigWindow contentWidth (410)
+  private readonly columnWidths : number[] = [
+    125, // Row label
+    100, // Count
+     85, // Textbox
+    100, // Total
+  ];
+
+  // Add 3x to ConfigWindow contentWidth (410+6)
+  private readonly columnSpacing : number = 2;
+
   private _settingsStores! : Partial<Record<keyof PluginData, WritableStore<any>>>;
 
   private get settingsStores() : Partial<Record<keyof PluginData, WritableStore<any>>> {
@@ -44,105 +56,33 @@ export class ConfigTab extends BaseTab {
     this.settingsStores = {};
     
     return tab({
+      padding: 0,
       image: AnimatedSprites.RESEARCH,
       content: [
         vertical({
+          spacing: 5,
+          padding: 0,
+          width: this.parent.getContentWidth()!,
           content: [
             this._buildConfigSettingPanel(),
             this._buildConfigOtherPanel(),
+            label({
+              padding: 0,
+              alignment: 'centred',
+              text: '{BABYBLUE}Changes are only permanent after saving the map!',
+            }),
             this._buildConfigButtonPanel(),
-            widget({
-              type: 'label',
-              text: `v${__version} ◀▶ Created by Isoitiro`,
-              height: 14,
-              textAlign: 'centred',
+            label({
+              padding: 0,
+              width: this.parent.getContentWidth()!,
               disabled: true,
+              alignment: 'centred',
+              text: `v${__version} ◀▶ Created by Isoitiro`,
             }),
           ]
         }),
       ]
     });
-  }
-  
-  /**
-   * Makes a panel of other settings that are not in the big list
-   */
-  private _buildConfigOtherPanel() : FlexUIWidget {
-    const keepToolbarOpenCheckbox : FlexUIWidget = this._createConfigCheckbox(ElementID.KEEP_TOOLBAR_OPEN);
-    const bypassPathRestrictionCheckbox : FlexUIWidget = this._createConfigCheckbox(ElementID.BYPASS_PATH_RESTRICTIONS);
-
-    return horizontal({
-      spacing: 3,
-      padding: 0,
-      content: [
-        keepToolbarOpenCheckbox,
-        bypassPathRestrictionCheckbox,
-      ],
-    });
-  }
-
-  /**
-   * Creates a checkbox for the config panel
-   */
-  private _createConfigCheckbox(id : ElementID) : FlexUIWidget {
-    const dsManager : DataStoreManager = DataStoreManager.instance();
-    const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
-
-    let element! : FlexUIWidget;
-
-    switch (id) {
-      case ElementID.KEEP_TOOLBAR_OPEN: {
-        const checkboxStore : WritableStore<boolean> = store(plugin.getValue('keepToolbarOpen'));
-        const text = 'Keep toolbar open';
-
-        element = checkbox({
-          isChecked: { twoway: checkboxStore },
-          tooltip: 'Uncheck this box to let the toolbar be closed.',
-          text: compute<boolean, boolean, string>(
-            plugin.get('keepToolbarOpen'),
-            checkboxStore,
-            (pluginValue : boolean, checkboxValue : boolean) : string => {
-              const isChanged : boolean = pluginValue !== checkboxValue;
-      
-              if (isChanged) {
-                return `{TOPAZ}* ${text} *`;
-              } else {
-                return text;
-              }
-            }),
-        });
-
-        this.settingsStores['keepToolbarOpen'] = checkboxStore;
-        this.registerElement(ElementID.KEEP_TOOLBAR_OPEN, element);
-        break;
-      } case ElementID.BYPASS_PATH_RESTRICTIONS: {
-        const checkboxStore : WritableStore<boolean> = store(plugin.getValue('bypassPathRestrictions'));
-        const text = 'Bypass path restrictions';
-
-        element = checkbox({
-          isChecked: { twoway: checkboxStore },
-          tooltip: 'Check this to bypass the restrictions on buying and sell land with paths on it.\n{RED}BE CAREFUL!',
-          text: compute<boolean, boolean, string>(
-            plugin.get('bypassPathRestrictions'),
-            checkboxStore,
-            (pluginValue : boolean, checkboxValue : boolean) : string => {
-              const isChanged : boolean = pluginValue !== checkboxValue;
-      
-              if (isChanged) {
-                return `{TOPAZ}* ${text} *`;
-              } else {
-                return text;
-              }
-            }),
-        });
-
-        this.settingsStores['bypassPathRestrictions'] = checkboxStore;
-        this.registerElement(ElementID.BYPASS_PATH_RESTRICTIONS, element);
-        break;
-      }
-    }
-
-    return element;
   }
 
   /**
@@ -150,73 +90,73 @@ export class ConfigTab extends BaseTab {
    */
   private _buildConfigSettingPanel() : FlexUIWidget {
     const stores : DataStore<StoresData> = DataStoreManager.instance<DataStoreManager>().getInstance(DataStoreID.STORES);
+
+    const spacerString : string = new Array(4 + 1).join('-   ').concat('-');
     
     const shortLineSpacer : FlexUIWidget = horizontal({
-      spacing: 0,
+      width: this.parent.getContentWidth()!,
+      spacing: this.columnSpacing,
+      padding: { top: 1, bottom: 1, rest: 0 },
       content: [
         new AlignedLabel(ElementID.NONE, {
-          text: 'E E E E E',
-          width: '50%',
+          padding: 0,
+          width: this.columnWidths[0],
           height: 3,
-          textAlignment: {
-            vertical: 'top',
-            horizontal: 'left',
-          },
+          textAlignment: { horizontal: 'left', vertical: 'center', },
+          text: spacerString,
         }).widget,
         new AlignedLabel(ElementID.NONE, {
-          text: 'E E E E E',
-          width: '25%',
+          padding: 0,
+          width: this.columnWidths[1],
           height: 3,
-          textAlignment: {
-            vertical: 'top',
-            horizontal: 'center',
-          },
+          textAlignment: { horizontal: 'right', vertical: 'center', },
+          text: spacerString + '  ',
         }).widget,
         new AlignedLabel(ElementID.NONE, {
-          text: 'E E E E E',
-          width: '25%',
+          padding: 0,
+          width: this.columnWidths[2],
           height: 3,
-          textAlignment: {
-            vertical: 'top',
-            horizontal: 'right',
-          },
+          textAlignment: { horizontal: 'center', vertical: 'center', },
+          text: spacerString,
+        }).widget,
+        new AlignedLabel(ElementID.NONE, {
+          padding: 0,
+          width: this.columnWidths[3],
+          height: 3,
+          textAlignment: { horizontal: 'right', vertical: 'center', },
+          text: spacerString,
         }).widget,
       ]
     });
 
-    // const invisibleSpacer : FlexUIWidget = new AlignedLabel(ElementID.NONE, {
-    //   text: '',
-    //   height: 3,
-    //   textAlignment: {
-    //     vertical: 'top',
-    //     horizontal: 'left',
-    //   },
-    // }).widget;
-
-
-
     // ---XP settings---
-    const xpHeaderRow : FlexUIWidget = horizontal({
-      spacing: 0,
+    const headerRow : FlexUIWidget = horizontal({
+      width: this.parent.getContentWidth()!,
+      spacing: this.columnSpacing,
+      padding: 0,
       content: [
-        label({
-          text: '{BABYBLUE}XP Source',
-          width: '50%',
-        }),
-        label({
-          text: '{BABYBLUE}XP Value',
-          alignment: 'centred',
-          width: '25%',
-        }),
         new AlignedLabel(ElementID.NONE, {
+          padding: 0,
+          width: this.columnWidths[0],
+          text: '{BABYBLUE}XP Source',
+        }).widget,
+        new AlignedLabel(ElementID.NONE, {
+          padding: 0,
+          width: this.columnWidths[1],
+          textAlignment: { horizontal: 'right', vertical: 'center' },
+          text: '{BABYBLUE}Count',
+        }).widget,
+        new AlignedLabel(ElementID.NONE, {
+          padding: 0,
+          width: this.columnWidths[2],
+          textAlignment: { horizontal: 'center', vertical: 'center' },
+          text: '{BABYBLUE}XP Value',
+        }).widget,
+        new AlignedLabel(ElementID.NONE, {
+          padding: { top: 0, bottom: 0, left: 0, right: 1 },
+          width: this.columnWidths[3],
+          textAlignment: { horizontal: 'right', vertical: 'center' },
           text: '{BABYBLUE}Total',
-          width: '25%',
-          height: 14,
-          padding: { right: 1 },
-          textAlignment: {
-            horizontal: 'right',
-            vertical: 'center'
-          },
         }).widget,
       ]
     });
@@ -227,7 +167,8 @@ export class ConfigTab extends BaseTab {
         'balloonsPoppedXpValue',
         'Balloon popped',
         'How much XP earned per balloon popped...\nYou monster...',
-        this._createTotalLabelStore(ElementID.EXP_PER_BALLOON_POPPED, stores.get('balloonsPoppedXpStore'))
+        this._createTotalLabelStore(ElementID.EXP_PER_BALLOON_POPPED, stores.get('balloonsPoppedXpStore')),
+        'balloonsPopped'
       ),
 
       this._createConfigRow(ElementID.EXP_PER_BANNER_PLACED,
@@ -365,39 +306,42 @@ export class ConfigTab extends BaseTab {
     ];
 
     const totalXpRow : FlexUIWidget = horizontal({
-      spacing: 0,
+      width: this.parent.getContentWidth()!,
+      spacing: this.columnSpacing,
+      padding: 0,
       content: [
-        label({
-          text: '',
-          width: '50%',
-        }),
         new AlignedLabel(ElementID.NONE, {
+          padding: 0,
+          width: this.columnWidths[0],
+          textAlignment: { horizontal: 'left', vertical: 'center' },
           text: '{BLACK}Total XP Earned',
-          width: '25%',
-          height: 14,
-          textAlignment: {
-            horizontal: 'right',
-            vertical: 'center'
-          },
         }).widget,
         new AlignedLabel(ElementID.NONE, {
+          padding: 0,
+          width: this.columnWidths[1],
+          textAlignment: { horizontal: 'right', vertical: 'center' },
+          text: '',
+        }).widget,
+        new AlignedLabel(ElementID.NONE, {
+          padding: 0,
+          width: this.columnWidths[2],
+          text: '',
+          textAlignment: { horizontal: 'left', vertical: 'center' },
+        }).widget,
+        new AlignedLabel(ElementID.NONE, {
+          padding: 0,
+          width: this.columnWidths[3],
+          textAlignment: { horizontal: 'right', vertical: 'center' },
           text: compute<number, string>(
             stores.get('totalXpStore'),
             (totalXp : number) : string => context.formatString('{COMMA16} {BLACK}xp', totalXp)
           ),
-          width: '25%',
-          height: 14,
-          padding: { right: 1 },
-          textAlignment: {
-            horizontal: 'right',
-            vertical: 'center'
-          },
         }).widget,
       ]
     });
 
     const xpRows : FlexUIWidget[] = [
-      xpHeaderRow,
+      headerRow,
       ...playerActionXpRows,
       ...guestActionXpRows,
       ...staffActionXpRows,
@@ -432,10 +376,112 @@ export class ConfigTab extends BaseTab {
     ];
 
     return vertical({
+      spacing: 1,
+      padding: 0,
       content: [
         ...xpRows,
         ...otherRows,
       ],
+    });
+  }
+  
+  /**
+   * Creates row for config options with a text label and a textbox
+   * @param id ElementID of row to make
+   * @param key Key for Plugin.get()
+   * @param labelText String to show in the label
+   * @param tooltip Tooltip for hovering over
+   * @param totalLabelText A Store<string> or string to compute the total XP label
+   * @returns The row
+   */
+  private _createConfigRow(
+    id : ElementID,
+    key : keyof PluginData,
+    labelText : string,
+    tooltip : string,
+    totalLabelText : Store<string> | string,
+    instanceCountKey? : keyof MetricData
+  ) : FlexUIWidget {
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const pluginStore : Store<number> = dsManager.getInstance(DataStoreID.PLUGIN).get(key);
+    const metricsStore : Store<number> | undefined = instanceCountKey ?
+      dsManager.getInstance(DataStoreID.METRICS).get(instanceCountKey) : undefined;
+
+    // Make the textbox
+    const defaultValue : string = read(pluginStore) + '';
+    const textStore : WritableStore<string> = store<string>(defaultValue);
+    this.settingsStores[key] = textStore;
+
+    // Row label
+    const rowLabel : FlexUIWidget = label({
+      padding: 0,
+      width: this.columnWidths[0],
+      tooltip: tooltip,
+      text: compute<number, string, string>(pluginStore, textStore, (pluginValue : number, textboxValue : string) : string => {
+        const isChanged : boolean = pluginValue !== Number(textboxValue);
+
+        if (isChanged) {
+          return `{TOPAZ}* ${labelText} *`;
+        } else {
+          return labelText;
+        }
+      }),
+    });
+
+    // Count label
+    const countLabel : AlignedLabel = new AlignedLabel(ElementID.NONE, {
+      padding: 0,
+      width: this.columnWidths[1],
+      textAlignment: { horizontal: 'right', vertical: 'center' },
+      text: metricsStore ? compute<number, string>(metricsStore,
+        (count : number) : string => {
+          return context.formatString('{COMMA16} {BLACK}x', count);
+        }
+      ) : '',
+    });
+    
+    // Textbox
+    const newTextbox : FlexUIWidget = textbox({
+      padding: 0,
+      width: this.columnWidths[2],
+      tooltip: tooltip,
+      text: { twoway : textStore },
+      maxLength: 9,
+      onChange: (text : string) : void => {
+        // Filter out non-numbers and remove leading zeroes
+        let value : number = Number(text.replace(/[^\d]+/g, ''))
+        
+        // Minimum of 1 tick per update
+        if (id === ElementID.TICKS_PER_UPDATE) {
+          value = Math.max(value, 1);
+        }
+        
+        // Update the store if the value is different
+        if (value.toString() !== text) {
+          textStore.set(value.toString());
+        }
+      },
+    });
+
+    this.registerElement(id, newTextbox);
+
+    // Total label
+    const totalLabel : AlignedLabel = new AlignedLabel(id, {
+        padding: 0,
+        width: this.columnWidths[3],
+        textAlignment: { horizontal: 'right', vertical: 'center' },
+        text: totalLabelText ?? '',
+    });
+
+    return horizontal({
+      spacing: this.columnSpacing,
+      padding: 0,
+      content: [
+        rowLabel,
+        countLabel.widget,
+        newTextbox,
+        totalLabel.widget,
+      ]
     });
   }
 
@@ -467,126 +513,128 @@ export class ConfigTab extends BaseTab {
   }
   
   /**
-   * Creates row for config options with a text label and a textbox
-   * @param id ElementID of row to make
-   * @param key Key for Plugin.get()
-   * @param labelText String to show in the label
-   * @param tooltip Tooltip for hovering over
-   * @param totalLabelText A Store<string> to compute the total XP label
-   * @returns The row
+   * Makes a panel of other settings that are not in the big list
    */
-  private _createConfigRow(id : ElementID, key : keyof PluginData, labelText : string, tooltip : string, totalLabelText? : Store<string> | string) : FlexUIWidget {
-    const dsManager : DataStoreManager = DataStoreManager.instance();
-    const pluginStore = dsManager.getInstance(DataStoreID.PLUGIN).get(key);
-
-    // Make the textbox
-    const defaultValue : string = read(pluginStore) + '';
-    const textStore : WritableStore<string> = store<string>(defaultValue);
-
-    this.settingsStores[key] = textStore;
-    
-    const newTextbox : FlexUIWidget = textbox({
-      width: '25%',
-      padding: 0,
-      text: { twoway : textStore },
-      tooltip: tooltip,
-      maxLength: 9,
-      onChange: (text : string) : void => {
-        // Filter out non-numbers and remove leading zeroes
-        let value : number = Number(text.replace(/[^\d]+/g, ''))
-        
-        // Minimum of 1 tick per update
-        if (id === ElementID.TICKS_PER_UPDATE) {
-          value = Math.max(value, 1);
-        }
-        
-        // Update the store if the value is different
-        if (value.toString() !== text) {
-          textStore.set(value.toString());
-        }
-      },
-    });
-
-    this.registerElement(id, newTextbox);
-
-    // Make the labels
-    const rowLabel : FlexUIWidget = label({
-      text: compute<number, string, string>(pluginStore, textStore, (pluginValue : number, textboxValue : string) : string => {
-        const isChanged : boolean = pluginValue !== Number(textboxValue);
-
-        if (isChanged) {
-          return `{TOPAZ}* ${labelText} *`;
-        } else {
-          return labelText;
-        }
-      }),
-      tooltip: tooltip,
-      width: '50%',
-    });
-
-    const totalLabel : AlignedLabel = new AlignedLabel(id, {
-        text: totalLabelText ?? '',
-        width: '25%',
-        height: 14,
-        padding: { right: 1 },
-        textAlignment: {
-          horizontal: 'right',
-          vertical: 'center'
-        },
-    });
+  private _buildConfigOtherPanel() : FlexUIWidget {
+    const keepToolbarOpenCheckbox : FlexUIWidget = this._createConfigCheckbox(ElementID.KEEP_TOOLBAR_OPEN);
+    const bypassPathRestrictionCheckbox : FlexUIWidget = this._createConfigCheckbox(ElementID.BYPASS_PATH_RESTRICTIONS);
 
     return horizontal({
-      spacing: 0,
+      spacing: this.columnSpacing,
+      padding: 0,
       content: [
-        rowLabel,
-        newTextbox,
-        totalLabel.widget,
-      ]
+        keepToolbarOpenCheckbox,
+        bypassPathRestrictionCheckbox,
+      ],
     });
+  }
+
+  /**
+   * Creates a checkbox for the config panel
+   */
+  private _createConfigCheckbox(id : ElementID) : FlexUIWidget {
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
+
+    let element! : FlexUIWidget;
+
+    switch (id) {
+      case ElementID.KEEP_TOOLBAR_OPEN: {
+        const checkboxStore : WritableStore<boolean> = store(plugin.getValue('keepToolbarOpen'));
+        const text = 'Keep toolbar open';
+
+        element = checkbox({
+          padding: 0,
+          width: '50%',
+          isChecked: { twoway: checkboxStore },
+          tooltip: 'Uncheck this box to let the toolbar be closed.',
+          text: compute<boolean, boolean, string>(
+            plugin.get('keepToolbarOpen'),
+            checkboxStore,
+            (pluginValue : boolean, checkboxValue : boolean) : string => {
+              const isChanged : boolean = pluginValue !== checkboxValue;
+      
+              if (isChanged) {
+                return `{TOPAZ}* ${text} *`;
+              } else {
+                return text;
+              }
+            }),
+        });
+
+        this.settingsStores['keepToolbarOpen'] = checkboxStore;
+        this.registerElement(ElementID.KEEP_TOOLBAR_OPEN, element);
+        break;
+      } case ElementID.BYPASS_PATH_RESTRICTIONS: {
+        const checkboxStore : WritableStore<boolean> = store(plugin.getValue('bypassPathRestrictions'));
+        const text = 'Bypass path restrictions';
+
+        element = checkbox({
+          padding: 0,
+          width: '50%',
+          isChecked: { twoway: checkboxStore },
+          tooltip: 'Check this to bypass the restrictions on buying and sell land with paths on it.\n{RED}BE CAREFUL!',
+          text: compute<boolean, boolean, string>(
+            plugin.get('bypassPathRestrictions'),
+            checkboxStore,
+            (pluginValue : boolean, checkboxValue : boolean) : string => {
+              const isChanged : boolean = pluginValue !== checkboxValue;
+      
+              if (isChanged) {
+                return `{TOPAZ}* ${text} *`;
+              } else {
+                return text;
+              }
+            }),
+        });
+
+        this.settingsStores['bypassPathRestrictions'] = checkboxStore;
+        this.registerElement(ElementID.BYPASS_PATH_RESTRICTIONS, element);
+        break;
+      }
+    }
+
+    return element;
   }
 
   /**
    * Adds buttons to bottom of the config panel
    */
   private _buildConfigButtonPanel() : FlexUIWidget {
-    const defaultsButton : FlexUIWidget = button({
-      text: 'Defaults',
+    const defaultsButton : DoubleClickButton = new DoubleClickButton(ElementID.NONE, {
+      padding: 0,
       width: '25%',
       height: 14,
-      padding: { right: '25%' },
-      onClick: this.onDefaultsButtonClick.bind(this),
+      onChange: this.onDefaultsButtonClick.bind(this),
+      text: 'Defaults',
     });
     this.registerElement(ElementID.CONFIG_DEFAULTS, defaultsButton);
 
-    const revertButton : FlexUIWidget = button({
-      text: 'Revert',
+    const revertButton : DoubleClickButton = new DoubleClickButton(ElementID.NONE, {
+      padding: { right: '25%', rest: 0 },
       width: '25%',
       height: 14,
-      onClick: this.onRevertButtonClick.bind(this),
+      onChange: this.onRevertButtonClick.bind(this),
+      text: 'Revert',
     });
     this.registerElement(ElementID.CONFIG_REVERT, revertButton);
 
     const saveButton : FlexUIWidget = button({
-      text: 'Save',
+      padding: 0,
       width: '25%',
       height: 14,
       onClick: this.onSaveButtonClick.bind(this),
+      text: 'Save',
     });
     this.registerElement(ElementID.CONFIG_SAVE, saveButton);
 
-    return vertical({
+    return horizontal({
+      spacing: this.columnSpacing,
+      padding: { top: 5, rest: 0 },
       content: [
-        label({
-          text: '{BABYBLUE}Changes are only permanent after saving the map!',
-          alignment: 'centred',
-        }),
-        horizontal({
-          content: [
-            defaultsButton,
-            revertButton,
-            saveButton,
-          ],
-        }),
+        defaultsButton.widget,
+        revertButton.widget,
+        saveButton,
       ],
     });
   }

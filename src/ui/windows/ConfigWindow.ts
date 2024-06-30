@@ -13,7 +13,7 @@ export class ConfigWindow extends BaseWindow {
   private debugTab! : DebugTab;
   
   protected constructor() {
-    super(WindowID.CONFIG, 'Tileman Config', 410, undefined);
+    super(WindowID.CONFIG, 'Tileman Config', 416, undefined);
 
     this.template = this._buildWindowTemplate();
   }
@@ -36,6 +36,7 @@ export class ConfigWindow extends BaseWindow {
   
     return tabwindow({
       title: this.windowTitle,
+      width: 'auto',
       height: 'auto',
       padding: { right: 5, rest: 6 },
       startingTab: 0,
