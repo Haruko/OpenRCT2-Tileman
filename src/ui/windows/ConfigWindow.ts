@@ -36,9 +36,8 @@ export class ConfigWindow extends BaseWindow {
   
     return tabwindow({
       title: this.windowTitle,
-      width: 380,
       height: 'auto',
-      padding: { top: 3, right: 6, bottom: 0, left: 6 },
+      padding: { right: 5, rest: 6 },
       startingTab: 0,
       tabs: [
         this.configTab.getTemplate(),
