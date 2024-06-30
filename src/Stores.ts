@@ -40,6 +40,7 @@ export class Stores extends DataStore<StoresData> {
       
       // Park data
       parkAwardsXpStore: null,
+      vehicleCrashesXpStore: null,
       totalParkDataXpStore: null,
       
       // Other
@@ -326,12 +327,22 @@ export class Stores extends DataStore<StoresData> {
         return parkAwards * parkAwardsXpValue;
       }
     ));
+
+    // Computed total experience from vehicle crashes
+    this.set('vehicleCrashesXpStore', compute<number, number, number>(
+      metrics.get('vehicleCrashes'),
+      plugin.get('vehicleCrashesXpValue'),
+      (vehicleCrashes : number, vehicleCrashesXpValue : number) : number => {
+        return vehicleCrashes * vehicleCrashesXpValue;
+      }
+    ));
     
     // Total
-    this.set('totalParkDataXpStore', compute<number, number>(
+    this.set('totalParkDataXpStore', compute<number, number, number>(
       this.get('parkAwardsXpStore'),
-      (parkAwardsXp : number) : number => {
-        return parkAwardsXp;
+      this.get('vehicleCrashesXpStore'),
+      (parkAwardsXp : number, vehicleCrashesXp : number) : number => {
+        return parkAwardsXp + vehicleCrashesXp;
       }
     ));
   }

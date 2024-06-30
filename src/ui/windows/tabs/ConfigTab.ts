@@ -293,10 +293,15 @@ export class ConfigTab extends BaseTab {
       // this._createConfigRow(ElementID.EXP_PER_PARK_AWARD, 'parkAwardsXpValue',
       //   'Park award', 'How much XP earned per park award earned.\nThis is historical. If you lose an award, it will still count.',
       //   this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD, parkAwardsXpStore)),
+        
       // this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN, 'marketingCampaignsRunXpValue',
       //   context.formatString('Marketing campaign (per {CURRENCY})', 500),
       //   context.formatString('How much XP earned per marketing campaign run per week.\n{CURRENCY} is 4 times and {CURRENCY} is 7 times this value.', 2000, 3500),
-      //   this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN, marketingCampaignsRunXpStore)),
+      //   this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN, stores.get('marketingCampaignsRunXpStore'))),
+      
+      this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH, 'vehicleCrashesXpValue',
+        'Vehicle Crashes', 'How much XP earned per vehicle car crash.\nA train with 5 cars will be worth 5 crashes.',
+        this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore'))),
     ];
 
     const totalXpRow : FlexUIWidget = horizontal({

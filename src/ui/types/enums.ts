@@ -53,6 +53,7 @@ export enum ElementID {
     
       // Park data
       EXP_PER_PARK_AWARD,
+      EXP_PER_VEHICLE_CRASH,
 
       EXP_PER_TILE,
       MIN_TILES,

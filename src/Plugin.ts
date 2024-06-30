@@ -54,6 +54,7 @@ export class Plugin extends DataStore<PluginData> {
     
       // Park data
       parkAwardsXpValue : store<number>(25),
+      vehicleCrashesXpValue : store<number>(10),
     });
   }
 

@@ -40,6 +40,7 @@ export class Metrics extends DataStore<MetricData> {
 
       // Park data
       parkAwards : store<number>(0),
+      vehicleCrashes : store<number>(0),
     });
     
   }
@@ -54,6 +55,8 @@ export class Metrics extends DataStore<MetricData> {
     context.subscribe('interval.tick', () : void  => this._onTick(dsManager.getInstance(DataStoreID.PLUGIN).get('ticksPerUpdate').get()));
     context.subscribe('map.save', () : void  => dsManager.storeAllData());
     context.subscribe('action.execute', (e : GameActionEventArgs) : void => this._onActionExecute(e));
+
+    context.subscribe('vehicle.crash', (e : VehicleCrashArgs) : void => this._onVehicleCrashed(e));
   }
 
   
@@ -257,5 +260,13 @@ export class Metrics extends DataStore<MetricData> {
    */
   private _onMarketingCampaignStarted(e : GameActionEventArgs) : void {
     this.data.marketingCampaignsRun.set(this.data.marketingCampaignsRun.get() + 1);
+  }
+
+  /**
+   * Record vehicle crash
+   * @param e Event data
+   */
+  private _onVehicleCrashed(e : VehicleCrashArgs) : void {
+    this.data.vehicleCrashes.set(this.data.vehicleCrashes.get() + 1);
   }
 }
