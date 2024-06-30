@@ -300,7 +300,7 @@ export class ConfigTab extends BaseTab {
       //   this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN, stores.get('marketingCampaignsRunXpStore'))),
       
       this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH, 'vehicleCrashesXpValue',
-        'Vehicle Crashes', 'How much XP earned per vehicle car crash.\nA train with 5 cars will be worth 5 crashes.',
+        'Vehicle crashes (per car)', 'How much XP earned per vehicle car crash.\nA train with 5 cars will be worth 5 car crashes.',
         this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore'))),
     ];
 

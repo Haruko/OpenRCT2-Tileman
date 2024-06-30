@@ -40,6 +40,7 @@ parkAwardsXp : WritableStore<number>,
 * Added new metrics:
   - Balloons popped
   - Banners placed
+  - Vehicle crashes (per car)
 * New restrictions on tile ownership changes:
   * Guests - Selling - No longer allowed to sell tiles with guests on them.
   * Paths - Buying - No longer allowed to buy tiles with paths on them. (Can be bypassed in config)
@@ -78,7 +79,6 @@ parkAwardsXp : WritableStore<number>,
   //TODO: XP Source - Implement park awards
   
   //TODO: XP Source - Implement marketing (per $50, per week)
-  //TODO: XP Source - Crashes
   //TODO: XP Source - Drowning staff/guest
 
   //TODO: XP BALANCING:
