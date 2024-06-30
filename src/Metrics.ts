@@ -76,11 +76,11 @@ export class Metrics extends DataStore<MetricData> {
    * Collects metric data used for experience calculations
    * @param ticksPerUpdate Number of ticks between updates
    */
-  public collectMetrics(ticksPerUpdate : number) : void {
-    this.collectGuestMetrics();
-    this.collectStaffMetrics();
-    this.collectRideMetrics();
-    this.collectParkAwardMetrics(ticksPerUpdate);
+  private _collectMetrics(ticksPerUpdate : number) : void {
+    this._collectGuestMetrics();
+    this._collectStaffMetrics();
+    this._collectRideMetrics();
+    this._collectParkAwardMetrics(ticksPerUpdate);
 
     const dsManager : DataStoreManager = DataStoreManager.instance();
     dsManager.storeAllData();
@@ -89,14 +89,14 @@ export class Metrics extends DataStore<MetricData> {
   /**
    * Collect guest action data
    */
-  public collectGuestMetrics() : void {
+  private _collectGuestMetrics() : void {
     this.data.parkAdmissions.set(park.totalAdmissions);
   }
 
   /**
    * Collect staff action data
    */
-  public collectStaffMetrics() : void {
+  private _collectStaffMetrics() : void {
     type StaffStats = {
       lawnsMown : number
       gardensWatered : number
@@ -144,7 +144,7 @@ export class Metrics extends DataStore<MetricData> {
   /**
    * Collect ride data
    */
-  public collectRideMetrics() : void {
+  private _collectRideMetrics() : void {
     // Collect data from each active ride/stall/facility
     const rideMap : ObjectStore<RideData> = this.data.rideMap;
     map.rides.forEach((ride : Ride) : void => {
@@ -170,7 +170,9 @@ export class Metrics extends DataStore<MetricData> {
    * Collect park award data
    * @param ticksPerUpdate Number of ticks between updates
    */
-  public collectParkAwardMetrics(ticksPerUpdate : number) : void {
+  private _collectParkAwardMetrics(ticksPerUpdate : number) : void {
+    //TODO: Fix messages sticking around
+
     // STR_2831    :{TOPAZ}Your park has received an award for being ‘The most untidy park in the country’!
     // STR_2836    :{TOPAZ}Your park has received an award for being ‘The worst value park in the country’!
     // STR_2840    :{TOPAZ}Your park has received an award for being ‘The park with the worst food in the country’!
@@ -276,7 +278,7 @@ export class Metrics extends DataStore<MetricData> {
   private _onTick(ticksPerUpdate : number) : void {
     if (date.ticksElapsed % ticksPerUpdate === 0) {
       this._killDrowningAndRecord();
-      this.collectMetrics(ticksPerUpdate);
+      this._collectMetrics(ticksPerUpdate);
     }
   }
 
