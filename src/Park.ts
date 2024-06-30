@@ -673,7 +673,7 @@ export class Park extends Singleton {
       const tile : Tile = map.getTile(staff.x / 32, staff.y / 32);
       const surface : SurfaceElement = <SurfaceElement>this.getElementOfType(tile, 'surface');
       
-      if(surface.waterHeight === staff.z) {
+      if(surface && surface.waterHeight === staff.z) {
         ++numStaff;
         staff.remove();
       }
@@ -685,7 +685,7 @@ export class Park extends Singleton {
       const tile : Tile = map.getTile(guest.x / 32, guest.y / 32);
       const surface : SurfaceElement = <SurfaceElement>this.getElementOfType(tile, 'surface');
       
-      if(surface.waterHeight === guest.z) {
+      if(surface && surface.waterHeight === guest.z) {
         ++numGuests;
         guest.remove();
       }
