@@ -103,10 +103,11 @@ export abstract class DataStore<DataStoreType extends Record<string, any>> exten
     if (savedData !== null) {
       for (const key in this.data) {
         const savedValue : any = savedData[key];
+        const destValue : any = this.data[key];
 
         // Filter to only things that are Stores.
         // Otherwise we can't release updates that change these properties.
-        if (isWritableStore(this.data[key])) {
+        if (isWritableStore(destValue) && typeof destValue.get() === savedValue) {
           this.data[key].set(savedValue);
         }
       }
