@@ -356,8 +356,8 @@ export class ConfigTab extends BaseTab {
       
       this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH,
         'vehicleCrashesXpValue',
-        'Vehicle crash (per car)',
-        'How much XP earned per vehicle crash per car.\nA train with 5 cars will be worth 5 car crashes.',
+        'Vehicle crash {BABYBLUE}(per car)',
+        'How much XP earned for vehicle crashes.\nA vehicle with 5 cars gives 5 crashes.',
         this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore'))
       ),
     ];
