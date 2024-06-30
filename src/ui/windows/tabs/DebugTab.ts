@@ -100,6 +100,12 @@ export class DebugTab extends BaseTab {
       padding: 0,
       width: '50%',
       content: [
+        label({
+          padding: { bottom: 5, rest: 0 },
+          alignment: 'centred',
+          text: 'Double click',
+          disabled: true,
+        }),
         horizontal({
           spacing: 5,
           padding: 0,
@@ -116,11 +122,6 @@ export class DebugTab extends BaseTab {
             clearPathsButton.widget,
           ]
         }),
-        label({
-          padding: { top: 5, rest: 0 },
-          alignment: 'centred',
-          text: 'Double click to use buttons',
-        })
       ]
     });
   }
