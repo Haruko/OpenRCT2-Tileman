@@ -217,34 +217,52 @@ export class ConfigTab extends BaseTab {
 
     // Player actions
     const playerActionXpRows : FlexUIWidget[] = [
-      this._createConfigRow(ElementID.EXP_PER_BALLOON_POPPED, 'balloonsPoppedXpValue',
-        'Balloon popped', 'How much XP earned per balloon popped...\nYou monster...',
-        this._createTotalLabelStore(ElementID.EXP_PER_BALLOON_POPPED, stores.get('balloonsPoppedXpStore'))),
+      this._createConfigRow(ElementID.EXP_PER_BALLOON_POPPED,
+        'balloonsPoppedXpValue',
+        'Balloon popped',
+        'How much XP earned per balloon popped...\nYou monster...',
+        this._createTotalLabelStore(ElementID.EXP_PER_BALLOON_POPPED, stores.get('balloonsPoppedXpStore'))
+      ),
 
-      this._createConfigRow(ElementID.EXP_PER_BANNER_PLACED, 'bannersPlacedXpValue',
-        'Banner placed', 'How much XP earned per banner placed.\nYes, it\'s deducted when you delete it...',
-        this._createTotalLabelStore(ElementID.EXP_PER_BANNER_PLACED, stores.get('bannersPlacedXpStore'))),
+      this._createConfigRow(ElementID.EXP_PER_BANNER_PLACED,
+        'bannersPlacedXpValue',
+        'Banner placed',
+        'How much XP earned per banner placed.\nYes, it\'s deducted when you delete it...',
+        this._createTotalLabelStore(ElementID.EXP_PER_BANNER_PLACED, stores.get('bannersPlacedXpStore'))
+      ),
     ];
 
     // Guest actions
     const guestActionXpRows : FlexUIWidget[] = [
       shortLineSpacer,
 
-      this._createConfigRow(ElementID.EXP_PER_PARK_ADMISSION, 'parkAdmissionXpValue',
-        'Park admission', 'How much XP earned per park admission.',
-        this._createTotalLabelStore(ElementID.EXP_PER_PARK_ADMISSION, stores.get('parkAdmissionsXpStore'))),
+      this._createConfigRow(ElementID.EXP_PER_PARK_ADMISSION,
+        'parkAdmissionXpValue',
+        'Park admission',
+        'How much XP earned per park admission.',
+        this._createTotalLabelStore(ElementID.EXP_PER_PARK_ADMISSION, stores.get('parkAdmissionsXpStore'))
+      ),
       
-      this._createConfigRow(ElementID.EXP_PER_RIDE_ADMISSION, 'rideAdmissionXpValue',
-        'Ride admission', 'How much XP earned per ride admission.',
-        this._createTotalLabelStore(ElementID.EXP_PER_RIDE_ADMISSION, stores.get('rideXpStore'))),
+      this._createConfigRow(ElementID.EXP_PER_RIDE_ADMISSION,
+        'rideAdmissionXpValue',
+        'Ride admission',
+        'How much XP earned per ride admission.',
+        this._createTotalLabelStore(ElementID.EXP_PER_RIDE_ADMISSION, stores.get('rideXpStore'))
+      ),
 
-      this._createConfigRow(ElementID.EXP_PER_STALL_ADMISSION, 'stallBuyXpValue',
-        'Stall purchase', 'How much XP gained per stall purchase.',
-        this._createTotalLabelStore(ElementID.EXP_PER_STALL_ADMISSION, stores.get('stallXpStore'))),
+      this._createConfigRow(ElementID.EXP_PER_STALL_ADMISSION,
+        'stallBuyXpValue',
+        'Stall purchase',
+        'How much XP gained per stall purchase.',
+        this._createTotalLabelStore(ElementID.EXP_PER_STALL_ADMISSION, stores.get('stallXpStore'))
+      ),
 
-      this._createConfigRow(ElementID.EXP_PER_FACILITY_ADMISSION, 'facilityUseXpValue',
-        'Facility usage', 'How much XP gained per facility usage.\nIncludes: Toilets, Information Kiosk, Cash Machine, and First Aid.',
-        this._createTotalLabelStore(ElementID.EXP_PER_FACILITY_ADMISSION, stores.get('facilityXpStore'))),
+      this._createConfigRow(ElementID.EXP_PER_FACILITY_ADMISSION,
+        'facilityUseXpValue',
+        'Facility usage',
+        'How much XP gained per facility usage.\nIncludes: Toilets, Information Kiosk, Cash Machine, and First Aid.',
+        this._createTotalLabelStore(ElementID.EXP_PER_FACILITY_ADMISSION, stores.get('facilityXpStore'))
+      ),
     ];
     
     // Staff actions
@@ -252,56 +270,85 @@ export class ConfigTab extends BaseTab {
       // shortLineSpacer,
 
       // // Handyman
-      // this._createConfigRow(ElementID.EXP_PER_LAWN_MOWED, 'lawnsMownXpValue',
-      //   'Lawn mowed', 'How much XP earned per lawn tile mowed by handymen.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_LAWN_MOWED, lawnsMownXpStore)),
+      // this._createConfigRow(ElementID.EXP_PER_LAWN_MOWED,
+      //   'lawnsMownXpValue',
+      //   'Lawn mowed',
+      //   'How much XP earned per lawn tile mowed by handymen.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_LAWN_MOWED, stores.get('lawnsMownXpStore'))
+      // ),
 
-      // this._createConfigRow(ElementID.EXP_PER_GARDEN_WATERED, 'gardensWateredXpValue',
-      //   'Garden watered', 'How much XP earned per garden watered by handymen.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_GARDEN_WATERED, gardensWateredXpStore)),
+      // this._createConfigRow(ElementID.EXP_PER_GARDEN_WATERED,
+      //   'gardensWateredXpValue',
+      //   'Garden watered',
+      //   'How much XP earned per garden watered by handymen.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_GARDEN_WATERED, stores.get('gardensWateredXpStore'))
+      // ),
 
-      // this._createConfigRow(ElementID.EXP_PER_TRASH_SWEPT, 'trashSweptXpValue',
-      //   'Trash swept', 'How much XP earned per piece of trash swept up by handymen.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_TRASH_SWEPT, trashSweptXpStore)),
+      // this._createConfigRow(ElementID.EXP_PER_TRASH_SWEPT,
+      //   'trashSweptXpValue',
+      //   'Trash swept',
+      //   'How much XP earned per piece of trash swept up by handymen.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_TRASH_SWEPT, stores.get('trashSweptXpStore'))
+      // ),
 
-      // this._createConfigRow(ElementID.EXP_PER_TRASH_CAN_EMPTIED, 'trashCansEmptiedXpValue',
-      //   'Trash can emptied', 'How much XP earned per trash can emptied by handymen.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_TRASH_CAN_EMPTIED, trashCansEmptiedXpStore)),
+      // this._createConfigRow(ElementID.EXP_PER_TRASH_CAN_EMPTIED,
+      //   'trashCansEmptiedXpValue',
+      //   'Trash can emptied',
+      //   'How much XP earned per trash can emptied by handymen.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_TRASH_CAN_EMPTIED, stores.get('trashCansEmptiedXpStore'))
+      // ),
 
-      // spacer,
-  
       // // Mechanic
-      // this._createConfigRow(ElementID.EXP_PER_RIDE_INSPECTED, 'ridesInspectedXpValue',
-      //   'Ride inspected', 'How much XP earned per ride inspected by mechanics.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_RIDE_INSPECTED, ridesInspectedXpStore)),
+      // shortLineSpacer,
 
-      // this._createConfigRow(ElementID.EXP_PER_RIDE_FIXED, 'ridesFixedXpValue',
-      //   'Ride fixed', 'How much XP earned per ride fixed by mechanics.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_RIDE_FIXED, ridesFixedXpStore)),
+      // this._createConfigRow(ElementID.EXP_PER_RIDE_INSPECTED,
+      //   'ridesInspectedXpValue',
+      //   'Ride inspected',
+      //   'How much XP earned per ride inspected by mechanics.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_RIDE_INSPECTED, stores.get('ridesInspectedXpStore'))
+      // ),
 
-      // spacer,
-      
+      // this._createConfigRow(ElementID.EXP_PER_RIDE_FIXED,
+      //   'ridesFixedXpValue',
+      //   'Ride fixed',
+      //   'How much XP earned per ride fixed by mechanics.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_RIDE_FIXED, stores.get('ridesFixedXpStore'))
+      // ),
+
       // // Security
-      // this._createConfigRow(ElementID.EXP_PER_VANDAL_STOPPED, 'vandalsStoppedXpValue',
-      //   'Vandal stopped', 'How much XP earned per vandal stopped by security.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_VANDAL_STOPPED, vandalsStoppedXpStore)),
+      // shortLineSpacer,
+
+      // this._createConfigRow(ElementID.EXP_PER_VANDAL_STOPPED,
+      //   'vandalsStoppedXpValue',
+      //   'Vandal stopped',
+      //   'How much XP earned per vandal stopped by security.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_VANDAL_STOPPED, stores.get('vandalsStoppedXpStore'))
+      // ),
     ];
 
     // Park data
     const parkDataXpRows : FlexUIWidget[] = [
       // shortLineSpacer,
-      // this._createConfigRow(ElementID.EXP_PER_PARK_AWARD, 'parkAwardsXpValue',
-      //   'Park award', 'How much XP earned per park award earned.\nThis is historical. If you lose an award, it will still count.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD, stores.get('parkAwardsXpStore'))),
+      // this._createConfigRow(ElementID.EXP_PER_PARK_AWARD,
+      //   'parkAwardsXpValue',
+      //   'Park award',
+      //   'How much XP earned per park award earned.\nThis is historical. If you lose an award, it will still count.',
+      //   this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD, stores.get('parkAwardsXpStore'))
+      // ),
         
-      // this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN, 'marketingCampaignsRunXpValue',
+      // this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN,
+      //   'marketingCampaignsRunXpValue',
       //   context.formatString('Marketing campaign (per {CURRENCY})', 500),
       //   context.formatString('How much XP earned per marketing campaign run per week.\n{CURRENCY} is 4 times and {CURRENCY} is 7 times this value.', 2000, 3500),
-      //   this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN, stores.get('marketingCampaignsRunXpStore'))),
+      //   this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN, stores.get('marketingCampaignsRunXpStore'))
+      // ),
       
-      this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH, 'vehicleCrashesXpValue',
-        'Vehicle crashes (per car)', 'How much XP earned per vehicle car crash.\nA train with 5 cars will be worth 5 car crashes.',
-        this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore'))),
+      this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH,
+        'vehicleCrashesXpValue',
+        'Vehicle crashes (per car)',
+        'How much XP earned per vehicle car crash.\nA train with 5 cars will be worth 5 car crashes.',
+        this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore'))
+      ),
     ];
 
     const totalXpRow : FlexUIWidget = horizontal({
@@ -346,16 +393,26 @@ export class ConfigTab extends BaseTab {
 
     // ---Other settings---
     const otherRows : FlexUIWidget[] = [
-      this._createConfigRow(ElementID.EXP_PER_TILE, 'tileXpCost',
-        'Tile XP cost', 'How much XP each tile costs.',
-        this._createTotalLabelStore(ElementID.EXP_PER_TILE, stores.get('tilesEarnedStore'))),
+      this._createConfigRow(ElementID.EXP_PER_TILE,
+        'tileXpCost',
+        'Tile XP cost',
+        'How much XP each tile costs.',
+        this._createTotalLabelStore(ElementID.EXP_PER_TILE, stores.get('tilesEarnedStore'))
+      ),
 
-      this._createConfigRow(ElementID.MIN_TILES, 'startingTiles',
-        'Starting tiles', 'How many free tiles you start with.'),
-      shortLineSpacer,
+      this._createConfigRow(ElementID.MIN_TILES,
+        'startingTiles',
+        'Starting tiles',
+        'How many free tiles you start with.',
+        '{BLACK}tiles'
+      ),
       
-      this._createConfigRow(ElementID.TICKS_PER_UPDATE, 'ticksPerUpdate',
-        'Game ticks per update', 'How frequently the plugin updates statistics.\nIncrease this if large parks start to lag.'),
+      shortLineSpacer,
+      this._createConfigRow(ElementID.TICKS_PER_UPDATE,
+        'ticksPerUpdate',
+        'Game ticks per update',
+        'How frequently the plugin updates statistics.\nIncrease this if large parks start to lag.',
+        '{BLACK}ticks'),
     ];
 
     return vertical({
