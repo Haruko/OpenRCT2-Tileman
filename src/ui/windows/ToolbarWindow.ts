@@ -219,7 +219,9 @@ export class ToolbarWindow extends BaseWindow {
     });
     
     // Xp to next tile progress bar
-    const xpToNextTilePercent : Store<number> = compute<number, number, number>(stores.get('totalXpStore'), plugin.get('tileXpCost'),
+    const xpToNextTilePercent : Store<number> = compute<number, number, number>(
+      stores.get('totalXpStore'),
+      plugin.get('tileXpCost'),
       (totalXp : number, tileXpCost : number) : number => {
         const xpSinceLastTile : number = totalXp % tileXpCost;
         return xpSinceLastTile / tileXpCost;
@@ -233,9 +235,12 @@ export class ToolbarWindow extends BaseWindow {
       foreground: Colour.LightBlue,
       text: this._createStatsLabelStore(ElementID.EXP_NEXT_PROGRESSBAR),
       textAlignment: {
-        horizontal: compute<number, HorizontalAlignment>(plugin.get('tileXpCost'), (tileXpCost : number) : HorizontalAlignment => {
-          return tileXpCost === 0 ? 'center' : 'left';
-        }),
+        horizontal: compute<number, HorizontalAlignment>(
+          plugin.get('tileXpCost'),
+          (tileXpCost : number) : HorizontalAlignment => {
+            return tileXpCost === 0 ? 'center' : 'left';
+          }
+        ),
         vertical: 'center'
       },
       percentFilled: xpToNextTilePercent
@@ -270,7 +275,8 @@ export class ToolbarWindow extends BaseWindow {
 
     switch (id) {
       case ElementID.AVAILABLE_TILES: {
-        newStore = compute<number, string>(stores.get('availableTilesStore'),
+        newStore = compute<number, string>(
+          stores.get('availableTilesStore'),
           (availableTiles : number) : string => {
             if (availableTiles === Infinity) {
               return '{GREEN}Yes';
@@ -283,14 +289,17 @@ export class ToolbarWindow extends BaseWindow {
         );
         break;
       } case ElementID.UNLOCKED_TILES: {
-        newStore = compute<number, string>(metrics.get('tilesUsed'),
+        newStore = compute<number, string>(
+          metrics.get('tilesUsed'),
           (tilesUsed : number) : string => {
             return `{WHITE}${tilesUsed}`;
           }
         );
         break;
       } case ElementID.EXP_TO_NEXT_TILE: {
-        newStore = compute<number, number, string>(stores.get('totalXpStore'), plugin.get('tileXpCost'),
+        newStore = compute<number, number, string>(
+          stores.get('totalXpStore'),
+          plugin.get('tileXpCost'),
           (totalXp : number, tileXpCost : number) : string => {
               const xpToNextTile : number = tileXpCost - (totalXp % tileXpCost);
               return `{WHITE}${context.formatString('{COMMA16}', xpToNextTile)}`;
@@ -298,7 +307,9 @@ export class ToolbarWindow extends BaseWindow {
         );
         break;
       } case ElementID.EXP_NEXT_PROGRESSBAR: {
-        newStore = compute<number, number, string>(stores.get('totalXpStore'), plugin.get('tileXpCost'),
+        newStore = compute<number, number, string>(
+          stores.get('totalXpStore'),
+          plugin.get('tileXpCost'),
           (totalXp : number, tileXpCost : number) : string => {
             if (tileXpCost === 0) {
               return `  {RED}I want to get off Mr. Bone's Wild Ride!`;
@@ -345,7 +356,7 @@ export class ToolbarWindow extends BaseWindow {
 
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
-    if (plugin.get('keepToolbarOpen').get()) {
+    if (plugin.getValue('keepToolbarOpen')) {
       this.open();
     }
   }

@@ -87,7 +87,7 @@ export class Park extends Singleton {
 
       // Check if player can afford them
       const stores : DataStore<StoresData> = DataStoreManager.instance<DataStoreManager>().getInstance(DataStoreID.STORES);
-      if (numCosting <= stores.get('availableTilesStore').get()) {
+      if (numCosting <= stores.getValue('availableTilesStore')) {
         const { numSet } : LandRightsResult = await this.setLandOwnership(coords, LandOwnership.OWNED);
         const numSpent : number = numSet - numFree;
         
@@ -121,7 +121,7 @@ export class Park extends Singleton {
 
       // Check if player can afford them
       const stores : DataStore<StoresData> = DataStoreManager.instance<DataStoreManager>().getInstance(DataStoreID.STORES);
-      if (numCosting <= stores.get('availableTilesStore').get()) {
+      if (numCosting <= stores.getValue('availableTilesStore')) {
         const { numSet } : LandRightsResult = await this.setLandOwnership(coords, LandOwnership.CONSTRUCTION_RIGHTS_OWNED);
         const numSpent : number = numSet - numFree;
         
@@ -327,7 +327,7 @@ export class Park extends Singleton {
   private _isValidTileAction(tile : Tile, action : LandOwnershipAction) : boolean {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
-    const bypassPathRestrictions : boolean = plugin.get('bypassPathRestrictions').get();
+    const bypassPathRestrictions : boolean = plugin.getValue('bypassPathRestrictions');
 
     // Don't allow selling if there are guests on the tile
     if (action === LandOwnershipAction.SELL) {

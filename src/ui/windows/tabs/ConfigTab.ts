@@ -90,13 +90,15 @@ export class ConfigTab extends BaseTab {
 
     switch (id) {
       case ElementID.KEEP_TOOLBAR_OPEN: {
-        const checkboxStore : WritableStore<boolean> = store(plugin.get('keepToolbarOpen').get());
+        const checkboxStore : WritableStore<boolean> = store(plugin.getValue('keepToolbarOpen'));
         const text = 'Keep toolbar open';
 
         element = checkbox({
           isChecked: { twoway: checkboxStore },
           tooltip: 'Uncheck this box to let the toolbar be closed.',
-          text: compute<boolean, boolean, string>(plugin.get('keepToolbarOpen'), checkboxStore,
+          text: compute<boolean, boolean, string>(
+            plugin.get('keepToolbarOpen'),
+            checkboxStore,
             (pluginValue : boolean, checkboxValue : boolean) : string => {
               const isChanged : boolean = pluginValue !== checkboxValue;
       
@@ -112,13 +114,15 @@ export class ConfigTab extends BaseTab {
         this.registerElement(ElementID.KEEP_TOOLBAR_OPEN, element);
         break;
       } case ElementID.BYPASS_PATH_RESTRICTIONS: {
-        const checkboxStore : WritableStore<boolean> = store(plugin.get('bypassPathRestrictions').get());
+        const checkboxStore : WritableStore<boolean> = store(plugin.getValue('bypassPathRestrictions'));
         const text = 'Bypass path restrictions';
 
         element = checkbox({
           isChecked: { twoway: checkboxStore },
           tooltip: 'Check this to bypass the restrictions on buying and sell land with paths on it.\n{RED}BE CAREFUL!',
-          text: compute<boolean, boolean, string>(plugin.get('bypassPathRestrictions'), checkboxStore,
+          text: compute<boolean, boolean, string>(
+            plugin.get('bypassPathRestrictions'),
+            checkboxStore,
             (pluginValue : boolean, checkboxValue : boolean) : string => {
               const isChanged : boolean = pluginValue !== checkboxValue;
       
@@ -375,7 +379,10 @@ export class ConfigTab extends BaseTab {
           },
         }).widget,
         new AlignedLabel(ElementID.NONE, {
-          text: compute<number, string>(stores.get('totalXpStore'), (totalXp : number) : string => context.formatString('{COMMA16} {BLACK}xp', totalXp)),
+          text: compute<number, string>(
+            stores.get('totalXpStore'),
+            (totalXp : number) : string => context.formatString('{COMMA16} {BLACK}xp', totalXp)
+          ),
           width: '25%',
           height: 14,
           padding: { right: 1 },
@@ -603,8 +610,7 @@ export class ConfigTab extends BaseTab {
 
     // Set all settings back to default values
     keys.forEach((key : keyof PluginData) : void => {
-      const pluginStore : WritableStore<any> = plugin.get(key);
-      const pluginValue : any = pluginStore.get();
+      const pluginValue : any = plugin.getValue(key);
 
       const fieldStore : WritableStore<any> = <WritableStore<any>>this.settingsStores[key];
       if (typeof pluginValue === 'number') {
@@ -628,8 +634,7 @@ export class ConfigTab extends BaseTab {
 
     // Set all settings back to Plugin.get() value
     keys.forEach((key : keyof PluginData) : void => {
-      const pluginStore : WritableStore<any> = plugin.get(key);
-      const pluginValue : any = pluginStore.get();
+      const pluginValue : any = plugin.getValue(key);
 
       const fieldStore : WritableStore<any> = <WritableStore<any>>this.settingsStores[key];
       if (typeof pluginValue === 'number') {

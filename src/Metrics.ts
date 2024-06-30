@@ -53,7 +53,7 @@ export class Metrics extends DataStore<MetricData> {
   public initialize() : void {
     // Subscribe to events
     const dsManager : DataStoreManager = DataStoreManager.instance();
-    context.subscribe('interval.tick', () : void  => this._onTick(dsManager.getInstance(DataStoreID.PLUGIN).get('ticksPerUpdate').get()));
+    context.subscribe('interval.tick', () : void  => this._onTick(dsManager.getInstance(DataStoreID.PLUGIN).getValue('ticksPerUpdate')));
     context.subscribe('map.save', () : void  => dsManager.storeAllData());
     context.subscribe('action.execute', (e : GameActionEventArgs) : void => this._onActionExecute(e));
 
@@ -223,9 +223,9 @@ export class Metrics extends DataStore<MetricData> {
         const isNegative : boolean = negativeAwardsRegex.test(message.text);
 
         if (isNegative) {
-          this.get('parkAwardsNegative').set(this.get('parkAwardsNegative').get() + 1);
+          this.get('parkAwardsNegative').set(this.getValue('parkAwardsNegative') + 1);
         } else {
-          this.get('parkAwardsPositive').set(this.get('parkAwardsPositive').get() + 1);
+          this.get('parkAwardsPositive').set(this.getValue('parkAwardsPositive') + 1);
         }
       });
   }
@@ -297,7 +297,7 @@ export class Metrics extends DataStore<MetricData> {
    * @param e Event data
    */
   private _onBalloonPressed(e : GameActionEventArgs) : void {
-    this.data.balloonsPopped.set(this.data.balloonsPopped.get() + 1);
+    this.data.balloonsPopped.set(this.getValue('balloonsPopped') + 1);
   }
 
   /**
@@ -305,7 +305,7 @@ export class Metrics extends DataStore<MetricData> {
    * @param e Event data
    */
   private _onBannerPlaced(e : GameActionEventArgs) : void {
-    this.data.bannersPlaced.set(this.data.bannersPlaced.get() + 1);
+    this.data.bannersPlaced.set(this.getValue('bannersPlaced') + 1);
   }
 
   /**
@@ -313,7 +313,7 @@ export class Metrics extends DataStore<MetricData> {
    * @param e Event data
    */
   private _onBannerRemoved(e : GameActionEventArgs) : void {
-    this.data.bannersPlaced.set(Math.max(0, this.data.bannersPlaced.get() - 1));
+    this.data.bannersPlaced.set(Math.max(0, this.getValue('bannersPlaced') - 1));
   }
 
   /**
@@ -321,7 +321,7 @@ export class Metrics extends DataStore<MetricData> {
    * @param e Event data
    */
   private _onMarketingCampaignStarted(e : GameActionEventArgs) : void {
-    this.data.marketingCampaignsRun.set(this.data.marketingCampaignsRun.get() + 1);
+    this.data.marketingCampaignsRun.set(this.getValue('marketingCampaignsRun') + 1);
   }
 
   /**
@@ -329,6 +329,6 @@ export class Metrics extends DataStore<MetricData> {
    * @param e Event data
    */
   private _onVehicleCrashed(e : VehicleCrashArgs) : void {
-    this.data.vehicleCrashes.set(this.data.vehicleCrashes.get() + 1);
+    this.data.vehicleCrashes.set(this.getValue('vehicleCrashes') + 1);
   }
 }

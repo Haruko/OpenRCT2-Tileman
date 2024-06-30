@@ -60,6 +60,16 @@ export abstract class DataStore<DataStoreType extends Record<string, any>> exten
   }
 
   /**
+   * Gets stored data's stored data (for Stores!)
+   * @param key Key to retrieve value of
+   * @returns Value of the key or the value's value if it's a Store
+   */
+  public getValue(key : keyof DataStoreType) : any {
+    const data : any = this.data[key];
+    return isStore(data) ? data.get() : data;
+  }
+
+  /**
    * Sets stored data
    * @param key Key to set value of
    * @returns True if the setting was successful
