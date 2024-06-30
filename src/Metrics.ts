@@ -13,6 +13,9 @@ import { Park } from './Park';
 
 
 export class Metrics extends DataStore<MetricData> {
+  private _previousAwardDates : number[] = [];
+  private _firstSessionMonth : number | undefined;
+
   protected constructor() {
     super('metrics', {
       // Tiles used by player
@@ -171,8 +174,6 @@ export class Metrics extends DataStore<MetricData> {
    * @param ticksPerUpdate Number of ticks between updates
    */
   private _collectParkAwardMetrics(ticksPerUpdate : number) : void {
-    //TODO: Fix messages sticking around
-
     // STR_2831    :{TOPAZ}Your park has received an award for being ‘The most untidy park in the country’!
     // STR_2836    :{TOPAZ}Your park has received an award for being ‘The worst value park in the country’!
     // STR_2840    :{TOPAZ}Your park has received an award for being ‘The park with the worst food in the country’!
@@ -224,8 +225,11 @@ export class Metrics extends DataStore<MetricData> {
     const negativeAwardsRegex : RegExp = RegExp(negativeAwards.join('|'));
 
     messages.filter((message : ParkMessage) : boolean => 
-      message.tickCount <= ticksPerUpdate && message.type === 'award')
+      message.type === 'award'
+      && message.month > (this._firstSessionMonth ?? 0)
+      && this._previousAwardDates.indexOf(message.month) === -1)
       .forEach((message : ParkMessage) : void => {
+        console.log(message);
         const isNegative : boolean = negativeAwardsRegex.test(message.text);
 
         if (isNegative) {
@@ -234,6 +238,8 @@ export class Metrics extends DataStore<MetricData> {
           this.get('parkAwardsPositive').set(this.getValue('parkAwardsPositive') + 1);
         }
       });
+    
+      this._previousAwardDates = messages.map((message : ParkMessage) : number => message.month);
   }
 
 
@@ -276,6 +282,10 @@ export class Metrics extends DataStore<MetricData> {
    * @param ticksPerUpdate Number of ticks per update as defined in the Plugin data
    */
   private _onTick(ticksPerUpdate : number) : void {
+    if (typeof this._firstSessionMonth === 'undefined') {
+      this._firstSessionMonth = date.monthsElapsed;
+    }
+
     if (date.ticksElapsed % ticksPerUpdate === 0) {
       this._killDrowningAndRecord();
       this._collectMetrics(ticksPerUpdate);
