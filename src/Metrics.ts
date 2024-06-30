@@ -227,9 +227,6 @@ export class Metrics extends DataStore<MetricData> {
         } else {
           this.get('parkAwardsPositive').set(this.get('parkAwardsPositive').get() + 1);
         }
-        
-
-        console.log(isNegative, this.get('parkAwardsNegative').get(), this.get('parkAwardsPositive').get(), message.text);
       });
   }
 
