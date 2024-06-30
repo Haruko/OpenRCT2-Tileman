@@ -40,7 +40,7 @@ export class DebugTab extends BaseTab {
 
   /**
    * Builds the template for initialization
-   * @returns FlexUIWidget
+   * @returns Template of type TabCreator
    */
   protected _buildTemplate() : TabCreator {
     this.debugButtonGroup = new StatefulButtonGroup();
