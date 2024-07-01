@@ -76,6 +76,7 @@ marketingCampaignsRunXp : WritableStore<number>,
 // HIGH PRIORITY
   // Things that came up in Marcel's stream
     //TODO: Scale XP cost so they're easier at the start and harder later on
+    //TODO: Add button to hide stats from toolbar (and instead draw numbers on the buttons?)
   
   //TODO: XP Source - Implement marketing (per $50, per week)
   //TODO: XP Source - Killing guest/staff (crashes)
@@ -111,7 +112,6 @@ marketingCampaignsRunXp : WritableStore<number>,
     //       42.64 [8] Imp, Cow
 
 // LOW PRIORITY
-  //TODO: Custom spacer widget
   //TODO: Startup Behavior - Don't clear rides (but still clear guests and staff) if Abandoned Park plugin is detected
     // https://openrct2plugins.org/plugin/MDEwOlJlcG9zaXRvcnkzNDM0NTI2NjY=/openrct2-abandonedpark
   //TODO: Config Window - Add reset park data button
