@@ -9,6 +9,7 @@ import { DataStoreID } from '@src/types/enums';
 import { MetricData, PluginData, StoresData } from '@src/types/types';
 import { DataStore } from '@src/DataStore';
 import { DoubleClickButton } from '@src/ui/elements/DoubleClickButton';
+import { Separator } from '@src/ui/elements/Separator';
 
 export class ConfigTab extends BaseTab {
   // Base value for ConfigWindow contentWidth (410)
@@ -92,41 +93,64 @@ export class ConfigTab extends BaseTab {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const stores : DataStore<StoresData> = dsManager.getInstance(DataStoreID.STORES);
     const plugin : DataStore<MetricData> = dsManager.getInstance(DataStoreID.PLUGIN);
-
-    const spacerString : string = new Array(4 + 1).join('-   ').concat('-');
     
-    const shortLineSpacer : FlexUIWidget = horizontal({
+    const separator : FlexUIWidget = horizontal({
       width: this.parent.getContentWidth()!,
+      height: 5,
       spacing: this.columnSpacing,
-      padding: { top: 1, bottom: 1, rest: 0 },
+      padding: 0,
       content: [
-        new AlignedLabel(ElementID.NONE, {
+        new Separator({
           padding: 0,
           width: this.columnWidths[0],
-          height: 3,
-          textAlignment: { horizontal: 'left', vertical: 'center', },
-          text: spacerString,
+          height: 5,
+
+          alignment: { horizontal: 'left', vertical: 'center' },
+          separatorStyle: 'dashed',
+          lineStyle: 'flat',
+          lineLength: this.columnWidths[0] * 0.75,
+          lineThickness: 1,
+          dashLength: 5,
+          dashSpacing: 5,
         }).widget,
-        new AlignedLabel(ElementID.NONE, {
+        new Separator({
           padding: 0,
           width: this.columnWidths[1],
-          height: 3,
-          textAlignment: { horizontal: 'right', vertical: 'center', },
-          text: spacerString + '  ',
+          height: 5,
+
+          alignment: { horizontal: 'right', vertical: 'center' },
+          separatorStyle: 'dashed',
+          lineStyle: 'flat',
+          lineLength: this.columnWidths[1] * 0.75,
+          lineThickness: 1,
+          dashLength: 5,
+          dashSpacing: 5,
         }).widget,
-        new AlignedLabel(ElementID.NONE, {
+        new Separator({
           padding: 0,
           width: this.columnWidths[2],
-          height: 3,
-          textAlignment: { horizontal: 'center', vertical: 'center', },
-          text: spacerString,
+          height: 5,
+
+          alignment: { horizontal: 'center', vertical: 'center' },
+          separatorStyle: 'dashed',
+          lineStyle: 'flat',
+          lineLength: this.columnWidths[2] * 0.65,
+          lineThickness: 1,
+          dashLength: 5,
+          dashSpacing: 5,
         }).widget,
-        new AlignedLabel(ElementID.NONE, {
+        new Separator({
           padding: 0,
           width: this.columnWidths[3],
-          height: 3,
-          textAlignment: { horizontal: 'right', vertical: 'center', },
-          text: spacerString,
+          height: 5,
+
+          alignment: { horizontal: 'right', vertical: 'center' },
+          separatorStyle: 'dashed',
+          lineStyle: 'flat',
+          lineLength: this.columnWidths[3] * 0.75,
+          lineThickness: 1,
+          dashLength: 5,
+          dashSpacing: 5,
         }).widget,
       ]
     });
@@ -184,7 +208,7 @@ export class ConfigTab extends BaseTab {
 
     // Guest actions
     const guestActionXpRows : FlexUIWidget[] = [
-      shortLineSpacer,
+      separator,
 
       this._createConfigRow(ElementID.EXP_PER_PARK_ADMISSION,
         'parkAdmissionXpValue',
@@ -239,7 +263,7 @@ export class ConfigTab extends BaseTab {
     
     // Staff actions
     const staffActionXpRows : FlexUIWidget[] = [
-      // shortLineSpacer,
+      // shortLineSeparator,
 
       // // Handyman
       // this._createConfigRow(ElementID.EXP_PER_LAWN_MOWED,
@@ -271,7 +295,7 @@ export class ConfigTab extends BaseTab {
       // ),
 
       // // Mechanic
-      // shortLineSpacer,
+      // shortLineSeparator,
 
       // this._createConfigRow(ElementID.EXP_PER_RIDE_INSPECTED,
       //   'ridesInspectedXpValue',
@@ -288,7 +312,7 @@ export class ConfigTab extends BaseTab {
       // ),
 
       // // Security
-      // shortLineSpacer,
+      // shortLineSeparator,
 
       // this._createConfigRow(ElementID.EXP_PER_VANDAL_STOPPED,
       //   'vandalsStoppedXpValue',
@@ -300,7 +324,7 @@ export class ConfigTab extends BaseTab {
 
     // Park data
     const parkDataXpRows : FlexUIWidget[] = [
-      shortLineSpacer,
+      separator,
       // Awards
       this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_POSITIVE,
         'parkAwardsPositiveXpValue',
@@ -361,7 +385,7 @@ export class ConfigTab extends BaseTab {
           padding: 0,
           width: this.columnWidths[0],
           textAlignment: { horizontal: 'left', vertical: 'center' },
-          text: '{BLACK}Total XP Earned',
+          text: '',
         }).widget,
         new AlignedLabel(ElementID.NONE, {
           padding: 0,
@@ -372,8 +396,8 @@ export class ConfigTab extends BaseTab {
         new AlignedLabel(ElementID.NONE, {
           padding: 0,
           width: this.columnWidths[2],
-          text: '',
-          textAlignment: { horizontal: 'left', vertical: 'center' },
+          textAlignment: { horizontal: 'right', vertical: 'center' },
+          text: '{BLACK}Total XP Earned',
         }).widget,
         new AlignedLabel(ElementID.NONE, {
           padding: 0,
@@ -414,7 +438,7 @@ export class ConfigTab extends BaseTab {
         '{BLACK}tiles'
       ),
       
-      shortLineSpacer,
+      separator,
       this._createConfigRow(ElementID.TICKS_PER_UPDATE,
         'ticksPerUpdate',
         'Game ticks per update',
