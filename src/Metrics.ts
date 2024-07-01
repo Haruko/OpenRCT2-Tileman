@@ -229,7 +229,6 @@ export class Metrics extends DataStore<MetricData> {
       && message.month > (this._firstSessionMonth ?? 0)
       && this._previousAwardDates.indexOf(message.month) === -1)
       .forEach((message : ParkMessage) : void => {
-        console.log(message);
         const isNegative : boolean = negativeAwardsRegex.test(message.text);
 
         if (isNegative) {
