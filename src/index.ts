@@ -79,6 +79,8 @@ marketingCampaignsRunXp : WritableStore<number>,
     //TODO: Scale XP cost so they're easier at the start and harder later on
     //TODO: Add button to hide stats from toolbar (and instead draw numbers on the buttons?)
   
+  //TODO: Config Window - Add delete all rides with refund button
+
   //TODO: XP Source - Implement marketing (per $50, per week)
   //TODO: XP Source - Killing guest/staff (crashes)
 
@@ -116,12 +118,10 @@ marketingCampaignsRunXp : WritableStore<number>,
   //TODO: Startup Behavior - Don't clear rides (but still clear guests and staff) if Abandoned Park plugin is detected
     // https://openrct2plugins.org/plugin/MDEwOlJlcG9zaXRvcnkzNDM0NTI2NjY=/openrct2-abandonedpark
   //TODO: Config Window - Add reset park data button
-  //TODO: Trace path between park entrance and guest spawns. Only let people buy rights there unless a checkbox is checked in config
   //TODO: Detailed Stats Window - Create window with various stats including historical data about rides done in a list view
-  //TODO: Config Window - Add delete all rides with refund button
 
 // UNSURE
-  //TODO: Persistent Storage - context.sharedStorage for pluginconfig with profiles?
+  //TODO: Persistent Storage - context.sharedStorage for plugin config with profiles?
   //TODO: Options - Difficulty multiplier for ParkFlags?
   //TODO: Options - Bonus exp/tiles for completing objective?
 
