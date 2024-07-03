@@ -114,8 +114,8 @@ export class ConfigTab extends BaseTab {
           dashSpacing: 5,
         }).widget,
         new Separator({
-          padding: 0,
-          width: this.columnWidths[1],
+          padding: { right: 2, rest: 0 },
+          width: this.columnWidths[1] - 2,
           height: 5,
 
           alignment: { horizontal: 'right', vertical: 'center' },
@@ -413,17 +413,31 @@ export class ConfigTab extends BaseTab {
       spacing: this.columnSpacing,
       padding: 0,
       content: [
-        new AlignedLabel(ElementID.NONE, {
-          padding: 0,
+        new Separator({
+          padding: { top: 3, rest: 0 },
           width: this.columnWidths[0],
-          textAlignment: { horizontal: 'left', vertical: 'center' },
-          text: '',
+          height: 6,
+
+          alignment: { horizontal: 'left', vertical: ['top', 'bottom'] },
+          separatorStyle: 'dashed',
+          lineStyle: 'flat',
+          lineLength: this.columnWidths[0] * 0.75,
+          lineThickness: 1,
+          dashLength: 5,
+          dashSpacing: 5,
         }).widget,
-        new AlignedLabel(ElementID.NONE, {
-          padding: 0,
-          width: this.columnWidths[1],
-          textAlignment: { horizontal: 'right', vertical: 'center' },
-          text: '',
+        new Separator({
+          padding: { top: 3, right: 2, rest: 0 },
+          width: this.columnWidths[1] - 2,
+          height: 6,
+
+          alignment: { horizontal: 'right', vertical: ['top', 'bottom'] },
+          separatorStyle: 'dashed',
+          lineStyle: 'flat',
+          lineLength: this.columnWidths[1] * 0.75,
+          lineThickness: 1,
+          dashLength: 5,
+          dashSpacing: 5,
         }).widget,
         new AlignedLabel(ElementID.NONE, {
           padding: 0,
