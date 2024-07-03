@@ -7,31 +7,6 @@ import { StartupWindow } from './ui/windows/StartupWindow';
 
 /*
 
-enum
-{
-    ADVERTISING_CAMPAIGN_PARK_ENTRY_FREE,
-    ADVERTISING_CAMPAIGN_RIDE_FREE,
-    ADVERTISING_CAMPAIGN_PARK_ENTRY_HALF_PRICE,
-    ADVERTISING_CAMPAIGN_FOOD_OR_DRINK_FREE,
-    ADVERTISING_CAMPAIGN_PARK, // $350
-    ADVERTISING_CAMPAIGN_RIDE, // $200
-    ADVERTISING_CAMPAIGN_COUNT
-};
-
-
-
-
-
-// Player actions
-marketingCampaignsRunXp : WritableStore<number>,
-
-
-
-
-
-
-
-
 * A lot of background stuff you won't see, but causes previous saves to break (sorry)
 * Added XP sources:
   - Balloons popped
@@ -81,7 +56,6 @@ marketingCampaignsRunXp : WritableStore<number>,
   
   //TODO: Config Window - Add delete all rides with refund button
 
-  //TODO: XP Source - Implement marketing (per $50, per week)
   //TODO: XP Source - Killing guest/staff (crashes)
 
 
