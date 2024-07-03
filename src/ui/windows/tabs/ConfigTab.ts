@@ -1,4 +1,4 @@
-import { Store, TabCreator, WritableStore, button, checkbox, compute, horizontal, isStore, label, read, store, tab, textbox, vertical } from 'openrct2-flexui';
+import { Padding, Store, TabCreator, WritableStore, button, checkbox, compute, horizontal, isStore, label, read, store, tab, textbox, vertical } from 'openrct2-flexui';
 import { BaseTab } from './BaseTab';
 import { IWindow } from '../IWindow';
 import { AnimatedSprites, ElementID } from '@src/ui/types/enums';
@@ -19,9 +19,13 @@ export class ConfigTab extends BaseTab {
      85, // Textbox
     100, // Total
   ];
-
-  // Add 3x to ConfigWindow contentWidth (460+6)
+  // Add 3x to ConfigWindow contentWidth (+6)
   private readonly columnSpacing : number = 2;
+
+  // Add to Configwindow contentWidth (+4)
+  private readonly categoryPadding : Padding = { left: 4, rest: 0 };
+  private readonly subCategoryIndent : string = '      ';
+  private readonly checkboxPadding : Padding = { left: 5, rest: 0 };
 
   private _settingsStores! : Partial<Record<keyof PluginData, WritableStore<any>>>;
 
@@ -341,9 +345,15 @@ export class ConfigTab extends BaseTab {
       ),
 
       // Awards
+      new AlignedLabel(ElementID.NONE, {
+        padding: this.categoryPadding,
+        textAlignment: { horizontal: 'left', vertical: 'center' },
+        text: 'Park awards:',
+      }).widget,
+      
       this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_POSITIVE,
         'parkAwardsPositiveXpValue',
-        'Park award - {GREEN}Positive',
+        this.subCategoryIndent + '{GREEN}Positive',
         'How much XP earned per positive park award earned.',
         this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_POSITIVE, stores.get('parkAwardsPositiveXpStore')),
         'parkAwardsPositive'
@@ -351,7 +361,7 @@ export class ConfigTab extends BaseTab {
       
       this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_NEGATIVE,
         'parkAwardsNegativeXpValue',
-        'Park award - {RED}Negative',
+        this.subCategoryIndent + '{RED}Negative',
         'How much XP earned per negative park award earned.',
         this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_NEGATIVE, stores.get('parkAwardsNegativeXpStore')),
         'parkAwardsNegative'
@@ -375,22 +385,15 @@ export class ConfigTab extends BaseTab {
       ),
 
       // Vehicle crashes header
-      horizontal({
-        width: this.parent.getContentWidth()!,
-        spacing: this.columnSpacing,
-        padding: 0,
-        content: [
-          new AlignedLabel(ElementID.NONE, {
-            padding: 0,
-            textAlignment: { horizontal: 'left', vertical: 'center' },
-            text: 'Vehicle Crashes:',
-          }).widget,
-        ]
-      }),
+      new AlignedLabel(ElementID.NONE, {
+        padding: this.categoryPadding,
+        textAlignment: { horizontal: 'left', vertical: 'center' },
+        text: 'Vehicle crashes:',
+      }).widget,
 
       this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH,
         'vehicleCrashesXpValue',
-        '        {BABYBLUE}Per car',
+        this.subCategoryIndent + '{BABYBLUE}Per car',
         'How much XP earned for cars exploded from vehicle crashes.',
         this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore')),
         'vehicleCrashes'
@@ -398,7 +401,7 @@ export class ConfigTab extends BaseTab {
 
       this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH_GUESTS_KILLED,
         'vehicleCrashesGuestsKilledXpValue',
-        '        {BABYBLUE}Per guest',
+        this.subCategoryIndent + '{BABYBLUE}Per guest',
         'How much XP earned for guests killed from vehicle crashes.',
         this._createTotalLabelStore(
           ElementID.EXP_PER_VEHICLE_CRASH_GUESTS_KILLED,
@@ -414,9 +417,9 @@ export class ConfigTab extends BaseTab {
       padding: 0,
       content: [
         new Separator({
-          padding: { top: 3, rest: 0 },
+          padding: { top: 4, rest: 0 },
           width: this.columnWidths[0],
-          height: 6,
+          height: 4,
 
           alignment: { horizontal: 'left', vertical: ['top', 'bottom'] },
           separatorStyle: 'dashed',
@@ -427,9 +430,9 @@ export class ConfigTab extends BaseTab {
           dashSpacing: 5,
         }).widget,
         new Separator({
-          padding: { top: 3, right: 2, rest: 0 },
+          padding: { top: 4, right: 2, rest: 0 },
           width: this.columnWidths[1] - 2,
-          height: 6,
+          height: 4,
 
           alignment: { horizontal: 'right', vertical: ['top', 'bottom'] },
           separatorStyle: 'dashed',
@@ -441,7 +444,7 @@ export class ConfigTab extends BaseTab {
         }).widget,
         new AlignedLabel(ElementID.NONE, {
           padding: 0,
-          width: this.columnWidths[2],
+          width: this.columnWidths[2] + (<any>this.categoryPadding).left,
           textAlignment: { horizontal: 'right', vertical: 'center' },
           text: '{BLACK}Total XP Earned',
         }).widget,
@@ -597,7 +600,8 @@ export class ConfigTab extends BaseTab {
 
     return horizontal({
       spacing: this.columnSpacing,
-      padding: 0,
+      padding: this.categoryPadding,
+      width: this.parent.getContentWidth()!,
       content: [
         rowLabel,
         countLabel.widget,
@@ -642,8 +646,8 @@ export class ConfigTab extends BaseTab {
     const bypassPathRestrictionCheckbox : FlexUIWidget = this._createConfigCheckbox(ElementID.BYPASS_PATH_RESTRICTIONS);
 
     return horizontal({
+      padding: this.checkboxPadding,
       spacing: this.columnSpacing,
-      padding: 0,
       content: [
         keepToolbarOpenCheckbox,
         bypassPathRestrictionCheckbox,
