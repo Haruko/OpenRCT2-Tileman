@@ -24,7 +24,6 @@ export class Metrics extends DataStore<MetricData> {
       // Player actions
       balloonsPopped : store<number>(0),
       bannersPlaced : store<number>(0),
-      marketingCampaignsSpent : store<number>(0),
 
       // Guest actions
       parkAdmissions : store<number>(0),
@@ -43,6 +42,7 @@ export class Metrics extends DataStore<MetricData> {
       vandalsStopped : store<number>(0),
 
       // Park data
+      marketingCampaignsSpent : store<number>(0),
       parkAwardsPositive : store<number>(0),
       parkAwardsNegative : store<number>(0),
       
