@@ -23,9 +23,11 @@ export class ConfigTab extends BaseTab {
   private readonly columnSpacing : number = 2;
 
   // Add to Configwindow contentWidth (+4)
-  private readonly categoryPadding : Padding = { left: 4, rest: 0 };
-  private readonly subCategoryIndent : string = '      ';
+  private readonly rowLabelPadding : Padding = { left: 4, rest: 0 };
+  private readonly rowSubHeaderPadding : Padding = { left: (<any>this.rowLabelPadding).left + 1, rest: 0 };
   private readonly checkboxPadding : Padding = { left: 5, rest: 0 };
+
+  private readonly subLabelIndent : string = '      ';
 
   private _settingsStores! : Partial<Record<keyof PluginData, WritableStore<any>>>;
 
@@ -145,7 +147,7 @@ export class ConfigTab extends BaseTab {
         }).widget,
         new Separator({
           padding: 0,
-          width: this.columnWidths[3],
+          width: this.columnWidths[3] + 9,
           height: 5,
 
           alignment: { horizontal: 'right', vertical: 'center' },
@@ -161,9 +163,9 @@ export class ConfigTab extends BaseTab {
 
     // ---XP settings---
     const headerRow : FlexUIWidget = horizontal({
-      width: this.parent.getContentWidth()!,
       spacing: this.columnSpacing,
-      padding: 0,
+      padding: this.rowLabelPadding,
+      width: this.parent.getContentWidth()!,
       content: [
         new AlignedLabel(ElementID.NONE, {
           padding: 0,
@@ -183,7 +185,7 @@ export class ConfigTab extends BaseTab {
           text: '{BABYBLUE}XP Value',
         }).widget,
         new AlignedLabel(ElementID.NONE, {
-          padding: { top: 0, bottom: 0, left: 0, right: 1 },
+          padding: 0,
           width: this.columnWidths[3],
           textAlignment: { horizontal: 'right', vertical: 'center' },
           text: '{BABYBLUE}Total',
@@ -346,14 +348,14 @@ export class ConfigTab extends BaseTab {
 
       // Awards
       new AlignedLabel(ElementID.NONE, {
-        padding: this.categoryPadding,
+        padding: this.rowSubHeaderPadding,
         textAlignment: { horizontal: 'left', vertical: 'center' },
         text: 'Park awards:',
       }).widget,
       
       this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_POSITIVE,
         'parkAwardsPositiveXpValue',
-        this.subCategoryIndent + '{GREEN}Positive',
+        this.subLabelIndent + '{GREEN}Positive',
         'How much XP earned per positive park award earned.',
         this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_POSITIVE, stores.get('parkAwardsPositiveXpStore')),
         'parkAwardsPositive'
@@ -361,7 +363,7 @@ export class ConfigTab extends BaseTab {
       
       this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_NEGATIVE,
         'parkAwardsNegativeXpValue',
-        this.subCategoryIndent + '{RED}Negative',
+        this.subLabelIndent + '{RED}Negative',
         'How much XP earned per negative park award earned.',
         this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_NEGATIVE, stores.get('parkAwardsNegativeXpStore')),
         'parkAwardsNegative'
@@ -386,14 +388,14 @@ export class ConfigTab extends BaseTab {
 
       // Vehicle crashes header
       new AlignedLabel(ElementID.NONE, {
-        padding: this.categoryPadding,
+        padding: this.rowSubHeaderPadding,
         textAlignment: { horizontal: 'left', vertical: 'center' },
         text: 'Vehicle crashes:',
       }).widget,
 
       this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH,
         'vehicleCrashesXpValue',
-        this.subCategoryIndent + '{BABYBLUE}Per car',
+        this.subLabelIndent + '{BABYBLUE}Per car',
         'How much XP earned for cars exploded from vehicle crashes.',
         this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore')),
         'vehicleCrashes'
@@ -401,7 +403,7 @@ export class ConfigTab extends BaseTab {
 
       this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH_GUESTS_KILLED,
         'vehicleCrashesGuestsKilledXpValue',
-        this.subCategoryIndent + '{BABYBLUE}Per guest',
+        this.subLabelIndent + '{BABYBLUE}Per guest',
         'How much XP earned for guests killed from vehicle crashes.',
         this._createTotalLabelStore(
           ElementID.EXP_PER_VEHICLE_CRASH_GUESTS_KILLED,
@@ -444,7 +446,7 @@ export class ConfigTab extends BaseTab {
         }).widget,
         new AlignedLabel(ElementID.NONE, {
           padding: 0,
-          width: this.columnWidths[2] + (<any>this.categoryPadding).left,
+          width: this.columnWidths[2] + (<any>this.rowLabelPadding).left,
           textAlignment: { horizontal: 'right', vertical: 'center' },
           text: '{BLACK}Total XP Earned',
         }).widget,
@@ -600,7 +602,7 @@ export class ConfigTab extends BaseTab {
 
     return horizontal({
       spacing: this.columnSpacing,
-      padding: this.categoryPadding,
+      padding: this.rowLabelPadding,
       width: this.parent.getContentWidth()!,
       content: [
         rowLabel,
