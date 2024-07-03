@@ -372,7 +372,13 @@ export class ConfigTab extends BaseTab {
         'marketingCampaignsSpentXpValue',
         context.formatString('Marketing campaign {BABYBLUE}(per {CURRENCY})', 500),
         context.formatString('How much XP earned per {CURRENCY} spent on marketing campaigns.', 500),
-        this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN_SPENT, stores.get('marketingCampaignsSpentXpStore'))
+        this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN_SPENT, stores.get('marketingCampaignsSpentXpStore')),
+        compute<number, string>(
+          dsManager.getInstance(DataStoreID.METRICS).get('marketingCampaignsSpent') as Store<number>,
+          (marketingCampaignsSpent : number) : string => {
+            return context.formatString(`{CURRENCY}`, marketingCampaignsSpent);
+          },
+        )
       ),
     ];
 
