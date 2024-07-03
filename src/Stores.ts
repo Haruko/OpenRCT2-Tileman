@@ -12,7 +12,7 @@ export class Stores extends DataStore<StoresData> {
       // Player actions
       balloonsPoppedXpStore: null,
       bannersPlacedXpStore: null,
-      marketingCampaignsRunXpStore: null,
+      marketingCampaignsSpentXpStore: null,
       totalPlayerXpStore: null,
       
       // Guest actions
@@ -111,11 +111,11 @@ export class Stores extends DataStore<StoresData> {
     ));
 
     // Computed total experience from the player running marketing campaigns
-    this.set('marketingCampaignsRunXpStore', compute<number, number, number>(
-      metrics.get('marketingCampaignsRun'),
-      plugin.get('marketingCampaignsRunXpValue'),
-      (marketingCampaignsRun : number, marketingCampaignsRunXpValue : number) : number => {
-        return marketingCampaignsRun * marketingCampaignsRunXpValue;
+    this.set('marketingCampaignsSpentXpStore', compute<number, number, number>(
+      metrics.get('marketingCampaignsSpent'),
+      plugin.get('marketingCampaignsSpentXpValue'),
+      (marketingCampaignsSpent : number, marketingCampaignsSpentXpValue : number) : number => {
+        return marketingCampaignsSpentXpValue * marketingCampaignsSpent / 500;
       }
     ));
 
@@ -123,9 +123,9 @@ export class Stores extends DataStore<StoresData> {
     this.set('totalPlayerXpStore', compute<number, number, number, number>(
       this.get('balloonsPoppedXpStore'),
       this.get('bannersPlacedXpStore'),
-      this.get('marketingCampaignsRunXpStore'),
-      (balloonsPoppedXp : number, bannersPlacedXp : number, marketingCampaignsRunXp : number) : number => {
-        return balloonsPoppedXp + bannersPlacedXp + marketingCampaignsRunXp;
+      this.get('marketingCampaignsSpentXpStore'),
+      (balloonsPoppedXp : number, bannersPlacedXp : number, marketingCampaignsSpentXp : number) : number => {
+        return balloonsPoppedXp + bannersPlacedXp + marketingCampaignsSpentXp;
       }
     ));
   }

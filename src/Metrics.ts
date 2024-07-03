@@ -24,7 +24,7 @@ export class Metrics extends DataStore<MetricData> {
       // Player actions
       balloonsPopped : store<number>(0),
       bannersPlaced : store<number>(0),
-      marketingCampaignsRun : store<number>(0),
+      marketingCampaignsSpent : store<number>(0),
 
       // Guest actions
       parkAdmissions : store<number>(0),
@@ -337,7 +337,7 @@ export class Metrics extends DataStore<MetricData> {
    * @param e Event data
    */
   private _onMarketingCampaignStarted(e : GameActionEventArgs) : void {
-    this.data.marketingCampaignsRun.set(this.getValue('marketingCampaignsRun') + 1);
+    this.data.marketingCampaignsSpent.set(this.getValue('marketingCampaignsSpent') + e.result.cost!);
   }
 
   /**

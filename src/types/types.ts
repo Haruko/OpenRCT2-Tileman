@@ -40,7 +40,7 @@ export type PluginData = DataStoreData & {
   // Player actions
   balloonsPoppedXpValue : WritableStore<number>,
   bannersPlacedXpValue : WritableStore<number>,
-  marketingCampaignsRunXpValue : WritableStore<number>,
+  marketingCampaignsSpentXpValue : WritableStore<number>,
 
   // Guest actions
   parkAdmissionXpValue : WritableStore<number>,
@@ -76,7 +76,7 @@ export type MetricData = DataStoreData & {
   // Player actions
   balloonsPopped : WritableStore<number>,
   bannersPlaced : WritableStore<number>,
-  marketingCampaignsRun : WritableStore<number>,
+  marketingCampaignsSpent : WritableStore<number>,
 
   // Guest actions
   parkAdmissions : WritableStore<number>,
@@ -107,7 +107,7 @@ export type StoresData = DataStoreData & {
   // Player actions
   balloonsPoppedXpStore: Store<number> | null,
   bannersPlacedXpStore: Store<number> | null,
-  marketingCampaignsRunXpStore: Store<number> | null,
+  marketingCampaignsSpentXpStore: Store<number> | null,
   totalPlayerXpStore: Store<number> | null,
   
   // Guest actions

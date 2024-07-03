@@ -29,7 +29,7 @@ export enum ElementID {
       // Player actions
       EXP_PER_BALLOON_POPPED,
       EXP_PER_BANNER_PLACED,
-      EXP_PER_MARKETING_CAMPAIGN,
+      EXP_PER_MARKETING_CAMPAIGN_SPENT,
 
       // Guest actions
       EXP_PER_PARK_ADMISSION,

@@ -33,7 +33,7 @@ export class Plugin extends DataStore<PluginData> {
       // Player actions
       balloonsPoppedXpValue : store<number>(10),
       bannersPlacedXpValue : store<number>(25),
-      marketingCampaignsRunXpValue : store<number>(50),
+      marketingCampaignsSpentXpValue : store<number>(5),
     
       // Guest actions
       parkAdmissionXpValue: store<number>(1),

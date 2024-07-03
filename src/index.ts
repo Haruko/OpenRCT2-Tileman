@@ -33,11 +33,12 @@ marketingCampaignsRunXp : WritableStore<number>,
 
 
 * A lot of background stuff you won't see, but causes previous saves to break (sorry)
-* Added new metrics:
+* Added XP sources:
   - Balloons popped
   - Banners placed
-  - Vehicle crashes (per car)
   - Park awards (both positive and negative)
+  - Marketing campaigns (per $50 spent)
+  - Vehicle crashes (per car)
   - Peeps drowning (both guests and staff)
 * New restrictions on tile ownership changes:
   * Guests - Selling - No longer allowed to sell tiles with guests on them.

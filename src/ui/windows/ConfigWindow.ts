@@ -13,7 +13,7 @@ export class ConfigWindow extends BaseWindow {
   private debugTab! : DebugTab;
   
   protected constructor() {
-    super(WindowID.CONFIG, 'Tileman Config', 416, undefined);
+    super(WindowID.CONFIG, 'Tileman Config', 466, undefined);
 
     this.template = this._buildWindowTemplate();
   }

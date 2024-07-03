@@ -12,15 +12,15 @@ import { DoubleClickButton } from '@src/ui/elements/DoubleClickButton';
 import { Separator } from '@src/ui/elements/Separator';
 
 export class ConfigTab extends BaseTab {
-  // Base value for ConfigWindow contentWidth (410)
+  // Base value for ConfigWindow contentWidth (460)
   private readonly columnWidths : number[] = [
-    125, // Row label
+    175, // Row label
     100, // Count
      85, // Textbox
     100, // Total
   ];
 
-  // Add 3x to ConfigWindow contentWidth (410+6)
+  // Add 3x to ConfigWindow contentWidth (460+6)
   private readonly columnSpacing : number = 2;
 
   private _settingsStores! : Partial<Record<keyof PluginData, WritableStore<any>>>;
@@ -368,12 +368,12 @@ export class ConfigTab extends BaseTab {
       ),
 
       // Other
-      // this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN,
-      //   'marketingCampaignsRunXpValue',
-      //   context.formatString('Marketing campaign (per {CURRENCY})', 500),
-      //   context.formatString('How much XP earned per marketing campaign run per week.\n{CURRENCY} is 4 times and {CURRENCY} is 7 times this value.', 2000, 3500),
-      //   this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN, stores.get('marketingCampaignsRunXpStore'))
-      // ),
+      this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN_SPENT,
+        'marketingCampaignsSpentXpValue',
+        context.formatString('Marketing campaign {BABYBLUE}(per {CURRENCY})', 500),
+        context.formatString('How much XP earned per {CURRENCY} spent on marketing campaigns.', 500),
+        this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN_SPENT, stores.get('marketingCampaignsSpentXpStore'))
+      ),
     ];
 
     const totalXpRow : FlexUIWidget = horizontal({
