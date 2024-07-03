@@ -70,6 +70,7 @@ export class Stores extends DataStore<StoresData> {
     this._initializeGuestActionStores(plugin, metrics);
     this._initializeStaffActionStores(plugin, metrics);
     this._initializeParkDataStores(plugin, metrics);
+    this._initializeDisasterStores(plugin, metrics);
     this._initializeOtherStores(plugin, metrics);
   }
 
@@ -111,22 +112,12 @@ export class Stores extends DataStore<StoresData> {
       }
     ));
 
-    // Computed total experience from the player running marketing campaigns
-    this.set('marketingCampaignsSpentXpStore', compute<number, number, number>(
-      metrics.get('marketingCampaignsSpent'),
-      plugin.get('marketingCampaignsSpentXpValue'),
-      (marketingCampaignsSpent : number, marketingCampaignsSpentXpValue : number) : number => {
-        return marketingCampaignsSpentXpValue * marketingCampaignsSpent / 500;
-      }
-    ));
-
     // Total
-    this.set('totalPlayerXpStore', compute<number, number, number, number>(
+    this.set('totalPlayerXpStore', compute<number, number, number>(
       this.get('balloonsPoppedXpStore'),
       this.get('bannersPlacedXpStore'),
-      this.get('marketingCampaignsSpentXpStore'),
-      (balloonsPoppedXp : number, bannersPlacedXp : number, marketingCampaignsSpentXp : number) : number => {
-        return balloonsPoppedXp + bannersPlacedXp + marketingCampaignsSpentXp;
+      (balloonsPoppedXp : number, bannersPlacedXp : number) : number => {
+        return balloonsPoppedXp + bannersPlacedXp;
       }
     ));
   }
@@ -421,14 +412,22 @@ export class Stores extends DataStore<StoresData> {
    */
   private _initializeParkDataStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
     this._initializeAwardStores(plugin, metrics);
-    this._initializeDisasterStores(plugin, metrics);
+
+    // Computed total experience from the player running marketing campaigns
+    this.set('marketingCampaignsSpentXpStore', compute<number, number, number>(
+      metrics.get('marketingCampaignsSpent'),
+      plugin.get('marketingCampaignsSpentXpValue'),
+      (marketingCampaignsSpent : number, marketingCampaignsSpentXpValue : number) : number => {
+        return marketingCampaignsSpentXpValue * marketingCampaignsSpent / 500;
+      }
+    ));
     
     // Total
     this.set('totalParkDataXpStore', compute<number, number, number>(
       this.get('totalAwardsXpStore'),
-      this.get('totalDisastersXpStore'),
-      (totalAwardsXp : number, totalDisastersXp : number,) : number => {
-        return totalAwardsXp + totalDisastersXp;
+      this.get('marketingCampaignsSpentXpStore'),
+      (totalAwardsXp : number, marketingCampaignsSpentXp : number,) : number => {
+        return totalAwardsXp + marketingCampaignsSpentXp;
       }
     ));
   }
@@ -440,13 +439,14 @@ export class Stores extends DataStore<StoresData> {
    */
   private _initializeOtherStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
     // Computed total experience earned
-    this.set('totalXpStore', compute<number, number, number, number, number>(
+    this.set('totalXpStore', compute<number, number, number, number, number, number>(
       this.get('totalPlayerXpStore'),
       this.get('totalGuestXpStore'),
       this.get('totalStaffXpStore'),
       this.get('totalParkDataXpStore'),
-      (totalPlayerXp : number, totalGuestXp : number, totalStaffXp : number, totalParkDataXp : number) : number => {
-        return totalPlayerXp + totalGuestXp + totalStaffXp + totalParkDataXp;
+      this.get('totalDisastersXpStore'),
+      (totalPlayerXp : number, totalGuestXp : number, totalStaffXp : number, totalParkDataXp : number, totalDisastersXp : number) : number => {
+        return totalPlayerXp + totalGuestXp + totalStaffXp + totalParkDataXp + totalDisastersXp;
       }
     ));
     

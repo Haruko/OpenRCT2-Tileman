@@ -368,8 +368,12 @@ export class ConfigTab extends BaseTab {
         this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_NEGATIVE, stores.get('parkAwardsNegativeXpStore')),
         'parkAwardsNegative'
       ),
+    ];
 
-      // Disasters
+    // Disasters
+    const disastersXpRows : FlexUIWidget[] = [
+      separator,
+
       this._createConfigRow(ElementID.EXP_PER_GUEST_DROWNED,
         'guestsDrownedXpValue',
         'Guest drowned',
@@ -468,6 +472,7 @@ export class ConfigTab extends BaseTab {
       ...guestActionXpRows,
       ...staffActionXpRows,
       ...parkDataXpRows,
+      ...disastersXpRows,
       totalXpRow,
     ];
 
