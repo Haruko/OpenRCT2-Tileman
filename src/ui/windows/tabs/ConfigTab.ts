@@ -443,7 +443,8 @@ export class ConfigTab extends BaseTab {
         'ticksPerUpdate',
         'Game ticks per update',
         'How frequently the plugin updates statistics.\nIncrease this if large parks start to lag.',
-        '{BLACK}ticks'),
+        '{BLACK}ticks'
+      ),
     ];
 
     return vertical({
@@ -463,7 +464,7 @@ export class ConfigTab extends BaseTab {
    * @param labelText String to show in the label
    * @param tooltip Tooltip for hovering over
    * @param totalLabelText A Store<string> or string to compute the total XP label
-   * @param countKeyOrStore Key in Metrics for the number of instances of an XP source OR a Store<number>
+   * @param countKeyOrStore Key in Metrics for the number of instances of an XP source OR a Store<number> of that value OR a Store<string> for text to use
    * @returns The row
    */
   private _createConfigRow(
@@ -476,7 +477,7 @@ export class ConfigTab extends BaseTab {
   ) : FlexUIWidget {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const pluginStore : Store<number> = dsManager.getInstance(DataStoreID.PLUGIN).get(key);
-    const countStore : Store<number> | undefined = isStore(countKeyOrStore) ? countKeyOrStore :
+    const countStore : Store<number> | Store<string> | undefined = isStore(countKeyOrStore) ? countKeyOrStore :
       countKeyOrStore ? dsManager.getInstance(DataStoreID.METRICS).get(countKeyOrStore) : undefined;
 
     // Make the textbox
@@ -505,10 +506,13 @@ export class ConfigTab extends BaseTab {
       padding: 0,
       width: this.columnWidths[1],
       textAlignment: { horizontal: 'right', vertical: 'center' },
-      text: countStore ? compute<number, string>(countStore,
-        (count : number) : string => {
-          return context.formatString('{COMMA16} {BLACK}x', count);
-        }
+      text: countStore ? 
+        typeof countStore.get() === 'string' ? 
+          countStore as Store<string> : 
+          compute<number, string>(countStore as Store<number>,
+          (count : number) : string => {
+            return context.formatString('{COMMA16} {BLACK}x', count);
+          }
       ) : '',
     });
     
