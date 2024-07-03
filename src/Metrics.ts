@@ -49,6 +49,7 @@ export class Metrics extends DataStore<MetricData> {
       guestsDrowned : store<number>(0),
       staffDrowned : store<number>(0),
       vehicleCrashes : store<number>(0),
+      vehicleCrashesGuestsKilled : store<number>(0),
     });
     
   }
@@ -346,6 +347,15 @@ export class Metrics extends DataStore<MetricData> {
    */
   private _onVehicleCrashed(e : VehicleCrashArgs) : void {
     this.data.vehicleCrashes.set(this.getValue('vehicleCrashes') + 1);
+
+    // Record guests killed
+    map.getAllEntities('car')
+      .filter((car : Car) : boolean => car.id === e.id)
+      .forEach((car : Car) : void => {
+        const numGuests : number = car.guests.filter((id : number | null) : boolean => 
+          typeof id === 'number').length;
+        this.data.vehicleCrashesGuestsKilled.set(this.getValue('vehicleCrashesGuestsKilled') + numGuests);
+      });
   }
 
 

@@ -325,6 +325,21 @@ export class ConfigTab extends BaseTab {
     // Park data
     const parkDataXpRows : FlexUIWidget[] = [
       separator,
+
+      // Other
+      this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN_SPENT,
+        'marketingCampaignsSpentXpValue',
+        context.formatString('Marketing campaign {BABYBLUE}(per {CURRENCY})', 500),
+        context.formatString('How much XP earned per {CURRENCY} spent on marketing campaigns.', 500),
+        this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN_SPENT, stores.get('marketingCampaignsSpentXpStore')),
+        compute<number, string>(
+          dsManager.getInstance(DataStoreID.METRICS).get('marketingCampaignsSpent') as Store<number>,
+          (marketingCampaignsSpent : number) : string => {
+            return context.formatString(`{CURRENCY}`, marketingCampaignsSpent);
+          },
+        )
+      ),
+
       // Awards
       this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_POSITIVE,
         'parkAwardsPositiveXpValue',
@@ -359,26 +374,37 @@ export class ConfigTab extends BaseTab {
         'staffDrowned'
       ),
 
+      // Vehicle crashes header
+      horizontal({
+        width: this.parent.getContentWidth()!,
+        spacing: this.columnSpacing,
+        padding: 0,
+        content: [
+          new AlignedLabel(ElementID.NONE, {
+            padding: 0,
+            textAlignment: { horizontal: 'left', vertical: 'center' },
+            text: 'Vehicle Crashes:',
+          }).widget,
+        ]
+      }),
+
       this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH,
         'vehicleCrashesXpValue',
-        'Vehicle crash {BABYBLUE}(per car)',
-        'How much XP earned for vehicle crashes.\nA vehicle with 5 cars gives 5 crashes.',
+        '        {BABYBLUE}Per car',
+        'How much XP earned for cars exploded from vehicle crashes.',
         this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore')),
         'vehicleCrashes'
       ),
 
-      // Other
-      this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN_SPENT,
-        'marketingCampaignsSpentXpValue',
-        context.formatString('Marketing campaign {BABYBLUE}(per {CURRENCY})', 500),
-        context.formatString('How much XP earned per {CURRENCY} spent on marketing campaigns.', 500),
-        this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN_SPENT, stores.get('marketingCampaignsSpentXpStore')),
-        compute<number, string>(
-          dsManager.getInstance(DataStoreID.METRICS).get('marketingCampaignsSpent') as Store<number>,
-          (marketingCampaignsSpent : number) : string => {
-            return context.formatString(`{CURRENCY}`, marketingCampaignsSpent);
-          },
-        )
+      this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH_GUESTS_KILLED,
+        'vehicleCrashesGuestsKilledXpValue',
+        '        {BABYBLUE}Per guest',
+        'How much XP earned for guests killed from vehicle crashes.',
+        this._createTotalLabelStore(
+          ElementID.EXP_PER_VEHICLE_CRASH_GUESTS_KILLED,
+          stores.get('vehicleCrashesGuestsKilledXpStore')
+        ),
+        'vehicleCrashesGuestsKilled'
       ),
     ];
 

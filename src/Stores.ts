@@ -46,6 +46,7 @@ export class Stores extends DataStore<StoresData> {
       guestsDrownedXpStore: null,
       staffDrownedXpStore: null,
       vehicleCrashesXpStore: null,
+      vehicleCrashesGuestsKilledXpStore: null,
       totalDisastersXpStore: null,
 
       totalParkDataXpStore: null,
@@ -360,15 +361,6 @@ export class Stores extends DataStore<StoresData> {
    * @param metrics Copy of Metrics
    */
   private _initializeDisasterStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
-    // Computed total experience from vehicle crashes
-    this.set('vehicleCrashesXpStore', compute<number, number, number>(
-      metrics.get('vehicleCrashes'),
-      plugin.get('vehicleCrashesXpValue'),
-      (vehicleCrashes : number, vehicleCrashesXpValue : number) : number => {
-        return vehicleCrashes * vehicleCrashesXpValue;
-      }
-    ));
-
     // Computed total experience from drowning guests
     this.set('guestsDrownedXpStore', compute<number, number, number>(
       metrics.get('guestsDrowned'),
@@ -387,13 +379,37 @@ export class Stores extends DataStore<StoresData> {
       }
     ));
     
+    // Computed total experience from vehicle crashes
+    this.set('vehicleCrashesXpStore', compute<number, number, number>(
+      metrics.get('vehicleCrashes'),
+      plugin.get('vehicleCrashesXpValue'),
+      (vehicleCrashes : number, vehicleCrashesXpValue : number) : number => {
+        return vehicleCrashes * vehicleCrashesXpValue;
+      }
+    ));
+    
+    // Computed total experience from vehicle crashes
+    this.set('vehicleCrashesGuestsKilledXpStore', compute<number, number, number>(
+      metrics.get('vehicleCrashesGuestsKilled'),
+      plugin.get('vehicleCrashesGuestsKilledXpValue'),
+      (vehicleCrashesGuestsKilled : number, vehicleCrashesGuestsKilledXpValue : number) : number => {
+        return vehicleCrashesGuestsKilled * vehicleCrashesGuestsKilledXpValue;
+      }
+    ));
+    
     // Total
-    this.set('totalDisastersXpStore', compute<number, number, number, number>(
-      this.get('vehicleCrashesXpStore'),
+    this.set('totalDisastersXpStore', compute<number, number, number, number, number>(
       this.get('guestsDrownedXpStore'),
       this.get('staffDrownedXpStore'),
-      (vehicleCrashesXp : number, guestsDrownedXp : number, staffDrownedXp : number) : number => {
-        return vehicleCrashesXp + guestsDrownedXp + staffDrownedXp;
+      this.get('vehicleCrashesXpStore'),
+      this.get('vehicleCrashesGuestsKilledXpStore'),
+      (
+        guestsDrownedXp : number,
+        staffDrownedXp : number,
+        vehicleCrashesXp : number,
+        vehicleCrashesGuestsKilledXpStore : number
+      ) : number => {
+        return guestsDrownedXp + staffDrownedXp + vehicleCrashesXp + vehicleCrashesGuestsKilledXpStore;
       }
     ));
   }

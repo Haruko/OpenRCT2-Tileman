@@ -67,6 +67,7 @@ export type PluginData = DataStoreData & {
   guestsDrownedXpValue : WritableStore<number>,
   staffDrownedXpValue : WritableStore<number>,
   vehicleCrashesXpValue : WritableStore<number>,
+  vehicleCrashesGuestsKilledXpValue : WritableStore<number>,
 };
 
 export type MetricData = DataStoreData & {
@@ -101,6 +102,7 @@ export type MetricData = DataStoreData & {
   guestsDrowned : WritableStore<number>,
   staffDrowned : WritableStore<number>,
   vehicleCrashes : WritableStore<number>,
+  vehicleCrashesGuestsKilled : WritableStore<number>,
 };
 
 export type StoresData = DataStoreData & {
@@ -141,6 +143,7 @@ export type StoresData = DataStoreData & {
   guestsDrownedXpStore: Store<number> | null,
   staffDrownedXpStore: Store<number> | null,
   vehicleCrashesXpStore: Store<number> | null,
+  vehicleCrashesGuestsKilledXpStore: Store<number> | null,
   totalDisastersXpStore: Store<number> | null,
 
   totalParkDataXpStore: Store<number> | null,

@@ -58,6 +58,7 @@ export enum ElementID {
 
         // Disasters
         EXP_PER_VEHICLE_CRASH,
+        EXP_PER_VEHICLE_CRASH_GUESTS_KILLED,
         EXP_PER_GUEST_DROWNED,
         EXP_PER_STAFF_DROWNED,
 

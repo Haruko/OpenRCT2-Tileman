@@ -11,10 +11,16 @@ import { StartupWindow } from './ui/windows/StartupWindow';
 * Added XP sources:
   - Balloons popped
   - Banners placed
-  - Park awards (both positive and negative)
-  - Marketing campaigns (per $50 spent)
-  - Vehicle crashes (per car)
-  - Peeps drowning (both guests and staff)
+    - XP is removed when banner is removed
+  - Park awards
+    - Positive
+    - Negative
+  - Marketing campaigns
+    - Per $50 spent
+  - Vehicle crashes
+    - Per car exploded
+    - Per guest killed
+  - Guests and staff drowning
 * New restrictions on tile ownership changes:
   * Guests - Selling - No longer allowed to sell tiles with guests on them.
   * Paths - Buying - No longer allowed to buy tiles with paths on them. (Can be bypassed in config)
@@ -55,8 +61,6 @@ import { StartupWindow } from './ui/windows/StartupWindow';
     //TODO: Add button to hide stats from toolbar (and instead draw numbers on the buttons?)
   
   //TODO: Config Window - Add delete all rides with refund button
-
-  //TODO: XP Source - Killing guest/staff (crashes)
 
 
   //TODO: XP BALANCING:
