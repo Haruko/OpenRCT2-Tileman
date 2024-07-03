@@ -58,10 +58,8 @@ import { StartupWindow } from './ui/windows/StartupWindow';
 // HIGH PRIORITY
   // Things that came up in Marcel's stream
     //TODO: Scale XP cost so they're easier at the start and harder later on
-    //TODO: Add button to hide stats from toolbar (and instead draw numbers on the buttons?)
-  
-  //TODO: Config Window - Add delete all rides with refund button
 
+  //TODO: Options - Bonus exp/tiles for completing objective?
 
   //TODO: XP BALANCING:
     // Mining:
@@ -101,7 +99,6 @@ import { StartupWindow } from './ui/windows/StartupWindow';
 // UNSURE
   //TODO: Persistent Storage - context.sharedStorage for plugin config with profiles?
   //TODO: Options - Difficulty multiplier for ParkFlags?
-  //TODO: Options - Bonus exp/tiles for completing objective?
 
 
 

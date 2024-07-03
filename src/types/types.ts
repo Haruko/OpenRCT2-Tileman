@@ -40,7 +40,6 @@ export type PluginData = DataStoreData & {
   // Player actions
   balloonsPoppedXpValue : WritableStore<number>,
   bannersPlacedXpValue : WritableStore<number>,
-  marketingCampaignsSpentXpValue : WritableStore<number>,
 
   // Guest actions
   parkAdmissionXpValue : WritableStore<number>,
@@ -60,10 +59,11 @@ export type PluginData = DataStoreData & {
   vandalsStoppedXpValue : WritableStore<number>,
 
   // Park data
+  marketingCampaignsSpentXpValue : WritableStore<number>,
   parkAwardsPositiveXpValue : WritableStore<number>,
   parkAwardsNegativeXpValue : WritableStore<number>,
 
-  
+  // Disasters
   guestsDrownedXpValue : WritableStore<number>,
   staffDrownedXpValue : WritableStore<number>,
   vehicleCrashesXpValue : WritableStore<number>,
@@ -77,7 +77,6 @@ export type MetricData = DataStoreData & {
   // Player actions
   balloonsPopped : WritableStore<number>,
   bannersPlaced : WritableStore<number>,
-  marketingCampaignsSpent : WritableStore<number>,
 
   // Guest actions
   parkAdmissions : WritableStore<number>,
@@ -96,9 +95,11 @@ export type MetricData = DataStoreData & {
   vandalsStopped : WritableStore<number>,
 
   // Park data
+  marketingCampaignsSpent : WritableStore<number>,
   parkAwardsPositive : WritableStore<number>,
   parkAwardsNegative : WritableStore<number>,
   
+  // Disasters
   guestsDrowned : WritableStore<number>,
   staffDrowned : WritableStore<number>,
   vehicleCrashes : WritableStore<number>,
@@ -109,7 +110,7 @@ export type StoresData = DataStoreData & {
   // Player actions
   balloonsPoppedXpStore: Store<number> | null,
   bannersPlacedXpStore: Store<number> | null,
-  marketingCampaignsSpentXpStore: Store<number> | null,
+
   totalPlayerXpStore: Store<number> | null,
   
   // Guest actions
@@ -117,6 +118,7 @@ export type StoresData = DataStoreData & {
   rideXpStore: Store<number> | null,
   stallXpStore: Store<number> | null,
   facilityXpStore: Store<number> | null,
+
   totalGuestXpStore: Store<number> | null,
   
   // Staff actions
@@ -136,17 +138,20 @@ export type StoresData = DataStoreData & {
   totalStaffXpStore: Store<number> | null,
   
   // Park data
+  marketingCampaignsSpentXpStore: Store<number> | null,
   parkAwardsPositiveXpStore: Store<number> | null,
   parkAwardsNegativeXpStore: Store<number> | null,
   totalAwardsXpStore: Store<number> | null,
 
+  totalParkDataXpStore: Store<number> | null,
+
+  // Disasters
   guestsDrownedXpStore: Store<number> | null,
   staffDrownedXpStore: Store<number> | null,
   vehicleCrashesXpStore: Store<number> | null,
   vehicleCrashesGuestsKilledXpStore: Store<number> | null,
+  
   totalDisastersXpStore: Store<number> | null,
-
-  totalParkDataXpStore: Store<number> | null,
   
   // Other
   totalXpStore: Store<number> | null,
