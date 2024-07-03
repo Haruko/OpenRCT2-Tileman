@@ -473,7 +473,7 @@ export class ConfigTab extends BaseTab {
     labelText : string,
     tooltip : string,
     totalLabelText : Store<string> | string,
-    countKeyOrStore? : keyof MetricData | Store<number>
+    countKeyOrStore? : keyof MetricData | Store<number> | Store<string>
   ) : FlexUIWidget {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const pluginStore : Store<number> = dsManager.getInstance(DataStoreID.PLUGIN).get(key);
