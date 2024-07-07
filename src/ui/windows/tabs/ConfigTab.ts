@@ -345,6 +345,29 @@ export class ConfigTab extends BaseTab {
           },
         )
       ),
+      
+      this._createConfigRow(ElementID.EXP_PER_SCENARIO_COMPLETED,
+        'scenarioCompletedXpValue',
+        'Scenario completion',
+        'How much XP earned for completing the scenario.',
+        this._createTotalLabelStore(ElementID.EXP_PER_SCENARIO_COMPLETED, stores.get('scenarioCompletedXpStore')),
+        compute<string, string>(
+          dsManager.getInstance(DataStoreID.STORES).get('scenarioStatusStore') as Store<string>,
+          (scenarioStatus : string) : string => {
+            switch (scenarioStatus) {
+              case 'inProgress': {
+                return '{PALEGOLD}TBD';
+              } case 'completed': {
+                return '{GREEN}Pass';
+              } case 'failed': {
+                return '{RED}Fail';
+              }
+            }
+
+            return '';
+          },
+        )
+      ),
 
       // Awards
       new AlignedLabel(ElementID.NONE, {

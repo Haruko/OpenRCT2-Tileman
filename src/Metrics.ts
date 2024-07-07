@@ -43,6 +43,7 @@ export class Metrics extends DataStore<MetricData> {
 
       // Park data
       marketingCampaignsSpent: store<number>(0),
+      scenarioCompleted: store<boolean>(false),
 
       parkAwardsPositive: store<number>(0),
       parkAwardsNegative: store<number>(0),
@@ -85,7 +86,7 @@ export class Metrics extends DataStore<MetricData> {
     this._collectGuestMetrics();
     this._collectStaffMetrics();
     this._collectRideMetrics();
-    this._collectParkAwardMetrics(ticksPerUpdate);
+    this._collectParkMetrics();
 
     const dsManager : DataStoreManager = DataStoreManager.instance();
     dsManager.storeAllData();
@@ -172,10 +173,29 @@ export class Metrics extends DataStore<MetricData> {
   }
 
   /**
-   * Collect park award data
-   * @param ticksPerUpdate Number of ticks between updates
+   * Collect park data
    */
-  private _collectParkAwardMetrics(ticksPerUpdate : number) : void {
+  private _collectParkMetrics() : void {
+    const dsManager : DataStoreManager = DataStoreManager.instance();
+    const stores : DataStore<MetricData> = dsManager.getInstance(DataStoreID.STORES);
+
+    // Store the scenario completion for experience
+    if (!this.getValue('scenarioCompleted') && scenario.status === 'completed') {
+      this.get('scenarioCompleted').set(true);
+    }
+
+    // Store the scenario status for labels
+    if (stores.getValue('scenarioStatusStore') !== scenario.status) {
+      stores.get('scenarioStatusStore').set(scenario.status);
+    }
+
+    this._collectParkAwardMetrics();
+  }
+
+    /**
+     * Collect park award data
+     */
+  private _collectParkAwardMetrics() : void {
     // STR_2831    :{TOPAZ}Your park has received an award for being ‘The most untidy park in the country’!
     // STR_2836    :{TOPAZ}Your park has received an award for being ‘The worst value park in the country’!
     // STR_2840    :{TOPAZ}Your park has received an award for being ‘The park with the worst food in the country’!
@@ -256,15 +276,15 @@ export class Metrics extends DataStore<MetricData> {
    * @param ticksPerUpdate Number of ticks per update as defined in the Plugin data
    */
   private _onTick(ticksPerUpdate : number) : void {
-    if (typeof this._firstSessionMonth === 'undefined') {
-      this._firstSessionMonth = date.monthsElapsed;
-    }
 
-    if (!this.getValue('scenarioCompleted') && scenario.status === 'completed') {
-      this.set('scenarioCompleted', true);
-    }
-
+    // If this is an update tick
     if (date.ticksElapsed % ticksPerUpdate === 0) {
+  
+      // Store the month this session started on for park message parsing
+      if (typeof this._firstSessionMonth === 'undefined') {
+        this._firstSessionMonth = date.monthsElapsed;
+      }
+
       this._killDrowningAndRecord();
       this._collectMetrics(ticksPerUpdate);
     }

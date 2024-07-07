@@ -60,6 +60,8 @@ export type PluginData = DataStoreData & {
 
   // Park data
   marketingCampaignsSpentXpValue : WritableStore<number>,
+  scenarioCompletedXpValue : WritableStore<number>,
+  
   parkAwardsPositiveXpValue : WritableStore<number>,
   parkAwardsNegativeXpValue : WritableStore<number>,
 
@@ -96,6 +98,8 @@ export type MetricData = DataStoreData & {
 
   // Park data
   marketingCampaignsSpent : WritableStore<number>,
+  scenarioCompleted : WritableStore<boolean>,
+
   parkAwardsPositive : WritableStore<number>,
   parkAwardsNegative : WritableStore<number>,
   
@@ -139,6 +143,9 @@ export type StoresData = DataStoreData & {
   
   // Park data
   marketingCampaignsSpentXpStore: Store<number> | null,
+  scenarioCompletedXpStore : WritableStore<boolean> | null,
+  scenarioStatusStore : WritableStore<string> | null,
+
   parkAwardsPositiveXpStore: Store<number> | null,
   parkAwardsNegativeXpStore: Store<number> | null,
   totalAwardsXpStore: Store<number> | null,

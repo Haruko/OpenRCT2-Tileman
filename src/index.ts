@@ -17,6 +17,7 @@ import { StartupWindow } from './ui/windows/StartupWindow';
     - Negative
   - Marketing campaigns
     - Per $50 spent
+  - Scenario completion
   - Vehicle crashes
     - Per car exploded
     - Per guest killed
@@ -59,8 +60,6 @@ import { StartupWindow } from './ui/windows/StartupWindow';
   // Things that came up in Marcel's stream
     //TODO: Scale XP cost so they're easier at the start and harder later on
 
-  //TODO: Options - Bonus exp/tiles for completing objective?
-
   //TODO: XP BALANCING:
     // Mining:
     //     5   Clay, Rune Essence (min)
@@ -91,6 +90,7 @@ import { StartupWindow } from './ui/windows/StartupWindow';
     //       42.64 [8] Imp, Cow
 
 // LOW PRIORITY
+  //TODO: XP Sources - Make a baseline for each scenario type and multiple xp value by how much over the baseline it is (200 vs 400 guests = 2x)
   //TODO: Startup Behavior - Don't clear rides (but still clear guests and staff) if Abandoned Park plugin is detected
     // https://openrct2plugins.org/plugin/MDEwOlJlcG9zaXRvcnkzNDM0NTI2NjY=/openrct2-abandonedpark
   //TODO: Config Window - Add reset park data button

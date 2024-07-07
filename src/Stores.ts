@@ -1,6 +1,6 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { compute } from 'openrct2-flexui';
+import { compute, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
 import { MetricData, PluginData, RideData, StoresData } from './types/types';
 import { DataStoreManager } from './DataStoreManager';
@@ -12,7 +12,6 @@ export class Stores extends DataStore<StoresData> {
       // Player actions
       balloonsPoppedXpStore: null,
       bannersPlacedXpStore: null,
-      marketingCampaignsSpentXpStore: null,
       totalPlayerXpStore: null,
       
       // Guest actions
@@ -39,6 +38,10 @@ export class Stores extends DataStore<StoresData> {
       totalStaffXpStore: null,
       
       // Park data
+      marketingCampaignsSpentXpStore: null,
+      scenarioCompletedXpStore: null,
+      scenarioStatusStore: store<string>(scenario.status),
+
       parkAwardsPositiveXpStore: null,
       parkAwardsNegativeXpStore: null,
       totalAwardsXpStore: null,
@@ -419,6 +422,15 @@ export class Stores extends DataStore<StoresData> {
       plugin.get('marketingCampaignsSpentXpValue'),
       (marketingCampaignsSpent : number, marketingCampaignsSpentXpValue : number) : number => {
         return marketingCampaignsSpentXpValue * marketingCampaignsSpent / 500;
+      }
+    ));
+
+    // Computed experience from completing the scenario
+    this.set('scenarioCompletedXpStore', compute<boolean, number, number>(
+      metrics.get('scenarioCompleted'),
+      plugin.get('scenarioCompletedXpValue'),
+      (scenarioCompleted : boolean, scenarioCompletedXpValue : number) : number => {
+        return scenarioCompleted ? scenarioCompletedXpValue : 0;
       }
     ));
     

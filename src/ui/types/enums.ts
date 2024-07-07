@@ -29,7 +29,6 @@ export enum ElementID {
       // Player actions
       EXP_PER_BALLOON_POPPED,
       EXP_PER_BANNER_PLACED,
-      EXP_PER_MARKETING_CAMPAIGN_SPENT,
 
       // Guest actions
       EXP_PER_PARK_ADMISSION,
@@ -52,6 +51,10 @@ export enum ElementID {
         EXP_PER_VANDAL_STOPPED,
       
       // Park data
+        // Other
+        EXP_PER_MARKETING_CAMPAIGN_SPENT,
+        EXP_PER_SCENARIO_COMPLETED,
+        
         // Awards
         EXP_PER_PARK_AWARD_POSITIVE,
         EXP_PER_PARK_AWARD_NEGATIVE,
@@ -61,8 +64,6 @@ export enum ElementID {
         EXP_PER_VEHICLE_CRASH_GUESTS_KILLED,
         EXP_PER_GUEST_DROWNED,
         EXP_PER_STAFF_DROWNED,
-
-        // Other
 
       // Other
       EXP_PER_TILE,
