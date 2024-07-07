@@ -42,7 +42,7 @@ export abstract class DataStore<DataStoreType extends Record<string, any>> exten
     for (const key in src as object) {
       const value = read(src[key]);
 
-      if (isStore(dest[key])) {
+      if (isWritableStore(dest[key])) {
         dest[key].set(value);
       } else {
         dest[key] = value;
