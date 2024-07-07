@@ -19,37 +19,38 @@ export class Metrics extends DataStore<MetricData> {
   protected constructor() {
     super('metrics', {
       // Tiles used by player
-      tilesUsed : store<number>(0),
+      tilesUsed: store<number>(0),
       
       // Player actions
-      balloonsPopped : store<number>(0),
-      bannersPlaced : store<number>(0),
+      balloonsPopped: store<number>(0),
+      bannersPlaced: store<number>(0),
 
       // Guest actions
-      parkAdmissions : store<number>(0),
-      rideMap : objectStore<RideData>({}),
-      demolishedRides : arrayStore<RideData>([]),
+      parkAdmissions: store<number>(0),
+      rideMap: objectStore<RideData>({}),
+      demolishedRides: arrayStore<RideData>([]),
 
       // Staff actions
-      lawnsMown : store<number>(0),
-      gardensWatered : store<number>(0),
-      trashSwept : store<number>(0),
-      trashCansEmptied : store<number>(0),
+      lawnsMown: store<number>(0),
+      gardensWatered: store<number>(0),
+      trashSwept: store<number>(0),
+      trashCansEmptied: store<number>(0),
 
-      ridesInspected : store<number>(0),
-      ridesFixed : store<number>(0),
+      ridesInspected: store<number>(0),
+      ridesFixed: store<number>(0),
 
-      vandalsStopped : store<number>(0),
+      vandalsStopped: store<number>(0),
 
       // Park data
-      marketingCampaignsSpent : store<number>(0),
-      parkAwardsPositive : store<number>(0),
-      parkAwardsNegative : store<number>(0),
+      marketingCampaignsSpent: store<number>(0),
+
+      parkAwardsPositive: store<number>(0),
+      parkAwardsNegative: store<number>(0),
       
-      guestsDrowned : store<number>(0),
-      staffDrowned : store<number>(0),
-      vehicleCrashes : store<number>(0),
-      vehicleCrashesGuestsKilled : store<number>(0),
+      guestsDrowned: store<number>(0),
+      staffDrowned: store<number>(0),
+      vehicleCrashes: store<number>(0),
+      vehicleCrashesGuestsKilled: store<number>(0),
     });
     
   }
@@ -251,6 +252,25 @@ export class Metrics extends DataStore<MetricData> {
    */
 
   /**
+   * Handles interval.tick event
+   * @param ticksPerUpdate Number of ticks per update as defined in the Plugin data
+   */
+  private _onTick(ticksPerUpdate : number) : void {
+    if (typeof this._firstSessionMonth === 'undefined') {
+      this._firstSessionMonth = date.monthsElapsed;
+    }
+
+    if (!this.getValue('scenarioCompleted') && scenario.status === 'completed') {
+      this.set('scenarioCompleted', true);
+    }
+
+    if (date.ticksElapsed % ticksPerUpdate === 0) {
+      this._killDrowningAndRecord();
+      this._collectMetrics(ticksPerUpdate);
+    }
+  }
+
+  /**
    * Handles action.execute event
    * @param e Event data
    */
@@ -274,21 +294,6 @@ export class Metrics extends DataStore<MetricData> {
           break;
         }
       }
-    }
-  }
-
-  /**
-   * Handles interval.tick event
-   * @param ticksPerUpdate Number of ticks per update as defined in the Plugin data
-   */
-  private _onTick(ticksPerUpdate : number) : void {
-    if (typeof this._firstSessionMonth === 'undefined') {
-      this._firstSessionMonth = date.monthsElapsed;
-    }
-
-    if (date.ticksElapsed % ticksPerUpdate === 0) {
-      this._killDrowningAndRecord();
-      this._collectMetrics(ticksPerUpdate);
     }
   }
 

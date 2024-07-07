@@ -31,9 +31,9 @@ export class Plugin extends DataStore<PluginData> {
       startingTiles: store<number>(2), // 1 path + 1 stall minimum
 
       // Player actions
-      balloonsPoppedXpValue : store<number>(10),
-      bannersPlacedXpValue : store<number>(25),
-      marketingCampaignsSpentXpValue : store<number>(5),
+      balloonsPoppedXpValue: store<number>(10),
+      bannersPlacedXpValue: store<number>(25),
+      marketingCampaignsSpentXpValue: store<number>(5),
     
       // Guest actions
       parkAdmissionXpValue: store<number>(1),
@@ -42,24 +42,24 @@ export class Plugin extends DataStore<PluginData> {
       facilityUseXpValue: store<number>(4),
     
       // Staff actions
-      lawnsMownXpValue : store<number>(1),
-      gardensWateredXpValue : store<number>(1),
-      trashSweptXpValue : store<number>(1),
-      trashCansEmptiedXpValue : store<number>(2),
+      lawnsMownXpValue: store<number>(1),
+      gardensWateredXpValue: store<number>(1),
+      trashSweptXpValue: store<number>(1),
+      trashCansEmptiedXpValue: store<number>(2),
     
-      ridesInspectedXpValue : store<number>(2),
-      ridesFixedXpValue : store<number>(5),
+      ridesInspectedXpValue: store<number>(2),
+      ridesFixedXpValue: store<number>(5),
     
-      vandalsStoppedXpValue : store<number>(1),
+      vandalsStoppedXpValue: store<number>(1),
     
       // Park data
-      parkAwardsPositiveXpValue : store<number>(25),
-      parkAwardsNegativeXpValue : store<number>(5),
+      parkAwardsPositiveXpValue: store<number>(25),
+      parkAwardsNegativeXpValue: store<number>(5),
 
       guestsDrownedXpValue: store<number>(5),
       staffDrownedXpValue: store<number>(20),
-      vehicleCrashesXpValue : store<number>(10),
-      vehicleCrashesGuestsKilledXpValue : store<number>(10),
+      vehicleCrashesXpValue: store<number>(10),
+      vehicleCrashesGuestsKilledXpValue: store<number>(10),
     });
   }
 
