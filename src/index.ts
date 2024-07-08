@@ -57,10 +57,8 @@ import { StartupWindow } from './ui/windows/StartupWindow';
 
 
 // HIGH PRIORITY
-  // Things that came up in Marcel's stream
-    //TODO: Scale XP cost so they're easier at the start and harder later on
-
   //TODO: XP BALANCING:
+    // Scale XP cost so new tiles are easier at the start and harder later on
     // Mining:
     //     5   Clay, Rune Essence (min)
     //    17.5 Copper, Tin
@@ -90,15 +88,15 @@ import { StartupWindow } from './ui/windows/StartupWindow';
     //       42.64 [8] Imp, Cow
 
 // LOW PRIORITY
-  //TODO: XP Sources - Make a baseline for each scenario type and multiple xp value by how much over the baseline it is (200 vs 400 guests = 2x)
-  //TODO: Startup Behavior - Don't clear rides (but still clear guests and staff) if Abandoned Park plugin is detected
-    // https://openrct2plugins.org/plugin/MDEwOlJlcG9zaXRvcnkzNDM0NTI2NjY=/openrct2-abandonedpark
   //TODO: Config Window - Add reset park data button
   //TODO: Detailed Stats Window - Create window with various stats including historical data about rides done in a list view
 
 // UNSURE
   //TODO: Persistent Storage - context.sharedStorage for plugin config with profiles?
+  //TODO: XP Sources - Make a baseline for each scenario type and multiple xp value by how much over the baseline it is (200 vs 400 guests = 2x)
   //TODO: Options - Difficulty multiplier for ParkFlags?
+  //TODO: Startup Behavior - Don't clear rides (but still clear guests and staff) if Abandoned Park plugin is detected
+    // https://openrct2plugins.org/plugin/MDEwOlJlcG9zaXRvcnkzNDM0NTI2NjY=/openrct2-abandonedpark
 
 
 
