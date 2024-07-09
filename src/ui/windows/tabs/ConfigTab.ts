@@ -573,7 +573,8 @@ export class ConfigTab extends BaseTab {
         const isChanged : boolean = pluginValue !== Number(textboxValue);
 
         if (isChanged) {
-          return `{TOPAZ}* ${labelText} *`;
+          // Set color twice for rows that have colored text
+          return `{TOPAZ}${labelText} {TOPAZ}*`;
         } else {
           return labelText;
         }
@@ -711,7 +712,8 @@ export class ConfigTab extends BaseTab {
               const isChanged : boolean = pluginValue !== checkboxValue;
       
               if (isChanged) {
-                return `{TOPAZ}* ${text} *`;
+                // Set color twice for rows that have colored text
+                return `{TOPAZ}${text} {TOPAZ}*`;
               } else {
                 return text;
               }
@@ -737,7 +739,8 @@ export class ConfigTab extends BaseTab {
               const isChanged : boolean = pluginValue !== checkboxValue;
       
               if (isChanged) {
-                return `{TOPAZ}* ${text} *`;
+                // Set color twice for rows that have colored text
+                return `{TOPAZ}${text} {TOPAZ}*`;
               } else {
                 return text;
               }
