@@ -8,6 +8,7 @@ import { StartupWindow } from './ui/windows/StartupWindow';
 /*
 
 * A lot of background stuff you won't see, but causes previous saves to break (sorry)
+* Updated initial XP values (Can be changed in config window)
 * Added XP sources:
   - Balloons popped
   - Banners placed
@@ -24,8 +25,8 @@ import { StartupWindow } from './ui/windows/StartupWindow';
   - Guests and staff drowning
 * New restrictions on tile ownership changes:
   * Guests - Selling - No longer allowed to sell tiles with guests on them.
-  * Paths - Buying - No longer allowed to buy tiles with paths on them. (Can be bypassed in config)
-  * Paths - Rights - No longer allowed to switch between owned and construction rights owned. Construction rights CAN be bought on land that is unowned. (Can be bypassed in config)
+  * Paths - Buying - No longer allowed to buy tiles with paths on them. (Can be bypassed in config window)
+  * Paths - Rights - No longer allowed to switch between owned and construction rights owned. Construction rights CAN be bought on land that is unowned. (Can be bypassed in config window)
   * Paths - Selling - No longer allowed to sell tiles with paths on them.
 * New startup process:
   * Added popup window on load and now pause the game to ask if you want to play tileman or not.

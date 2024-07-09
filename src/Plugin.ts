@@ -27,41 +27,41 @@ export class Plugin extends DataStore<PluginData> {
       keepToolbarOpen: store<boolean>(true),
       bypassPathRestrictions: store<boolean>(false),
   
-      tileXpCost: store<number>(100), // Exp cost per tile
+      tileXpCost: store<number>(1000), // Exp cost per tile
       startingTiles: store<number>(2), // 1 path + 1 stall minimum
 
       // Player actions
-      balloonsPoppedXpValue: store<number>(10),
-      bannersPlacedXpValue: store<number>(25),
+      balloonsPoppedXpValue: store<number>(100),
+      bannersPlacedXpValue: store<number>(250),
     
       // Guest actions
-      parkAdmissionXpValue: store<number>(1),
-      rideAdmissionXpValue: store<number>(1),
-      stallBuyXpValue: store<number>(2),
-      facilityUseXpValue: store<number>(4),
+      parkAdmissionXpValue: store<number>(50),
+      rideAdmissionXpValue: store<number>(20),
+      stallBuyXpValue: store<number>(20),
+      facilityUseXpValue: store<number>(20),
     
       // Staff actions
-      lawnsMownXpValue: store<number>(1),
-      gardensWateredXpValue: store<number>(1),
-      trashSweptXpValue: store<number>(1),
-      trashCansEmptiedXpValue: store<number>(2),
+      lawnsMownXpValue: store<number>(0),
+      gardensWateredXpValue: store<number>(0),
+      trashSweptXpValue: store<number>(0),
+      trashCansEmptiedXpValue: store<number>(0),
     
-      ridesInspectedXpValue: store<number>(2),
-      ridesFixedXpValue: store<number>(5),
+      ridesInspectedXpValue: store<number>(0),
+      ridesFixedXpValue: store<number>(0),
     
-      vandalsStoppedXpValue: store<number>(1),
+      vandalsStoppedXpValue: store<number>(0),
     
       // Park data
-      marketingCampaignsSpentXpValue: store<number>(5),
-      scenarioCompletedXpValue: store<number>(1000),
+      marketingCampaignsSpentXpValue: store<number>(100),
+      scenarioCompletedXpValue: store<number>(10000),
 
-      parkAwardsPositiveXpValue: store<number>(25),
-      parkAwardsNegativeXpValue: store<number>(5),
+      parkAwardsPositiveXpValue: store<number>(1000),
+      parkAwardsNegativeXpValue: store<number>(250),
 
-      guestsDrownedXpValue: store<number>(5),
-      staffDrownedXpValue: store<number>(20),
-      vehicleCrashesXpValue: store<number>(10),
-      vehicleCrashesGuestsKilledXpValue: store<number>(10),
+      guestsDrownedXpValue: store<number>(50),
+      staffDrownedXpValue: store<number>(200),
+      vehicleCrashesXpValue: store<number>(100),
+      vehicleCrashesGuestsKilledXpValue: store<number>(100),
     });
   }
 
