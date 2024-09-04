@@ -269,63 +269,84 @@ export class ConfigTab extends BaseTab {
     
     // Staff actions
     const staffActionXpRows : FlexUIWidget[] = [
-      // shortLineSeparator,
+      separator,
 
-      // // Handyman
-      // this._createConfigRow(ElementID.EXP_PER_LAWN_MOWED,
-      //   'lawnsMownXpValue',
-      //   'Lawn mowed',
-      //   'How much XP earned per lawn tile mowed by handymen.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_LAWN_MOWED, stores.get('lawnsMownXpStore'))
-      // ),
+      // Handyman
+      new AlignedLabel(ElementID.NONE, {
+        padding: this.rowSubHeaderPadding,
+        textAlignment: { horizontal: 'left', vertical: 'center' },
+        text: 'Handymen:',
+      }).widget,
 
-      // this._createConfigRow(ElementID.EXP_PER_GARDEN_WATERED,
-      //   'gardensWateredXpValue',
-      //   'Garden watered',
-      //   'How much XP earned per garden watered by handymen.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_GARDEN_WATERED, stores.get('gardensWateredXpStore'))
-      // ),
+      this._createConfigRow(ElementID.EXP_PER_LAWN_MOWED,
+        'lawnsMownXpValue',
+        this.subLabelIndent + '{BABYBLUE}Lawn mowed',
+        'How much XP earned per lawn tile mowed by handymen.',
+        this._createTotalLabelStore(ElementID.EXP_PER_LAWN_MOWED, stores.get('lawnsMownXpStore')),
+        'lawnsMown'
+      ),
 
-      // this._createConfigRow(ElementID.EXP_PER_TRASH_SWEPT,
-      //   'trashSweptXpValue',
-      //   'Trash swept',
-      //   'How much XP earned per piece of trash swept up by handymen.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_TRASH_SWEPT, stores.get('trashSweptXpStore'))
-      // ),
+      this._createConfigRow(ElementID.EXP_PER_GARDEN_WATERED,
+        'gardensWateredXpValue',
+        this.subLabelIndent + '{BABYBLUE}Garden watered',
+        'How much XP earned per garden watered by handymen.',
+        this._createTotalLabelStore(ElementID.EXP_PER_GARDEN_WATERED, stores.get('gardensWateredXpStore')),
+        'gardensWatered'
+      ),
 
-      // this._createConfigRow(ElementID.EXP_PER_TRASH_CAN_EMPTIED,
-      //   'trashCansEmptiedXpValue',
-      //   'Trash can emptied',
-      //   'How much XP earned per trash can emptied by handymen.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_TRASH_CAN_EMPTIED, stores.get('trashCansEmptiedXpStore'))
-      // ),
+      this._createConfigRow(ElementID.EXP_PER_TRASH_SWEPT,
+        'trashSweptXpValue',
+        this.subLabelIndent + '{BABYBLUE}Trash swept',
+        'How much XP earned per piece of trash swept up by handymen.',
+        this._createTotalLabelStore(ElementID.EXP_PER_TRASH_SWEPT, stores.get('trashSweptXpStore')),
+        'trashSwept'
+      ),
 
-      // // Mechanic
-      // shortLineSeparator,
+      this._createConfigRow(ElementID.EXP_PER_TRASH_CAN_EMPTIED,
+        'trashCansEmptiedXpValue',
+        this.subLabelIndent + '{BABYBLUE}Trash can emptied',
+        'How much XP earned per trash can emptied by handymen.',
+        this._createTotalLabelStore(ElementID.EXP_PER_TRASH_CAN_EMPTIED, stores.get('trashCansEmptiedXpStore')),
+        'trashCansEmptied'
+      ),
 
-      // this._createConfigRow(ElementID.EXP_PER_RIDE_INSPECTED,
-      //   'ridesInspectedXpValue',
-      //   'Ride inspected',
-      //   'How much XP earned per ride inspected by mechanics.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_RIDE_INSPECTED, stores.get('ridesInspectedXpStore'))
-      // ),
+      // Mechanic
+      new AlignedLabel(ElementID.NONE, {
+        padding: this.rowSubHeaderPadding,
+        textAlignment: { horizontal: 'left', vertical: 'center' },
+        text: 'Mechanics:',
+      }).widget,
 
-      // this._createConfigRow(ElementID.EXP_PER_RIDE_FIXED,
-      //   'ridesFixedXpValue',
-      //   'Ride fixed',
-      //   'How much XP earned per ride fixed by mechanics.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_RIDE_FIXED, stores.get('ridesFixedXpStore'))
-      // ),
+      this._createConfigRow(ElementID.EXP_PER_RIDE_INSPECTED,
+        'ridesInspectedXpValue',
+        this.subLabelIndent + '{BABYBLUE}Ride inspected',
+        'How much XP earned per ride inspected by mechanics.',
+        this._createTotalLabelStore(ElementID.EXP_PER_RIDE_INSPECTED, stores.get('ridesInspectedXpStore')),
+        'ridesInspected'
+      ),
 
-      // // Security
-      // shortLineSeparator,
+      this._createConfigRow(ElementID.EXP_PER_RIDE_FIXED,
+        'ridesFixedXpValue',
+        this.subLabelIndent + '{BABYBLUE}Ride fixed',
+        'How much XP earned per ride fixed by mechanics.',
+        this._createTotalLabelStore(ElementID.EXP_PER_RIDE_FIXED, stores.get('ridesFixedXpStore')),
+        'ridesFixed'
+      ),
 
-      // this._createConfigRow(ElementID.EXP_PER_VANDAL_STOPPED,
-      //   'vandalsStoppedXpValue',
-      //   'Vandal stopped',
-      //   'How much XP earned per vandal stopped by security.',
-      //   this._createTotalLabelStore(ElementID.EXP_PER_VANDAL_STOPPED, stores.get('vandalsStoppedXpStore'))
-      // ),
+      // Security
+      new AlignedLabel(ElementID.NONE, {
+        padding: this.rowSubHeaderPadding,
+        textAlignment: { horizontal: 'left', vertical: 'center' },
+        text: 'Security:',
+      }).widget,
+
+      this._createConfigRow(ElementID.EXP_PER_VANDAL_STOPPED,
+        'vandalsStoppedXpValue',
+        this.subLabelIndent + '{BABYBLUE}Vandal stopped',
+        'How much XP earned per vandal stopped by security.',
+        this._createTotalLabelStore(ElementID.EXP_PER_VANDAL_STOPPED, stores.get('vandalsStoppedXpStore')),
+        'vandalsStopped'
+      ),
     ];
 
     // Park data

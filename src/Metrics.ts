@@ -118,13 +118,20 @@ export class Metrics extends DataStore<MetricData> {
     const totals : StaffStats = map.getAllEntities('staff').reduce<StaffStats>((totals : StaffStats, current : Staff) : StaffStats => {
       switch (current.staffType) {
         case 'handyman': {
-          // TODO: When this data is exposed in the API
+          const handyman : Handyman = <Handyman>current;
+          totals.lawnsMown += handyman.lawnsMown;
+          totals.gardensWatered += handyman.gardensWatered;
+          totals.trashSwept += handyman.litterSwept;
+          totals.trashCansEmptied += handyman.binsEmptied;
           break;
         } case 'mechanic': {
-          // TODO: When this data is exposed in the API
+          const mechanic : Mechanic = <Mechanic>current;
+          totals.ridesInspected += mechanic.ridesInspected;
+          totals.ridesFixed += mechanic.ridesFixed;
           break;
         } case 'security': {
-          // TODO: When this data is exposed in the API
+          const security : Security = <Security>current;
+          totals.vandalsStopped += security.vandalsStopped;
           break;
         }
       }
