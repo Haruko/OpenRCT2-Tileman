@@ -29,6 +29,7 @@ export default {
       preventAssignment: true,
       __environment: JSON.stringify('development'),
       __version: JSON.stringify(npmPackage.version),
+      __required_api_version: 98,
     }),
     typescript()
   ],

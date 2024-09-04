@@ -30,6 +30,7 @@ export default {
       preventAssignment: true,
       __environment: JSON.stringify('release'),
       __version: JSON.stringify(npmPackage.version),
+      __required_api_version: 98,
     }),
     typescript(),
     terser({

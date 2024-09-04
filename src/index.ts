@@ -107,6 +107,7 @@ async function main() : Promise<void> {
   const plugin : Plugin = Plugin.instance();
   if (plugin.isValidRunConfig()) {
     console.log(`Initializing Tileman Plugin in ${__environment} mode...`);
+    console.log(`Minimum API v${__required_api_version} - Found API v${context.apiVersion}`);
 
     const tilemanEnabled : boolean | undefined = context.getParkStorage().get('tilemanEnabled');
     if (typeof tilemanEnabled === 'boolean') {
@@ -138,7 +139,7 @@ registerPlugin({
   authors: ['Isoitiro'],
   type: 'local',
   licence: 'GNU GPLv3',
-  targetApiVersion: 70,
-  minApiVersion: 68,
+  targetApiVersion: __required_api_version,
+  minApiVersion: __required_api_version,
   main: main
 });
