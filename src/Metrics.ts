@@ -1,9 +1,9 @@
 /// <reference path='../lib/openrct2.d.ts' />
 
-import { WritableStore, arrayStore, store } from 'openrct2-flexui';
+import { arrayStore, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
 import { GameCommand, RideLifecycleFlags } from './types/enums';
-import { MetricData, RideData } from './types/types';
+import { MetricData, RideData, StaffData } from './types/types';
 import { DataStoreID } from './types/enums';
 import { objectStore } from '@flexui-ext/createObjectStore';
 import { ObjectStore } from '@flexui-ext/ObjectStore';
@@ -31,15 +31,8 @@ export class Metrics extends DataStore<MetricData> {
       demolishedRides: arrayStore<RideData>([]),
 
       // Staff actions
-      lawnsMown: store<number>(0),
-      gardensWatered: store<number>(0),
-      trashSwept: store<number>(0),
-      trashCansEmptied: store<number>(0),
-
-      ridesInspected: store<number>(0),
-      ridesFixed: store<number>(0),
-
-      vandalsStopped: store<number>(0),
+      staffMap : objectStore<StaffData>({}),
+      firedStaff: arrayStore<StaffData>([]),
 
       // Park data
       marketingCampaignsSpent: store<number>(0),
@@ -103,54 +96,30 @@ export class Metrics extends DataStore<MetricData> {
    * Collect staff action data
    */
   private _collectStaffMetrics() : void {
-    type StaffStats = {
-      lawnsMown : number
-      gardensWatered : number
-      trashSwept : number
-      trashCansEmptied : number
+    // Collect data from each active staff member
+    const staffMap : ObjectStore<StaffData> = this.data.staffMap;
+    map.getAllEntities('staff').forEach((staff : BaseStaff) : void => {
+      const staffData : StaffData = {
+        name: staff.name,
+        staffType: staff.staffType,
 
-      ridesInspected : number
-      ridesFixed : number
+        // Handyman
+        lawnsMown: (<Handyman>staff).lawnsMown,
+        gardensWatered: (<Handyman>staff).gardensWatered,
+        litterSwept: (<Handyman>staff).litterSwept,
+        binsEmptied: (<Handyman>staff).binsEmptied,
 
-      vandalsStopped : number
-    };
+        // Mechanic
+        ridesFixed: (<Mechanic>staff).ridesFixed,
+        ridesInspected: (<Mechanic>staff).ridesInspected,
 
-    const totals : StaffStats = map.getAllEntities('staff').reduce<StaffStats>((totals : StaffStats, current : Staff) : StaffStats => {
-      switch (current.staffType) {
-        case 'handyman': {
-          const handyman : Handyman = <Handyman>current;
-          totals.lawnsMown += handyman.lawnsMown;
-          totals.gardensWatered += handyman.gardensWatered;
-          totals.trashSwept += handyman.litterSwept;
-          totals.trashCansEmptied += handyman.binsEmptied;
-          break;
-        } case 'mechanic': {
-          const mechanic : Mechanic = <Mechanic>current;
-          totals.ridesInspected += mechanic.ridesInspected;
-          totals.ridesFixed += mechanic.ridesFixed;
-          break;
-        } case 'security': {
-          const security : Security = <Security>current;
-          totals.vandalsStopped += security.vandalsStopped;
-          break;
-        }
-      }
+        // Security
+        vandalsStopped: (<Security>staff).vandalsStopped,
+        
+        // Entertainer
+      };
 
-      return totals;
-    }, {
-      lawnsMown: 0,
-      gardensWatered: 0,
-      trashSwept: 0,
-      trashCansEmptied: 0,
-
-      ridesInspected: 0,
-      ridesFixed: 0,
-
-      vandalsStopped: 0,
-    } as StaffStats);
-
-    Object.keys(totals).forEach((key : string) : void => {
-      (this.data[key as keyof MetricData] as WritableStore<number>).set(totals[key as keyof StaffStats]);
+      staffMap.set(staff.id!, staffData);
     });
   }
 
@@ -319,6 +288,9 @@ export class Metrics extends DataStore<MetricData> {
         } case GameCommand.StartMarketingCampaign: {
           this._onMarketingCampaignStarted(e);
           break;
+        } case GameCommand.FireStaffMember: {
+          this._onStaffFired(e);
+          break;
         }
       }
     }
@@ -388,6 +360,23 @@ export class Metrics extends DataStore<MetricData> {
           typeof id === 'number').length;
         this.data.vehicleCrashesGuestsKilled.set(this.getValue('vehicleCrashesGuestsKilled') + numGuests);
       });
+  }
+
+  /**
+   * Moves staff data from staffMap to firedStaff
+   * @param e Event data
+   */
+  private _onStaffFired(e : GameActionEventArgs) : void {
+    const staffId : number = (e.args as { id : number }).id;
+    const staffData : StaffData | undefined = this.data.staffMap.getValue(staffId);
+
+    if(typeof staffData !== 'undefined') {
+      this.data.firedStaff.push(staffData);
+      this.data.staffMap.set(staffId, undefined);
+
+      // Only store data of this data store because it doesn't change exp calculation
+      this.storeData();
+    }
   }
 
 

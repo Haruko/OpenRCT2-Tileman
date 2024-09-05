@@ -41,15 +41,15 @@ export class Plugin extends DataStore<PluginData> {
       facilityUseXpValue: store<number>(20),
     
       // Staff actions
-      lawnsMownXpValue: store<number>(0),
-      gardensWateredXpValue: store<number>(0),
-      trashSweptXpValue: store<number>(0),
-      trashCansEmptiedXpValue: store<number>(0),
+      lawnsMownXpValue: store<number>(10),
+      gardensWateredXpValue: store<number>(50),
+      litterSweptXpValue: store<number>(25),
+      binsEmptiedXpValue: store<number>(20),
     
-      ridesInspectedXpValue: store<number>(0),
-      ridesFixedXpValue: store<number>(0),
+      ridesInspectedXpValue: store<number>(100),
+      ridesFixedXpValue: store<number>(250),
     
-      vandalsStoppedXpValue: store<number>(0),
+      vandalsStoppedXpValue: store<number>(1000),
     
       // Park data
       marketingCampaignsSpentXpValue: store<number>(100),

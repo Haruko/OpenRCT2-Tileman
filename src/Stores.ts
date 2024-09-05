@@ -2,7 +2,7 @@
 
 import { compute, store } from 'openrct2-flexui';
 import { DataStore } from './DataStore';
-import { MetricData, PluginData, RideData, StoresData } from './types/types';
+import { MetricData, PluginData, RideData, StaffData, StoresData } from './types/types';
 import { DataStoreManager } from './DataStoreManager';
 import { DataStoreID } from './types/enums';
 
@@ -24,8 +24,8 @@ export class Stores extends DataStore<StoresData> {
       // Staff actions
       lawnsMownXpStore: null,
       gardensWateredXpStore: null,
-      trashSweptXpStore: null,
-      trashCansEmptiedXpStore: null,
+      litterSweptXpStore: null,
+      binsEmptiedXpStore: null,
       totalHandymenXpStore: null,
       
       ridesInspectedXpStore: null,
@@ -189,38 +189,42 @@ export class Stores extends DataStore<StoresData> {
    */
   private _initializeHandymanActionStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
     // Computed total experience from handymen mowing lawns
-    this.set('lawnsMownXpStore', compute<number, number, number>(
-      metrics.get('lawnsMown'),
+    this.set('lawnsMownXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
+      metrics.get('staffMap'),
+      metrics.get('firedStaff'),
       plugin.get('lawnsMownXpValue'),
-      (lawnsMown : number, lawnsMownXpValue : number) : number => {
-        return lawnsMown * lawnsMownXpValue;
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], lawnsMownXpValue : number) : number => {
+        return this._getStaffActionsByStaffType<Handyman>(staffMap, firedStaff, 'handyman', 'lawnsMown') * lawnsMownXpValue;
       }
     ));
     
     // Computed total experience from handymen watering gardens
-    this.set('gardensWateredXpStore', compute<number, number, number>(
-      metrics.get('gardensWatered'),
+    this.set('gardensWateredXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
+      metrics.get('staffMap'),
+      metrics.get('firedStaff'),
       plugin.get('gardensWateredXpValue'),
-      (gardensWatered : number, gardensWateredXpValue : number) : number => {
-        return gardensWatered * gardensWateredXpValue;
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], gardensWateredXpValue : number) : number => {
+        return this._getStaffActionsByStaffType<Handyman>(staffMap, firedStaff, 'handyman', 'gardensWatered') * gardensWateredXpValue;
       }
     ));
     
-    // Computed total experience from handymen sweeping trash
-    this.set('trashSweptXpStore', compute<number, number, number>(
-      metrics.get('trashSwept'),
-      plugin.get('trashSweptXpValue'),
-      (trashSwept : number, trashSweptXpValue : number) : number => {
-        return trashSwept * trashSweptXpValue;
+    // Computed total experience from handymen sweeping litter
+    this.set('litterSweptXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
+      metrics.get('staffMap'),
+      metrics.get('firedStaff'),
+      plugin.get('litterSweptXpValue'),
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], litterSweptXpValue : number) : number => {
+        return this._getStaffActionsByStaffType<Handyman>(staffMap, firedStaff, 'handyman', 'litterSwept') * litterSweptXpValue;
       }
     ));
     
-    // Computed total experience from handymen emptying trash cans
-    this.set('trashCansEmptiedXpStore', compute<number, number, number>(
-      metrics.get('trashCansEmptied'),
-      plugin.get('trashCansEmptiedXpValue'),
-      (trashCansEmptied : number, trashCansEmptiedXpValue : number) : number => {
-        return trashCansEmptied * trashCansEmptiedXpValue;
+    // Computed total experience from handymen emptying bins
+    this.set('binsEmptiedXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
+      metrics.get('staffMap'),
+      metrics.get('firedStaff'),
+      plugin.get('binsEmptiedXpValue'),
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], binsEmptiedXpValue : number) : number => {
+        return this._getStaffActionsByStaffType<Handyman>(staffMap, firedStaff, 'handyman', 'binsEmptied') * binsEmptiedXpValue;
       }
     ));
     
@@ -228,10 +232,10 @@ export class Stores extends DataStore<StoresData> {
     this.set('totalHandymenXpStore', compute<number, number, number, number, number>(
       this.get('lawnsMownXpStore'),
       this.get('gardensWateredXpStore'),
-      this.get('trashSweptXpStore'),
-      this.get('trashCansEmptiedXpStore'),
-      (lawnsMownXp : number, gardensWateredXp : number, trashSweptXp : number, trashCansEmptiedXp : number) : number => {
-        return lawnsMownXp + gardensWateredXp + trashSweptXp + trashCansEmptiedXp;
+      this.get('litterSweptXpStore'),
+      this.get('binsEmptiedXpStore'),
+      (lawnsMownXp : number, gardensWateredXp : number, litterSweptXp : number, binsEmptiedXp : number) : number => {
+        return lawnsMownXp + gardensWateredXp + litterSweptXp + binsEmptiedXp;
       }
     ));
   }
@@ -242,21 +246,23 @@ export class Stores extends DataStore<StoresData> {
    * @param metrics Copy of Metrics
    */
   private _initializeMechanicActionStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
-    // Computed total experience from mechanics inspecting rides
-    this.set('ridesInspectedXpStore', compute<number, number, number>(
-      metrics.get('ridesInspected'),
-      plugin.get('ridesInspectedXpValue'),
-      (ridesInspected : number, ridesInspectedXpValue : number) : number => {
-        return ridesInspected * ridesInspectedXpValue;
+    // Computed total experience from mechanics fixing rides
+    this.set('ridesFixedXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
+      metrics.get('staffMap'),
+      metrics.get('firedStaff'),
+      plugin.get('ridesFixedXpValue'),
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], ridesFixedXpValue : number) : number => {
+        return this._getStaffActionsByStaffType<Mechanic>(staffMap, firedStaff, 'mechanic', 'ridesFixed') * ridesFixedXpValue;
       }
     ));
-    
-    // Computed total experience from mechanics fixing rides
-    this.set('ridesFixedXpStore', compute<number, number, number>(
-      metrics.get('ridesFixed'),
-      plugin.get('ridesFixedXpValue'),
-      (ridesFixed : number, ridesFixedXpValue : number) : number => {
-        return ridesFixed * ridesFixedXpValue;
+
+    // Computed total experience from mechanics inspecting rides
+    this.set('ridesInspectedXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
+      metrics.get('staffMap'),
+      metrics.get('firedStaff'),
+      plugin.get('ridesInspectedXpValue'),
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], ridesInspectedXpValue : number) : number => {
+        return this._getStaffActionsByStaffType<Mechanic>(staffMap, firedStaff, 'mechanic', 'ridesInspected') * ridesInspectedXpValue;
       }
     ));
     
@@ -277,11 +283,12 @@ export class Stores extends DataStore<StoresData> {
    */
   private _initializeSecurityActionStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
     // Computed total experience from security stopping vandals
-    this.set('vandalsStoppedXpStore', compute<number, number, number>(
-      metrics.get('vandalsStopped'),
+    this.set('vandalsStoppedXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
+      metrics.get('staffMap'),
+      metrics.get('firedStaff'),
       plugin.get('vandalsStoppedXpValue'),
-      (vandalsStopped : number, vandalsStoppedXpValue : number) : number => {
-        return vandalsStopped * vandalsStoppedXpValue;
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], vandalsStoppedXpValue : number) : number => {
+        return this._getStaffActionsByStaffType<Security>(staffMap, firedStaff, 'security', 'vandalsStopped') * vandalsStoppedXpValue;
       }
     ));
     
@@ -496,12 +503,32 @@ export class Stores extends DataStore<StoresData> {
   private _getGuestCountByRideType(rideMap : Record<string, RideData>, demolishedRides : RideData[], classification : RideClassification) : number {
     const activeRideData : RideData[] = Object.keys(rideMap)
       .map((value : string) : RideData => rideMap[+value]);
-    const allRideData = [...activeRideData, ...demolishedRides];
+    const allRideData : RideData[] = [...activeRideData, ...demolishedRides];
   
     return allRideData.filter((value : RideData) : boolean => {
       return value.classification === classification;
     }).reduce((previousValue : number, ride : RideData) : number => {
       return previousValue + ride.totalCustomers;
+    }, 0);
+  }
+
+  /**
+   * Gets the total of a key for all past and present staff of a certain type
+   * @param staffMap Active staff
+   * @param firedStaff Fired staff
+   * @param staffType 'handyman' | 'mechanic' | 'security' | 'entertainer'
+   * @param key Key to total
+   * @returns Total of key
+   */
+  private _getStaffActionsByStaffType<StaffSubtype>(staffMap : Record<string, StaffData>, firedStaff : StaffData[], staffType : StaffType, key : keyof StaffSubtype) : number {
+    const activeStaffData : StaffData[] = Object.keys(staffMap)
+      .map((value : string) : StaffData => staffMap[+value]);
+    const allStaffData : StaffData[] = [...activeStaffData, ...firedStaff];
+  
+    return allStaffData.filter((value : StaffData) : boolean => {
+      return value.staffType === staffType;
+    }).reduce((previousValue : number, staff : StaffData) : number => {
+      return previousValue + (<number | undefined>(<StaffSubtype>staff)[key] ?? 0);
     }, 0);
   }
 }

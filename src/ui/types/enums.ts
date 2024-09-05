@@ -40,8 +40,8 @@ export enum ElementID {
         // Handyman
         EXP_PER_LAWN_MOWED,
         EXP_PER_GARDEN_WATERED,
-        EXP_PER_TRASH_SWEPT,
-        EXP_PER_TRASH_CAN_EMPTIED,
+        EXP_PER_LITTER_SWEPT,
+        EXP_PER_BIN_EMPTIED,
         
         // Mechanic
         EXP_PER_RIDE_INSPECTED,

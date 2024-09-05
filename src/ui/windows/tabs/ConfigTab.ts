@@ -283,7 +283,13 @@ export class ConfigTab extends BaseTab {
         this.subLabelIndent + '{BABYBLUE}Lawn mowed',
         'How much XP earned per lawn tile mowed by handymen.',
         this._createTotalLabelStore(ElementID.EXP_PER_LAWN_MOWED, stores.get('lawnsMownXpStore')),
-        'lawnsMown'
+        compute<number, number, number>(
+          plugin.get('lawnsMownXpValue'),
+          stores.get('lawnsMownXpStore'),
+          (lawnsMownXpValue : number, lawnsMownXp : number) : number => {
+            return lawnsMownXp / lawnsMownXpValue;
+          }
+        )
       ),
 
       this._createConfigRow(ElementID.EXP_PER_GARDEN_WATERED,
@@ -291,23 +297,41 @@ export class ConfigTab extends BaseTab {
         this.subLabelIndent + '{BABYBLUE}Garden watered',
         'How much XP earned per garden watered by handymen.',
         this._createTotalLabelStore(ElementID.EXP_PER_GARDEN_WATERED, stores.get('gardensWateredXpStore')),
-        'gardensWatered'
+        compute<number, number, number>(
+          plugin.get('gardensWateredXpValue'),
+          stores.get('gardensWateredXpStore'),
+          (gardensWateredXpValue : number, gardensWateredXp : number) : number => {
+            return gardensWateredXp / gardensWateredXpValue;
+          }
+        )
       ),
 
-      this._createConfigRow(ElementID.EXP_PER_TRASH_SWEPT,
-        'trashSweptXpValue',
+      this._createConfigRow(ElementID.EXP_PER_LITTER_SWEPT,
+        'litterSweptXpValue',
         this.subLabelIndent + '{BABYBLUE}Trash swept',
         'How much XP earned per piece of trash swept up by handymen.',
-        this._createTotalLabelStore(ElementID.EXP_PER_TRASH_SWEPT, stores.get('trashSweptXpStore')),
-        'trashSwept'
+        this._createTotalLabelStore(ElementID.EXP_PER_LITTER_SWEPT, stores.get('litterSweptXpStore')),
+        compute<number, number, number>(
+          plugin.get('litterSweptXpValue'),
+          stores.get('litterSweptXpStore'),
+          (litterSweptXpValue : number, litterSweptXp : number) : number => {
+            return litterSweptXp / litterSweptXpValue;
+          }
+        )
       ),
 
-      this._createConfigRow(ElementID.EXP_PER_TRASH_CAN_EMPTIED,
-        'trashCansEmptiedXpValue',
+      this._createConfigRow(ElementID.EXP_PER_BIN_EMPTIED,
+        'binsEmptiedXpValue',
         this.subLabelIndent + '{BABYBLUE}Trash can emptied',
         'How much XP earned per trash can emptied by handymen.',
-        this._createTotalLabelStore(ElementID.EXP_PER_TRASH_CAN_EMPTIED, stores.get('trashCansEmptiedXpStore')),
-        'trashCansEmptied'
+        this._createTotalLabelStore(ElementID.EXP_PER_BIN_EMPTIED, stores.get('binsEmptiedXpStore')),
+        compute<number, number, number>(
+          plugin.get('binsEmptiedXpValue'),
+          stores.get('binsEmptiedXpStore'),
+          (binsEmptiedXpValue : number, binsEmptiedXp : number) : number => {
+            return binsEmptiedXp / binsEmptiedXpValue;
+          }
+        )
       ),
 
       // Mechanic
@@ -322,7 +346,13 @@ export class ConfigTab extends BaseTab {
         this.subLabelIndent + '{BABYBLUE}Ride inspected',
         'How much XP earned per ride inspected by mechanics.',
         this._createTotalLabelStore(ElementID.EXP_PER_RIDE_INSPECTED, stores.get('ridesInspectedXpStore')),
-        'ridesInspected'
+        compute<number, number, number>(
+          plugin.get('ridesInspectedXpValue'),
+          stores.get('ridesInspectedXpStore'),
+          (ridesInspectedXpValue : number, ridesInspectedXp : number) : number => {
+            return ridesInspectedXp / ridesInspectedXpValue;
+          }
+        )
       ),
 
       this._createConfigRow(ElementID.EXP_PER_RIDE_FIXED,
@@ -330,7 +360,13 @@ export class ConfigTab extends BaseTab {
         this.subLabelIndent + '{BABYBLUE}Ride fixed',
         'How much XP earned per ride fixed by mechanics.',
         this._createTotalLabelStore(ElementID.EXP_PER_RIDE_FIXED, stores.get('ridesFixedXpStore')),
-        'ridesFixed'
+        compute<number, number, number>(
+          plugin.get('ridesFixedXpValue'),
+          stores.get('ridesFixedXpStore'),
+          (ridesFixedXpValue : number, ridesFixedXp : number) : number => {
+            return ridesFixedXp / ridesFixedXpValue;
+          }
+        )
       ),
 
       // Security
@@ -345,7 +381,13 @@ export class ConfigTab extends BaseTab {
         this.subLabelIndent + '{BABYBLUE}Vandal stopped',
         'How much XP earned per vandal stopped by security.',
         this._createTotalLabelStore(ElementID.EXP_PER_VANDAL_STOPPED, stores.get('vandalsStoppedXpStore')),
-        'vandalsStopped'
+        compute<number, number, number>(
+          plugin.get('vandalsStoppedXpValue'),
+          stores.get('vandalsStoppedXpStore'),
+          (vandalsStoppedXpValue : number, vandalsStoppedXp : number) : number => {
+            return vandalsStoppedXp / vandalsStoppedXpValue;
+          }
+        )
       ),
     ];
 

@@ -1,6 +1,6 @@
 {
   "name": "openrct2-tileman",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Tileman plugin for OpenRCT2",
   "main": "index.ts",
   "scripts": {

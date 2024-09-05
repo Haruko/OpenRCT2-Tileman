@@ -50,8 +50,8 @@ export type PluginData = DataStoreData & {
   // Staff actions
   lawnsMownXpValue : WritableStore<number>,
   gardensWateredXpValue : WritableStore<number>,
-  trashSweptXpValue : WritableStore<number>,
-  trashCansEmptiedXpValue : WritableStore<number>,
+  litterSweptXpValue : WritableStore<number>,
+  binsEmptiedXpValue : WritableStore<number>,
 
   ridesInspectedXpValue : WritableStore<number>,
   ridesFixedXpValue : WritableStore<number>,
@@ -86,15 +86,8 @@ export type MetricData = DataStoreData & {
   demolishedRides : ArrayStore<RideData>,
 
   // Staff actions
-  lawnsMown : WritableStore<number>,
-  gardensWatered : WritableStore<number>,
-  trashSwept : WritableStore<number>,
-  trashCansEmptied : WritableStore<number>,
-
-  ridesInspected : WritableStore<number>,
-  ridesFixed : WritableStore<number>,
-
-  vandalsStopped : WritableStore<number>,
+  staffMap : ObjectStore<StaffData>,
+  firedStaff: ArrayStore<StaffData>,
 
   // Park data
   marketingCampaignsSpent : WritableStore<number>,
@@ -128,8 +121,8 @@ export type StoresData = DataStoreData & {
   // Staff actions
   lawnsMownXpStore: Store<number> | null,
   gardensWateredXpStore: Store<number> | null,
-  trashSweptXpStore: Store<number> | null,
-  trashCansEmptiedXpStore: Store<number> | null,
+  litterSweptXpStore: Store<number> | null,
+  binsEmptiedXpStore: Store<number> | null,
   totalHandymenXpStore: Store<number> | null,
   
   ridesInspectedXpStore: Store<number> | null,
@@ -188,6 +181,29 @@ export type RideData = {
   totalProfit : number,
   // ride.lifecycleFlags
   lifecycleFlags : number
+};
+
+
+
+/**
+ * Staff data for plugin storage
+ */
+export type StaffData = {
+  // Peep.name
+  name : string,
+  // BaseStaff.staffType ('handyman' | 'mechanic' | 'security' | 'entertainer')
+  staffType : StaffType,
+  // Handyman
+  lawnsMown : number | undefined,
+  gardensWatered : number | undefined,
+  litterSwept : number | undefined,
+  binsEmptied : number | undefined,
+  // Mechanic
+  ridesFixed : number | undefined,
+  ridesInspected : number | undefined,
+  // Security
+  vandalsStopped : number | undefined,
+  // Entertainer
 };
 
 
