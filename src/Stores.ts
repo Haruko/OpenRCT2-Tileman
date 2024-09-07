@@ -16,23 +16,47 @@ export class Stores extends DataStore<StoresData> {
       
       // Guest actions
       parkAdmissionsXpStore: null,
+
+      rideAdmissionsCountStore: null,
       rideXpStore: null,
+
+      stallBuysCountStore: null,
       stallXpStore: null,
+
+      facilityUsesCountStore: null,
       facilityXpStore: null,
+
       totalGuestXpStore: null,
       
       // Staff actions
+      // Handymen
+      lawnsMownCountStore: null,
       lawnsMownXpStore: null,
+
+      gardensWateredCountStore: null,
       gardensWateredXpStore: null,
+
+      litterSweptCountStore: null,
       litterSweptXpStore: null,
+
+      binsEmptiedStore: null,
       binsEmptiedXpStore: null,
+
       totalHandymenXpStore: null,
-      
+
+      // Mechanics
+      ridesInspectedCountStore: null,
       ridesInspectedXpStore: null,
+
+      ridesFixedCountStore: null,
       ridesFixedXpStore: null,
+
       totalMechanicXpStore: null,
       
+      // Security
+      vandalsStoppedCountStore: null,
       vandalsStoppedXpStore: null,
+
       totalSecurityXpStore: null,
       
       totalStaffXpStore: null,
@@ -140,33 +164,57 @@ export class Stores extends DataStore<StoresData> {
       }
     ));
 
+    // Computed count of ride admissions
+    this.set('rideAdmissionsCountStore', compute<Record<string, RideData>, RideData[], number>(
+      metrics.get('rideMap'),
+      metrics.get('demolishedRides'),
+      (rideMap : Record<string, RideData>, demolishedRides : RideData[]) : number => {
+        return this._getGuestCountByRideType(rideMap, demolishedRides, 'ride');
+      }
+    ));
+
     // Computed total experience from rides
-    this.set('rideXpStore', compute<Record<string, RideData>, RideData[], number, number>(
-      metrics.get('rideMap'),
-      metrics.get('demolishedRides'),
+    this.set('rideXpStore', compute<number, number, number>(
+      this.get('rideAdmissionsCountStore'),
       plugin.get('rideAdmissionXpValue'),
-      (rideMap : Record<string, RideData>, demolishedRides : RideData[], rideAdmissionXpValue : number) : number => {
-        return this._getGuestCountByRideType(rideMap, demolishedRides, 'ride') * rideAdmissionXpValue;
+      (rideAdmissionsCount : number, rideAdmissionXpValue : number) : number => {
+        return rideAdmissionsCount * rideAdmissionXpValue;
       }
     ));
     
+    // Computed count of stall buys
+    this.set('stallBuysCountStore', compute<Record<string, RideData>, RideData[], number>(
+      metrics.get('rideMap'),
+      metrics.get('demolishedRides'),
+      (rideMap : Record<string, RideData>, demolishedRides : RideData[]) : number => {
+        return this._getGuestCountByRideType(rideMap, demolishedRides, 'stall');
+      }
+    ));
+
     // Computed total experience from stalls
-    this.set('stallXpStore', compute<Record<string, RideData>, RideData[], number, number>(
-      metrics.get('rideMap'),
-      metrics.get('demolishedRides'),
+    this.set('stallXpStore', compute<number, number, number>(
+      this.get('stallBuysCountStore'),
       plugin.get('stallBuyXpValue'),
-      (rideMap : Record<string, RideData>, demolishedRides : RideData[], stallBuyXpValue : number) : number => {
-        return this._getGuestCountByRideType(rideMap, demolishedRides, 'stall') * stallBuyXpValue;
+      (stallBuysCount : number, stallBuyXpValue : number) : number => {
+        return stallBuysCount * stallBuyXpValue;
       }
     ));
     
-    // Computed total experience from facilities
-    this.set('facilityXpStore', compute<Record<string, RideData>, RideData[], number, number>(
+    // Compute count of facility uses
+    this.set('facilityUsesCountStore', compute<Record<string, RideData>, RideData[], number>(
       metrics.get('rideMap'),
       metrics.get('demolishedRides'),
+      (rideMap : Record<string, RideData>, demolishedRides : RideData[]) : number => {
+        return this._getGuestCountByRideType(rideMap, demolishedRides, 'facility');
+      }
+    ));
+
+    // Computed total experience from facilities
+    this.set('facilityXpStore', compute<number, number, number>(
+      this.get('facilityUsesCountStore'),
       plugin.get('facilityUseXpValue'),
-      (rideMap : Record<string, RideData>, demolishedRides : RideData[], facilityUseXpValue : number) : number => {
-        return this._getGuestCountByRideType(rideMap, demolishedRides, 'facility') * facilityUseXpValue;
+      (facilityUsesCount : number, facilityUseXpValue : number) : number => {
+        return facilityUsesCount * facilityUseXpValue;
       }
     ));
     
@@ -188,43 +236,75 @@ export class Stores extends DataStore<StoresData> {
    * @param metrics Copy of Metrics
    */
   private _initializeHandymanActionStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
+    // Computed count of lawns mown
+    this.set('lawnsMownCountStore', compute<Record<string, StaffData>, StaffData[], number>(
+      metrics.get('staffMap'),
+      metrics.get('firedStaff'),
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[]) : number => {
+        return this._getStaffActionsByStaffType<Handyman>(staffMap, firedStaff, 'handyman', 'lawnsMown');
+      }
+    ));
+
     // Computed total experience from handymen mowing lawns
-    this.set('lawnsMownXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
-      metrics.get('staffMap'),
-      metrics.get('firedStaff'),
+    this.set('lawnsMownXpStore', compute<number, number, number>(
+      this.get('lawnsMownCountStore'),
       plugin.get('lawnsMownXpValue'),
-      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], lawnsMownXpValue : number) : number => {
-        return this._getStaffActionsByStaffType<Handyman>(staffMap, firedStaff, 'handyman', 'lawnsMown') * lawnsMownXpValue;
+      (lawnsMownCount : number, lawnsMownXpValue : number) : number => {
+        return lawnsMownCount * lawnsMownXpValue;
       }
     ));
     
+    // Computed count of gardens watered
+    this.set('gardensWateredCountStore', compute<Record<string, StaffData>, StaffData[], number>(
+      metrics.get('staffMap'),
+      metrics.get('firedStaff'),
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[]) : number => {
+        return this._getStaffActionsByStaffType<Handyman>(staffMap, firedStaff, 'handyman', 'gardensWatered');
+      }
+    ));
+
     // Computed total experience from handymen watering gardens
-    this.set('gardensWateredXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
-      metrics.get('staffMap'),
-      metrics.get('firedStaff'),
+    this.set('gardensWateredXpStore', compute<number, number, number>(
+      this.get('gardensWateredCountStore'),
       plugin.get('gardensWateredXpValue'),
-      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], gardensWateredXpValue : number) : number => {
-        return this._getStaffActionsByStaffType<Handyman>(staffMap, firedStaff, 'handyman', 'gardensWatered') * gardensWateredXpValue;
+      (gardensWateredCount : number, gardensWateredXpValue : number) : number => {
+        return gardensWateredCount * gardensWateredXpValue;
       }
     ));
     
+    // Computed count of litter swept
+    this.set('litterSweptCountStore', compute<Record<string, StaffData>, StaffData[], number>(
+      metrics.get('staffMap'),
+      metrics.get('firedStaff'),
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[]) : number => {
+        return this._getStaffActionsByStaffType<Handyman>(staffMap, firedStaff, 'handyman', 'litterSwept');
+      }
+    ));
+
     // Computed total experience from handymen sweeping litter
-    this.set('litterSweptXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
-      metrics.get('staffMap'),
-      metrics.get('firedStaff'),
+    this.set('litterSweptXpStore', compute<number, number, number>(
+      this.get('litterSweptCountStore'),
       plugin.get('litterSweptXpValue'),
-      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], litterSweptXpValue : number) : number => {
-        return this._getStaffActionsByStaffType<Handyman>(staffMap, firedStaff, 'handyman', 'litterSwept') * litterSweptXpValue;
+      (litterSweptCount : number, litterSweptXpValue : number) : number => {
+        return litterSweptCount * litterSweptXpValue;
       }
     ));
     
-    // Computed total experience from handymen emptying bins
-    this.set('binsEmptiedXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
+    // Computed count of bins emptied
+    this.set('binsEmptiedStore', compute<Record<string, StaffData>, StaffData[], number>(
       metrics.get('staffMap'),
       metrics.get('firedStaff'),
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[]) : number => {
+        return this._getStaffActionsByStaffType<Handyman>(staffMap, firedStaff, 'handyman', 'binsEmptied');
+      }
+    ));
+
+    // Computed total experience from handymen emptying bins
+    this.set('binsEmptiedXpStore', compute<number, number, number>(
+      this.get('binsEmptiedStore'),
       plugin.get('binsEmptiedXpValue'),
-      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], binsEmptiedXpValue : number) : number => {
-        return this._getStaffActionsByStaffType<Handyman>(staffMap, firedStaff, 'handyman', 'binsEmptied') * binsEmptiedXpValue;
+      (binsEmptied : number, binsEmptiedXpValue : number) : number => {
+        return binsEmptied * binsEmptiedXpValue;
       }
     ));
     
@@ -246,23 +326,39 @@ export class Stores extends DataStore<StoresData> {
    * @param metrics Copy of Metrics
    */
   private _initializeMechanicActionStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
-    // Computed total experience from mechanics fixing rides
-    this.set('ridesFixedXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
+    // Computed count of rides inspected
+    this.set('ridesInspectedCountStore', compute<Record<string, StaffData>, StaffData[], number>(
       metrics.get('staffMap'),
       metrics.get('firedStaff'),
-      plugin.get('ridesFixedXpValue'),
-      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], ridesFixedXpValue : number) : number => {
-        return this._getStaffActionsByStaffType<Mechanic>(staffMap, firedStaff, 'mechanic', 'ridesFixed') * ridesFixedXpValue;
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[]) : number => {
+        return this._getStaffActionsByStaffType<Mechanic>(staffMap, firedStaff, 'mechanic', 'ridesInspected');
+      }
+    ));
+    
+    // Computed total experience from mechanics inspecting rides
+    this.set('ridesInspectedXpStore', compute<number, number, number>(
+      this.get('ridesInspectedCountStore'),
+      plugin.get('ridesInspectedXpValue'),
+      (ridesInspectedCount : number, ridesInspectedXpValue : number) : number => {
+        return ridesInspectedCount * ridesInspectedXpValue;
       }
     ));
 
-    // Computed total experience from mechanics inspecting rides
-    this.set('ridesInspectedXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
+    // Computed count of rides fixed
+    this.set('ridesFixedCountStore', compute<Record<string, StaffData>, StaffData[], number>(
       metrics.get('staffMap'),
       metrics.get('firedStaff'),
-      plugin.get('ridesInspectedXpValue'),
-      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], ridesInspectedXpValue : number) : number => {
-        return this._getStaffActionsByStaffType<Mechanic>(staffMap, firedStaff, 'mechanic', 'ridesInspected') * ridesInspectedXpValue;
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[]) : number => {
+        return this._getStaffActionsByStaffType<Mechanic>(staffMap, firedStaff, 'mechanic', 'ridesFixed');
+      }
+    ));
+    
+    // Computed total experience from mechanics fixing rides
+    this.set('ridesFixedXpStore', compute<number, number, number>(
+      this.get('ridesFixedCountStore'),
+      plugin.get('ridesFixedXpValue'),
+      (ridesFixedCount : number, ridesFixedXpValue : number) : number => {
+        return ridesFixedCount * ridesFixedXpValue;
       }
     ));
     
@@ -282,13 +378,21 @@ export class Stores extends DataStore<StoresData> {
    * @param metrics Copy of Metrics
    */
   private _initializeSecurityActionStores(plugin : DataStore<PluginData>, metrics : DataStore<MetricData>) : void {
-    // Computed total experience from security stopping vandals
-    this.set('vandalsStoppedXpStore', compute<Record<string, StaffData>, StaffData[], number, number>(
+    // Computed count of vandals stopped
+    this.set('vandalsStoppedCountStore', compute<Record<string, StaffData>, StaffData[], number>(
       metrics.get('staffMap'),
       metrics.get('firedStaff'),
+      (staffMap : Record<string, StaffData>, firedStaff : StaffData[]) : number => {
+        return this._getStaffActionsByStaffType<Security>(staffMap, firedStaff, 'security', 'vandalsStopped');
+      }
+    ));
+
+    // Computed total experience from security stopping vandals
+    this.set('vandalsStoppedXpStore', compute<number, number, number>(
+      this.get('vandalsStoppedCountStore'),
       plugin.get('vandalsStoppedXpValue'),
-      (staffMap : Record<string, StaffData>, firedStaff : StaffData[], vandalsStoppedXpValue : number) : number => {
-        return this._getStaffActionsByStaffType<Security>(staffMap, firedStaff, 'security', 'vandalsStopped') * vandalsStoppedXpValue;
+      (vandalsStoppedCount : number, vandalsStoppedXpValue : number) : number => {
+        return vandalsStoppedCount * vandalsStoppedXpValue;
       }
     ));
     

@@ -112,24 +112,47 @@ export type StoresData = DataStoreData & {
   
   // Guest actions
   parkAdmissionsXpStore: Store<number> | null,
+
+  rideAdmissionsCountStore: Store<number> | null,
   rideXpStore: Store<number> | null,
+
+  stallBuysCountStore: Store<number> | null,
   stallXpStore: Store<number> | null,
+
+  facilityUsesCountStore: Store<number> | null,
   facilityXpStore: Store<number> | null,
 
   totalGuestXpStore: Store<number> | null,
   
   // Staff actions
+  // Handymen
+  lawnsMownCountStore: Store<number> | null,
   lawnsMownXpStore: Store<number> | null,
+
+  gardensWateredCountStore: Store<number> | null,
   gardensWateredXpStore: Store<number> | null,
+
+  litterSweptCountStore: Store<number> | null,
   litterSweptXpStore: Store<number> | null,
+
+  binsEmptiedStore: Store<number> | null,
   binsEmptiedXpStore: Store<number> | null,
+
   totalHandymenXpStore: Store<number> | null,
   
+  // Mechanics
+  ridesInspectedCountStore: Store<number> | null,
   ridesInspectedXpStore: Store<number> | null,
+
+  ridesFixedCountStore: Store<number> | null,
   ridesFixedXpStore: Store<number> | null,
+
   totalMechanicXpStore: Store<number> | null,
   
+  // Security
+  vandalsStoppedCountStore: Store<number> | null,
   vandalsStoppedXpStore: Store<number> | null,
+
   totalSecurityXpStore: Store<number> | null,
   
   totalStaffXpStore: Store<number> | null,
