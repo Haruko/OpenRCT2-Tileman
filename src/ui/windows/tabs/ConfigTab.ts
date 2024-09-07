@@ -98,7 +98,6 @@ export class ConfigTab extends BaseTab {
   private _buildConfigSettingPanel() : FlexUIWidget {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const stores : DataStore<StoresData> = dsManager.getInstance(DataStoreID.STORES);
-    const plugin : DataStore<PluginData> = dsManager.getInstance(DataStoreID.PLUGIN);
     
     const separator : FlexUIWidget = horizontal({
       width: this.parent.getContentWidth()!,
