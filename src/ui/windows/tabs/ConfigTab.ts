@@ -276,15 +276,15 @@ export class ConfigTab extends BaseTab {
     });
     
     // Staff actions
-    const StaffActionStores = CollapsibleSection.createVisibilityStores();
+    const staffActionStores = CollapsibleSection.createVisibilityStores();
 
-    const StaffActionCollapse : CollapsibleSection = new CollapsibleSection(ElementID.NONE, {
+    const staffActionCollapse : CollapsibleSection = new CollapsibleSection(ElementID.NONE, {
       spacing: 0,
       padding: 0,
       width: this.parent.getContentWidth()!,
       initialState: false,
-      isOpen: StaffActionStores.isOpen,
-      visibility: StaffActionStores.visibility,
+      isOpen: staffActionStores.isOpen,
+      visibility: staffActionStores.visibility,
       text: '{BLACK} Staff Actions',
       content: [
         // Handyman
@@ -292,14 +292,14 @@ export class ConfigTab extends BaseTab {
           padding: this.rowSubHeaderPadding,
           textAlignment: { horizontal: 'left', vertical: 'center' },
           text: 'Handymen:',
-          visibility: StaffActionStores.visibility,
+          visibility: staffActionStores.visibility,
         }).widget,
   
         this._createConfigRow(ElementID.EXP_PER_LAWN_MOWED,
           'lawnsMownXpValue',
           this.subLabelIndent + '{BABYBLUE}Lawn mowed',
           'How much XP earned per lawn tile mowed by handymen.',
-          StaffActionStores.visibility,
+          staffActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_LAWN_MOWED, stores.get('lawnsMownXpStore')),
           stores.get('lawnsMownCountStore')
         ),
@@ -308,7 +308,7 @@ export class ConfigTab extends BaseTab {
           'gardensWateredXpValue',
           this.subLabelIndent + '{BABYBLUE}Garden watered',
           'How much XP earned per garden watered by handymen.',
-          StaffActionStores.visibility,
+          staffActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_GARDEN_WATERED, stores.get('gardensWateredXpStore')),
           stores.get('gardensWateredCountStore')
         ),
@@ -317,7 +317,7 @@ export class ConfigTab extends BaseTab {
           'litterSweptXpValue',
           this.subLabelIndent + '{BABYBLUE}Trash swept',
           'How much XP earned per piece of trash swept up by handymen.',
-          StaffActionStores.visibility,
+          staffActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_LITTER_SWEPT, stores.get('litterSweptXpStore')),
           stores.get('litterSweptCountStore')
         ),
@@ -326,7 +326,7 @@ export class ConfigTab extends BaseTab {
           'binsEmptiedXpValue',
           this.subLabelIndent + '{BABYBLUE}Trash can emptied',
           'How much XP earned per trash can emptied by handymen.',
-          StaffActionStores.visibility,
+          staffActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_BIN_EMPTIED, stores.get('binsEmptiedXpStore')),
           stores.get('binsEmptiedStore')
         ),
@@ -336,14 +336,14 @@ export class ConfigTab extends BaseTab {
           padding: this.rowSubHeaderPadding,
           textAlignment: { horizontal: 'left', vertical: 'center' },
           text: 'Mechanics:',
-          visibility: StaffActionStores.visibility,
+          visibility: staffActionStores.visibility,
         }).widget,
   
         this._createConfigRow(ElementID.EXP_PER_RIDE_INSPECTED,
           'ridesInspectedXpValue',
           this.subLabelIndent + '{BABYBLUE}Ride inspected',
           'How much XP earned per ride inspected by mechanics.',
-          StaffActionStores.visibility,
+          staffActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_RIDE_INSPECTED, stores.get('ridesInspectedXpStore')),
           stores.get('ridesInspectedCountStore')
         ),
@@ -352,7 +352,7 @@ export class ConfigTab extends BaseTab {
           'ridesFixedXpValue',
           this.subLabelIndent + '{BABYBLUE}Ride fixed',
           'How much XP earned per ride fixed by mechanics.',
-          StaffActionStores.visibility,
+          staffActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_RIDE_FIXED, stores.get('ridesFixedXpStore')),
           stores.get('ridesFixedCountStore')
         ),
@@ -362,14 +362,14 @@ export class ConfigTab extends BaseTab {
           padding: this.rowSubHeaderPadding,
           textAlignment: { horizontal: 'left', vertical: 'center' },
           text: 'Security:',
-          visibility: StaffActionStores.visibility,
+          visibility: staffActionStores.visibility,
         }).widget,
   
         this._createConfigRow(ElementID.EXP_PER_VANDAL_STOPPED,
           'vandalsStoppedXpValue',
           this.subLabelIndent + '{BABYBLUE}Vandal stopped',
           'How much XP earned per vandal stopped by security.',
-          StaffActionStores.visibility,
+          staffActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_VANDAL_STOPPED, stores.get('vandalsStoppedXpStore')),
           stores.get('vandalsStoppedCountStore')
         ),
@@ -377,15 +377,15 @@ export class ConfigTab extends BaseTab {
     });
 
     // Park data
-    const ParkActionStores = CollapsibleSection.createVisibilityStores();
+    const parkActionStores = CollapsibleSection.createVisibilityStores();
 
-    const ParkActionCollapse : CollapsibleSection = new CollapsibleSection(ElementID.NONE, {
+    const parkActionCollapse : CollapsibleSection = new CollapsibleSection(ElementID.NONE, {
       spacing: 0,
       padding: 0,
       width: this.parent.getContentWidth()!,
       initialState: false,
-      isOpen: ParkActionStores.isOpen,
-      visibility: ParkActionStores.visibility,
+      isOpen: parkActionStores.isOpen,
+      visibility: parkActionStores.visibility,
       text: '{BLACK} Park Actions',
       content: [
         // Other
@@ -393,7 +393,7 @@ export class ConfigTab extends BaseTab {
           'marketingCampaignsSpentXpValue',
           context.formatString('Marketing campaign {BABYBLUE}(per {CURRENCY})', 500),
           context.formatString('How much XP earned per {CURRENCY} spent on marketing campaigns.', 500),
-          ParkActionStores.visibility,
+          parkActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN_SPENT, stores.get('marketingCampaignsSpentXpStore')),
           compute<number, string>(
             dsManager.getInstance(DataStoreID.METRICS).get('marketingCampaignsSpent') as Store<number>,
@@ -407,7 +407,7 @@ export class ConfigTab extends BaseTab {
           'scenarioCompletedXpValue',
           'Scenario completion',
           'How much XP earned for completing the scenario.',
-          ParkActionStores.visibility,
+          parkActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_SCENARIO_COMPLETED, stores.get('scenarioCompletedXpStore')),
           compute<string, string>(
             dsManager.getInstance(DataStoreID.STORES).get('scenarioStatusStore') as Store<string>,
@@ -432,14 +432,14 @@ export class ConfigTab extends BaseTab {
           padding: this.rowSubHeaderPadding,
           textAlignment: { horizontal: 'left', vertical: 'center' },
           text: 'Park awards:',
-          visibility: ParkActionStores.visibility,
+          visibility: parkActionStores.visibility,
         }).widget,
         
         this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_POSITIVE,
           'parkAwardsPositiveXpValue',
           this.subLabelIndent + '{GREEN}Positive',
           'How much XP earned per positive park award earned.',
-          ParkActionStores.visibility,
+          parkActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_POSITIVE, stores.get('parkAwardsPositiveXpStore')),
           'parkAwardsPositive'
         ),
@@ -448,7 +448,7 @@ export class ConfigTab extends BaseTab {
           'parkAwardsNegativeXpValue',
           this.subLabelIndent + '{RED}Negative',
           'How much XP earned per negative park award earned.',
-          ParkActionStores.visibility,
+          parkActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_NEGATIVE, stores.get('parkAwardsNegativeXpStore')),
           'parkAwardsNegative'
         ),
@@ -456,22 +456,22 @@ export class ConfigTab extends BaseTab {
     });
 
     // Disasters
-    const DisasterActionStores = CollapsibleSection.createVisibilityStores();
+    const disasterActionStores = CollapsibleSection.createVisibilityStores();
 
-    const DisasterActionCollapse : CollapsibleSection = new CollapsibleSection(ElementID.NONE, {
+    const disasterActionCollapse : CollapsibleSection = new CollapsibleSection(ElementID.NONE, {
       spacing: 0,
       padding: 0,
       width: this.parent.getContentWidth()!,
       initialState: false,
-      isOpen: DisasterActionStores.isOpen,
-      visibility: DisasterActionStores.visibility,
+      isOpen: disasterActionStores.isOpen,
+      visibility: disasterActionStores.visibility,
       text: '{BLACK} Disasters',
       content: [
         this._createConfigRow(ElementID.EXP_PER_GUEST_DROWNED,
           'guestsDrownedXpValue',
           'Guest drowned',
           'How much XP earned for each drowned guest.',
-          DisasterActionStores.visibility,
+          disasterActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_GUEST_DROWNED, stores.get('guestsDrownedXpStore')),
           'guestsDrowned'
         ),
@@ -480,7 +480,7 @@ export class ConfigTab extends BaseTab {
           'staffDrownedXpValue',
           'Staff drowned',
           'How much XP earned for each drowned staff.',
-          DisasterActionStores.visibility,
+          disasterActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_STAFF_DROWNED, stores.get('staffDrownedXpStore')),
           'staffDrowned'
         ),
@@ -490,14 +490,14 @@ export class ConfigTab extends BaseTab {
           padding: this.rowSubHeaderPadding,
           textAlignment: { horizontal: 'left', vertical: 'center' },
           text: 'Vehicle crashes:',
-          visibility: DisasterActionStores.visibility,
+          visibility: disasterActionStores.visibility,
         }).widget,
   
         this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH,
           'vehicleCrashesXpValue',
           this.subLabelIndent + '{BABYBLUE}Per car',
           'How much XP earned for cars exploded from vehicle crashes.',
-          DisasterActionStores.visibility,
+          disasterActionStores.visibility,
           this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore')),
           'vehicleCrashes'
         ),
@@ -506,7 +506,7 @@ export class ConfigTab extends BaseTab {
           'vehicleCrashesGuestsKilledXpValue',
           this.subLabelIndent + '{BABYBLUE}Per guest',
           'How much XP earned for guests killed from vehicle crashes.',
-          DisasterActionStores.visibility,
+          disasterActionStores.visibility,
           this._createTotalLabelStore(
             ElementID.EXP_PER_VEHICLE_CRASH_GUESTS_KILLED,
             stores.get('vehicleCrashesGuestsKilledXpStore')
@@ -569,9 +569,9 @@ export class ConfigTab extends BaseTab {
       headerRow,
       playerActionCollapse.widget,
       guestActionCollapse.widget,
-      StaffActionCollapse.widget,
-      ParkActionCollapse.widget,
-      DisasterActionCollapse.widget,
+      staffActionCollapse.widget,
+      parkActionCollapse.widget,
+      disasterActionCollapse.widget,
       totalXpRow,
     ];
 
