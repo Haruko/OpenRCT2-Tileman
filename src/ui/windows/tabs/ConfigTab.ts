@@ -24,7 +24,8 @@ export class ConfigTab extends BaseTab {
   private readonly columnSpacing : number = 2;
 
   // Add to Configwindow contentWidth (+4)
-  private readonly rowLabelPadding : Padding = { left: 4, rest: 0 };
+  private readonly headerLabelPadding : Padding = { left: 6, rest: 0 };
+  private readonly rowLabelPadding : Padding = { left: 0, rest: 0 };
   private readonly rowSubHeaderPadding : Padding = { left: (<any>this.rowLabelPadding).left + 1, rest: 0 };
   private readonly checkboxPadding : Padding = { left: 5, rest: 0 };
 
@@ -100,6 +101,7 @@ export class ConfigTab extends BaseTab {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const stores : DataStore<StoresData> = dsManager.getInstance(DataStoreID.STORES);
 
+    /*
     const separator : FlexUIWidget = horizontal({
       width: this.parent.getContentWidth()!,
       height: 5,
@@ -160,11 +162,12 @@ export class ConfigTab extends BaseTab {
         }).widget,
       ]
     });
+    */
 
     // ---XP settings---
     const headerRow : FlexUIWidget = horizontal({
       spacing: this.columnSpacing,
-      padding: this.rowLabelPadding,
+      padding: this.headerLabelPadding,
       width: this.parent.getContentWidth()!,
       content: [
         new AlignedLabel(ElementID.NONE, {
@@ -519,7 +522,7 @@ export class ConfigTab extends BaseTab {
     const totalXpRow : FlexUIWidget = horizontal({
       width: this.parent.getContentWidth()!,
       spacing: this.columnSpacing,
-      padding: 0,
+      padding: this.headerLabelPadding,
       content: [
         new Separator({
           padding: { top: 4, rest: 0 },
@@ -605,7 +608,6 @@ export class ConfigTab extends BaseTab {
           '{BLACK}tiles'
         ),
         
-        separator,
         this._createConfigRow(ElementID.TICKS_PER_UPDATE,
           'ticksPerUpdate',
           'Game ticks per update',
@@ -727,7 +729,6 @@ export class ConfigTab extends BaseTab {
     return horizontal({
       spacing: this.columnSpacing,
       padding: this.rowLabelPadding,
-      width: this.parent.getContentWidth()!,
       visibility: visibilityStore,
       content: [
         rowLabel,
