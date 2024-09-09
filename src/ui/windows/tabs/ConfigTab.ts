@@ -1,4 +1,4 @@
-import { Padding, Store, TabCreator, WritableStore, button, checkbox, compute, horizontal, isStore, label, read, store, tab, textbox, vertical } from 'openrct2-flexui';
+import { ElementVisibility, FlexibleLayoutParams, Padding, Store, TabCreator, WritableStore, button, checkbox, compute, horizontal, isStore, label, read, store, tab, textbox, vertical } from 'openrct2-flexui';
 import { BaseTab } from './BaseTab';
 import { IWindow } from '../IWindow';
 import { AnimatedSprites, ElementID } from '@src/ui/types/enums';
@@ -10,6 +10,7 @@ import { MetricData, PluginData, StoresData } from '@src/types/types';
 import { DataStore } from '@src/DataStore';
 import { DoubleClickButton } from '@src/ui/elements/DoubleClickButton';
 import { Separator } from '@src/ui/elements/Separator';
+import { CollapsibleSection } from '@src/ui/elements/CollapsibleSection';
 
 export class ConfigTab extends BaseTab {
   // Base value for ConfigWindow contentWidth (460)
@@ -98,7 +99,7 @@ export class ConfigTab extends BaseTab {
   private _buildConfigSettingPanel() : FlexUIWidget {
     const dsManager : DataStoreManager = DataStoreManager.instance();
     const stores : DataStore<StoresData> = dsManager.getInstance(DataStoreID.STORES);
-    
+
     const separator : FlexUIWidget = horizontal({
       width: this.parent.getContentWidth()!,
       height: 5,
@@ -193,254 +194,327 @@ export class ConfigTab extends BaseTab {
     });
 
     // Player actions
-    const playerActionXpRows : FlexUIWidget[] = [
-      this._createConfigRow(ElementID.EXP_PER_BALLOON_POPPED,
-        'balloonsPoppedXpValue',
-        'Balloon popped',
-        'How much XP earned per balloon popped...\nYou monster...',
-        this._createTotalLabelStore(ElementID.EXP_PER_BALLOON_POPPED, stores.get('balloonsPoppedXpStore')),
-        'balloonsPopped'
-      ),
+    const playerActionStores = CollapsibleSection.createVisibilityStores();
 
-      this._createConfigRow(ElementID.EXP_PER_BANNER_PLACED,
-        'bannersPlacedXpValue',
-        'Banner placed',
-        'How much XP earned per banner placed.\nYes, it\'s deducted when you delete it...',
-        this._createTotalLabelStore(ElementID.EXP_PER_BANNER_PLACED, stores.get('bannersPlacedXpStore')),
-        'bannersPlaced'
-      ),
-    ];
+    const playerActionCollapse : CollapsibleSection = new CollapsibleSection(ElementID.NONE, {
+      spacing: 0,
+      padding: 0,
+      width: this.parent.getContentWidth()!,
+      initialState: false,
+      isOpen: playerActionStores.isOpen,
+      visibility: playerActionStores.visibility,
+      text: '{BLACK}Player Actions',
+      content: [
+        this._createConfigRow(ElementID.EXP_PER_BALLOON_POPPED,
+          'balloonsPoppedXpValue',
+          'Balloon popped',
+          'How much XP earned per balloon popped...\nYou monster...',
+          playerActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_BALLOON_POPPED, stores.get('balloonsPoppedXpStore')),
+          'balloonsPopped'
+        ),
+  
+        this._createConfigRow(ElementID.EXP_PER_BANNER_PLACED,
+          'bannersPlacedXpValue',
+          'Banner placed',
+          'How much XP earned per banner placed.\nYes, it\'s deducted when you delete it...',
+          playerActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_BANNER_PLACED, stores.get('bannersPlacedXpStore')),
+          'bannersPlaced'
+        ),
+      ]
+    });
 
     // Guest actions
-    const guestActionXpRows : FlexUIWidget[] = [
-      separator,
+    const guestActionStores = CollapsibleSection.createVisibilityStores();
 
-      this._createConfigRow(ElementID.EXP_PER_PARK_ADMISSION,
-        'parkAdmissionXpValue',
-        'Park admission',
-        'How much XP earned per park admission.',
-        this._createTotalLabelStore(ElementID.EXP_PER_PARK_ADMISSION, stores.get('parkAdmissionsXpStore')),
-        'parkAdmissions'
-      ),
-      
-      this._createConfigRow(ElementID.EXP_PER_RIDE_ADMISSION,
-        'rideAdmissionXpValue',
-        'Ride admission',
-        'How much XP earned per ride admission.',
-        this._createTotalLabelStore(ElementID.EXP_PER_RIDE_ADMISSION, stores.get('rideXpStore')),
-        stores.get('rideAdmissionsCountStore')
-      ),
-
-      this._createConfigRow(ElementID.EXP_PER_STALL_ADMISSION,
-        'stallBuyXpValue',
-        'Stall purchase',
-        'How much XP gained per stall purchase.',
-        this._createTotalLabelStore(ElementID.EXP_PER_STALL_ADMISSION, stores.get('stallXpStore')),
-        stores.get('stallBuysCountStore')
-      ),
-
-      this._createConfigRow(ElementID.EXP_PER_FACILITY_ADMISSION,
-        'facilityUseXpValue',
-        'Facility usage',
-        'How much XP gained per facility usage.\nIncludes: Toilets, Information Kiosk, Cash Machine, and First Aid.',
-        this._createTotalLabelStore(ElementID.EXP_PER_FACILITY_ADMISSION, stores.get('facilityXpStore')),
-        stores.get('facilityUsesCountStore')
-      ),
-    ];
+    const guestActionCollapse : CollapsibleSection = new CollapsibleSection(ElementID.NONE, {
+      spacing: 0,
+      padding: 0,
+      width: this.parent.getContentWidth()!,
+      initialState: true,
+      isOpen: guestActionStores.isOpen,
+      visibility: guestActionStores.visibility,
+      text: '{BLACK}Guest Actions',
+      content: [
+        this._createConfigRow(ElementID.EXP_PER_PARK_ADMISSION,
+          'parkAdmissionXpValue',
+          'Park admission',
+          'How much XP earned per park admission.',
+          guestActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_PARK_ADMISSION, stores.get('parkAdmissionsXpStore')),
+          'parkAdmissions'
+        ),
+        
+        this._createConfigRow(ElementID.EXP_PER_RIDE_ADMISSION,
+          'rideAdmissionXpValue',
+          'Ride admission',
+          'How much XP earned per ride admission.',
+          guestActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_RIDE_ADMISSION, stores.get('rideXpStore')),
+          stores.get('rideAdmissionsCountStore')
+        ),
+  
+        this._createConfigRow(ElementID.EXP_PER_STALL_ADMISSION,
+          'stallBuyXpValue',
+          'Stall purchase',
+          'How much XP gained per stall purchase.',
+          guestActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_STALL_ADMISSION, stores.get('stallXpStore')),
+          stores.get('stallBuysCountStore')
+        ),
+  
+        this._createConfigRow(ElementID.EXP_PER_FACILITY_ADMISSION,
+          'facilityUseXpValue',
+          'Facility usage',
+          'How much XP gained per facility usage.\nIncludes: Toilets, Information Kiosk, Cash Machine, and First Aid.',
+          guestActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_FACILITY_ADMISSION, stores.get('facilityXpStore')),
+          stores.get('facilityUsesCountStore')
+        ),
+      ]
+    });
     
     // Staff actions
-    const staffActionXpRows : FlexUIWidget[] = [
-      separator,
+    const StaffActionStores = CollapsibleSection.createVisibilityStores();
 
-      // Handyman
-      new AlignedLabel(ElementID.NONE, {
-        padding: this.rowSubHeaderPadding,
-        textAlignment: { horizontal: 'left', vertical: 'center' },
-        text: 'Handymen:',
-      }).widget,
-
-      this._createConfigRow(ElementID.EXP_PER_LAWN_MOWED,
-        'lawnsMownXpValue',
-        this.subLabelIndent + '{BABYBLUE}Lawn mowed',
-        'How much XP earned per lawn tile mowed by handymen.',
-        this._createTotalLabelStore(ElementID.EXP_PER_LAWN_MOWED, stores.get('lawnsMownXpStore')),
-        stores.get('lawnsMownCountStore')
-      ),
-
-      this._createConfigRow(ElementID.EXP_PER_GARDEN_WATERED,
-        'gardensWateredXpValue',
-        this.subLabelIndent + '{BABYBLUE}Garden watered',
-        'How much XP earned per garden watered by handymen.',
-        this._createTotalLabelStore(ElementID.EXP_PER_GARDEN_WATERED, stores.get('gardensWateredXpStore')),
-        stores.get('gardensWateredCountStore')
-      ),
-
-      this._createConfigRow(ElementID.EXP_PER_LITTER_SWEPT,
-        'litterSweptXpValue',
-        this.subLabelIndent + '{BABYBLUE}Trash swept',
-        'How much XP earned per piece of trash swept up by handymen.',
-        this._createTotalLabelStore(ElementID.EXP_PER_LITTER_SWEPT, stores.get('litterSweptXpStore')),
-        stores.get('litterSweptCountStore')
-      ),
-
-      this._createConfigRow(ElementID.EXP_PER_BIN_EMPTIED,
-        'binsEmptiedXpValue',
-        this.subLabelIndent + '{BABYBLUE}Trash can emptied',
-        'How much XP earned per trash can emptied by handymen.',
-        this._createTotalLabelStore(ElementID.EXP_PER_BIN_EMPTIED, stores.get('binsEmptiedXpStore')),
-        stores.get('binsEmptiedStore')
-      ),
-
-      // Mechanic
-      new AlignedLabel(ElementID.NONE, {
-        padding: this.rowSubHeaderPadding,
-        textAlignment: { horizontal: 'left', vertical: 'center' },
-        text: 'Mechanics:',
-      }).widget,
-
-      this._createConfigRow(ElementID.EXP_PER_RIDE_INSPECTED,
-        'ridesInspectedXpValue',
-        this.subLabelIndent + '{BABYBLUE}Ride inspected',
-        'How much XP earned per ride inspected by mechanics.',
-        this._createTotalLabelStore(ElementID.EXP_PER_RIDE_INSPECTED, stores.get('ridesInspectedXpStore')),
-        stores.get('ridesInspectedCountStore')
-      ),
-
-      this._createConfigRow(ElementID.EXP_PER_RIDE_FIXED,
-        'ridesFixedXpValue',
-        this.subLabelIndent + '{BABYBLUE}Ride fixed',
-        'How much XP earned per ride fixed by mechanics.',
-        this._createTotalLabelStore(ElementID.EXP_PER_RIDE_FIXED, stores.get('ridesFixedXpStore')),
-        stores.get('ridesFixedCountStore')
-      ),
-
-      // Security
-      new AlignedLabel(ElementID.NONE, {
-        padding: this.rowSubHeaderPadding,
-        textAlignment: { horizontal: 'left', vertical: 'center' },
-        text: 'Security:',
-      }).widget,
-
-      this._createConfigRow(ElementID.EXP_PER_VANDAL_STOPPED,
-        'vandalsStoppedXpValue',
-        this.subLabelIndent + '{BABYBLUE}Vandal stopped',
-        'How much XP earned per vandal stopped by security.',
-        this._createTotalLabelStore(ElementID.EXP_PER_VANDAL_STOPPED, stores.get('vandalsStoppedXpStore')),
-        stores.get('vandalsStoppedCountStore')
-      ),
-    ];
+    const StaffActionCollapse : CollapsibleSection = new CollapsibleSection(ElementID.NONE, {
+      spacing: 0,
+      padding: 0,
+      width: this.parent.getContentWidth()!,
+      initialState: false,
+      isOpen: StaffActionStores.isOpen,
+      visibility: StaffActionStores.visibility,
+      text: '{BLACK} Staff Actions',
+      content: [
+        // Handyman
+        new AlignedLabel(ElementID.NONE, {
+          padding: this.rowSubHeaderPadding,
+          textAlignment: { horizontal: 'left', vertical: 'center' },
+          text: 'Handymen:',
+          visibility: StaffActionStores.visibility,
+        }).widget,
+  
+        this._createConfigRow(ElementID.EXP_PER_LAWN_MOWED,
+          'lawnsMownXpValue',
+          this.subLabelIndent + '{BABYBLUE}Lawn mowed',
+          'How much XP earned per lawn tile mowed by handymen.',
+          StaffActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_LAWN_MOWED, stores.get('lawnsMownXpStore')),
+          stores.get('lawnsMownCountStore')
+        ),
+  
+        this._createConfigRow(ElementID.EXP_PER_GARDEN_WATERED,
+          'gardensWateredXpValue',
+          this.subLabelIndent + '{BABYBLUE}Garden watered',
+          'How much XP earned per garden watered by handymen.',
+          StaffActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_GARDEN_WATERED, stores.get('gardensWateredXpStore')),
+          stores.get('gardensWateredCountStore')
+        ),
+  
+        this._createConfigRow(ElementID.EXP_PER_LITTER_SWEPT,
+          'litterSweptXpValue',
+          this.subLabelIndent + '{BABYBLUE}Trash swept',
+          'How much XP earned per piece of trash swept up by handymen.',
+          StaffActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_LITTER_SWEPT, stores.get('litterSweptXpStore')),
+          stores.get('litterSweptCountStore')
+        ),
+  
+        this._createConfigRow(ElementID.EXP_PER_BIN_EMPTIED,
+          'binsEmptiedXpValue',
+          this.subLabelIndent + '{BABYBLUE}Trash can emptied',
+          'How much XP earned per trash can emptied by handymen.',
+          StaffActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_BIN_EMPTIED, stores.get('binsEmptiedXpStore')),
+          stores.get('binsEmptiedStore')
+        ),
+  
+        // Mechanic
+        new AlignedLabel(ElementID.NONE, {
+          padding: this.rowSubHeaderPadding,
+          textAlignment: { horizontal: 'left', vertical: 'center' },
+          text: 'Mechanics:',
+          visibility: StaffActionStores.visibility,
+        }).widget,
+  
+        this._createConfigRow(ElementID.EXP_PER_RIDE_INSPECTED,
+          'ridesInspectedXpValue',
+          this.subLabelIndent + '{BABYBLUE}Ride inspected',
+          'How much XP earned per ride inspected by mechanics.',
+          StaffActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_RIDE_INSPECTED, stores.get('ridesInspectedXpStore')),
+          stores.get('ridesInspectedCountStore')
+        ),
+  
+        this._createConfigRow(ElementID.EXP_PER_RIDE_FIXED,
+          'ridesFixedXpValue',
+          this.subLabelIndent + '{BABYBLUE}Ride fixed',
+          'How much XP earned per ride fixed by mechanics.',
+          StaffActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_RIDE_FIXED, stores.get('ridesFixedXpStore')),
+          stores.get('ridesFixedCountStore')
+        ),
+  
+        // Security
+        new AlignedLabel(ElementID.NONE, {
+          padding: this.rowSubHeaderPadding,
+          textAlignment: { horizontal: 'left', vertical: 'center' },
+          text: 'Security:',
+          visibility: StaffActionStores.visibility,
+        }).widget,
+  
+        this._createConfigRow(ElementID.EXP_PER_VANDAL_STOPPED,
+          'vandalsStoppedXpValue',
+          this.subLabelIndent + '{BABYBLUE}Vandal stopped',
+          'How much XP earned per vandal stopped by security.',
+          StaffActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_VANDAL_STOPPED, stores.get('vandalsStoppedXpStore')),
+          stores.get('vandalsStoppedCountStore')
+        ),
+      ]
+    });
 
     // Park data
-    const parkDataXpRows : FlexUIWidget[] = [
-      separator,
+    const ParkActionStores = CollapsibleSection.createVisibilityStores();
 
-      // Other
-      this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN_SPENT,
-        'marketingCampaignsSpentXpValue',
-        context.formatString('Marketing campaign {BABYBLUE}(per {CURRENCY})', 500),
-        context.formatString('How much XP earned per {CURRENCY} spent on marketing campaigns.', 500),
-        this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN_SPENT, stores.get('marketingCampaignsSpentXpStore')),
-        compute<number, string>(
-          dsManager.getInstance(DataStoreID.METRICS).get('marketingCampaignsSpent') as Store<number>,
-          (marketingCampaignsSpent : number) : string => {
-            return context.formatString(`{CURRENCY}`, marketingCampaignsSpent);
-          },
-        )
-      ),
-      
-      this._createConfigRow(ElementID.EXP_PER_SCENARIO_COMPLETED,
-        'scenarioCompletedXpValue',
-        'Scenario completion',
-        'How much XP earned for completing the scenario.',
-        this._createTotalLabelStore(ElementID.EXP_PER_SCENARIO_COMPLETED, stores.get('scenarioCompletedXpStore')),
-        compute<string, string>(
-          dsManager.getInstance(DataStoreID.STORES).get('scenarioStatusStore') as Store<string>,
-          (scenarioStatus : string) : string => {
-            switch (scenarioStatus) {
-              case 'inProgress': {
-                return '{PALEGOLD}TBD';
-              } case 'completed': {
-                return '{GREEN}Pass';
-              } case 'failed': {
-                return '{RED}Fail';
+    const ParkActionCollapse : CollapsibleSection = new CollapsibleSection(ElementID.NONE, {
+      spacing: 0,
+      padding: 0,
+      width: this.parent.getContentWidth()!,
+      initialState: false,
+      isOpen: ParkActionStores.isOpen,
+      visibility: ParkActionStores.visibility,
+      text: '{BLACK} Park Actions',
+      content: [
+        // Other
+        this._createConfigRow(ElementID.EXP_PER_MARKETING_CAMPAIGN_SPENT,
+          'marketingCampaignsSpentXpValue',
+          context.formatString('Marketing campaign {BABYBLUE}(per {CURRENCY})', 500),
+          context.formatString('How much XP earned per {CURRENCY} spent on marketing campaigns.', 500),
+          ParkActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_MARKETING_CAMPAIGN_SPENT, stores.get('marketingCampaignsSpentXpStore')),
+          compute<number, string>(
+            dsManager.getInstance(DataStoreID.METRICS).get('marketingCampaignsSpent') as Store<number>,
+            (marketingCampaignsSpent : number) : string => {
+              return context.formatString(`{CURRENCY}`, marketingCampaignsSpent);
+            },
+          )
+        ),
+        
+        this._createConfigRow(ElementID.EXP_PER_SCENARIO_COMPLETED,
+          'scenarioCompletedXpValue',
+          'Scenario completion',
+          'How much XP earned for completing the scenario.',
+          ParkActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_SCENARIO_COMPLETED, stores.get('scenarioCompletedXpStore')),
+          compute<string, string>(
+            dsManager.getInstance(DataStoreID.STORES).get('scenarioStatusStore') as Store<string>,
+            (scenarioStatus : string) : string => {
+              switch (scenarioStatus) {
+                case 'inProgress': {
+                  return '{PALEGOLD}TBD';
+                } case 'completed': {
+                  return '{GREEN}Pass';
+                } case 'failed': {
+                  return '{RED}Fail';
+                }
               }
-            }
-
-            return '';
-          },
-        )
-      ),
-
-      // Awards
-      new AlignedLabel(ElementID.NONE, {
-        padding: this.rowSubHeaderPadding,
-        textAlignment: { horizontal: 'left', vertical: 'center' },
-        text: 'Park awards:',
-      }).widget,
-      
-      this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_POSITIVE,
-        'parkAwardsPositiveXpValue',
-        this.subLabelIndent + '{GREEN}Positive',
-        'How much XP earned per positive park award earned.',
-        this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_POSITIVE, stores.get('parkAwardsPositiveXpStore')),
-        'parkAwardsPositive'
-      ),
-      
-      this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_NEGATIVE,
-        'parkAwardsNegativeXpValue',
-        this.subLabelIndent + '{RED}Negative',
-        'How much XP earned per negative park award earned.',
-        this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_NEGATIVE, stores.get('parkAwardsNegativeXpStore')),
-        'parkAwardsNegative'
-      ),
-    ];
+  
+              return '';
+            },
+          )
+        ),
+  
+        // Awards
+        new AlignedLabel(ElementID.NONE, {
+          padding: this.rowSubHeaderPadding,
+          textAlignment: { horizontal: 'left', vertical: 'center' },
+          text: 'Park awards:',
+          visibility: ParkActionStores.visibility,
+        }).widget,
+        
+        this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_POSITIVE,
+          'parkAwardsPositiveXpValue',
+          this.subLabelIndent + '{GREEN}Positive',
+          'How much XP earned per positive park award earned.',
+          ParkActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_POSITIVE, stores.get('parkAwardsPositiveXpStore')),
+          'parkAwardsPositive'
+        ),
+        
+        this._createConfigRow(ElementID.EXP_PER_PARK_AWARD_NEGATIVE,
+          'parkAwardsNegativeXpValue',
+          this.subLabelIndent + '{RED}Negative',
+          'How much XP earned per negative park award earned.',
+          ParkActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_PARK_AWARD_NEGATIVE, stores.get('parkAwardsNegativeXpStore')),
+          'parkAwardsNegative'
+        ),
+      ]
+    });
 
     // Disasters
-    const disastersXpRows : FlexUIWidget[] = [
-      separator,
+    const DisasterActionStores = CollapsibleSection.createVisibilityStores();
 
-      this._createConfigRow(ElementID.EXP_PER_GUEST_DROWNED,
-        'guestsDrownedXpValue',
-        'Guest drowned',
-        'How much XP earned for each drowned guest.',
-        this._createTotalLabelStore(ElementID.EXP_PER_GUEST_DROWNED, stores.get('guestsDrownedXpStore')),
-        'guestsDrowned'
-      ),
-      
-      this._createConfigRow(ElementID.EXP_PER_STAFF_DROWNED,
-        'staffDrownedXpValue',
-        'Staff drowned',
-        'How much XP earned for each drowned staff.',
-        this._createTotalLabelStore(ElementID.EXP_PER_STAFF_DROWNED, stores.get('staffDrownedXpStore')),
-        'staffDrowned'
-      ),
-
-      // Vehicle crashes header
-      new AlignedLabel(ElementID.NONE, {
-        padding: this.rowSubHeaderPadding,
-        textAlignment: { horizontal: 'left', vertical: 'center' },
-        text: 'Vehicle crashes:',
-      }).widget,
-
-      this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH,
-        'vehicleCrashesXpValue',
-        this.subLabelIndent + '{BABYBLUE}Per car',
-        'How much XP earned for cars exploded from vehicle crashes.',
-        this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore')),
-        'vehicleCrashes'
-      ),
-
-      this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH_GUESTS_KILLED,
-        'vehicleCrashesGuestsKilledXpValue',
-        this.subLabelIndent + '{BABYBLUE}Per guest',
-        'How much XP earned for guests killed from vehicle crashes.',
-        this._createTotalLabelStore(
-          ElementID.EXP_PER_VEHICLE_CRASH_GUESTS_KILLED,
-          stores.get('vehicleCrashesGuestsKilledXpStore')
+    const DisasterActionCollapse : CollapsibleSection = new CollapsibleSection(ElementID.NONE, {
+      spacing: 0,
+      padding: 0,
+      width: this.parent.getContentWidth()!,
+      initialState: false,
+      isOpen: DisasterActionStores.isOpen,
+      visibility: DisasterActionStores.visibility,
+      text: '{BLACK} Disasters',
+      content: [
+        this._createConfigRow(ElementID.EXP_PER_GUEST_DROWNED,
+          'guestsDrownedXpValue',
+          'Guest drowned',
+          'How much XP earned for each drowned guest.',
+          DisasterActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_GUEST_DROWNED, stores.get('guestsDrownedXpStore')),
+          'guestsDrowned'
         ),
-        'vehicleCrashesGuestsKilled'
-      ),
-    ];
+        
+        this._createConfigRow(ElementID.EXP_PER_STAFF_DROWNED,
+          'staffDrownedXpValue',
+          'Staff drowned',
+          'How much XP earned for each drowned staff.',
+          DisasterActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_STAFF_DROWNED, stores.get('staffDrownedXpStore')),
+          'staffDrowned'
+        ),
+  
+        // Vehicle crashes header
+        new AlignedLabel(ElementID.NONE, {
+          padding: this.rowSubHeaderPadding,
+          textAlignment: { horizontal: 'left', vertical: 'center' },
+          text: 'Vehicle crashes:',
+          visibility: DisasterActionStores.visibility,
+        }).widget,
+  
+        this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH,
+          'vehicleCrashesXpValue',
+          this.subLabelIndent + '{BABYBLUE}Per car',
+          'How much XP earned for cars exploded from vehicle crashes.',
+          DisasterActionStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_VEHICLE_CRASH, stores.get('vehicleCrashesXpStore')),
+          'vehicleCrashes'
+        ),
+  
+        this._createConfigRow(ElementID.EXP_PER_VEHICLE_CRASH_GUESTS_KILLED,
+          'vehicleCrashesGuestsKilledXpValue',
+          this.subLabelIndent + '{BABYBLUE}Per guest',
+          'How much XP earned for guests killed from vehicle crashes.',
+          DisasterActionStores.visibility,
+          this._createTotalLabelStore(
+            ElementID.EXP_PER_VEHICLE_CRASH_GUESTS_KILLED,
+            stores.get('vehicleCrashesGuestsKilledXpStore')
+          ),
+          'vehicleCrashesGuestsKilled'
+        ),
+      ]
+    });
 
     const totalXpRow : FlexUIWidget = horizontal({
       width: this.parent.getContentWidth()!,
@@ -493,47 +567,61 @@ export class ConfigTab extends BaseTab {
 
     const xpRows : FlexUIWidget[] = [
       headerRow,
-      ...playerActionXpRows,
-      ...guestActionXpRows,
-      ...staffActionXpRows,
-      ...parkDataXpRows,
-      ...disastersXpRows,
+      playerActionCollapse.widget,
+      guestActionCollapse.widget,
+      StaffActionCollapse.widget,
+      ParkActionCollapse.widget,
+      DisasterActionCollapse.widget,
       totalXpRow,
     ];
 
 
 
     // ---Other settings---
-    const otherRows : FlexUIWidget[] = [
-      this._createConfigRow(ElementID.EXP_PER_TILE,
-        'tileXpCost',
-        'Tile XP cost',
-        'How much XP each tile costs.',
-        this._createTotalLabelStore(ElementID.EXP_PER_TILE, stores.get('tilesEarnedStore'))
-      ),
+    const otherStores = CollapsibleSection.createVisibilityStores();
 
-      this._createConfigRow(ElementID.MIN_TILES,
-        'startingTiles',
-        'Starting tiles',
-        'How many free tiles you start with.',
-        '{BLACK}tiles'
-      ),
-      
-      separator,
-      this._createConfigRow(ElementID.TICKS_PER_UPDATE,
-        'ticksPerUpdate',
-        'Game ticks per update',
-        'How frequently the plugin updates statistics.\nIncrease this if large parks start to lag.',
-        '{BLACK}ticks'
-      ),
-    ];
+    const otherCollapse : CollapsibleSection = new CollapsibleSection(ElementID.NONE, {
+      spacing: 0,
+      padding: 0,
+      width: this.parent.getContentWidth()!,
+      initialState: false,
+      isOpen: otherStores.isOpen,
+      visibility: otherStores.visibility,
+      text: '{BLACK}Other',
+      content: [
+        this._createConfigRow(ElementID.EXP_PER_TILE,
+          'tileXpCost',
+          'Tile XP cost',
+          'How much XP each tile costs.',
+          otherStores.visibility,
+          this._createTotalLabelStore(ElementID.EXP_PER_TILE, stores.get('tilesEarnedStore'))
+        ),
+  
+        this._createConfigRow(ElementID.MIN_TILES,
+          'startingTiles',
+          'Starting tiles',
+          'How many free tiles you start with.',
+          otherStores.visibility,
+          '{BLACK}tiles'
+        ),
+        
+        separator,
+        this._createConfigRow(ElementID.TICKS_PER_UPDATE,
+          'ticksPerUpdate',
+          'Game ticks per update',
+          'How frequently the plugin updates statistics.\nIncrease this if large parks start to lag.',
+          otherStores.visibility,
+          '{BLACK}ticks'
+        ),
+      ]
+    });
 
     return vertical({
       spacing: 1,
       padding: 0,
       content: [
         ...xpRows,
-        ...otherRows,
+        otherCollapse.widget,
       ],
     });
   }
@@ -553,6 +641,7 @@ export class ConfigTab extends BaseTab {
     key : keyof PluginData,
     labelText : string,
     tooltip : string,
+    visibilityStore : Store<ElementVisibility>,
     totalLabelText : Store<string> | string,
     countKeyOrStore? : keyof MetricData | Store<number> | Store<string>
   ) : FlexUIWidget {
@@ -570,6 +659,7 @@ export class ConfigTab extends BaseTab {
     const rowLabel : FlexUIWidget = label({
       padding: 0,
       width: this.columnWidths[0],
+      visibility: visibilityStore,
       tooltip: tooltip,
       text: compute<number, string, string>(pluginStore, textStore, (pluginValue : number, textboxValue : string) : string => {
         const isChanged : boolean = pluginValue !== Number(textboxValue);
@@ -587,6 +677,7 @@ export class ConfigTab extends BaseTab {
     const countLabel : AlignedLabel = new AlignedLabel(ElementID.NONE, {
       padding: 0,
       width: this.columnWidths[1],
+      visibility: visibilityStore,
       textAlignment: { horizontal: 'right', vertical: 'center' },
       text: countStore ? 
         typeof countStore.get() === 'string' ? 
@@ -602,6 +693,7 @@ export class ConfigTab extends BaseTab {
     const newTextbox : FlexUIWidget = textbox({
       padding: 0,
       width: this.columnWidths[2],
+      visibility: visibilityStore,
       tooltip: tooltip,
       text: { twoway : textStore },
       maxLength: 9,
@@ -627,6 +719,7 @@ export class ConfigTab extends BaseTab {
     const totalLabel : AlignedLabel = new AlignedLabel(id, {
         padding: 0,
         width: this.columnWidths[3],
+        visibility: visibilityStore,
         textAlignment: { horizontal: 'right', vertical: 'center' },
         text: totalLabelText ?? '',
     });
@@ -635,13 +728,14 @@ export class ConfigTab extends BaseTab {
       spacing: this.columnSpacing,
       padding: this.rowLabelPadding,
       width: this.parent.getContentWidth()!,
+      visibility: visibilityStore,
       content: [
         rowLabel,
         countLabel.widget,
         newTextbox,
         totalLabel.widget,
       ]
-    });
+    } as FlexibleLayoutParams);
   }
 
   /**
