@@ -235,7 +235,7 @@ export class ConfigTab extends BaseTab {
       spacing: 0,
       padding: 0,
       width: this.parent.getContentWidth()!,
-      initialState: true,
+      initialState: false,
       isOpen: guestActionStores.isOpen,
       visibility: guestActionStores.visibility,
       text: '{BLACK}Guest Actions',
